@@ -1,0 +1,36 @@
+name: Daily Job Search
+
+on:
+  # GitHub cron uses UTC.
+  # 2:00 AM IST = 8:30 PM UTC on the previous day.
+  schedule:
+    - cron: "30 20 * * *"
+
+  # This lets you run the workflow manually from GitHub Actions.
+  workflow_dispatch:
+
+jobs:
+  run-job-search:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run job search
+        run: node scripts/runJobSearch.js
+        env:
+          MONGO_URI: ${{ secrets.MONGO_URI }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          MATCH_THRESHOLD: 70
+          MAX_JOBS_PER_COMPANY: 10
+          MAX_AI_EVALUATIONS_PER_RUN: 15
+          STRICT_LOCATION_MATCH: true
