@@ -7,7 +7,7 @@ async function loadJobs(type) {
     
     try {
         const response = await apiCall(endpoint);
-        const jobs = response.data || [];
+        const jobs = response.jobs || [];
         
         const jobsContent = document.getElementById('jobs-content');
         
@@ -18,17 +18,17 @@ async function loadJobs(type) {
         
         const jobsHTML = jobs.map(job => `
             <div class="job-card">
-                <div class="job-title">${job.title || 'Job Title'}</div>
-                <div class="job-company">${job.company || 'Company'}</div>
+                <div class="job-title">${job.title || job.role || 'Job Title'}</div>
+                <div class="job-company">${typeof job.company === 'string' ? job.company : (job.company?.name || 'Company')}</div>
                 <div class="job-meta">
                     <span>📍 ${job.location || 'Location not specified'}</span>
                 </div>
                 <div class="job-meta">
-                    <span>💰 ${job.salary || 'Salary not specified'}</span>
+                    <span>🕒 ${job.employmentType || 'Full-Time'}</span>
                 </div>
-                ${job.matchScore ? `<div class="job-badge">Match: ${job.matchScore}%</div>` : ''}
-                <div class="job-description">${formatDescription(job.description)}</div>
-                <a href="${job.url || '#'}" target="_blank" class="job-link">View Job →</a>
+                ${job.score ? `<div class="job-badge">Match: ${job.score}%</div>` : ''}
+                <div class="job-description">${formatDescription(job.description || job.reason)}</div>
+                <a href="${job.applyLink || job.url || '#'}" target="_blank" class="job-link">View Job →</a>
             </div>
         `).join('');
         

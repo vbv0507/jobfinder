@@ -3,7 +3,7 @@
 async function loadCompanies() {
     try {
         const response = await apiCall('/companies');
-        const companies = response.data || [];
+        const companies = response.companies || [];
         
         const companiesContent = document.getElementById('companies-content');
         
@@ -15,7 +15,7 @@ async function loadCompanies() {
         const companiesHTML = companies.map(company => `
             <div class="company-card">
                 <div class="company-name">${company.name || 'Company'}</div>
-                <a href="${company.url || '#'}" target="_blank" class="company-url">
+                <a href="${company.careerUrl || company.url || '#'}" target="_blank" class="company-url">
                     Visit Careers →
                 </a>
             </div>
@@ -42,7 +42,9 @@ document.addEventListener('DOMContentLoaded', () => {
             try {
                 const response = await apiCall('/companies', 'POST', {
                     name,
-                    url
+                    careerUrl: url,
+                    category: 'Product',
+                    active: true
                 });
                 
                 showAlert('Company added successfully!', 'success');
