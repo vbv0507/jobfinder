@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile - Job Finder</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-container">
+            <div class="logo">💼 Job Finder</div>
+            <ul class="nav-menu">
+                <li><a href="/">Dashboard</a></li>
+                <li><a href="/jobs">Jobs</a></li>
+                <li><a href="/companies">Companies</a></li>
+                <li><a href="/profile" class="active">Profile</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container">
+        <section class="hero">
+            <h1>Your Profile</h1>
+            <p>Set your preferences to get matched with relevant jobs from Visa & LG</p>
+        </section>
+
+        <div class="form-section">
+            <div class="form-card">
+                <h2>Profile Information</h2>
+                <form id="profile-form">
+                    <div class="form-group">
+                        <label for="full-name">Full Name</label>
+                        <input type="text" id="full-name" placeholder="John Doe">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" placeholder="john@example.com">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="skills">Skills (comma-separated)</label>
+                        <textarea id="skills" placeholder="JavaScript, React, Node.js, MongoDB"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="experience">Years of Experience</label>
+                        <input type="number" id="experience" placeholder="5" min="0" max="60">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="job-title">Desired Job Title</label>
+                        <input type="text" id="job-title" placeholder="Full Stack Developer">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="location">Preferred Location</label>
+                        <input type="text" id="location" placeholder="Remote, USA, San Francisco">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="bio">Bio / About You</label>
+                        <textarea id="bio" placeholder="Tell us about yourself..."></textarea>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">💾 Save Profile</button>
+                </form>
+            </div>
+
+            <div id="profile-display" class="profile-card" style="display: none;">
+                <h2>Your Profile</h2>
+                <div id="profile-info"></div>
+                <button class="btn btn-secondary" onclick="editProfile()">✏️ Edit Profile</button>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <p>&copy; 2026 Job Finder. Find your dream job easily.</p>
+    </footer>
+
+    <script src="/js/main.js"></script>
+    <script src="/js/profile.js"></script>
+</body>
+</html>

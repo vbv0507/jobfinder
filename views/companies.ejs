@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Companies - Job Finder</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-container">
+            <div class="logo">💼 Job Finder</div>
+            <ul class="nav-menu">
+                <li><a href="/">Dashboard</a></li>
+                <li><a href="/jobs">Jobs</a></li>
+                <li><a href="/companies" class="active">Companies</a></li>
+                <li><a href="/profile">Profile</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container">
+        <section class="hero">
+            <h1>Companies</h1>
+            <p>Manage companies we search jobs from</p>
+        </section>
+
+        <div class="scraped-companies">
+            <h2>
+                <span></span>
+                Currently Scraping From
+            </h2>
+            <div class="scraped-grid">
+                <div class="scraped-card">
+                    <div class="scraped-logo">💳</div>
+                    <div class="scraped-name">Visa</div>
+                    <div class="scraped-category">Product Company</div>
+                    <div class="scraped-status">
+                        🟢 Active
+                    </div>
+                </div>
+                <div class="scraped-card">
+                    <div class="scraped-logo">📺</div>
+                    <div class="scraped-name">LG</div>
+                    <div class="scraped-category">Product Company</div>
+                    <div class="scraped-status">
+                        🟢 Active
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-section">
+            <div class="form-card">
+                <h2>Add New Company</h2>
+                <form id="company-form">
+                    <div class="form-group">
+                        <label for="company-name">Company Name</label>
+                        <input type="text" id="company-name" placeholder="e.g., Google" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="company-url">Company URL</label>
+                        <input type="url" id="company-url" placeholder="e.g., https://careers.google.com" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Add Company</button>
+                </form>
+            </div>
+        </div>
+
+        <h2 style="margin-top: 3rem; margin-bottom: 2rem; color: #0f172a;">Added Companies</h2>
+        <div id="companies-content" class="companies-list">
+            <div class="loading-spinner">Loading companies...</div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <p>&copy; 2026 Job Finder. Find your dream job easily.</p>
+    </footer>
+
+    <script src="/js/main.js"></script>
+    <script src="/js/companies.js"></script>
+</body>
+</html>

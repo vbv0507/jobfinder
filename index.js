@@ -15,19 +15,33 @@ const app = express();
 
 // Middleware
 app.use(express.json());
+app.use(express.static("public"));
 
-// Routes
+// View Engine Setup
+app.set("view engine", "ejs");
+app.set("views", "./views");
+
+// Frontend Routes
+app.get("/", (req, res) => {
+    res.render("index");
+});
+
+app.get("/jobs", (req, res) => {
+    res.render("jobs");
+});
+
+app.get("/companies", (req, res) => {
+    res.render("companies");
+});
+
+app.get("/profile", (req, res) => {
+    res.render("profile");
+});
+
+// API Routes
 app.use("/api/companies", companyRoutes);
 app.use("/api/jobs", jobRoutes);
 app.use("/api/profile", profileRoutes);
-
-// Home Route
-app.get("/", (req, res) => {
-    res.status(200).json({
-        success: true,
-        message: "Job Finder API Running"
-    });
-});
 
 const PORT = process.env.PORT || 5000;
 

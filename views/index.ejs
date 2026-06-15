@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Job Finder</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-container">
+            <div class="logo">💼 Job Finder</div>
+            <ul class="nav-menu">
+                <li><a href="/" class="active">Dashboard</a></li>
+                <li><a href="/jobs">Jobs</a></li>
+                <li><a href="/companies">Companies</a></li>
+                <li><a href="/profile">Profile</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container">
+        <section class="hero">
+            <h1>Welcome to Job Finder</h1>
+            <p>Discover amazing job opportunities matched to your profile</p>
+        </section>
+
+        <div class="scraped-companies">
+            <h2>
+                <span></span>
+                Currently Scraping From
+            </h2>
+            <div class="scraped-grid">
+                <div class="scraped-card">
+                    <div class="scraped-logo">💳</div>
+                    <div class="scraped-name">Visa</div>
+                    <div class="scraped-category">Product Company</div>
+                    <div class="scraped-status">
+                        🟢 Active
+                    </div>
+                </div>
+                <div class="scraped-card">
+                    <div class="scraped-logo">📺</div>
+                    <div class="scraped-name">LG</div>
+                    <div class="scraped-category">Product Company</div>
+                    <div class="scraped-status">
+                        🟢 Active
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="dashboard-grid">
+            <div class="card">
+                <div class="card-icon">📊</div>
+                <h2>Quick Stats</h2>
+                <div id="stats-content" class="loading">Loading...</div>
+            </div>
+
+            <div class="card">
+                <div class="card-icon">⚡</div>
+                <h2>Job Search</h2>
+                <p style="color: #64748b; font-size: 0.95rem; margin-bottom: 1.5rem;">Manually trigger a new job search to find the latest opportunities</p>
+                <button class="btn btn-primary" style="width: 100%;" onclick="runJobSearch()">🔍 Run Job Search</button>
+            </div>
+
+            <div class="card">
+                <div class="card-icon">📈</div>
+                <h2>Recent Activity</h2>
+                <div id="logs-content" class="loading">Loading...</div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <p>&copy; 2026 Job Finder. Find your dream job easily.</p>
+    </footer>
+
+    <script src="/js/main.js"></script>
+    <script src="/js/dashboard.js"></script>
+</body>
+</html>

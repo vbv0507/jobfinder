@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jobs - Job Finder</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-container">
+            <div class="logo">💼 Job Finder</div>
+            <ul class="nav-menu">
+                <li><a href="/">Dashboard</a></li>
+                <li><a href="/jobs" class="active">Jobs</a></li>
+                <li><a href="/companies">Companies</a></li>
+                <li><a href="/profile">Profile</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container">
+        <section class="hero">
+            <h1>Job Opportunities</h1>
+            <p>Browse jobs matched to your profile from Visa & LG</p>
+        </section>
+
+        <div class="filters">
+            <button class="filter-btn active" onclick="showJobs('matched')">✅ Matched Jobs</button>
+            <button class="filter-btn" onclick="showJobs('raw')">📋 All Scraped Jobs</button>
+        </div>
+
+        <div id="jobs-content" class="jobs-grid">
+            <div class="loading-spinner">Loading jobs...</div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <p>&copy; 2026 Job Finder. Find your dream job easily.</p>
+    </footer>
+
+    <script src="/js/main.js"></script>
+    <script src="/js/jobs.js"></script>
+</body>
+</html>
