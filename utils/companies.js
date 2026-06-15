@@ -2,31 +2,24 @@
 // This keeps the code easier to understand and easier to explain in a resume.
 module.exports = [
     {
-        name: "Visa",
-        category: "Product",
-        active: true,
-        careerUrl: "https://careers.smartrecruiters.com/Visa",
-        scraperType: "api",
+    name: "Visa",
+    category: "Product",
+    active: true,
 
-        // Visa uses SmartRecruiters.
-        // SmartRecruiters gives a clean JSON API, so it is the easiest example.
-        scraperConfig: {
-            apiUrl: "https://api.smartrecruiters.com/v1/companies/Visa/postings",
-            applyUrlBase: "https://jobs.smartrecruiters.com/Visa",
-            listPath: "content",
-            fields: {
-                title: "name",
-                jobId: "id",
-                location: "location.fullLocation",
-                employmentType: "typeOfEmployment.label",
-                experience: "experienceLevel.label",
-                postedAt: "releasedDate",
-                applyLink: "ref",
-                department: "department.label",
-                function: "function.label",
-            },
-        },
-    },
+    careerUrl:
+        "https://visa.wd5.myworkdayjobs.com/en-US/Visa",
+
+    scraperType: "api",
+
+    scraperConfig: {
+        strategy: "workday",
+
+        apiUrl:
+            "https://visa.wd5.myworkdayjobs.com/wday/cxs/visa/Visa/jobs",
+
+        limit: 100
+    }
+},
     {
         name: "LG",
         category: "Product",
