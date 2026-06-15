@@ -27,32 +27,6 @@ async function loadCompanies() {
     }
 }
 
-// Handle add company form
 document.addEventListener('DOMContentLoaded', () => {
     loadCompanies();
-    
-    const form = document.getElementById('company-form');
-    if (form) {
-        form.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const name = document.getElementById('company-name').value;
-            const url = document.getElementById('company-url').value;
-            
-            try {
-                const response = await apiCall('/companies', 'POST', {
-                    name,
-                    careerUrl: url,
-                    category: 'Product',
-                    active: true
-                });
-                
-                showAlert('Company added successfully!', 'success');
-                form.reset();
-                loadCompanies();
-            } catch (error) {
-                showAlert('Failed to add company', 'error');
-            }
-        });
-    }
 });
