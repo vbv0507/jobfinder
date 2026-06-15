@@ -193,51 +193,78 @@ const scrapeLgJobs = async (company) => {
     .filter(Boolean);
 };
 const scrapeWorkdayJobs = async (company) => {
-  const config = company.scraperConfig;
+    const config = company.scraperConfig;
 
-  const response = await axios.post(
-    config.apiUrl,
-    {
-      limit: config.limit || 100,
-      offset: 0,
-    },
-    {
-      headers: {
-        ...DEFAULT_HEADERS,
-        "Content-Type": "application/json",
-      },
-      timeout: 25000,
-    },
-  );
+    console.log("Workday URL:", config.apiUrl);
 
-  const jobsFromApi =
-    response.data.jobPostings || response.data.jobPostingsData || [];
+    try {
+        const response = await axios.post(
+            config.apiUrl,
+            {
+                limit: 100,
+                offset: 0,
+            },
+            {
+                headers: {
+                    ...DEFAULT_HEADERS,
+                    "Content-Type": "application/json",
+                },
+                timeout: 25000,
+            }
+        );
 
-  if (!Array.isArray(jobsFromApi)) {
-    return [];
-  }
+        console.log("Workday Success");
 
-  return jobsFromApi
-    .map((item) =>
-      normalizeJob(
-        {
-          title: item.title,
+        const jobsFromApi =
+            response.data.jobPostings ||
+            response.data.jobPostingsData ||
+            [];
 
-          location: item.locationsText || item.location || "Not specified",
+        console.log("Jobs Found:", jobsFromApi.length);
 
-          jobId: item.bulletFields?.[0] || item.externalPath || item.id,
-          description: item.title,
+        return jobsFromApi
+            .map((item) =>
+                normalizeJob(
+                    {
+                        title: item.title,
+                        location:
+                            item.locationsText ||
+                            item.location ||
+                            "Not specified",
 
-          applyLink: `https://visa.wd5.myworkdayjobs.com/en-US/Visa/job${item.externalPath}`,
+                        jobId:
+                            item.bulletFields?.[0] ||
+                            item.externalPath ||
+                            item.id,
 
-          postedAt: item.postedOn,
+                        description: item.title,
 
-          employmentType: "Full-Time",
-        },
-        company,
-      ),
-    )
-    .filter(Boolean);
+                        applyLink:
+                            `https://visa.wd5.myworkdayjobs.com/en-US/Visa/job${item.externalPath}`,
+
+                        postedAt: item.postedOn,
+
+                        employmentType: "Full-Time",
+                    },
+                    company
+                )
+            )
+            .filter(Boolean);
+
+    } catch (error) {
+
+        console.log(
+            "Workday Error:",
+            error.response?.status
+        );
+
+        console.log(
+            "Workday Response:",
+            error.response?.data
+        );
+
+        return [];
+    }
 };
 const scrapeCompanyJobs = async (company) => {
   try {
