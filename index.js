@@ -10,6 +10,7 @@ const profileRoutes = require("./routes/profileRoutes");
 
 const runSearch = require("./cron/jobSearchCron");
 const { seedCompanies } = require("./services/companyService");
+const { generateGroupedReport } = require("./services/reportService");
 
 const app = express();
 
@@ -26,16 +27,17 @@ app.get("/", (req, res) => {
     res.render("index");
 });
 
-app.get("/jobs", (req, res) => {
-    res.render("jobs");
+app.get("/jobs", async (req, res) => {
+    try {
+        const jobs = await generateGroupedReport();
+        res.render("jobs", { jobs });
+    } catch (error) {
+        res.render("jobs", { jobs: {} });
+    }
 });
 
 app.get("/companies", (req, res) => {
     res.render("companies");
-});
-
-app.get("/profile", (req, res) => {
-    res.render("profile");
 });
 
 // API Routes
@@ -46,16 +48,12 @@ app.use("/api/profile", profileRoutes);
 const PORT = process.env.PORT || 5000;
 
 const startServer = async () => {
-    // Connect first because seeding and cron both need MongoDB.
     await connectDB();
 
-    // Seed on startup so MongoDB contains only the API-based companies
-    // from utils/companies.js: Visa and LG.
     if (process.env.SEED_COMPANIES_ON_START !== "false") {
         await seedCompanies();
     }
 
-    // Optional manual/demo mode: run one job search when the server starts.
     if (process.env.RUN_SEARCH_ON_START === "true") {
         await runSearch();
     }
@@ -64,5 +62,5 @@ const startServer = async () => {
         console.log(`Server running on port ${PORT}`);
     });
 };
-console.log('hi');
+
 startServer();

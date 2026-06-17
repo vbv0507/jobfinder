@@ -80,6 +80,41 @@ async function runJobSearch(event) {
     }
 }
 
+async function deleteRawJobs(event) {
+    try {
+        if (!confirm('Are you sure? This will delete all raw jobs. This action cannot be undone.')) {
+            return;
+        }
+        
+        const btn = event.target;
+        btn.disabled = true;
+        btn.textContent = '⏳ Deleting...';
+        
+        const response = await fetch('/api/jobs/raw', {
+            method: 'DELETE',
+            headers: { 'Content-Type': 'application/json' }
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            showAlert(`✅ Deleted ${data.deletedCount || 0} raw jobs`, 'success');
+            setTimeout(() => {
+                loadStats();
+            }, 1000);
+        } else {
+            showAlert('❌ Failed to delete jobs', 'error');
+        }
+        
+        btn.disabled = false;
+        btn.textContent = '🗑️ Clear Jobs';
+    } catch (error) {
+        event.target.disabled = false;
+        event.target.textContent = '🗑️ Clear Jobs';
+        showAlert('❌ Error: ' + error.message, 'error');
+    }
+}
+
 // Load data on page load
 document.addEventListener('DOMContentLoaded', () => {
     loadStats();

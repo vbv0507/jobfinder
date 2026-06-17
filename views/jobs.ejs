@@ -14,7 +14,6 @@
                 <li><a href="/">Dashboard</a></li>
                 <li><a href="/jobs" class="active">Jobs</a></li>
                 <li><a href="/companies">Companies</a></li>
-                <li><a href="/profile">Profile</a></li>
             </ul>
         </div>
     </nav>
@@ -22,24 +21,51 @@
     <div class="container">
         <section class="hero">
             <h1>Job Opportunities</h1>
-            <p>Browse jobs matched to your profile from Visa & LG</p>
+            <p>Matched jobs from Visa & LG</p>
         </section>
 
-        <div class="filters">
-            <button class="filter-btn active" onclick="showJobs('matched')">✅ Matched Jobs</button>
-            <button class="filter-btn" onclick="showJobs('raw')">📋 All Scraped Jobs</button>
-        </div>
+        <% if (Object.keys(jobs).length === 0) { %>
+            <div class="empty-state">
+                <p>No jobs found. Check back soon!</p>
+            </div>
+        <% } else { %>
+            <% Object.entries(jobs).forEach(([company, companyJobs]) => { %>
+                <div class="company-section">
+                    <h2 class="company-name">
+                        <span class="badge"><%= company %></span>
+                        <small><%= companyJobs.length %> jobs</small>
+                    </h2>
+                    
+                    <div class="jobs-grid">
+                        <% companyJobs.forEach(job => { %>
+                            <div class="job-card">
+                                <div class="job-header">
+                                    <h3><%= job.title %></h3>
+                                    <span class="score">Score: <%= job.score %></span>
+                                </div>
+                                
+                                <div class="job-details">
+                                    <p><strong>📍 Location:</strong> <%= job.location %></p>
+                                    <p><strong>💼 Type:</strong> <%= job.employmentType %></p>
+                                    <p><strong>📌 Experience:</strong> <%= job.experience || 'Not specified' %></p>
+                                </div>
 
-        <div id="jobs-content" class="jobs-grid">
-            <div class="loading-spinner">Loading jobs...</div>
-        </div>
+                                <div class="job-footer">
+                                    <% if (job.postedAt) { %>
+                                        <small>Posted: <%= new Date(job.postedAt).toLocaleDateString() %></small>
+                                    <% } %>
+                                    <a href="<%= job.applyLink %>" target="_blank" class="apply-btn">Apply</a>
+                                </div>
+                            </div>
+                        <% }); %>
+                    </div>
+                </div>
+            <% }); %>
+        <% } %>
     </div>
 
     <footer class="footer">
         <p>&copy; 2026 Job Finder. Find your dream job easily.</p>
     </footer>
-
-    <script src="/js/main.js"></script>
-    <script src="/js/jobs.js"></script>
 </body>
 </html>

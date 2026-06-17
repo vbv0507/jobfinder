@@ -3,7 +3,7 @@ const MatchedJob = require("../models/MatchedJob");
 const SearchLog = require("../models/SearchLog");
 
 const runSearch = require("../cron/jobSearchCron");
-const { generateReport } = require("../services/reportService");
+const { generateReport, generateGroupedReport } = require("../services/reportService");
 
 const sendError = (res, error) =>
     res.status(500).json({
@@ -11,11 +11,9 @@ const sendError = (res, error) =>
         message: error.message,
     });
 
-// Shows every job saved by the scraper.
 const getRawJobs = async (req, res) => {
     try {
         const jobs = await RawJob.find().sort({ scrapedAt: -1 });
-
         res.status(200).json({
             success: true,
             count: jobs.length,
@@ -26,11 +24,9 @@ const getRawJobs = async (req, res) => {
     }
 };
 
-// Shows only jobs selected by Gemini.
 const getMatchedJobs = async (req, res) => {
     try {
-        const jobs = await MatchedJob.find().sort({ score: -1 });
-
+        const jobs = await MatchedJob.find().populate("company", "name").sort({ score: -1 });
         res.status(200).json({
             success: true,
             count: jobs.length,
@@ -41,13 +37,21 @@ const getMatchedJobs = async (req, res) => {
     }
 };
 
-// Shows cron history: when it ran, how many jobs it found, and errors.
+const getGroupedJobs = async (req, res) => {
+    try {
+        const jobs = await generateGroupedReport();
+        res.status(200).json({
+            success: true,
+            jobs,
+        });
+    } catch (error) {
+        sendError(res, error);
+    }
+};
+
 const getSearchLogs = async (req, res) => {
     try {
-        const logs = await SearchLog.find()
-            .sort({ createdAt: -1 })
-            .limit(50);
-
+        const logs = await SearchLog.find().sort({ createdAt: -1 }).limit(50);
         res.status(200).json({
             success: true,
             count: logs.length,
@@ -58,11 +62,9 @@ const getSearchLogs = async (req, res) => {
     }
 };
 
-// Report is the dashboard-friendly sorted matched-job list.
 const getReport = async (req, res) => {
     try {
         const jobs = await generateReport();
-
         res.status(200).json({
             success: true,
             count: jobs.length,
@@ -73,11 +75,9 @@ const getReport = async (req, res) => {
     }
 };
 
-// Manual trigger for testing from Postman.
 const runJobSearch = async (req, res) => {
     try {
         await runSearch();
-
         res.status(200).json({
             success: true,
             message: "Job search completed",
@@ -87,10 +87,25 @@ const runJobSearch = async (req, res) => {
     }
 };
 
+const deleteRawJobs = async (req, res) => {
+    try {
+        const result = await RawJob.deleteMany({});
+        res.status(200).json({
+            success: true,
+            message: "All raw jobs deleted",
+            deletedCount: result.deletedCount,
+        });
+    } catch (error) {
+        sendError(res, error);
+    }
+};
+
 module.exports = {
     getRawJobs,
     getMatchedJobs,
+    getGroupedJobs,
     getSearchLogs,
     getReport,
     runJobSearch,
+    deleteRawJobs,
 };

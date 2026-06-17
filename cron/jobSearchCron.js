@@ -80,8 +80,24 @@ const getActiveProfile = async () =>
   (await CandidateProfile.findOne({ active: true }).sort({ updatedAt: -1 })) ||
   fallbackProfile;
 
-const saveRawJob = async (company, job) =>
-  await RawJob.findOneAndUpdate(
+const saveRawJob = async (company, job) => {
+  // Check if job already exists with same scrapedAt date (today)
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const existingJob = await RawJob.findOne({
+    company: company._id,
+    jobId: job.jobId,
+    scrapedAt: { $gte: today }
+  });
+
+  // If job already fetched today, skip it
+  if (existingJob) {
+    return existingJob;
+  }
+
+  // Save new or update old job
+  return await RawJob.findOneAndUpdate(
     {
       company: company._id,
       jobId: job.jobId,
@@ -106,6 +122,7 @@ const saveRawJob = async (company, job) =>
       setDefaultsOnInsert: true,
     },
   );
+};
 
 const saveMatchedJob = async (rawJob, company, job, analysis) => {
   const score = Number(analysis.score);
@@ -119,7 +136,7 @@ const saveMatchedJob = async (rawJob, company, job, analysis) => {
     {
       $set: {
         rawJob: rawJob._id,
-        company: company.name,
+        company: company._id,
         role: job.title,
         location: job.location,
         score,

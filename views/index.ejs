@@ -14,7 +14,6 @@
                 <li><a href="/" class="active">Dashboard</a></li>
                 <li><a href="/jobs">Jobs</a></li>
                 <li><a href="/companies">Companies</a></li>
-                <li><a href="/profile">Profile</a></li>
             </ul>
         </div>
     </nav>
@@ -62,6 +61,13 @@
                 <h2>Job Search</h2>
                 <p style="color: #64748b; font-size: 0.95rem; margin-bottom: 1.5rem;">Manually trigger a new job search to find the latest opportunities</p>
                 <button class="btn btn-primary" style="width: 100%;" onclick="runJobSearch(event)">🔍 Run Job Search</button>
+            </div>
+
+            <div class="card">
+                <div class="card-icon">🗑️</div>
+                <h2>Clear Raw Jobs</h2>
+                <p style="color: #64748b; font-size: 0.95rem; margin-bottom: 1.5rem;">Delete all raw scraped jobs to free up space</p>
+                <button class="btn btn-secondary" style="width: 100%;" onclick="deleteRawJobs(event)">🗑️ Clear Jobs</button>
             </div>
 
             <div class="card">

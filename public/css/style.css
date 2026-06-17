@@ -719,8 +719,128 @@ html {
     border-color: #f59e0b;
 }
 
-/* RESPONSIVE */
-@media (max-width: 768px) {
+/* COMPANY SECTIONS */
+.company-section {
+    margin-bottom: 4rem;
+    animation: fadeIn 0.5s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.company-name {
+    display: flex;
+    align-items: center;
+    gap: 1.2rem;
+    margin-bottom: 2rem;
+    border-bottom: 3px solid var(--primary-color);
+    padding-bottom: 1rem;
+}
+
+.company-name .badge {
+    display: inline-block;
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    color: white;
+    padding: 0.7rem 1.8rem;
+    border-radius: 12px;
+    font-size: 1.4rem;
+    font-weight: 800;
+    box-shadow: var(--shadow-sm);
+}
+
+.company-name small {
+    color: var(--gray-text);
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+.job-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 1rem;
+    margin-bottom: 1.2rem;
+}
+
+.job-header h3 {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--dark-text);
+    flex: 1;
+}
+
+.score {
+    display: inline-block;
+    background: linear-gradient(135deg, #fef3c7, #fde68a);
+    color: #b45309;
+    padding: 0.4rem 0.9rem;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.job-details {
+    margin: 1.2rem 0;
+    color: var(--gray-text);
+}
+
+.job-details p {
+    margin-bottom: 0.6rem;
+    font-size: 0.95rem;
+}
+
+.job-details strong {
+    color: var(--dark-text);
+}
+
+.job-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    margin-top: 1.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border-color);
+}
+
+.job-footer small {
+    color: var(--gray-text);
+    font-size: 0.85rem;
+}
+
+.apply-btn {
+    display: inline-block;
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+    color: white;
+    padding: 0.6rem 1.2rem;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);
+}
+
+.apply-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(99, 102, 241, 0.3);
+}
+
+.empty-state {
+    text-align: center;
+    padding: 4rem 2rem;
+    background: white;
+    border-radius: 16px;
+    border: 2px dashed var(--border-color);
+    color: var(--gray-text);
+}
+
+.empty-state p {
+    font-size: 1.1rem;
+}
     .navbar-container {
         flex-direction: column;
         gap: 1.2rem;

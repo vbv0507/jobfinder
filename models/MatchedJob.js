@@ -6,7 +6,10 @@ const matchedJobSchema = new mongoose.Schema({
         ref: "RawJob"
     },
 
-    company: String,
+    company: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Company"
+    },
 
     role: String,
 
