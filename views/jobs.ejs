@@ -29,36 +29,69 @@
                 <p>No jobs found. Check back soon!</p>
             </div>
         <% } else { %>
-            <% Object.entries(jobs).forEach(([company, companyJobs]) => { %>
+            <% Object.entries(jobs).forEach(([company, sections]) => { %>
                 <div class="company-section">
                     <h2 class="company-name">
                         <span class="badge"><%= company %></span>
-                        <small><%= companyJobs.length %> jobs</small>
+                        <small><%= (sections.matched?.length || 0) + (sections.raw?.length || 0) %> jobs</small>
                     </h2>
-                    
-                    <div class="jobs-grid">
-                        <% companyJobs.forEach(job => { %>
-                            <div class="job-card">
-                                <div class="job-header">
-                                    <h3><%= job.title %></h3>
-                                    <span class="score">Score: <%= job.score %></span>
-                                </div>
-                                
-                                <div class="job-details">
-                                    <p><strong>📍 Location:</strong> <%= job.location %></p>
-                                    <p><strong>💼 Type:</strong> <%= job.employmentType %></p>
-                                    <p><strong>📌 Experience:</strong> <%= job.experience || 'Not specified' %></p>
-                                </div>
 
-                                <div class="job-footer">
-                                    <% if (job.postedAt) { %>
-                                        <small>Posted: <%= new Date(job.postedAt).toLocaleDateString() %></small>
-                                    <% } %>
-                                    <a href="<%= job.applyLink %>" target="_blank" class="apply-btn">Apply</a>
-                                </div>
+                    <!-- MATCHED JOBS SECTION -->
+                    <% if (sections.matched && sections.matched.length > 0) { %>
+                        <div class="subsection matched-section">
+                            <h3 class="subsection-title">✅ Matched Jobs (<%= sections.matched.length %>)</h3>
+                            <div class="jobs-grid">
+                                <% sections.matched.forEach(job => { %>
+                                    <div class="job-card matched">
+                                        <div class="job-header">
+                                            <h3><%= job.role %></h3>
+                                            <span class="score">Score: <%= job.score %></span>
+                                        </div>
+                                        
+                                        <div class="job-details">
+                                            <p><strong>📍 Location:</strong> <%= job.location %></p>
+                                            <p><strong>💼 Match:</strong> <%= job.roleMatch %></p>
+                                        </div>
+
+                                        <div class="job-footer">
+                                            <small>✨ AI Selected</small>
+                                            <a href="<%= job.applyLink %>" target="_blank" class="apply-btn">Apply</a>
+                                        </div>
+                                    </div>
+                                <% }); %>
                             </div>
-                        <% }); %>
-                    </div>
+                        </div>
+                    <% } %>
+
+                    <!-- RAW JOBS SECTION (Not Matched) -->
+                    <% if (sections.raw && sections.raw.length > 0) { %>
+                        <div class="subsection raw-section">
+                            <h3 class="subsection-title">📋 Other Opportunities (<%= sections.raw.length %>)</h3>
+                            <div class="jobs-grid">
+                                <% sections.raw.forEach(job => { %>
+                                    <div class="job-card raw">
+                                        <div class="job-header">
+                                            <h3><%= job.title %></h3>
+                                            <span class="badge-gray">Raw</span>
+                                        </div>
+                                        
+                                        <div class="job-details">
+                                            <p><strong>📍 Location:</strong> <%= job.location %></p>
+                                            <p><strong>💼 Type:</strong> <%= job.employmentType %></p>
+                                            <p><strong>📌 Experience:</strong> <%= job.experience || 'Not specified' %></p>
+                                        </div>
+
+                                        <div class="job-footer">
+                                            <% if (job.postedAt) { %>
+                                                <small>Posted: <%= new Date(job.postedAt).toLocaleDateString() %></small>
+                                            <% } %>
+                                            <a href="<%= job.applyLink %>" target="_blank" class="apply-btn">Apply</a>
+                                        </div>
+                                    </div>
+                                <% }); %>
+                            </div>
+                        </div>
+                    <% } %>
                 </div>
             <% }); %>
         <% } %>

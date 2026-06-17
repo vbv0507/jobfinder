@@ -10,7 +10,7 @@ const profileRoutes = require("./routes/profileRoutes");
 
 const runSearch = require("./cron/jobSearchCron");
 const { seedCompanies } = require("./services/companyService");
-const { generateGroupedReport } = require("./services/reportService");
+const { generateGroupedReport, generateCompleteReport } = require("./services/reportService");
 
 const app = express();
 
@@ -29,7 +29,7 @@ app.get("/", (req, res) => {
 
 app.get("/jobs", async (req, res) => {
     try {
-        const jobs = await generateGroupedReport();
+        const jobs = await generateCompleteReport();
         res.render("jobs", { jobs });
     } catch (error) {
         res.render("jobs", { jobs: {} });
