@@ -22,7 +22,7 @@
     <div class="container">
         <section class="hero">
             <h1>Your Profile</h1>
-            <p>Set your preferences to get matched with relevant jobs from Visa & LG</p>
+            <p>Set your preferences to get matched with relevant jobs</p>
         </section>
 
         <div class="form-section">
@@ -30,13 +30,13 @@
                 <h2>Profile Information</h2>
                 <form id="profile-form">
                     <div class="form-group">
-                        <label for="full-name">Full Name</label>
-                        <input type="text" id="full-name" placeholder="John Doe">
+                        <label for="name">Full Name</label>
+                        <input type="text" id="name" placeholder="John Doe">
                     </div>
 
                     <div class="form-group">
-                        <label for="email">Email</label>
-                        <input type="email" id="email" placeholder="john@example.com">
+                        <label for="graduation-year">Graduation Year</label>
+                        <input type="number" id="graduation-year" placeholder="2024" min="1950" max="2100">
                     </div>
 
                     <div class="form-group">
@@ -45,23 +45,23 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="experience">Years of Experience</label>
-                        <input type="number" id="experience" placeholder="5" min="0" max="60">
+                        <label for="preferred-roles">Preferred Roles (comma-separated)</label>
+                        <textarea id="preferred-roles" placeholder="Full Stack Developer, Backend Engineer"></textarea>
                     </div>
 
                     <div class="form-group">
-                        <label for="job-title">Desired Job Title</label>
-                        <input type="text" id="job-title" placeholder="Full Stack Developer">
+                        <label for="preferred-locations">Preferred Locations (comma-separated)</label>
+                        <textarea id="preferred-locations" placeholder="Remote, Bangalore, Hyderabad"></textarea>
                     </div>
 
                     <div class="form-group">
-                        <label for="location">Preferred Location</label>
-                        <input type="text" id="location" placeholder="Remote, USA, San Francisco">
+                        <label for="projects">Projects (comma-separated)</label>
+                        <textarea id="projects" placeholder="Job Finder App, Portfolio Website"></textarea>
                     </div>
 
                     <div class="form-group">
-                        <label for="bio">Bio / About You</label>
-                        <textarea id="bio" placeholder="Tell us about yourself..."></textarea>
+                        <label for="career-preferences">Career Preferences (comma-separated)</label>
+                        <textarea id="career-preferences" placeholder="Product Company, Startups, Remote-first"></textarea>
                     </div>
 
                     <button type="submit" class="btn btn-primary">💾 Save Profile</button>
