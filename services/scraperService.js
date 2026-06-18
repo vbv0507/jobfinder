@@ -240,7 +240,7 @@ const scrapeWorkdayJobs = async (company) => {
                         description: item.title,
 
                         applyLink:
-                            `https://visa.wd5.myworkdayjobs.com/en-US/Visa/job${item.externalPath}`,
+                            `${company.careerUrl}/job${item.externalPath}`,
 
                         postedAt: item.postedOn,
 

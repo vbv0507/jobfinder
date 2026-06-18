@@ -35,4 +35,16 @@ module.exports = [
             limit: 50,
         },
     },
+    {
+        name: "Adobe",
+        category: "Product",
+        active: true,
+        careerUrl: "https://adobe.wd5.myworkdayjobs.com/en-US/external_experienced",
+        scraperType: "api",
+        scraperConfig: {
+            strategy: "workday",
+            apiUrl: "https://adobe.wd5.myworkdayjobs.com/wday/cxs/adobe/external_experienced/jobs",
+            limit: 100,
+        },
+    },
 ];
