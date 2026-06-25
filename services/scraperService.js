@@ -6,7 +6,7 @@ const DEFAULT_HEADERS = {
   "User-Agent":
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/125 Safari/537.36",
   Accept: "application/json",
-  "Accept-Language": "en-US,en;q=0.9",
+  "Accept-Language": "en-US",
 };
 
 // Every company returns jobs in a different JSON structure.
@@ -76,7 +76,7 @@ const parseDate = (value) => {
 const getEmploymentType = (value = "") => {
   const text = value.toLowerCase();
 
-  if (text.includes("intern")) {
+  if (/\b(intern|internship)\b/i.test(text)) {
     return "Internship";
   }
 
@@ -86,6 +86,65 @@ const getEmploymentType = (value = "") => {
 
   return "Full-Time";
 };
+
+const hasAllowedLocation = (job, company) => {
+  const allowedLocations = company.scraperConfig?.allowedLocations || [
+    "india",
+    "remote",
+  ];
+
+  if (allowedLocations.length === 0) {
+    return true;
+  }
+
+  const text = (job.location || "").toLowerCase();
+
+  return allowedLocations.some((location) =>
+    text.includes(location.toLowerCase()),
+  );
+};
+
+const escapeRegExp = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+const hasExcludedKeyword = (job, excludedKeywords = []) => {
+  const titleText = [job.title, job.experience].filter(Boolean).join(" ").toLowerCase();
+  const fullText = [job.title, job.experience, job.description]
+    .filter(Boolean)
+    .join(" ")
+    .toLowerCase();
+
+  return excludedKeywords.some((keyword) => {
+    const normalizedKeyword = keyword.toLowerCase().trim();
+    const isExperienceRange = /\d+\s*(?:\+|-|to)\s*\d*/.test(normalizedKeyword);
+    const text = isExperienceRange ? fullText : titleText;
+
+    if (/^[a-z0-9]+$/.test(normalizedKeyword)) {
+      return new RegExp(`\\b${escapeRegExp(normalizedKeyword)}\\b`).test(text);
+    }
+
+    return text.includes(normalizedKeyword);
+  });
+};
+
+const hasTargetKeyword = (job, company) => {
+  const targetKeywords = company.scraperConfig?.targetKeywords || [];
+  const excludedKeywords = company.scraperConfig?.excludedKeywords || [];
+
+  if (hasExcludedKeyword(job, excludedKeywords)) {
+    return false;
+  }
+
+  if (targetKeywords.length === 0) {
+    return true;
+  }
+
+  const text = [job.title, job.experience].filter(Boolean).join(" ").toLowerCase();
+
+  return targetKeywords.some((keyword) => text.includes(keyword.toLowerCase()));
+};
+
+const applyJobFilters = (jobs, company) =>
+  jobs.filter((job) => hasAllowedLocation(job, company) && hasTargetKeyword(job, company));
 
 // This is the common job shape used by the rest of the project.
 // RawJob, Gemini analysis, and MatchedJob all depend on this structure.
@@ -192,6 +251,113 @@ const scrapeLgJobs = async (company) => {
     )
     .filter(Boolean);
 };
+
+const getGreenhouseMetadataValue = (metadata = [], name) => {
+  const item = metadata.find((entry) => entry.name === name);
+
+  if (!item) {
+    return "";
+  }
+
+  return Array.isArray(item.value) ? item.value.join(", ") : item.value;
+};
+
+const scrapeGreenhouseJobs = async (company) => {
+  const config = company.scraperConfig;
+
+  const response = await axios.get(config.apiUrl, {
+    headers: DEFAULT_HEADERS,
+    params: {
+      content: true,
+    },
+    timeout: 25000,
+  });
+
+  const jobsFromApi = response.data.jobs || [];
+
+  if (!Array.isArray(jobsFromApi)) {
+    return [];
+  }
+
+  return jobsFromApi
+    .map((item) => {
+      const officeNames = (item.offices || []).map((office) => office.name).join(", ");
+      const departmentNames = (item.departments || [])
+        .map((department) => department.name)
+        .join(", ");
+      const postingLocation = getGreenhouseMetadataValue(
+        item.metadata || [],
+        "Job Posting Location",
+      );
+
+      return normalizeJob(
+        {
+          title: item.title,
+          location: [item.location?.name, postingLocation, officeNames]
+            .filter(Boolean)
+            .join(", "),
+          jobId: item.id,
+          description: [
+            item.content,
+            departmentNames,
+            officeNames,
+            postingLocation,
+          ]
+            .filter(Boolean)
+            .join(" "),
+          applyLink: item.absolute_url,
+          employmentType: item.title,
+          postedAt: item.first_published || item.updated_at,
+        },
+        company,
+      );
+    })
+    .filter(Boolean);
+};
+
+const scrapeLeverJobs = async (company) => {
+  const config = company.scraperConfig;
+
+  const response = await axios.get(config.apiUrl, {
+    headers: DEFAULT_HEADERS,
+    params: {
+      mode: "json",
+      ...(config.params || {}),
+    },
+    timeout: 25000,
+  });
+
+  const jobsFromApi = Array.isArray(response.data) ? response.data : [];
+
+  return jobsFromApi
+    .map((item) => {
+      const lists = (item.lists || [])
+        .map((list) => `${list.text || ""} ${list.content || ""}`)
+        .join(" ");
+
+      return normalizeJob(
+        {
+          title: item.text,
+          location: item.categories?.location || "Not specified",
+          jobId: item.id,
+          description: [
+            item.descriptionPlain,
+            lists,
+            item.categories?.team,
+            item.categories?.commitment,
+          ]
+            .filter(Boolean)
+            .join(" "),
+          applyLink: item.hostedUrl || item.applyUrl,
+          employmentType: item.categories?.commitment,
+          postedAt: item.createdAt,
+        },
+        company,
+      );
+    })
+    .filter(Boolean);
+};
+
 const scrapeWorkdayJobs = async (company) => {
     const config = company.scraperConfig;
 
@@ -201,7 +367,8 @@ const scrapeWorkdayJobs = async (company) => {
         const response = await axios.post(
             config.apiUrl,
             {
-                limit: 100,
+                appliedFacets: {},
+                limit: Math.min(config.limit || 20, 20),
                 offset: 0,
             },
             {
@@ -268,15 +435,30 @@ const scrapeWorkdayJobs = async (company) => {
 };
 const scrapeCompanyJobs = async (company) => {
   try {
+    let jobs;
+
     if (company.scraperConfig?.strategy === "lg") {
-      return await scrapeLgJobs(company);
+      jobs = await scrapeLgJobs(company);
+      return applyJobFilters(jobs, company);
+    }
+
+    if (company.scraperConfig?.strategy === "greenhouse") {
+      jobs = await scrapeGreenhouseJobs(company);
+      return applyJobFilters(jobs, company);
+    }
+
+    if (company.scraperConfig?.strategy === "lever") {
+      jobs = await scrapeLeverJobs(company);
+      return applyJobFilters(jobs, company);
     }
 
     if (company.scraperConfig?.strategy === "workday") {
-      return await scrapeWorkdayJobs(company);
+      jobs = await scrapeWorkdayJobs(company);
+      return applyJobFilters(jobs, company);
     }
 
-    return await scrapeGenericApiJobs(company);
+    jobs = await scrapeGenericApiJobs(company);
+    return applyJobFilters(jobs, company);
   } catch (error) {
     console.log(`Scraping failed for ${company.name}: ${error.message}`);
     return [];

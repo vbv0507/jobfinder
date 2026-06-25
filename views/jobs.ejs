@@ -21,19 +21,19 @@
     <main class="container">
         <section class="hero">
             <h1>Job Opportunities</h1>
-            <p>Every scraped job grouped by its source company.</p>
+            <p>Matched fresher-friendly jobs grouped by company.</p>
         </section>
 
         <% if (Object.keys(jobs).length === 0) { %>
             <div class="empty-state">
-                <p>No jobs found. Run a search to fetch the latest roles.</p>
+                <p>No matched jobs found yet. Run a search to check the latest fresher-friendly roles.</p>
             </div>
         <% } else { %>
             <% Object.entries(jobs).forEach(([company, sections]) => { %>
                 <section class="company-section">
                     <div class="company-name">
                         <span class="badge"><%= company %></span>
-                        <small><%= (sections.matched?.length || 0) + (sections.raw?.length || 0) %> jobs</small>
+                        <small><%= sections.matched?.length || 0 %> matched jobs</small>
                     </div>
 
                     <% if (sections.matched && sections.matched.length > 0) { %>
@@ -54,37 +54,6 @@
 
                                         <div class="job-footer">
                                             <small>AI selected</small>
-                                            <a href="<%= job.applyLink %>" target="_blank" class="apply-btn">Apply</a>
-                                        </div>
-                                    </article>
-                                <% }); %>
-                            </div>
-                        </div>
-                    <% } %>
-
-                    <% if (sections.raw && sections.raw.length > 0) { %>
-                        <div class="subsection raw-section">
-                            <h3 class="subsection-title">Scraped Jobs Not Matched (<%= sections.raw.length %>)</h3>
-                            <div class="jobs-grid">
-                                <% sections.raw.forEach(job => { %>
-                                    <article class="job-card raw">
-                                        <div class="job-header">
-                                            <h3><%= job.title %></h3>
-                                            <span class="badge-gray">Raw</span>
-                                        </div>
-
-                                        <div class="job-details">
-                                            <p><strong>Location:</strong> <%= job.location %></p>
-                                            <p><strong>Type:</strong> <%= job.employmentType %></p>
-                                            <p><strong>Experience:</strong> <%= job.experience || 'Not specified' %></p>
-                                        </div>
-
-                                        <div class="job-footer">
-                                            <% if (job.postedAt) { %>
-                                                <small>Posted: <%= new Date(job.postedAt).toLocaleDateString() %></small>
-                                            <% } else { %>
-                                                <small>Scraped role</small>
-                                            <% } %>
                                             <a href="<%= job.applyLink %>" target="_blank" class="apply-btn">Apply</a>
                                         </div>
                                     </article>

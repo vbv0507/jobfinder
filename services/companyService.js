@@ -10,7 +10,7 @@ const seedCompanies = async () => {
             Company.findOneAndUpdate(
                 { name: company.name },
                 { $set: company },
-                { upsert: true, new: true, setDefaultsOnInsert: true },
+                { upsert: true, returnDocument: "after", setDefaultsOnInsert: true },
             ),
         ),
     );

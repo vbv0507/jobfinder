@@ -3,7 +3,11 @@ const MatchedJob = require("../models/MatchedJob");
 const SearchLog = require("../models/SearchLog");
 
 const runSearch = require("../cron/jobSearchCron");
-const { generateReport, generateGroupedReport, generateCompleteReport } = require("../services/reportService");
+const {
+    generateReport,
+    generateGroupedReport,
+    generateMatchedCompanyReport,
+} = require("../services/reportService");
 
 const sendError = (res, error) =>
     res.status(500).json({
@@ -51,7 +55,7 @@ const getGroupedJobs = async (req, res) => {
 
 const getCompleteJobs = async (req, res) => {
     try {
-        const jobs = await generateCompleteReport();
+        const jobs = await generateMatchedCompanyReport();
         res.status(200).json({
             success: true,
             jobs,

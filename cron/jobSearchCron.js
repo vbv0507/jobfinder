@@ -22,6 +22,11 @@ const getJobText = (job) =>
     .join(" ")
     .toLowerCase();
 
+const hasEntryLevelSignal = (text) =>
+  /\b(intern|internship|fresher|graduate|new grad|entry level|campus|trainee|junior|associate)\b|0\s*-\s*1|0\s*to\s*1/i.test(
+    text,
+  );
+
 // This filter protects Gemini quota.
 // We call AI only when the job already looks close to the candidate profile.
 const getSkipReason = (job, profile) => {
@@ -52,10 +57,7 @@ const getSkipReason = (job, profile) => {
     /\b(software|sde|backend|front.?end|full.?stack|developer|engineer|node\.?js|express|mongodb|javascript|rest api|api developer)\b/i.test(
       text,
     );
-  const fresherRoleMatches =
-    /\b(intern|internship|fresher|graduate|new grad|entry level|campus|trainee)\b|0\s*-\s*1|0\s*to\s*1/i.test(
-      text,
-    );
+  const fresherRoleMatches = hasEntryLevelSignal(text);
 
   if (!roleMatches && !technicalRoleMatches && !fresherRoleMatches) {
     return "role not aligned with profile";
@@ -66,10 +68,12 @@ const getSkipReason = (job, profile) => {
       text,
     );
   const hasTwoPlusYears = [
-    ...text.matchAll(/(\d+)\s*\+?\s*(?:-|to)?\s*(\d+)?\s*(?:years?|yrs?)/g),
+    ...text.matchAll(/(\d+)\s*\+?\s*(?:years?|yrs?)/g),
   ].some((match) => Number(match[1]) >= 2);
-
-  if ((hasSeniorKeyword || hasTwoPlusYears) && !fresherRoleMatches) {
+  if (
+    (hasSeniorKeyword || hasTwoPlusYears) &&
+    !fresherRoleMatches
+  ) {
     return "requires senior/experienced profile";
   }
 

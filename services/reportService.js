@@ -42,6 +42,7 @@ const inferCompanyName = (job, companies) => {
 };
 
 const createCompanyBucket = () => ({ matched: [], raw: [] });
+const createMatchedBucket = () => ({ matched: [] });
 
 const generateReport = async () => {
     const jobs = await MatchedJob
@@ -66,6 +67,27 @@ const generateGroupedReport = async () => {
             grouped[companyName] = [];
         }
         grouped[companyName].push(job);
+    });
+
+    return grouped;
+};
+
+// Group only matched jobs by company for frontend display.
+const generateMatchedCompanyReport = async () => {
+    const companies = await Company.find().sort({ name: 1 });
+    const matchedJobs = await MatchedJob
+        .find()
+        .populate("company", "name")
+        .sort({ score: -1 });
+
+    const grouped = {};
+
+    matchedJobs.forEach(job => {
+        const companyName = inferCompanyName(job, companies);
+        if (!grouped[companyName]) {
+            grouped[companyName] = createMatchedBucket();
+        }
+        grouped[companyName].matched.push(job);
     });
 
     return grouped;
@@ -123,5 +145,6 @@ const generateCompleteReport = async () => {
 module.exports = {
     generateReport,
     generateGroupedReport,
+    generateMatchedCompanyReport,
     generateCompleteReport
 };

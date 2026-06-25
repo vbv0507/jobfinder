@@ -1,8 +1,12 @@
 function getCompanyIcon(name) {
     const icons = {
+        CommerceIQ: "CIQ",
         Visa: "V",
         LG: "LG",
         Adobe: "A",
+        Paytm: "P",
+        PhonePe: "Ph",
+        Groww: "G",
     };
     return icons[name] || "Co";
 }
@@ -32,27 +36,14 @@ function renderScrapingHighlight(companies) {
 
 async function loadStats() {
     try {
-        const [rawResponse, matchedResponse] = await Promise.all([
-            apiCall("/jobs/raw"),
-            apiCall("/jobs/matched"),
-        ]);
-        const totalJobs = Number(rawResponse.count || 0);
+        const matchedResponse = await apiCall("/jobs/matched");
         const matchedJobs = Number(matchedResponse.count || 0);
-        const notMatched = Math.max(totalJobs - matchedJobs, 0);
 
         document.getElementById("stats-content").innerHTML = `
             <div class="stats-grid">
                 <div class="stat-item">
-                    <div class="stat-value">${totalJobs}</div>
-                    <div class="stat-label">Scraped</div>
-                </div>
-                <div class="stat-item">
                     <div class="stat-value">${matchedJobs}</div>
-                    <div class="stat-label">Matched</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-value">${notMatched}</div>
-                    <div class="stat-label">Not Matched</div>
+                    <div class="stat-label">Matched Jobs</div>
                 </div>
             </div>
         `;
@@ -75,7 +66,7 @@ async function loadLogs() {
         logsContent.innerHTML = logs.slice(0, 4).map((log) => `
             <div class="log-item">
                 <div class="log-title">${formatDate(log.completedAt || log.startedAt || log.createdAt || log.runDate)}</div>
-                <div class="log-meta">${log.jobsFound || 0} found · ${log.jobsMatched || 0} matched · ${log.status || "Success"}</div>
+                <div class="log-meta">${log.jobsFound || 0} found - ${log.jobsMatched || 0} matched - ${log.status || "Success"}</div>
             </div>
         `).join("");
     } catch (error) {
@@ -83,26 +74,19 @@ async function loadLogs() {
     }
 }
 
-function renderJobCard(job, type) {
-    const isMatched = type === "matched";
-    const title = isMatched ? job.role : job.title;
-    const meta = isMatched
-        ? `<p><strong>Match:</strong> ${job.roleMatch || "Profile aligned"}</p>`
-        : `<p><strong>Type:</strong> ${job.employmentType || "Full-Time"}</p>`;
-    const status = isMatched ? `<span class="score">${job.score}</span>` : '<span class="badge-gray">Raw</span>';
-
+function renderJobCard(job) {
     return `
-        <article class="job-card ${type}">
+        <article class="job-card matched">
             <div class="job-header">
-                <h3>${title}</h3>
-                ${status}
+                <h3>${job.role}</h3>
+                <span class="score">${job.score}</span>
             </div>
             <div class="job-details">
                 <p><strong>Location:</strong> ${job.location || "Not specified"}</p>
-                ${meta}
+                <p><strong>Match:</strong> ${job.roleMatch || "Profile aligned"}</p>
             </div>
             <div class="job-footer">
-                <small>${isMatched ? "AI selected" : "Scraped role"}</small>
+                <small>AI selected</small>
                 <a href="${job.applyLink}" target="_blank" class="apply-btn">Apply</a>
             </div>
         </article>
@@ -117,31 +101,24 @@ async function loadCompanyJobs() {
         const companyNames = Object.keys(jobs);
 
         if (companyNames.length === 0) {
-            container.innerHTML = '<div class="empty-state"><p>No jobs found yet. Run a search to get started.</p></div>';
+            container.innerHTML = '<div class="empty-state"><p>No matched jobs found yet. Run a search to check the latest fresher-friendly roles.</p></div>';
             return;
         }
 
         container.innerHTML = companyNames.map((company) => {
             const sections = jobs[company];
             const matchedCount = sections.matched?.length || 0;
-            const rawCount = sections.raw?.length || 0;
 
             return `
                 <section class="company-section">
                     <div class="company-name">
                         <span class="badge">${company}</span>
-                        <small>${matchedCount + rawCount} jobs</small>
+                        <small>${matchedCount} matched jobs</small>
                     </div>
                     ${matchedCount > 0 ? `
                         <div class="subsection matched-section">
                             <h3 class="subsection-title">Matched Jobs (${matchedCount})</h3>
-                            <div class="jobs-grid">${sections.matched.map((job) => renderJobCard(job, "matched")).join("")}</div>
-                        </div>
-                    ` : ""}
-                    ${rawCount > 0 ? `
-                        <div class="subsection raw-section">
-                            <h3 class="subsection-title">Scraped Jobs Not Matched (${rawCount})</h3>
-                            <div class="jobs-grid">${sections.raw.map((job) => renderJobCard(job, "raw")).join("")}</div>
+                            <div class="jobs-grid">${sections.matched.map((job) => renderJobCard(job)).join("")}</div>
                         </div>
                     ` : ""}
                 </section>
