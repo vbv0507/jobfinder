@@ -1,234 +1,218 @@
-// dashboard.js - Dashboard page logic
-
-// Pick an emoji icon based on company name (purely cosmetic).
 function getCompanyIcon(name) {
     const icons = {
-        Visa: '💳',
-        LG: '📺',
-        Adobe: '🎨',
+        Visa: "V",
+        LG: "LG",
+        Adobe: "A",
     };
-    return icons[name] || '🏢';
+    return icons[name] || "Co";
 }
 
-// Render the "Currently Scraping From" highlight grid using live data.
 function renderScrapingHighlight(companies) {
-    const grid = document.getElementById('scraping-grid');
+    const grid = document.getElementById("scraping-grid");
     if (!grid) return;
 
-    const active = companies.filter(c => c.active);
+    const active = companies.filter((company) => company.active);
 
     if (active.length === 0) {
-        grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: #64748b;">No active companies</div>';
+        grid.innerHTML = '<div class="empty-inline">No active companies</div>';
         return;
     }
 
-    grid.innerHTML = active.map(company => `
-        <div class="scraped-card">
+    grid.innerHTML = active.map((company) => `
+        <article class="scraped-card">
             <div class="scraped-logo">${getCompanyIcon(company.name)}</div>
-            <div class="scraped-name">${company.name}</div>
-            <div class="scraped-category">${company.category || ''} Company</div>
-            <div class="scraped-status">🟢 Active</div>
-        </div>
-    `).join('');
+            <div>
+                <div class="scraped-name">${company.name}</div>
+                <div class="scraped-category">${company.category || "Unknown"} Company</div>
+            </div>
+            <div class="scraped-status">Active</div>
+        </article>
+    `).join("");
 }
 
 async function loadStats() {
     try {
         const [rawResponse, matchedResponse] = await Promise.all([
-            apiCall('/jobs/raw'),
-            apiCall('/jobs/matched'),
+            apiCall("/jobs/raw"),
+            apiCall("/jobs/matched"),
         ]);
         const totalJobs = Number(rawResponse.count || 0);
         const matchedJobs = Number(matchedResponse.count || 0);
-        
-        const statsContent = document.getElementById('stats-content');
-        statsContent.innerHTML = `
+        const notMatched = Math.max(totalJobs - matchedJobs, 0);
+
+        document.getElementById("stats-content").innerHTML = `
             <div class="stats-grid">
                 <div class="stat-item">
                     <div class="stat-value">${totalJobs}</div>
-                    <div class="stat-label">Total Jobs</div>
+                    <div class="stat-label">Scraped</div>
                 </div>
                 <div class="stat-item">
                     <div class="stat-value">${matchedJobs}</div>
                     <div class="stat-label">Matched</div>
                 </div>
+                <div class="stat-item">
+                    <div class="stat-value">${notMatched}</div>
+                    <div class="stat-label">Not Matched</div>
+                </div>
             </div>
         `;
     } catch (error) {
-        document.getElementById('stats-content').innerHTML = '<p style="color: #ef4444;">Failed to load stats</p>';
+        document.getElementById("stats-content").innerHTML = '<p class="error-text">Failed to load stats</p>';
     }
 }
 
 async function loadLogs() {
     try {
-        const response = await apiCall('/jobs/logs');
+        const response = await apiCall("/jobs/logs");
         const logs = response.logs || [];
-        
-        const logsContent = document.getElementById('logs-content');
-        
+        const logsContent = document.getElementById("logs-content");
+
         if (logs.length === 0) {
-            logsContent.innerHTML = '<p style="color: #64748b; text-align: center;">📭 No recent activity yet</p>';
+            logsContent.innerHTML = '<p class="muted">No recent activity yet.</p>';
             return;
         }
-        
-        const logsList = logs.slice(0, 3).map(log => `
-            <div style="margin-bottom: 1.2rem; padding-bottom: 1.2rem; border-bottom: 1px solid #e2e8f0;">
-                <div style="font-weight: 600; color: #1e293b; font-size: 0.95rem;">${formatDate(log.completedAt || log.startedAt || log.createdAt || log.runDate)}</div>
-                <div style="color: #64748b; font-size: 0.9rem; margin-top: 0.3rem;">
-                    🔍 ${log.jobsFound || 0} jobs found · ✅ ${log.jobsMatched || 0} matched
-                </div>
-                <div style="color: #64748b; font-size: 0.85rem; margin-top: 0.2rem;">
-                    Status: ${log.status || 'Success'}
-                </div>
+
+        logsContent.innerHTML = logs.slice(0, 4).map((log) => `
+            <div class="log-item">
+                <div class="log-title">${formatDate(log.completedAt || log.startedAt || log.createdAt || log.runDate)}</div>
+                <div class="log-meta">${log.jobsFound || 0} found · ${log.jobsMatched || 0} matched · ${log.status || "Success"}</div>
             </div>
-        `).join('');
-        
-        logsContent.innerHTML = logsList;
+        `).join("");
     } catch (error) {
-        document.getElementById('logs-content').innerHTML = '<p style="color: #ef4444;">Failed to load activity</p>';
+        document.getElementById("logs-content").innerHTML = '<p class="error-text">Failed to load activity</p>';
     }
+}
+
+function renderJobCard(job, type) {
+    const isMatched = type === "matched";
+    const title = isMatched ? job.role : job.title;
+    const meta = isMatched
+        ? `<p><strong>Match:</strong> ${job.roleMatch || "Profile aligned"}</p>`
+        : `<p><strong>Type:</strong> ${job.employmentType || "Full-Time"}</p>`;
+    const status = isMatched ? `<span class="score">${job.score}</span>` : '<span class="badge-gray">Raw</span>';
+
+    return `
+        <article class="job-card ${type}">
+            <div class="job-header">
+                <h3>${title}</h3>
+                ${status}
+            </div>
+            <div class="job-details">
+                <p><strong>Location:</strong> ${job.location || "Not specified"}</p>
+                ${meta}
+            </div>
+            <div class="job-footer">
+                <small>${isMatched ? "AI selected" : "Scraped role"}</small>
+                <a href="${job.applyLink}" target="_blank" class="apply-btn">Apply</a>
+            </div>
+        </article>
+    `;
 }
 
 async function loadCompanyJobs() {
     try {
-        const response = await apiCall('/jobs/complete');
+        const response = await apiCall("/jobs/complete");
         const jobs = response.jobs || {};
-
-        const container = document.getElementById('company-jobs-content');
+        const container = document.getElementById("company-jobs-content");
         const companyNames = Object.keys(jobs);
 
         if (companyNames.length === 0) {
-            container.innerHTML = '<div style="text-align: center; padding: 2rem; color: #64748b;">No jobs found yet. Run a job search to get started!</div>';
+            container.innerHTML = '<div class="empty-state"><p>No jobs found yet. Run a search to get started.</p></div>';
             return;
         }
 
-        let html = '';
-        companyNames.forEach(company => {
+        container.innerHTML = companyNames.map((company) => {
             const sections = jobs[company];
             const matchedCount = sections.matched?.length || 0;
             const rawCount = sections.raw?.length || 0;
-            const total = matchedCount + rawCount;
 
-            html += `
-                <div class="company-section">
-                    <h3 style="margin-bottom: 1rem; color: #0f172a; display: flex; align-items: center; gap: 0.5rem;">
-                        ${getCompanyIcon(company)}
-                        <span>${company}</span>
-                        <span class="badge" style="margin-left: 0.5rem;">${total} jobs</span>
-                    </h3>
-
+            return `
+                <section class="company-section">
+                    <div class="company-name">
+                        <span class="badge">${company}</span>
+                        <small>${matchedCount + rawCount} jobs</small>
+                    </div>
                     ${matchedCount > 0 ? `
-                        <div class="subsection matched-section" style="margin-bottom: 1rem;">
-                            <h4 style="color: #059669; margin-bottom: 0.75rem;">✅ Matched Jobs (${matchedCount})</h4>
-                            <div class="jobs-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1rem;">
-                                ${sections.matched.map(job => `
-                                    <div class="job-card matched" style="background: #f0fdf4; border: 1px solid #bbf7d0; padding: 1rem; border-radius: 0.75rem;">
-                                        <div style="font-weight: 600; color: #0f172a; margin-bottom: 0.5rem;">${job.role}</div>
-                                        <div style="font-size: 0.9rem; color: #64748b; margin-bottom: 0.3rem;">📍 ${job.location}</div>
-                                        <div style="font-size: 0.9rem; color: #64748b; margin-bottom: 0.3rem;">🎯 Match: ${job.roleMatch}</div>
-                                        <div style="font-size: 0.9rem; color: #64748b; margin-bottom: 0.75rem;">⭐ Score: ${job.score}</div>
-                                        <a href="${job.applyLink}" target="_blank" class="apply-btn" style="display: inline-block; background: #059669; color: white; padding: 0.4rem 1rem; border-radius: 0.5rem; text-decoration: none; font-size: 0.85rem;">Apply →</a>
-                                    </div>
-                                `).join('')}
-                            </div>
+                        <div class="subsection matched-section">
+                            <h3 class="subsection-title">Matched Jobs (${matchedCount})</h3>
+                            <div class="jobs-grid">${sections.matched.map((job) => renderJobCard(job, "matched")).join("")}</div>
                         </div>
-                    ` : ''}
-
+                    ` : ""}
                     ${rawCount > 0 ? `
                         <div class="subsection raw-section">
-                            <h4 style="color: #64748b; margin-bottom: 0.75rem;">📋 Other Opportunities (${rawCount})</h4>
-                            <div class="jobs-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1rem;">
-                                ${sections.raw.map(job => `
-                                    <div class="job-card raw" style="background: #f8fafc; border: 1px solid #e2e8f0; padding: 1rem; border-radius: 0.75rem;">
-                                        <div style="font-weight: 600; color: #0f172a; margin-bottom: 0.5rem;">${job.title}</div>
-                                        <div style="font-size: 0.9rem; color: #64748b; margin-bottom: 0.3rem;">📍 ${job.location}</div>
-                                        <div style="font-size: 0.9rem; color: #64748b; margin-bottom: 0.3rem;">💼 ${job.employmentType}</div>
-                                        ${job.postedAt ? `<div style="font-size: 0.85rem; color: #94a3b8; margin-bottom: 0.75rem;">📅 ${new Date(job.postedAt).toLocaleDateString()}</div>` : ''}
-                                        <a href="${job.applyLink}" target="_blank" class="apply-btn" style="display: inline-block; background: #3b82f6; color: white; padding: 0.4rem 1rem; border-radius: 0.5rem; text-decoration: none; font-size: 0.85rem;">Apply →</a>
-                                    </div>
-                                `).join('')}
-                            </div>
+                            <h3 class="subsection-title">Scraped Jobs Not Matched (${rawCount})</h3>
+                            <div class="jobs-grid">${sections.raw.map((job) => renderJobCard(job, "raw")).join("")}</div>
                         </div>
-                    ` : ''}
-                </div>
-                <hr style="margin: 2rem 0; border: none; border-top: 1px solid #e2e8f0;">
+                    ` : ""}
+                </section>
             `;
-        });
-
-        container.innerHTML = html;
+        }).join("");
     } catch (error) {
-        document.getElementById('company-jobs-content').innerHTML = '<p style="color: #ef4444; text-align: center;">Failed to load jobs</p>';
+        document.getElementById("company-jobs-content").innerHTML = '<p class="error-text">Failed to load jobs</p>';
     }
 }
 
 async function runJobSearch(event) {
+    const btn = event.target;
+
     try {
-        const btn = event.target;
         btn.disabled = true;
-        btn.textContent = '⏳ Searching...';
-        
-        const response = await apiCall('/jobs/run', 'POST');
-        showAlert('✅ Job search completed! Found new opportunities.', 'success');
-        
-        // Reload stats, logs, and company jobs
+        btn.textContent = "Searching...";
+
+        await apiCall("/jobs/run", "POST");
+        showAlert("Job search completed. Latest jobs are loading.", "success");
+
         setTimeout(() => {
             loadStats();
             loadLogs();
             loadCompanyJobs();
         }, 1000);
-        
+    } finally {
         btn.disabled = false;
-        btn.textContent = '🔍 Run Job Search';
-    } catch (error) {
-        event.target.disabled = false;
-        event.target.textContent = '🔍 Run Job Search';
+        btn.textContent = "Run Job Search";
     }
 }
 
 async function deleteRawJobs(event) {
+    if (!confirm("Delete all raw jobs? Matched jobs are not removed by this action.")) {
+        return;
+    }
+
+    const btn = event.target;
+
     try {
-        if (!confirm('Are you sure? This will delete all raw jobs. This action cannot be undone.')) {
-            return;
-        }
-        
-        const btn = event.target;
         btn.disabled = true;
-        btn.textContent = '⏳ Deleting...';
-        
-        const response = await fetch('/api/jobs/raw', {
-            method: 'DELETE',
-            headers: { 'Content-Type': 'application/json' }
+        btn.textContent = "Deleting...";
+
+        const response = await fetch("/api/jobs/raw", {
+            method: "DELETE",
+            headers: { "Content-Type": "application/json" },
         });
-        
         const data = await response.json();
-        
-        if (data.success) {
-            showAlert(`✅ Deleted ${data.deletedCount || 0} raw jobs`, 'success');
-            setTimeout(() => {
-                loadStats();
-                loadCompanyJobs();
-            }, 1000);
-        } else {
-            showAlert('❌ Failed to delete jobs', 'error');
+
+        if (!data.success) {
+            throw new Error(data.message || "Failed to delete jobs");
         }
-        
-        btn.disabled = false;
-        btn.textContent = '🗑️ Clear Jobs';
+
+        showAlert(`Deleted ${data.deletedCount || 0} raw jobs`, "success");
+        setTimeout(() => {
+            loadStats();
+            loadCompanyJobs();
+        }, 1000);
     } catch (error) {
-        event.target.disabled = false;
-        event.target.textContent = '🗑️ Clear Jobs';
-        showAlert('❌ Error: ' + error.message, 'error');
+        showAlert(`Error: ${error.message}`, "error");
+    } finally {
+        btn.disabled = false;
+        btn.textContent = "Clear Raw Jobs";
     }
 }
 
-// Load data on page load
-document.addEventListener('DOMContentLoaded', async () => {
-    // Load companies for scraping highlight
+document.addEventListener("DOMContentLoaded", async () => {
     try {
-        const companiesResponse = await apiCall('/companies');
+        const companiesResponse = await apiCall("/companies");
         renderScrapingHighlight(companiesResponse.companies || []);
     } catch (e) {
-        // silently fail for scraping grid
+        // The rest of the dashboard can still load.
     }
 
     loadStats();

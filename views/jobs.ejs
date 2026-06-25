@@ -9,7 +9,7 @@
 <body>
     <nav class="navbar">
         <div class="navbar-container">
-            <div class="logo">💼 Job Finder</div>
+            <div class="logo">Job Finder</div>
             <ul class="nav-menu">
                 <li><a href="/">Dashboard</a></li>
                 <li><a href="/jobs" class="active">Jobs</a></li>
@@ -18,84 +18,84 @@
         </div>
     </nav>
 
-    <div class="container">
+    <main class="container">
         <section class="hero">
             <h1>Job Opportunities</h1>
-            <p>Matched jobs from all partnered companies</p>
+            <p>Every scraped job grouped by its source company.</p>
         </section>
 
         <% if (Object.keys(jobs).length === 0) { %>
             <div class="empty-state">
-                <p>No jobs found. Check back soon!</p>
+                <p>No jobs found. Run a search to fetch the latest roles.</p>
             </div>
         <% } else { %>
             <% Object.entries(jobs).forEach(([company, sections]) => { %>
-                <div class="company-section">
-                    <h2 class="company-name">
+                <section class="company-section">
+                    <div class="company-name">
                         <span class="badge"><%= company %></span>
                         <small><%= (sections.matched?.length || 0) + (sections.raw?.length || 0) %> jobs</small>
-                    </h2>
+                    </div>
 
-                    <!-- MATCHED JOBS SECTION -->
                     <% if (sections.matched && sections.matched.length > 0) { %>
                         <div class="subsection matched-section">
-                            <h3 class="subsection-title">✅ Matched Jobs (<%= sections.matched.length %>)</h3>
+                            <h3 class="subsection-title">Matched Jobs (<%= sections.matched.length %>)</h3>
                             <div class="jobs-grid">
                                 <% sections.matched.forEach(job => { %>
-                                    <div class="job-card matched">
+                                    <article class="job-card matched">
                                         <div class="job-header">
                                             <h3><%= job.role %></h3>
-                                            <span class="score">Score: <%= job.score %></span>
+                                            <span class="score"><%= job.score %></span>
                                         </div>
-                                        
+
                                         <div class="job-details">
-                                            <p><strong>📍 Location:</strong> <%= job.location %></p>
-                                            <p><strong>💼 Match:</strong> <%= job.roleMatch %></p>
+                                            <p><strong>Location:</strong> <%= job.location %></p>
+                                            <p><strong>Match:</strong> <%= job.roleMatch || 'Profile aligned' %></p>
                                         </div>
 
                                         <div class="job-footer">
-                                            <small>✨ AI Selected</small>
+                                            <small>AI selected</small>
                                             <a href="<%= job.applyLink %>" target="_blank" class="apply-btn">Apply</a>
                                         </div>
-                                    </div>
+                                    </article>
                                 <% }); %>
                             </div>
                         </div>
                     <% } %>
 
-                    <!-- RAW JOBS SECTION (Not Matched) -->
                     <% if (sections.raw && sections.raw.length > 0) { %>
                         <div class="subsection raw-section">
-                            <h3 class="subsection-title">📋 Other Opportunities (<%= sections.raw.length %>)</h3>
+                            <h3 class="subsection-title">Scraped Jobs Not Matched (<%= sections.raw.length %>)</h3>
                             <div class="jobs-grid">
                                 <% sections.raw.forEach(job => { %>
-                                    <div class="job-card raw">
+                                    <article class="job-card raw">
                                         <div class="job-header">
                                             <h3><%= job.title %></h3>
                                             <span class="badge-gray">Raw</span>
                                         </div>
-                                        
+
                                         <div class="job-details">
-                                            <p><strong>📍 Location:</strong> <%= job.location %></p>
-                                            <p><strong>💼 Type:</strong> <%= job.employmentType %></p>
-                                            <p><strong>📌 Experience:</strong> <%= job.experience || 'Not specified' %></p>
+                                            <p><strong>Location:</strong> <%= job.location %></p>
+                                            <p><strong>Type:</strong> <%= job.employmentType %></p>
+                                            <p><strong>Experience:</strong> <%= job.experience || 'Not specified' %></p>
                                         </div>
 
                                         <div class="job-footer">
                                             <% if (job.postedAt) { %>
                                                 <small>Posted: <%= new Date(job.postedAt).toLocaleDateString() %></small>
+                                            <% } else { %>
+                                                <small>Scraped role</small>
                                             <% } %>
                                             <a href="<%= job.applyLink %>" target="_blank" class="apply-btn">Apply</a>
                                         </div>
-                                    </div>
+                                    </article>
                                 <% }); %>
                             </div>
                         </div>
                     <% } %>
-                </div>
+                </section>
             <% }); %>
         <% } %>
-    </div>
+    </main>
 
     <footer class="footer">
         <p>&copy; 2026 Job Finder. Find your dream job easily.</p>

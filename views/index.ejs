@@ -9,7 +9,7 @@
 <body>
     <nav class="navbar">
         <div class="navbar-container">
-            <div class="logo">💼 Job Finder</div>
+            <div class="logo">Job Finder</div>
             <ul class="nav-menu">
                 <li><a href="/" class="active">Dashboard</a></li>
                 <li><a href="/jobs">Jobs</a></li>
@@ -18,54 +18,51 @@
         </div>
     </nav>
 
-    <div class="container">
+    <main class="container">
         <section class="hero">
-            <h1>Welcome to Job Finder</h1>
-            <p>Discover amazing job opportunities matched to your profile</p>
+            <h1>Job Search Dashboard</h1>
+            <p>Track scraped jobs, matched roles, and recent search runs in one clean view.</p>
         </section>
 
-        <div class="scraped-companies">
-            <h2>
-                <span></span>
-                Currently Scraping From
-            </h2>
+        <section class="scraped-companies">
+            <h2><span></span>Active Companies</h2>
             <div id="scraping-grid" class="scraped-grid">
                 <div class="loading-spinner">Loading companies...</div>
             </div>
-        </div>
+        </section>
 
-        <div class="dashboard-grid">
+        <section class="dashboard-grid">
             <div class="card">
-                <div class="card-icon">📊</div>
                 <h2>Quick Stats</h2>
                 <div id="stats-content" class="loading">Loading...</div>
             </div>
 
             <div class="card">
-                <div class="card-icon">⚡</div>
                 <h2>Job Search</h2>
-                <p style="color: #64748b; font-size: 0.95rem; margin-bottom: 1.5rem;">Manually trigger a new job search to find the latest opportunities</p>
-                <button class="btn btn-primary" style="width: 100%;" onclick="runJobSearch(event)">🔍 Run Job Search</button>
+                <p class="muted">Manually trigger a fresh scrape and profile match.</p>
+                <button class="btn btn-primary" onclick="runJobSearch(event)">Run Job Search</button>
             </div>
 
             <div class="card">
-                <div class="card-icon">🗑️</div>
                 <h2>Clear Raw Jobs</h2>
-                <p style="color: #64748b; font-size: 0.95rem; margin-bottom: 1.5rem;">Delete all raw scraped jobs to free up space</p>
-                <button class="btn btn-secondary" style="width: 100%;" onclick="deleteRawJobs(event)">🗑️ Clear Jobs</button>
+                <p class="muted">Remove raw scraped jobs when you want a cleaner restart.</p>
+                <button class="btn btn-secondary" onclick="deleteRawJobs(event)">Clear Raw Jobs</button>
             </div>
 
             <div class="card">
-                <div class="card-icon">📈</div>
                 <h2>Recent Activity</h2>
                 <div id="logs-content" class="loading">Loading...</div>
             </div>
-        </div>
+        </section>
 
-        <!-- Jobs By Company Section -->
-        <h2 style="margin-top: 3rem; margin-bottom: 2rem; color: #0f172a;">📋 Jobs By Company</h2>
-        <div id="company-jobs-content" class="loading" style="text-align: center; padding: 2rem; color: #64748b;">Loading jobs...</div>
-    </div>
+        <section class="page-section">
+            <div class="section-heading">
+                <h2>Jobs By Company</h2>
+                <p>Matched roles are separated from scraped roles that did not pass the profile filter.</p>
+            </div>
+            <div id="company-jobs-content" class="loading">Loading jobs...</div>
+        </section>
+    </main>
 
     <footer class="footer">
         <p>&copy; 2026 Job Finder. Find your dream job easily.</p>

@@ -9,7 +9,7 @@
 <body>
     <nav class="navbar">
         <div class="navbar-container">
-            <div class="logo">💼 Job Finder</div>
+            <div class="logo">Job Finder</div>
             <ul class="nav-menu">
                 <li><a href="/">Dashboard</a></li>
                 <li><a href="/jobs">Jobs</a></li>
@@ -18,27 +18,29 @@
         </div>
     </nav>
 
-    <div class="container">
+    <main class="container">
         <section class="hero">
             <h1>Companies</h1>
-            <p>Manage companies we search jobs from</p>
+            <p>Manage the companies used by your scraper.</p>
         </section>
 
-        <div class="scraped-companies">
-            <h2>
-                <span></span>
-                Currently Scraping From
-            </h2>
+        <section class="scraped-companies">
+            <h2><span></span>Currently Scraping From</h2>
             <div id="scraping-grid" class="scraped-grid">
                 <div class="loading-spinner">Loading companies...</div>
             </div>
-        </div>
+        </section>
 
-        <h2 style="margin-top: 3rem; margin-bottom: 2rem; color: #0f172a;">Configured Companies</h2>
-        <div id="companies-content" class="companies-list">
-            <div class="loading-spinner">Loading companies...</div>
-        </div>
-    </div>
+        <section class="page-section">
+            <div class="section-heading">
+                <h2>Configured Companies</h2>
+                <p>These companies are stored in MongoDB and used during each search run.</p>
+            </div>
+            <div id="companies-content" class="companies-list">
+                <div class="loading-spinner">Loading companies...</div>
+            </div>
+        </section>
+    </main>
 
     <footer class="footer">
         <p>&copy; 2026 Job Finder. Find your dream job easily.</p>

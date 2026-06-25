@@ -53,7 +53,7 @@ const getSkipReason = (job, profile) => {
       text,
     );
   const fresherRoleMatches =
-    /intern|internship|fresher|graduate|new grad|entry level|campus|trainee|0\s*-\s*1|0\s*to\s*1/i.test(
+    /\b(intern|internship|fresher|graduate|new grad|entry level|campus|trainee)\b|0\s*-\s*1|0\s*to\s*1/i.test(
       text,
     );
 
@@ -62,7 +62,7 @@ const getSkipReason = (job, profile) => {
   }
 
   const hasSeniorKeyword =
-    /\b(senior|sr\.|lead|principal|manager|director|architect|staff)\b/i.test(
+    /\b(senior|sr\.?|lead|principal|manager|director|architect|staff)\b/i.test(
       text,
     );
   const hasTwoPlusYears = [

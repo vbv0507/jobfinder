@@ -9,7 +9,7 @@
 <body>
     <nav class="navbar">
         <div class="navbar-container">
-            <div class="logo">💼 Job Finder</div>
+            <div class="logo">Job Finder</div>
             <ul class="nav-menu">
                 <li><a href="/">Dashboard</a></li>
                 <li><a href="/jobs">Jobs</a></li>
@@ -19,13 +19,13 @@
         </div>
     </nav>
 
-    <div class="container">
+    <main class="container">
         <section class="hero">
             <h1>Your Profile</h1>
-            <p>Set your preferences to get matched with relevant jobs</p>
+            <p>Set your preferences to get matched with relevant jobs.</p>
         </section>
 
-        <div class="form-section">
+        <section class="form-section">
             <div class="form-card">
                 <h2>Profile Information</h2>
                 <form id="profile-form">
@@ -36,7 +36,7 @@
 
                     <div class="form-group">
                         <label for="graduation-year">Graduation Year</label>
-                        <input type="number" id="graduation-year" placeholder="2024" min="1950" max="2100">
+                        <input type="number" id="graduation-year" placeholder="2026" min="1950" max="2100">
                     </div>
 
                     <div class="form-group">
@@ -64,17 +64,17 @@
                         <textarea id="career-preferences" placeholder="Product Company, Startups, Remote-first"></textarea>
                     </div>
 
-                    <button type="submit" class="btn btn-primary">💾 Save Profile</button>
+                    <button type="submit" class="btn btn-primary">Save Profile</button>
                 </form>
             </div>
 
             <div id="profile-display" class="profile-card" style="display: none;">
                 <h2>Your Profile</h2>
                 <div id="profile-info"></div>
-                <button class="btn btn-secondary" onclick="editProfile()">✏️ Edit Profile</button>
+                <button class="btn btn-secondary" onclick="editProfile()">Edit Profile</button>
             </div>
-        </div>
-    </div>
+        </section>
+    </main>
 
     <footer class="footer">
         <p>&copy; 2026 Job Finder. Find your dream job easily.</p>

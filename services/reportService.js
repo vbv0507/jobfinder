@@ -1,5 +1,47 @@
 const MatchedJob = require("../models/MatchedJob");
 const RawJob = require("../models/RawJob");
+const Company = require("../models/Company");
+
+const getHostname = (value = "") => {
+    try {
+        return new URL(value).hostname.replace(/^www\./, "");
+    } catch {
+        return "";
+    }
+};
+
+const inferCompanyName = (job, companies) => {
+    if (job.company?.name) {
+        return job.company.name;
+    }
+
+    const text = [
+        job.applyLink,
+        job.title,
+        job.role,
+        job.location,
+    ]
+        .filter(Boolean)
+        .join(" ")
+        .toLowerCase();
+
+    const matchedCompany = companies.find((company) => {
+        const name = company.name.toLowerCase();
+        const hostname = getHostname(company.careerUrl?.toLowerCase());
+
+        return (
+            text.includes(name) ||
+            (name === "lg" && (text.includes("lge.com") || text.includes("lg electronics"))) ||
+            (name === "visa" && text.includes("visa.wd")) ||
+            (name === "adobe" && text.includes("adobe.wd")) ||
+            (hostname && text.includes(hostname))
+        );
+    });
+
+    return matchedCompany?.name || "Unassigned";
+};
+
+const createCompanyBucket = () => ({ matched: [], raw: [] });
 
 const generateReport = async () => {
     const jobs = await MatchedJob
@@ -31,6 +73,8 @@ const generateGroupedReport = async () => {
 
 // Group both matched AND raw jobs by company
 const generateCompleteReport = async () => {
+    const companies = await Company.find().sort({ name: 1 });
+
     // Get matched jobs
     const matchedJobs = await MatchedJob
         .find()
@@ -44,25 +88,32 @@ const generateCompleteReport = async () => {
         .sort({ scrapedAt: -1 });
 
     // Get matched job IDs to filter out
-    const matchedJobIds = new Set(matchedJobs.map(j => j._id.toString()));
+    const matchedRawJobIds = new Set(
+        matchedJobs
+            .map(job => job.rawJob?.toString())
+            .filter(Boolean)
+    );
 
     // Group by company with separate matched/raw sections
     const grouped = {};
 
     matchedJobs.forEach(job => {
-        const companyName = job.company?.name || "Unknown";
+        const companyName = inferCompanyName(job, companies);
         if (!grouped[companyName]) {
-            grouped[companyName] = { matched: [], raw: [] };
+            grouped[companyName] = createCompanyBucket();
         }
         grouped[companyName].matched.push(job);
     });
 
     rawJobs.forEach(job => {
-        const companyName = job.company?.name || "Unknown";
-        if (!grouped[companyName]) {
-            grouped[companyName] = { matched: [], raw: [] };
+        if (matchedRawJobIds.has(job._id.toString())) {
+            return;
         }
-        // Only add raw jobs that are NOT already in matched
+
+        const companyName = inferCompanyName(job, companies);
+        if (!grouped[companyName]) {
+            grouped[companyName] = createCompanyBucket();
+        }
         grouped[companyName].raw.push(job);
     });
 
