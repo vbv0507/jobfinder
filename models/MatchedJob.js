@@ -29,12 +29,22 @@ const matchedJobSchema = new mongoose.Schema({
 
     recommendation: String,
 
-    applyLink: String
+    applyLink: String,
+
+    postedAt: Date,
+
+    applied: {
+        type: Boolean,
+        default: false,
+    },
+
+    appliedAt: Date
 
 }, { timestamps: true });
 
 matchedJobSchema.index({ rawJob: 1 }, { unique: true });
 matchedJobSchema.index({ score: -1 });
+matchedJobSchema.index({ applied: 1, appliedAt: -1 });
 
 module.exports = mongoose.model(
     "MatchedJob",

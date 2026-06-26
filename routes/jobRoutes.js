@@ -8,6 +8,7 @@ const {
     getSearchLogs,
     getReport,
     runJobSearch,
+    updateAppliedStatus,
     deleteRawJobs,
 } = require("../controller/jobController");
 
@@ -20,6 +21,7 @@ router.get("/complete", getCompleteJobs);
 router.get("/logs", getSearchLogs);
 router.get("/report", getReport);
 router.post("/run", runJobSearch);
+router.patch("/matched/:id/applied", updateAppliedStatus);
 router.delete("/raw", deleteRawJobs);
 
 module.exports = router;

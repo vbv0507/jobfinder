@@ -42,7 +42,7 @@ const inferCompanyName = (job, companies) => {
 };
 
 const createCompanyBucket = () => ({ matched: [], raw: [] });
-const createMatchedBucket = () => ({ matched: [] });
+const createMatchedBucket = () => ({ matched: [], applied: [] });
 
 const generateReport = async () => {
     const jobs = await MatchedJob
@@ -78,6 +78,7 @@ const generateMatchedCompanyReport = async () => {
     const matchedJobs = await MatchedJob
         .find()
         .populate("company", "name")
+        .populate("rawJob", "postedAt scrapedAt")
         .sort({ score: -1 });
 
     const grouped = {};
@@ -87,6 +88,12 @@ const generateMatchedCompanyReport = async () => {
         if (!grouped[companyName]) {
             grouped[companyName] = createMatchedBucket();
         }
+
+        if (job.applied) {
+            grouped[companyName].applied.push(job);
+            return;
+        }
+
         grouped[companyName].matched.push(job);
     });
 

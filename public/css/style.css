@@ -358,6 +358,10 @@ a {
     background: var(--success-bg);
 }
 
+.applied-section {
+    background: #f8fafc;
+}
+
 .raw-section {
     background: var(--warning-bg);
 }
@@ -373,6 +377,11 @@ a {
     display: flex;
     flex-direction: column;
     gap: 0.85rem;
+}
+
+.job-card.applied {
+    border-color: #cbd5e1;
+    background: #f8fafc;
 }
 
 .job-header {
@@ -410,6 +419,22 @@ a {
 
 .job-footer small {
     color: var(--muted);
+}
+
+.applied-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    color: var(--muted);
+    font-size: 0.9rem;
+    font-weight: 750;
+    cursor: pointer;
+}
+
+.applied-toggle input {
+    width: 16px;
+    height: 16px;
+    accent-color: var(--success);
 }
 
 .company-card {

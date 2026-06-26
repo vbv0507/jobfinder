@@ -20,6 +20,15 @@ const rawJobSchema=new mongoose.Schema({
         type: Date,
         default: Date.now,
     },
+    aiEvaluated: {
+        type: Boolean,
+        default: false,
+    },
+    aiMatched: {
+        type: Boolean,
+        default: false,
+    },
+    aiEvaluatedAt: Date,
 },{timestamps:true});
 
 rawJobSchema.index({ company: 1, jobId: 1 });

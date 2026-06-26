@@ -33,7 +33,7 @@
                 <section class="company-section">
                     <div class="company-name">
                         <span class="badge"><%= company %></span>
-                        <small><%= sections.matched?.length || 0 %> matched jobs</small>
+                        <small><%= sections.matched?.length || 0 %> matched - <%= sections.applied?.length || 0 %> applied</small>
                     </div>
 
                     <% if (sections.matched && sections.matched.length > 0) { %>
@@ -49,11 +49,47 @@
 
                                         <div class="job-details">
                                             <p><strong>Location:</strong> <%= job.location %></p>
+                                            <% const openedDate = job.postedAt || job.rawJob?.postedAt || job.rawJob?.scrapedAt; %>
+                                            <p><strong>Opened:</strong> <%= openedDate ? new Date(openedDate).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) : 'Date not provided' %></p>
                                             <p><strong>Match:</strong> <%= job.roleMatch || 'Profile aligned' %></p>
                                         </div>
 
                                         <div class="job-footer">
-                                            <small>AI selected</small>
+                                            <label class="applied-toggle">
+                                                <input type="checkbox" onchange="toggleAppliedJob('<%= job._id %>', this.checked)">
+                                                <span>Applied</span>
+                                            </label>
+                                            <a href="<%= job.applyLink %>" target="_blank" class="apply-btn">Apply</a>
+                                        </div>
+                                    </article>
+                                <% }); %>
+                            </div>
+                        </div>
+                    <% } %>
+
+                    <% if (sections.applied && sections.applied.length > 0) { %>
+                        <div class="subsection applied-section">
+                            <h3 class="subsection-title">Applied Jobs (<%= sections.applied.length %>)</h3>
+                            <div class="jobs-grid">
+                                <% sections.applied.forEach(job => { %>
+                                    <article class="job-card matched applied">
+                                        <div class="job-header">
+                                            <h3><%= job.role %></h3>
+                                            <span class="score"><%= job.score %></span>
+                                        </div>
+
+                                        <div class="job-details">
+                                            <p><strong>Location:</strong> <%= job.location %></p>
+                                            <% const appliedOpenedDate = job.postedAt || job.rawJob?.postedAt || job.rawJob?.scrapedAt; %>
+                                            <p><strong>Opened:</strong> <%= appliedOpenedDate ? new Date(appliedOpenedDate).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) : 'Date not provided' %></p>
+                                            <p><strong>Match:</strong> <%= job.roleMatch || 'Profile aligned' %></p>
+                                        </div>
+
+                                        <div class="job-footer">
+                                            <label class="applied-toggle">
+                                                <input type="checkbox" checked onchange="toggleAppliedJob('<%= job._id %>', this.checked)">
+                                                <span>Applied</span>
+                                            </label>
                                             <a href="<%= job.applyLink %>" target="_blank" class="apply-btn">Apply</a>
                                         </div>
                                     </article>
@@ -69,5 +105,15 @@
     <footer class="footer">
         <p>&copy; 2026 Job Finder. Find your dream job easily.</p>
     </footer>
+    <script>
+        async function toggleAppliedJob(jobId, applied) {
+            await fetch(`/api/jobs/matched/${jobId}/applied`, {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ applied }),
+            });
+            window.location.reload();
+        }
+    </script>
 </body>
 </html>

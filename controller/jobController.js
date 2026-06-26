@@ -103,6 +103,36 @@ const runJobSearch = async (req, res) => {
     }
 };
 
+const updateAppliedStatus = async (req, res) => {
+    try {
+        const applied = req.body.applied === true;
+        const job = await MatchedJob.findByIdAndUpdate(
+            req.params.id,
+            {
+                $set: {
+                    applied,
+                    appliedAt: applied ? new Date() : null,
+                },
+            },
+            { new: true },
+        );
+
+        if (!job) {
+            return res.status(404).json({
+                success: false,
+                message: "Matched job not found",
+            });
+        }
+
+        res.status(200).json({
+            success: true,
+            job,
+        });
+    } catch (error) {
+        sendError(res, error);
+    }
+};
+
 const deleteRawJobs = async (req, res) => {
     try {
         const result = await RawJob.deleteMany({});
@@ -124,5 +154,6 @@ module.exports = {
     getSearchLogs,
     getReport,
     runJobSearch,
+    updateAppliedStatus,
     deleteRawJobs,
 };

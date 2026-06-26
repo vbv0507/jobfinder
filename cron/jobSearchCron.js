@@ -68,7 +68,7 @@ const getSkipReason = (job, profile) => {
       text,
     );
   const hasTwoPlusYears = [
-    ...text.matchAll(/(\d+)\s*\+?\s*(?:years?|yrs?)/g),
+    ...text.matchAll(/(\d+)\s*(?:\+|-|to)?\s*(?:\d+)?\s*(?:years?|yrs?)/g),
   ].some((match) => Number(match[1]) >= 2);
   if (
     (hasSeniorKeyword || hasTwoPlusYears) &&
@@ -85,53 +85,57 @@ const getActiveProfile = async () =>
   fallbackProfile;
 
 const saveRawJob = async (company, job) => {
-  // Check if job already exists with same scrapedAt date (today)
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
+  const duplicateChecks = [];
+
+  if (job.jobId) {
+    duplicateChecks.push({ jobId: job.jobId });
+  }
+  if (job.applyLink) {
+    duplicateChecks.push({ applyLink: job.applyLink });
+  }
 
   const existingJob = await RawJob.findOne({
     company: company._id,
-    jobId: job.jobId,
-    scrapedAt: { $gte: today }
+    $or: duplicateChecks,
   });
 
-  // If job already fetched today, skip it
   if (existingJob) {
-    return existingJob;
+    existingJob.title = job.title;
+    existingJob.location = job.location;
+    existingJob.experience = job.experience;
+    existingJob.description = job.description;
+    existingJob.applyLink = job.applyLink;
+    existingJob.employmentType = job.employmentType;
+    existingJob.postedAt = job.postedAt;
+    existingJob.scrapedAt = new Date();
+
+    return existingJob.save();
   }
 
-  // Save new or update old job
-  return await RawJob.findOneAndUpdate(
-    {
+  return RawJob.create({
       company: company._id,
+      title: job.title,
+      location: job.location,
       jobId: job.jobId,
-    },
-    {
-      $set: {
-        company: company._id,
-        title: job.title,
-        location: job.location,
-        jobId: job.jobId,
-        experience: job.experience,
-        description: job.description,
-        applyLink: job.applyLink,
-        employmentType: job.employmentType,
-        postedAt: job.postedAt,
-        scrapedAt: new Date(),
-      },
-    },
-    {
-      upsert: true,
-      returnDocument: "after",
-      setDefaultsOnInsert: true,
-    },
-  );
+      experience: job.experience,
+      description: job.description,
+      applyLink: job.applyLink,
+      employmentType: job.employmentType,
+      postedAt: job.postedAt,
+      scrapedAt: new Date(),
+  });
 };
 
 const saveMatchedJob = async (rawJob, company, job, analysis) => {
   const score = Number(analysis.score);
+  const evaluatedAt = new Date();
+
+  rawJob.aiEvaluated = true;
+  rawJob.aiEvaluatedAt = evaluatedAt;
 
   if (analysis.suitable !== true || score < MATCH_THRESHOLD) {
+    rawJob.aiMatched = false;
+    await rawJob.save();
     return false;
   }
 
@@ -151,6 +155,7 @@ const saveMatchedJob = async (rawJob, company, job, analysis) => {
         experienceMatch: analysis.experienceMatch,
         recommendation: analysis.recommendation,
         applyLink: job.applyLink,
+        postedAt: job.postedAt,
       },
     },
     {
@@ -159,8 +164,14 @@ const saveMatchedJob = async (rawJob, company, job, analysis) => {
     },
   );
 
+  rawJob.aiMatched = true;
+  await rawJob.save();
+
   return true;
 };
+
+const hasExistingMatch = async (rawJob) =>
+  MatchedJob.exists({ rawJob: rawJob._id });
 
 const analyseWithGemini = async (job, profile, aiState) => {
   const skipReason = getSkipReason(job, profile);
@@ -253,6 +264,13 @@ const runSearch = async () => {
         console.log(`Saved Job: ${job.title} (${company.name})`);
 
         try {
+          if (rawJob.aiMatched || await hasExistingMatch(rawJob)) {
+            console.log(
+              `Skipped AI analysis for ${job.title}: already matched earlier`,
+            );
+            continue;
+          }
+
           const result = await analyseWithGemini(job, profile, aiState);
 
           if (result.skipped) {

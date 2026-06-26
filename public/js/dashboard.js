@@ -74,23 +74,40 @@ async function loadLogs() {
     }
 }
 
-function renderJobCard(job) {
+function renderJobCard(job, applied = false) {
+    const openedDate = job.postedAt || job.rawJob?.postedAt || job.rawJob?.scrapedAt;
+    const openedText = openedDate ? formatDate(openedDate) : "Date not provided";
+
     return `
-        <article class="job-card matched">
+        <article class="job-card matched ${applied ? "applied" : ""}">
             <div class="job-header">
                 <h3>${job.role}</h3>
                 <span class="score">${job.score}</span>
             </div>
             <div class="job-details">
                 <p><strong>Location:</strong> ${job.location || "Not specified"}</p>
+                <p><strong>Opened:</strong> ${openedText}</p>
                 <p><strong>Match:</strong> ${job.roleMatch || "Profile aligned"}</p>
             </div>
             <div class="job-footer">
-                <small>AI selected</small>
+                <label class="applied-toggle">
+                    <input type="checkbox" ${applied ? "checked" : ""} onchange="toggleAppliedJob('${job._id}', this.checked)">
+                    <span>Applied</span>
+                </label>
                 <a href="${job.applyLink}" target="_blank" class="apply-btn">Apply</a>
             </div>
         </article>
     `;
+}
+
+async function toggleAppliedJob(jobId, applied) {
+    try {
+        await apiCall(`/jobs/matched/${jobId}/applied`, "PATCH", { applied });
+        loadStats();
+        loadCompanyJobs();
+    } catch (error) {
+        loadCompanyJobs();
+    }
 }
 
 async function loadCompanyJobs() {
@@ -108,17 +125,24 @@ async function loadCompanyJobs() {
         container.innerHTML = companyNames.map((company) => {
             const sections = jobs[company];
             const matchedCount = sections.matched?.length || 0;
+            const appliedCount = sections.applied?.length || 0;
 
             return `
                 <section class="company-section">
                     <div class="company-name">
                         <span class="badge">${company}</span>
-                        <small>${matchedCount} matched jobs</small>
+                        <small>${matchedCount} matched - ${appliedCount} applied</small>
                     </div>
                     ${matchedCount > 0 ? `
                         <div class="subsection matched-section">
                             <h3 class="subsection-title">Matched Jobs (${matchedCount})</h3>
-                            <div class="jobs-grid">${sections.matched.map((job) => renderJobCard(job)).join("")}</div>
+                            <div class="jobs-grid">${sections.matched.map((job) => renderJobCard(job, false)).join("")}</div>
+                        </div>
+                    ` : ""}
+                    ${appliedCount > 0 ? `
+                        <div class="subsection applied-section">
+                            <h3 class="subsection-title">Applied Jobs (${appliedCount})</h3>
+                            <div class="jobs-grid">${sections.applied.map((job) => renderJobCard(job, true)).join("")}</div>
                         </div>
                     ` : ""}
                 </section>

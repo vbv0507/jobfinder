@@ -112,6 +112,13 @@ const hasExcludedKeyword = (job, excludedKeywords = []) => {
     .filter(Boolean)
     .join(" ")
     .toLowerCase();
+  const hasExperiencedRange = [
+    ...titleText.matchAll(/(\d+)\s*(?:\+|-|to)\s*(?:\d+)?\s*(?:years?|yrs?)/g),
+  ].some((match) => Number(match[1]) >= 2);
+
+  if (hasExperiencedRange) {
+    return true;
+  }
 
   return excludedKeywords.some((keyword) => {
     const normalizedKeyword = keyword.toLowerCase().trim();
