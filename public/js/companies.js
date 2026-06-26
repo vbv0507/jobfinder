@@ -1,8 +1,16 @@
 function getCompanyIcon(name) {
     const icons = {
+        CommerceIQ: "CIQ",
         Visa: "V",
         LG: "LG",
         Adobe: "A",
+        Paytm: "P",
+        PhonePe: "Ph",
+        Groww: "G",
+        InMobi: "IM",
+        Tekion: "T",
+        Thoughtworks: "TW",
+        Nagarro: "N",
     };
     return icons[name] || "Co";
 }
@@ -43,7 +51,7 @@ async function loadCompanies() {
             return;
         }
 
-        companiesContent.innerHTML = companies.map((company) => `
+        const renderCompanyCard = (company) => `
             <article class="company-card">
                 <div class="company-avatar">${getCompanyIcon(company.name)}</div>
                 <h3>${company.name || "Company"}</h3>
@@ -53,7 +61,27 @@ async function loadCompanies() {
                 </div>
                 <a href="${company.careerUrl || "#"}" target="_blank" class="company-url">Visit Careers</a>
             </article>
-        `).join("");
+        `;
+
+        const productCompanies = companies.filter((company) => company.category === "Product");
+        const serviceCompanies = companies.filter((company) => company.category === "Service");
+
+        companiesContent.innerHTML = `
+            <section class="company-group">
+                <div class="company-group-heading">
+                    <h3>Product Companies</h3>
+                    <span>${productCompanies.length}</span>
+                </div>
+                <div class="companies-list">${productCompanies.map(renderCompanyCard).join("")}</div>
+            </section>
+            <section class="company-group">
+                <div class="company-group-heading">
+                    <h3>Service Companies</h3>
+                    <span>${serviceCompanies.length}</span>
+                </div>
+                <div class="companies-list">${serviceCompanies.map(renderCompanyCard).join("")}</div>
+            </section>
+        `;
     } catch (error) {
         document.getElementById("companies-content").innerHTML = '<div class="error-text">Failed to load companies</div>';
     }

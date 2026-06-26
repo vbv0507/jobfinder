@@ -25,8 +25,14 @@
         </section>
 
         <section class="scraped-companies">
-            <h2><span></span>Active Companies</h2>
-            <div id="scraping-grid" class="scraped-grid">
+            <div class="section-heading compact-heading">
+                <div>
+                    <h2><span></span>Active Sources</h2>
+                    <p>Compact view of companies used during each search run.</p>
+                </div>
+                <a href="/companies" class="text-link">Manage</a>
+            </div>
+            <div id="scraping-grid" class="source-summary">
                 <div class="loading-spinner">Loading companies...</div>
             </div>
         </section>
@@ -44,14 +50,14 @@
             </div>
 
             <div class="card">
-                <h2>Clear Raw Jobs</h2>
-                <p class="muted">Remove raw scraped jobs when you want a cleaner restart.</p>
-                <button class="btn btn-secondary" onclick="deleteRawJobs(event)">Clear Raw Jobs</button>
-            </div>
-
-            <div class="card">
                 <h2>Recent Activity</h2>
                 <div id="logs-content" class="loading">Loading...</div>
+            </div>
+
+            <div class="card maintenance-card">
+                <h2>Maintenance</h2>
+                <p class="muted">Use only when you want to reset raw scrape data.</p>
+                <button class="btn btn-secondary" onclick="deleteRawJobs(event)">Clear Raw Jobs</button>
             </div>
         </section>
 

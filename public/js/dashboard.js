@@ -26,16 +26,36 @@ function renderScrapingHighlight(companies) {
         return;
     }
 
-    grid.innerHTML = active.map((company) => `
-        <article class="scraped-card">
-            <div class="scraped-logo">${getCompanyIcon(company.name)}</div>
-            <div>
-                <div class="scraped-name">${company.name}</div>
-                <div class="scraped-category">${company.category || "Unknown"} Company</div>
+    const productCount = active.filter((company) => company.category === "Product").length;
+    const serviceCount = active.filter((company) => company.category === "Service").length;
+    const visibleCompanies = active.slice(0, 7);
+    const hiddenCount = Math.max(active.length - visibleCompanies.length, 0);
+
+    grid.innerHTML = `
+        <div class="source-metrics">
+            <div class="source-metric">
+                <strong>${active.length}</strong>
+                <span>Active</span>
             </div>
-            <div class="scraped-status">Active</div>
-        </article>
-    `).join("");
+            <div class="source-metric">
+                <strong>${productCount}</strong>
+                <span>Product</span>
+            </div>
+            <div class="source-metric">
+                <strong>${serviceCount}</strong>
+                <span>Service</span>
+            </div>
+        </div>
+        <div class="source-chips">
+            ${visibleCompanies.map((company) => `
+                <span class="source-chip">
+                    <span>${getCompanyIcon(company.name)}</span>
+                    ${company.name}
+                </span>
+            `).join("")}
+            ${hiddenCount > 0 ? `<a href="/companies" class="source-chip more-chip">+${hiddenCount} more</a>` : ""}
+        </div>
+    `;
 }
 
 async function loadStats() {

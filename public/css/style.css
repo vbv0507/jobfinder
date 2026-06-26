@@ -115,6 +115,13 @@ a {
     margin-bottom: 1rem;
 }
 
+.compact-heading {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
 .section-heading h2,
 .scraped-companies h2,
 .card h2,
@@ -138,6 +145,16 @@ a {
     background: var(--success);
 }
 
+.text-link {
+    color: var(--brand);
+    font-weight: 750;
+    text-decoration: none;
+}
+
+.text-link:hover {
+    text-decoration: underline;
+}
+
 .dashboard-grid,
 .scraped-grid,
 .jobs-grid,
@@ -154,6 +171,75 @@ a {
 .scraped-grid,
 .companies-list {
     grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+}
+
+.source-summary {
+    display: grid;
+    gap: 0.9rem;
+    padding: 1rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+}
+
+.source-metrics,
+.source-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.65rem;
+}
+
+.source-metric {
+    min-width: 112px;
+    padding: 0.75rem 0.85rem;
+    background: var(--surface-muted);
+    border-radius: 8px;
+}
+
+.source-metric strong {
+    display: block;
+    font-size: 1.25rem;
+    line-height: 1;
+}
+
+.source-metric span {
+    display: block;
+    margin-top: 0.25rem;
+    color: var(--muted);
+    font-size: 0.78rem;
+    font-weight: 750;
+    text-transform: uppercase;
+}
+
+.source-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    min-height: 34px;
+    padding: 0.35rem 0.7rem;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    background: #fff;
+    color: var(--text);
+    font-size: 0.88rem;
+    font-weight: 750;
+    text-decoration: none;
+}
+
+.source-chip span {
+    display: inline-grid;
+    place-items: center;
+    min-width: 22px;
+    height: 22px;
+    padding: 0 0.25rem;
+    border-radius: 999px;
+    background: #eaf1ff;
+    color: var(--brand);
+    font-size: 0.72rem;
+}
+
+.more-chip {
+    color: var(--brand);
 }
 
 .jobs-grid {
@@ -443,6 +529,32 @@ a {
     gap: 0.75rem;
 }
 
+.company-group {
+    display: grid;
+    gap: 0.85rem;
+}
+
+.company-group + .company-group {
+    margin-top: 1.4rem;
+}
+
+.company-group-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.company-group-heading h3 {
+    font-size: 1rem;
+}
+
+.company-group-heading span {
+    color: var(--muted);
+    font-size: 0.86rem;
+    font-weight: 800;
+}
+
 .company-meta {
     display: flex;
     flex-wrap: wrap;
@@ -611,6 +723,11 @@ a {
 
     .scraped-card,
     .job-footer {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .compact-heading {
         align-items: flex-start;
         flex-direction: column;
     }
