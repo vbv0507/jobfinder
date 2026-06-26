@@ -33,6 +33,7 @@ const matchedJobSchema = new mongoose.Schema({
 
     postedAt: Date,
 
+    // User ne apply kar diya to dashboard me Applied section me chala jayega.
     applied: {
         type: Boolean,
         default: false,

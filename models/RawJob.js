@@ -20,10 +20,12 @@ const rawJobSchema=new mongoose.Schema({
         type: Date,
         default: Date.now,
     },
+    // AI ne is raw job ko evaluate kiya ya nahi.
     aiEvaluated: {
         type: Boolean,
         default: false,
     },
+    // True hua to same job future run me AI ko dobara nahi bhejna.
     aiMatched: {
         type: Boolean,
         default: false,

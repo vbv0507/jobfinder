@@ -11,10 +11,12 @@ const getHostname = (value = "") => {
 };
 
 const inferCompanyName = (job, companies) => {
+    // Agar populate se company name mil gaya to wahi best source hai.
     if (job.company?.name) {
         return job.company.name;
     }
 
+    // Fallback: link/title/location se company guess karte hain.
     const text = [
         job.applyLink,
         job.title,
@@ -72,7 +74,8 @@ const generateGroupedReport = async () => {
     return grouped;
 };
 
-// Group only matched jobs by company for frontend display.
+// Frontend ke liye jobs company-wise group hoti hain.
+// Applied jobs alag section me jati hain, active matched jobs alag.
 const generateMatchedCompanyReport = async () => {
     const companies = await Company.find().sort({ name: 1 });
     const matchedJobs = await MatchedJob
@@ -90,6 +93,7 @@ const generateMatchedCompanyReport = async () => {
         }
 
         if (job.applied) {
+            // User ne checkbox tick kiya hai, to Applied section me dikhana hai.
             grouped[companyName].applied.push(job);
             return;
         }

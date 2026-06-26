@@ -7,6 +7,10 @@ function getCompanyIcon(name) {
         Paytm: "P",
         PhonePe: "Ph",
         Groww: "G",
+        InMobi: "IM",
+        Tekion: "T",
+        Thoughtworks: "TW",
+        Nagarro: "N",
     };
     return icons[name] || "Co";
 }
@@ -75,6 +79,7 @@ async function loadLogs() {
 }
 
 function renderJobCard(job, applied = false) {
+    // Company posted date mile to woh dikhate hain, warna scraped date fallback hai.
     const openedDate = job.postedAt || job.rawJob?.postedAt || job.rawJob?.scrapedAt;
     const openedText = openedDate ? formatDate(openedDate) : "Date not provided";
 
@@ -102,6 +107,7 @@ function renderJobCard(job, applied = false) {
 
 async function toggleAppliedJob(jobId, applied) {
     try {
+        // Checkbox change hote hi job Matched/Applied section me move hoti hai.
         await apiCall(`/jobs/matched/${jobId}/applied`, "PATCH", { applied });
         loadStats();
         loadCompanyJobs();
@@ -124,6 +130,7 @@ async function loadCompanyJobs() {
 
         container.innerHTML = companyNames.map((company) => {
             const sections = jobs[company];
+            // Backend already jobs ko matched aur applied arrays me split karta hai.
             const matchedCount = sections.matched?.length || 0;
             const appliedCount = sections.applied?.length || 0;
 

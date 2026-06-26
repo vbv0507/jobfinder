@@ -21,6 +21,7 @@ router.get("/complete", getCompleteJobs);
 router.get("/logs", getSearchLogs);
 router.get("/report", getReport);
 router.post("/run", runJobSearch);
+// Applied checkbox isi endpoint ko hit karta hai.
 router.patch("/matched/:id/applied", updateAppliedStatus);
 router.delete("/raw", deleteRawJobs);
 

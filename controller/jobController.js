@@ -55,6 +55,7 @@ const getGroupedJobs = async (req, res) => {
 
 const getCompleteJobs = async (req, res) => {
     try {
+        // Dashboard aur jobs page ko sirf matched/applied grouped jobs chahiye.
         const jobs = await generateMatchedCompanyReport();
         res.status(200).json({
             success: true,
@@ -105,6 +106,7 @@ const runJobSearch = async (req, res) => {
 
 const updateAppliedStatus = async (req, res) => {
     try {
+        // Checkbox tick/untick hone par matched job ka applied status update hota hai.
         const applied = req.body.applied === true;
         const job = await MatchedJob.findByIdAndUpdate(
             req.params.id,

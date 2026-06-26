@@ -27,8 +27,8 @@ const hasEntryLevelSignal = (text) =>
     text,
   );
 
-// This filter protects Gemini quota.
-// We call AI only when the job already looks close to the candidate profile.
+// Pehle basic filter lagta hai, taaki AI quota waste na ho.
+// AI ko sirf wahi job bhejte hain jo profile ke close lagti hai.
 const getSkipReason = (job, profile) => {
   const text = getJobText(job);
   const preferredLocations = profile.preferredLocations || [];
@@ -85,6 +85,8 @@ const getActiveProfile = async () =>
   fallbackProfile;
 
 const saveRawJob = async (company, job) => {
+  // Same job dobara aaye to new row create nahi karni.
+  // jobId ya applyLink match hua to purana raw job update hota hai.
   const duplicateChecks = [];
 
   if (job.jobId) {
@@ -100,6 +102,7 @@ const saveRawJob = async (company, job) => {
   });
 
   if (existingJob) {
+    // Job same hai, bas latest details aur scrapedAt refresh kar do.
     existingJob.title = job.title;
     existingJob.location = job.location;
     existingJob.experience = job.experience;
@@ -130,10 +133,12 @@ const saveMatchedJob = async (rawJob, company, job, analysis) => {
   const score = Number(analysis.score);
   const evaluatedAt = new Date();
 
+  // Is raw job ko AI ne check kar liya, ye flag future runs me help karega.
   rawJob.aiEvaluated = true;
   rawJob.aiEvaluatedAt = evaluatedAt;
 
   if (analysis.suitable !== true || score < MATCH_THRESHOLD) {
+    // AI ne reject kiya ya score threshold se kam hai.
     rawJob.aiMatched = false;
     await rawJob.save();
     return false;
@@ -177,6 +182,7 @@ const analyseWithGemini = async (job, profile, aiState) => {
   const skipReason = getSkipReason(job, profile);
 
   if (skipReason) {
+    // Job profile ke hisaab se weak hai, isliye AI call skip.
     return { skipped: true, reason: skipReason };
   }
 
@@ -189,6 +195,7 @@ const analyseWithGemini = async (job, profile, aiState) => {
   }
 
   aiState.calls++;
+  // Yaha actual AI evaluation hota hai: Gemini, fir fallback service.
   const analysis = await evaluateJob(job, profile);
 
   if (analysis.errorCode === "QUOTA_EXCEEDED") {
@@ -202,6 +209,7 @@ const analyseWithGemini = async (job, profile, aiState) => {
 const saveSearchLog = async (startedAt, stats, errors) => {
   const completedAt = new Date();
 
+  // Har run ka summary DB me save hota hai, dashboard activity ke liye.
   await SearchLog.create({
     startedAt,
     completedAt,
@@ -265,6 +273,7 @@ const runSearch = async () => {
 
         try {
           if (rawJob.aiMatched || await hasExistingMatch(rawJob)) {
+            // Job pehle se matched hai, score dobara nikalne ki need nahi.
             console.log(
               `Skipped AI analysis for ${job.title}: already matched earlier`,
             );
