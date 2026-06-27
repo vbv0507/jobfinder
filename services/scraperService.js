@@ -118,9 +118,10 @@ const hasExcludedKeyword = (job, excludedKeywords = []) => {
     ...titleText.matchAll(/(\d+)\s*(?:\+|-|to)\s*(?:\d+)?\s*(?:years?|yrs?)/g),
   ].some((match) => Number(match[1]) >= 2);
   const hasHigherEngineerLevel =
-    /\b(sde|software engineer|engineer)\s+(ii|iii|iv|v)\b/i.test(titleText);
+    /\b(sde|software engineer|engineer)\s+(ii|iii|iv|v|[2-9])\b/i.test(titleText);
+  const hasMidLevelKeyword = /\b(intermediate|mid.?level)\b/i.test(titleText);
 
-  if (hasExperiencedRange || hasHigherEngineerLevel) {
+  if (hasExperiencedRange || hasHigherEngineerLevel || hasMidLevelKeyword) {
     return true;
   }
 

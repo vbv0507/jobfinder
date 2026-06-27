@@ -11,6 +11,12 @@ function getCompanyIcon(name) {
         Tekion: "T",
         Thoughtworks: "TW",
         Nagarro: "N",
+        Razorpay: "RZ",
+        MongoDB: "MDB",
+        GitLab: "GL",
+        Postman: "PM",
+        Databricks: "DB",
+        Zeta: "Z",
     };
     return icons[name] || "Co";
 }
