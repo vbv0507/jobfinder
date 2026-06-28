@@ -5,25 +5,29 @@
 }
 
 :root {
-    --bg: #f6f7f9;
+    --bg: #f5f7fb;
     --surface: #ffffff;
-    --surface-muted: #f1f5f9;
-    --text: #111827;
+    --surface-muted: #f4f7fb;
+    --text: #0f172a;
     --muted: #64748b;
-    --border: #dbe3ee;
-    --brand: #2563eb;
-    --brand-dark: #1d4ed8;
-    --success: #15803d;
-    --success-bg: #ecfdf3;
+    --border: #d8e0ec;
+    --brand: #3157d8;
+    --brand-dark: #243fa4;
+    --brand-soft: #eef3ff;
+    --success: #13845b;
+    --success-bg: #effaf4;
     --warning: #b45309;
-    --warning-bg: #fff7ed;
+    --warning-bg: #fff8ea;
     --danger: #dc2626;
-    --shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
+    --ink-soft: #334155;
+    --shadow: 0 18px 45px rgba(15, 23, 42, 0.09);
+    --shadow-soft: 0 8px 24px rgba(15, 23, 42, 0.07);
 }
 
 body {
     min-height: 100vh;
-    background: var(--bg);
+    background:
+        linear-gradient(180deg, #eef4ff 0, #f8fafc 280px, var(--bg) 100%);
     color: var(--text);
     font-family: "Segoe UI", Roboto, Arial, sans-serif;
     line-height: 1.5;
@@ -36,10 +40,11 @@ a {
 .navbar {
     position: sticky;
     top: 0;
-    z-index: 10;
-    background: rgba(255, 255, 255, 0.96);
+    z-index: 20;
+    background: rgba(255, 255, 255, 0.9);
     border-bottom: 1px solid var(--border);
-    backdrop-filter: blur(12px);
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+    backdrop-filter: blur(16px);
 }
 
 .navbar-container {
@@ -53,9 +58,24 @@ a {
 }
 
 .logo {
-    font-size: 1.15rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    font-size: 1.05rem;
     font-weight: 800;
     color: var(--text);
+}
+
+.logo::before {
+    content: "JF";
+    display: inline-grid;
+    place-items: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 8px;
+    background: var(--brand);
+    color: #fff;
+    font-size: 0.82rem;
 }
 
 .nav-menu {
@@ -70,7 +90,7 @@ a {
     align-items: center;
     min-height: 38px;
     padding: 0.45rem 0.85rem;
-    border-radius: 8px;
+    border-radius: 999px;
     color: var(--muted);
     font-size: 0.94rem;
     font-weight: 650;
@@ -79,25 +99,32 @@ a {
 
 .nav-menu a:hover,
 .nav-menu a.active {
-    background: #eaf1ff;
+    background: var(--brand-soft);
     color: var(--brand);
 }
 
 .container {
     width: min(1180px, calc(100% - 2rem));
     margin: 0 auto;
-    padding: 2rem 0 3rem;
+    padding: 2.1rem 0 3.25rem;
 }
 
 .hero {
-    margin-bottom: 1.6rem;
+    margin-bottom: 1.65rem;
+    padding: 0.35rem 0 0.4rem;
 }
 
 .hero h1 {
-    margin-bottom: 0.35rem;
-    font-size: clamp(2rem, 5vw, 3.2rem);
-    line-height: 1.05;
+    max-width: 780px;
+    margin-bottom: 0.55rem;
+    font-size: clamp(2.25rem, 5vw, 4rem);
+    line-height: 0.98;
     letter-spacing: 0;
+}
+
+.hero p {
+    max-width: 660px;
+    font-size: 1.02rem;
 }
 
 .hero p,
@@ -127,7 +154,8 @@ a {
 .card h2,
 .form-card h2,
 .profile-card h2 {
-    font-size: 1.05rem;
+    color: var(--ink-soft);
+    font-size: 1.02rem;
     line-height: 1.2;
 }
 
@@ -142,7 +170,7 @@ a {
     width: 9px;
     height: 9px;
     border-radius: 999px;
-    background: var(--success);
+    background: var(--brand);
 }
 
 .text-link {
@@ -153,6 +181,10 @@ a {
 
 .text-link:hover {
     text-decoration: underline;
+}
+
+.text-link::after {
+    content: " ->";
 }
 
 .dashboard-grid,
@@ -176,10 +208,11 @@ a {
 .source-summary {
     display: grid;
     gap: 0.9rem;
-    padding: 1rem;
+    padding: 1.05rem;
     background: var(--surface);
     border: 1px solid var(--border);
     border-radius: 8px;
+    box-shadow: var(--shadow-soft);
 }
 
 .source-metrics,
@@ -192,13 +225,15 @@ a {
 .source-metric {
     min-width: 112px;
     padding: 0.75rem 0.85rem;
-    background: var(--surface-muted);
+    background: linear-gradient(180deg, #fff, var(--surface-muted));
+    border: 1px solid #e8edf5;
     border-radius: 8px;
 }
 
 .source-metric strong {
     display: block;
-    font-size: 1.25rem;
+    color: var(--text);
+    font-size: 1.35rem;
     line-height: 1;
 }
 
@@ -233,9 +268,14 @@ a {
     height: 22px;
     padding: 0 0.25rem;
     border-radius: 999px;
-    background: #eaf1ff;
+    background: var(--brand-soft);
     color: var(--brand);
     font-size: 0.72rem;
+}
+
+.source-chip:hover {
+    border-color: #b8c7e6;
+    box-shadow: 0 4px 14px rgba(49, 87, 216, 0.08);
 }
 
 .more-chip {
@@ -261,7 +301,7 @@ a {
     background: var(--surface);
     border: 1px solid var(--border);
     border-radius: 8px;
-    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+    box-shadow: var(--shadow-soft);
 }
 
 .card,
@@ -275,6 +315,16 @@ a {
     display: flex;
     flex-direction: column;
     gap: 0.8rem;
+    min-height: 150px;
+    transition: transform 0.16s ease, box-shadow 0.16s ease, border-color 0.16s ease;
+}
+
+.card:hover,
+.job-card:hover,
+.company-card:hover {
+    border-color: #c4d0e4;
+    box-shadow: var(--shadow);
+    transform: translateY(-1px);
 }
 
 .scraped-card {
@@ -292,7 +342,7 @@ a {
     width: 42px;
     height: 42px;
     border-radius: 8px;
-    background: #eaf1ff;
+    background: var(--brand-soft);
     color: var(--brand);
     font-weight: 800;
 }
@@ -326,12 +376,14 @@ a {
 
 .stat-item {
     padding: 0.85rem;
-    background: var(--surface-muted);
+    background: var(--brand-soft);
+    border: 1px solid #dbe6ff;
     border-radius: 8px;
 }
 
 .stat-value {
-    font-size: 1.75rem;
+    color: var(--brand-dark);
+    font-size: 2rem;
     line-height: 1;
     font-weight: 850;
 }
@@ -350,13 +402,14 @@ a {
     align-items: center;
     justify-content: center;
     min-height: 40px;
-    padding: 0.62rem 1rem;
+    padding: 0.66rem 1rem;
     border: 0;
     border-radius: 8px;
     cursor: pointer;
     font: inherit;
     font-weight: 750;
     text-decoration: none;
+    transition: transform 0.14s ease, box-shadow 0.14s ease, background 0.14s ease;
 }
 
 .btn {
@@ -367,16 +420,18 @@ a {
 .apply-btn {
     background: var(--brand);
     color: #fff;
+    box-shadow: 0 10px 24px rgba(49, 87, 216, 0.22);
 }
 
 .btn-primary:hover,
 .apply-btn:hover {
     background: var(--brand-dark);
+    transform: translateY(-1px);
 }
 
 .btn-secondary {
-    background: #e2e8f0;
-    color: var(--text);
+    background: #edf2f7;
+    color: var(--ink-soft);
 }
 
 .btn:disabled {
@@ -386,11 +441,15 @@ a {
 
 .company-section {
     margin-top: 1.25rem;
+    padding: 1rem;
+    background: rgba(255, 255, 255, 0.74);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    box-shadow: var(--shadow-soft);
 }
 
 .company-section + .company-section {
-    padding-top: 1.25rem;
-    border-top: 1px solid var(--border);
+    padding-top: 1rem;
 }
 
 .company-name {
@@ -419,7 +478,7 @@ a {
 }
 
 .badge {
-    background: #eaf1ff;
+    background: var(--brand-soft);
     color: var(--brand);
 }
 
@@ -429,23 +488,23 @@ a {
 }
 
 .score {
-    background: #eaf1ff;
-    color: var(--brand);
+    background: #ecfdf3;
+    color: var(--success);
 }
 
 .subsection {
     margin-top: 0.85rem;
-    padding: 1rem;
-    border: 1px solid var(--border);
+    padding: 0;
+    border: 0;
     border-radius: 8px;
 }
 
 .matched-section {
-    background: var(--success-bg);
+    background: transparent;
 }
 
 .applied-section {
-    background: #f8fafc;
+    background: transparent;
 }
 
 .raw-section {
@@ -454,20 +513,35 @@ a {
 
 .subsection-title {
     margin-bottom: 0.85rem;
+    color: var(--ink-soft);
     font-size: 0.96rem;
 }
 
 .job-card {
-    min-height: 220px;
-    padding: 1rem;
+    min-height: 228px;
+    padding: 1.05rem;
     display: flex;
     flex-direction: column;
     gap: 0.85rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.job-card::before {
+    content: "";
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 4px;
+    background: var(--brand);
 }
 
 .job-card.applied {
     border-color: #cbd5e1;
     background: #f8fafc;
+}
+
+.job-card.applied::before {
+    background: var(--success);
 }
 
 .job-header {
@@ -478,7 +552,7 @@ a {
 }
 
 .job-header h3 {
-    font-size: 1rem;
+    font-size: 1.04rem;
     line-height: 1.35;
 }
 
@@ -500,7 +574,7 @@ a {
     gap: 0.75rem;
     margin-top: auto;
     padding-top: 0.8rem;
-    border-top: 1px solid var(--border);
+    border-top: 1px solid #e6edf7;
 }
 
 .job-footer small {
@@ -527,6 +601,7 @@ a {
     padding: 1rem;
     display: grid;
     gap: 0.75rem;
+    transition: transform 0.16s ease, box-shadow 0.16s ease, border-color 0.16s ease;
 }
 
 .company-group {
@@ -613,7 +688,7 @@ a {
 }
 
 .log-item {
-    padding: 0.8rem 0;
+    padding: 0.72rem 0;
     border-bottom: 1px solid var(--border);
 }
 
@@ -640,6 +715,17 @@ a {
 .loading-spinner,
 .empty-inline {
     color: var(--muted);
+}
+
+.empty-state {
+    color: var(--muted);
+    background: linear-gradient(180deg, #fff, #f8fafc);
+    border-style: dashed;
+}
+
+.empty-state p {
+    max-width: 520px;
+    margin: 0 auto;
 }
 
 .loading,

@@ -10,6 +10,7 @@ const fallbackProfile = require("../profile");
 
 const { scrapeCompanyJobs } = require("../services/scraperService");
 const { evaluateJob } = require("../services/geminiService");
+const { sendMatchedJobEmail } = require("../services/emailService");
 
 const MATCH_THRESHOLD = Number(process.env.MATCH_THRESHOLD || 70);
 const MAX_JOBS_PER_COMPANY = Number(process.env.MAX_JOBS_PER_COMPANY || 10);
@@ -301,6 +302,18 @@ const runSearch = async () => {
             console.log(
               `Matched Job: ${job.title} | Score: ${result.analysis.score}`,
             );
+
+            try {
+              // New match milte hi email bhejna hai, par email fail ho to search break nahi hogi.
+              await sendMatchedJobEmail({
+                company,
+                job,
+                analysis: result.analysis,
+              });
+              console.log(`Email sent for matched job: ${job.title}`);
+            } catch (emailError) {
+              console.log(`Email failed for ${job.title}: ${emailError.message}`);
+            }
           }
         } catch (error) {
           errors.push({
@@ -341,3 +354,7 @@ cron.schedule("0 2 * * *", runSearch);
 
 // Exported so index.js can run it manually when RUN_SEARCH_ON_START=true.
 module.exports = runSearch;
+module.exports.runSearch = runSearch;
+module.exports.saveRawJob = saveRawJob;
+module.exports.analyseWithGemini = analyseWithGemini;
+module.exports.getActiveProfile = getActiveProfile;

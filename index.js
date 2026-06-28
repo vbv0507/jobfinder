@@ -11,6 +11,7 @@ const profileRoutes = require("./routes/profileRoutes");
 const runSearch = require("./cron/jobSearchCron");
 const { seedCompanies } = require("./services/companyService");
 const { generateMatchedCompanyReport } = require("./services/reportService");
+const { startTelegramListener } = require("./services/telegramService");
 
 const app = express();
 
@@ -61,6 +62,8 @@ const startServer = async () => {
     app.listen(PORT, () => {
         console.log(`Server running on port ${PORT}`);
     });
-};
 
+    // Telegram listener starts after server is up
+    await startTelegramListener();
+};
 startServer();
