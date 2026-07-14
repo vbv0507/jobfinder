@@ -38,19 +38,9 @@
                         <tr class="hover:bg-gray-50 transition job-row flex flex-col md:table-row border-b md:border-b-0 border-gray-100 p-4 md:p-0">
                             <td class="md:px-6 md:py-4 md:whitespace-nowrap flex items-center justify-between md:table-cell mb-2 md:mb-0">
                                 <div class="flex items-center">
-                                    <% 
-                                        let domain = 'example.com';
-                                        if (job.company && job.company.careerUrl) {
-                                            try {
-                                                const url = new URL(job.company.careerUrl);
-                                                domain = url.hostname.replace('www.', '');
-                                            } catch(e) {}
-                                        }
-                                    %>
                                     <div class="flex-shrink-0 h-10 w-10 bg-white rounded-md flex items-center justify-center border border-gray-200 overflow-hidden">
-                                        <img src="https://logo.clearbit.com/<%= domain %>" 
-                                             onerror="this.onerror=null; this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' fill=\'%236b7280\' viewBox=\'0 0 24 24\'><path d=\'M12 2L2 7l10 5 10-5-10-5zm0 7.5l-10-5V17l10 5 10-5V4.5l-10 5z\'/></svg>';" 
-                                             class="h-6 w-6 object-contain" alt="Logo">
+                                        <img src="<%= getCompanyLogo(job.company && job.company.name ? job.company.name : 'Unknown') %>" 
+                                             class="h-6 w-6 object-contain" alt="Logo" loading="lazy" width="40" height="40">
                                     </div>
                                     <div class="ml-4">
                                         <div class="text-sm font-medium text-gray-900 job-title"><%= job.role %></div>

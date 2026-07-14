@@ -17,10 +17,11 @@ const { startTelegramListener } = require("./services/telegramService");
 
 const app = express();
 
+const companyBranding = require("./utils/companyBranding");
+Object.assign(app.locals, companyBranding);
 
 app.use(express.json());
 app.use(express.static("public"));
-
 
 app.set("view engine", "ejs");
 app.set("views", "./views");

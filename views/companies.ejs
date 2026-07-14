@@ -21,21 +21,13 @@
             
             if(data.success && data.companies.length > 0) {
                 container.innerHTML = data.companies.map(c => {
-                    let domain = 'example.com';
-                    if (c.careerUrl) {
-                        try {
-                            const url = new URL(c.careerUrl);
-                            domain = url.hostname.replace('www.', '');
-                        } catch(e) {}
-                    }
                     return `
                     <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 flex flex-col hover:shadow-md transition">
                         <div class="flex justify-between items-start mb-4">
                             <div class="flex items-center gap-3">
                                 <div class="h-12 w-12 rounded-lg bg-white border border-gray-200 flex items-center justify-center overflow-hidden">
-                                    <img src="https://logo.clearbit.com/${domain}" 
-                                         onerror="this.onerror=null; this.src='data:image/svg+xml;utf8,<svg xmlns=\\'http://www.w3.org/2000/svg\\' fill=\\'%236b7280\\' viewBox=\\'0 0 24 24\\'><path d=\\'M12 2L2 7l10 5 10-5-10-5zm0 7.5l-10-5V17l10 5 10-5V4.5l-10 5z\\'/></svg>';" 
-                                         class="h-8 w-8 object-contain" alt="Logo">
+                                    <img src="${c.logoUrl}" 
+                                         class="h-8 w-8 object-contain" alt="Logo" loading="lazy" width="48" height="48">
                                 </div>
                                 <div>
                                     <h3 class="font-bold text-gray-900 text-lg">${c.name}</h3>

@@ -21,12 +21,18 @@ const addCompany = async (req, res) => {
 
 const getCompanies = async (req, res) => {
     try {
-        const companies = await Company.find();
+        const companies = await Company.find().lean();
+        const { getCompanyLogo } = require("../utils/companyBranding");
+
+        const companiesWithLogos = companies.map(c => ({
+            ...c,
+            logoUrl: getCompanyLogo(c.name)
+        }));
 
         res.status(200).json({
             success: true,
-            count: companies.length,
-            companies,
+            count: companiesWithLogos.length,
+            companies: companiesWithLogos,
         });
     } catch (error) {
         res.status(500).json({
