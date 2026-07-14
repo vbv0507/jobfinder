@@ -1,10 +1,10 @@
-// profile.js - Profile page logic
-// Matches backend CandidateProfile model:
-// { name, graduationYear, skills[], preferredRoles[], preferredLocations[], projects[], careerPreferences[] }
+
+
+
 
 let isEditing = true;
 
-// Convert a comma-separated string into a clean array of trimmed values.
+
 function toArray(value) {
     if (!value) return [];
     return value
@@ -13,7 +13,7 @@ function toArray(value) {
         .filter(item => item.length > 0);
 }
 
-// Convert an array (or value) into a comma-separated string for display/inputs.
+
 function toCommaString(value) {
     if (Array.isArray(value)) return value.join(', ');
     return value || '';
@@ -22,18 +22,18 @@ function toCommaString(value) {
 async function loadProfile() {
     try {
         const response = await apiCall('/profile');
-        // Backend returns { success, profile }
+        
         const profile = response.profile;
 
         if (!profile) {
-            // No profile yet, show form
+            
             isEditing = true;
             document.getElementById('profile-form').style.display = 'block';
             document.getElementById('profile-display').style.display = 'none';
             return;
         }
 
-        // Load profile data into form
+        
         document.getElementById('name').value = profile.name || '';
         document.getElementById('graduation-year').value = profile.graduationYear || '';
         document.getElementById('skills').value = toCommaString(profile.skills);
@@ -42,7 +42,7 @@ async function loadProfile() {
         document.getElementById('projects').value = toCommaString(profile.projects);
         document.getElementById('career-preferences').value = toCommaString(profile.careerPreferences);
 
-        // Show profile display
+        
         isEditing = false;
         displayProfile(profile);
     } catch (error) {
@@ -79,7 +79,7 @@ function editProfile() {
     document.getElementById('profile-display').style.display = 'none';
 }
 
-// Handle profile form submission
+
 document.addEventListener('DOMContentLoaded', () => {
     loadProfile();
 
@@ -102,7 +102,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 await apiCall('/profile', 'POST', profileData);
                 showAlert('Profile saved successfully!', 'success');
 
-                // Reload profile
+                
                 setTimeout(() => {
                     loadProfile();
                 }, 500);

@@ -1,119 +1,142 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jobs - Job Finder</title>
-    <link rel="stylesheet" href="/css/style.css">
-</head>
-<body>
-    <nav class="navbar">
-        <div class="navbar-container">
-            <div class="logo">Job Finder</div>
-            <ul class="nav-menu">
-                <li><a href="/">Dashboard</a></li>
-                <li><a href="/jobs" class="active">Jobs</a></li>
-                <li><a href="/companies">Companies</a></li>
-            </ul>
+<%- include('partials/header') %>
+
+<div class="mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
+    <div>
+        <h2 class="text-2xl font-bold text-gray-900"><%= title %></h2>
+        <p class="text-gray-500 text-sm mt-1">Review AI-matched jobs. Only roles scoring above threshold are shown.</p>
+    </div>
+    
+    <!-- Controls -->
+    <div class="flex gap-2">
+        <div class="relative">
+            <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
+            <input type="text" id="searchInput" onkeyup="filterJobs()" placeholder="Search roles or companies..." class="pl-10 pr-4 py-2 border border-gray-300 rounded-md text-sm focus:ring-primary focus:border-primary w-64">
         </div>
-    </nav>
+    </div>
+</div>
 
-    <main class="container">
-        <section class="hero">
-            <h1>Job Opportunities</h1>
-            <p>Matched fresher-friendly jobs grouped by company.</p>
-        </section>
+<div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+    <% if (jobs.length === 0) { %>
+        <div class="p-12 text-center text-gray-500 flex flex-col items-center">
+            <i class="fas fa-folder-open text-5xl mb-4 text-gray-300"></i>
+            <p class="text-lg font-medium text-gray-900">No jobs found</p>
+            <p>Try running the job search pipeline or checking back later.</p>
+        </div>
+    <% } else { %>
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Role & Company</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Score</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Location</th>
+                        <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-100" id="jobsTableBody">
+                    <% jobs.forEach(function(job) { %>
+                        <tr class="hover:bg-gray-50 transition job-row">
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="flex items-center">
+                                    <% 
+                                        let domain = 'example.com';
+                                        if (job.company && job.company.careerUrl) {
+                                            try {
+                                                const url = new URL(job.company.careerUrl);
+                                                domain = url.hostname.replace('www.', '');
+                                            } catch(e) {}
+                                        }
+                                    %>
+                                    <div class="flex-shrink-0 h-10 w-10 bg-white rounded-md flex items-center justify-center border border-gray-200 overflow-hidden">
+                                        <img src="https://logo.clearbit.com/<%= domain %>" 
+                                             onerror="this.onerror=null; this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' fill=\'%236b7280\' viewBox=\'0 0 24 24\'><path d=\'M12 2L2 7l10 5 10-5-10-5zm0 7.5l-10-5V17l10 5 10-5V4.5l-10 5z\'/></svg>';" 
+                                             class="h-6 w-6 object-contain" alt="Logo">
+                                    </div>
+                                    <div class="ml-4">
+                                        <div class="text-sm font-medium text-gray-900 job-title"><%= job.role %></div>
+                                        <div class="text-sm text-gray-500 job-company"><%= (job.company && job.company.name) ? job.company.name : 'Unknown' %></div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="flex items-center">
+                                    <% 
+                                        let scoreColor = "bg-green-100 text-green-800";
+                                        if (job.score < 70) scoreColor = "bg-yellow-100 text-yellow-800";
+                                        if (job.score < 40) scoreColor = "bg-red-100 text-red-800";
+                                    %>
+                                    <span class="px-2.5 py-0.5 inline-flex text-xs leading-5 font-semibold rounded-full <%= scoreColor %>">
+                                        <%= job.score %>/100
+                                    </span>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                <%= job.location || 'Remote' %>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
+                                <a href="/job/<%= job._id %>" class="text-primary hover:text-primaryHover bg-blue-50 px-3 py-1 rounded-md transition">Details</a>
+                                
+                                <% if(job.status !== 'saved') { %>
+                                    <button onclick="updateStatus('<%= job._id %>', 'saved')" class="text-gray-600 hover:text-gray-900 bg-gray-100 px-3 py-1 rounded-md transition" title="Save for later">
+                                        <i class="far fa-bookmark"></i>
+                                    </button>
+                                <% } %>
+                                
+                                <% if(job.status !== 'applied') { %>
+                                    <button onclick="updateStatus('<%= job._id %>', 'applied')" class="text-green-600 hover:text-green-900 bg-green-50 px-3 py-1 rounded-md transition" title="Mark as applied">
+                                        <i class="fas fa-check"></i>
+                                    </button>
+                                <% } %>
+                                
+                                <% if(job.status !== 'rejected') { %>
+                                    <button onclick="updateStatus('<%= job._id %>', 'rejected')" class="text-red-600 hover:text-red-900 bg-red-50 px-3 py-1 rounded-md transition" title="Reject">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                <% } %>
+                            </td>
+                        </tr>
+                    <% }); %>
+                </tbody>
+            </table>
+        </div>
+    <% } %>
+</div>
 
-        <% if (Object.keys(jobs).length === 0) { %>
-            <div class="empty-state">
-                <p>No matched jobs found yet. Run a search to check the latest fresher-friendly roles.</p>
-            </div>
-        <% } else { %>
-            <% Object.entries(jobs).forEach(([company, sections]) => { %>
-                <section class="company-section">
-                    <div class="company-name">
-                        <span class="badge"><%= company %></span>
-                        <small><%= sections.matched?.length || 0 %> matched - <%= sections.applied?.length || 0 %> applied</small>
-                    </div>
+<script>
+    function filterJobs() {
+        const input = document.getElementById('searchInput').value.toLowerCase();
+        const rows = document.querySelectorAll('.job-row');
+        
+        rows.forEach(row => {
+            const title = row.querySelector('.job-title').textContent.toLowerCase();
+            const company = row.querySelector('.job-company').textContent.toLowerCase();
+            
+            if (title.includes(input) || company.includes(input)) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    }
 
-                    <% if (sections.matched && sections.matched.length > 0) { %>
-                        <div class="subsection matched-section">
-                            <h3 class="subsection-title">Matched Jobs (<%= sections.matched.length %>)</h3>
-                            <div class="jobs-grid">
-                                <% sections.matched.forEach(job => { %>
-                                    <article class="job-card matched">
-                                        <div class="job-header">
-                                            <h3><%= job.role %></h3>
-                                            <span class="score"><%= job.score %></span>
-                                        </div>
-
-                                        <div class="job-details">
-                                            <p><strong>Location:</strong> <%= job.location %></p>
-                                            <% const openedDate = job.postedAt || job.rawJob?.postedAt || job.rawJob?.scrapedAt; %>
-                                            <p><strong>Opened:</strong> <%= openedDate ? new Date(openedDate).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) : 'Date not provided' %></p>
-                                            <p><strong>Match:</strong> <%= job.roleMatch || 'Profile aligned' %></p>
-                                        </div>
-
-                                        <div class="job-footer">
-                                            <label class="applied-toggle">
-                                                <input type="checkbox" onchange="toggleAppliedJob('<%= job._id %>', this.checked)">
-                                                <span>Applied</span>
-                                            </label>
-                                            <a href="<%= job.applyLink %>" target="_blank" class="apply-btn">Apply</a>
-                                        </div>
-                                    </article>
-                                <% }); %>
-                            </div>
-                        </div>
-                    <% } %>
-
-                    <% if (sections.applied && sections.applied.length > 0) { %>
-                        <div class="subsection applied-section">
-                            <h3 class="subsection-title">Applied Jobs (<%= sections.applied.length %>)</h3>
-                            <div class="jobs-grid">
-                                <% sections.applied.forEach(job => { %>
-                                    <article class="job-card matched applied">
-                                        <div class="job-header">
-                                            <h3><%= job.role %></h3>
-                                            <span class="score"><%= job.score %></span>
-                                        </div>
-
-                                        <div class="job-details">
-                                            <p><strong>Location:</strong> <%= job.location %></p>
-                                            <% const appliedOpenedDate = job.postedAt || job.rawJob?.postedAt || job.rawJob?.scrapedAt; %>
-                                            <p><strong>Opened:</strong> <%= appliedOpenedDate ? new Date(appliedOpenedDate).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) : 'Date not provided' %></p>
-                                            <p><strong>Match:</strong> <%= job.roleMatch || 'Profile aligned' %></p>
-                                        </div>
-
-                                        <div class="job-footer">
-                                            <label class="applied-toggle">
-                                                <input type="checkbox" checked onchange="toggleAppliedJob('<%= job._id %>', this.checked)">
-                                                <span>Applied</span>
-                                            </label>
-                                            <a href="<%= job.applyLink %>" target="_blank" class="apply-btn">Apply</a>
-                                        </div>
-                                    </article>
-                                <% }); %>
-                            </div>
-                        </div>
-                    <% } %>
-                </section>
-            <% }); %>
-        <% } %>
-    </main>
-
-    <footer class="footer">
-        <p>&copy; 2026 Job Finder. Find your dream job easily.</p>
-    </footer>
-    <script>
-        async function toggleAppliedJob(jobId, applied) {
-            await fetch(`/api/jobs/matched/${jobId}/applied`, {
+    async function updateStatus(id, status) {
+        try {
+            const res = await fetch(`/api/jobs/${id}/status`, {
                 method: "PATCH",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ applied }),
+                body: JSON.stringify({ status })
             });
-            window.location.reload();
+            const data = await res.json();
+            if (data.success) {
+                // simple reload to refresh list based on current active tab
+                window.location.reload();
+            } else {
+                alert("Failed to update status");
+            }
+        } catch (e) {
+            alert("Error updating status");
         }
-    </script>
-</body>
-</html>
+    }
+</script>
+
+<%- include('partials/footer') %>

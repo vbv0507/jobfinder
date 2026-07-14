@@ -1,80 +1,207 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard - Job Finder</title>
-    <link rel="stylesheet" href="/css/style.css">
-</head>
-<body>
-    <nav class="navbar">
-        <div class="navbar-container">
-            <div class="logo">Job Finder</div>
-            <ul class="nav-menu">
-                <li><a href="/" class="active">Dashboard</a></li>
-                <li><a href="/jobs">Jobs</a></li>
-                <li><a href="/companies">Companies</a></li>
-            </ul>
+<%- include('partials/header') %>
+
+<!-- Dashboard Content -->
+<div class="mb-8 flex flex-col md:flex-row md:justify-between md:items-end gap-4">
+    <div>
+        <h2 class="text-2xl font-bold text-gray-900">Platform Overview</h2>
+        <p class="text-gray-500 text-sm mt-1">Real-time statistics of your Job Intelligence Engine.</p>
+    </div>
+    
+    <!-- Pipeline Status Widget -->
+    <div id="pipeline-widget" class="bg-white px-4 py-2 rounded-lg shadow-sm border border-gray-100 flex items-center gap-3">
+        <div class="relative flex h-3 w-3">
+            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-gray-400 opacity-75"></span>
+            <span class="relative inline-flex rounded-full h-3 w-3 bg-gray-500"></span>
         </div>
-    </nav>
+        <div class="text-sm">
+            <p class="text-gray-800 font-medium leading-none">Status: Loading...</p>
+            <p class="text-gray-500 text-xs mt-1 leading-none" id="pipeline-msg">Connecting to engine</p>
+        </div>
+    </div>
+</div>
 
-    <main class="container">
-        <section class="hero">
-            <h1>Job Search Dashboard</h1>
-            <p>Track active companies, matched roles, and recent search runs in one clean view.</p>
-        </section>
+<!-- Stats Grid with Skeletons -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8" id="stats-container">
+    <!-- Skeleton Loaders -->
+    <% for(let i=0; i<8; i++) { %>
+    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 animate-pulse">
+        <div class="h-4 bg-gray-200 rounded w-1/2 mb-4"></div>
+        <div class="h-8 bg-gray-300 rounded w-1/3"></div>
+    </div>
+    <% } %>
+</div>
 
-        <section class="scraped-companies">
-            <div class="section-heading compact-heading">
-                <div>
-                    <h2><span></span>Active Sources</h2>
-                    <p>Compact view of companies used during each search run.</p>
-                </div>
-                <a href="/companies" class="text-link">Manage</a>
-            </div>
-            <div id="scraping-grid" class="source-summary">
-                <div class="loading-spinner">Loading companies...</div>
-            </div>
-        </section>
+<!-- Quick Actions & Activity -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+    
+    <!-- Action Cards -->
+    <div class="lg:col-span-1 space-y-6">
+        <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+            <h3 class="text-lg font-semibold text-gray-800 mb-2">Manual Trigger</h3>
+            <p class="text-gray-500 text-sm mb-4">Start the scraping and matching pipeline immediately.</p>
+            <button onclick="triggerJobSearch()" class="w-full bg-primary hover:bg-primaryHover text-white py-2 rounded-lg font-medium transition shadow-sm">
+                <i class="fas fa-play mr-2"></i> Start Pipeline
+            </button>
+        </div>
 
-        <section class="dashboard-grid">
-            <div class="card">
-                <h2>Quick Stats</h2>
-                <div id="stats-content" class="loading">Loading...</div>
-            </div>
+        <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 border-l-4 border-l-red-500">
+            <h3 class="text-lg font-semibold text-gray-800 mb-2">Maintenance</h3>
+            <p class="text-gray-500 text-sm mb-4">Clear raw un-matched scraped jobs to free up database space.</p>
+            <button onclick="clearRawJobs()" class="w-full bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 py-2 rounded-lg font-medium transition">
+                <i class="fas fa-trash-alt mr-2 text-red-500"></i> Clear Raw DB
+            </button>
+        </div>
+    </div>
 
-            <div class="card">
-                <h2>Job Search</h2>
-                <p class="muted">Manually trigger a fresh scrape and profile match.</p>
-                <button class="btn btn-primary" onclick="runJobSearch(event)">Run Job Search</button>
-            </div>
+    <!-- Recent Logs -->
+    <div class="lg:col-span-2 bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden flex flex-col h-96">
+        <div class="p-4 border-b border-gray-100 flex justify-between items-center bg-gray-50 shrink-0">
+            <h3 class="text-lg font-semibold text-gray-800"><i class="fas fa-terminal mr-2 text-gray-400"></i> System Logs</h3>
+            <button onclick="fetchLogs()" class="text-gray-400 hover:text-primary transition" title="Refresh Logs"><i class="fas fa-sync-alt"></i></button>
+        </div>
+        <div class="p-4 overflow-y-auto flex-1 bg-gray-900 text-green-400 font-mono text-sm space-y-1" id="logs-container">
+            Loading logs...
+        </div>
+    </div>
 
-            <div class="card">
-                <h2>Recent Activity</h2>
-                <div id="logs-content" class="loading">Loading...</div>
-            </div>
+</div>
 
-            <div class="card maintenance-card">
-                <h2>Maintenance</h2>
-                <p class="muted">Use only when you want to reset raw scrape data.</p>
-                <button class="btn btn-secondary" onclick="deleteRawJobs(event)">Clear Raw Jobs</button>
-            </div>
-        </section>
+<script>
+    async function loadDashboard() {
+        try {
+            const res = await fetch("/api/jobs/analytics");
+            const data = await res.json();
+            
+            if(data.success) {
+                const s = data.stats;
+                document.getElementById('stats-container').innerHTML = `
+                    <!-- Row 1 -->
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 relative overflow-hidden group">
+                        <div class="absolute right-0 top-0 mt-4 mr-4 text-blue-100 group-hover:scale-110 transition-transform"><i class="fas fa-building text-4xl"></i></div>
+                        <h4 class="text-gray-500 text-sm font-medium uppercase tracking-wider">Companies</h4>
+                        <p class="text-3xl font-bold text-gray-800 mt-2">${s.companiesMonitored}</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 relative overflow-hidden group">
+                        <div class="absolute right-0 top-0 mt-4 mr-4 text-indigo-100 group-hover:scale-110 transition-transform"><i class="fas fa-search text-4xl"></i></div>
+                        <h4 class="text-gray-500 text-sm font-medium uppercase tracking-wider">Scraped Today</h4>
+                        <p class="text-3xl font-bold text-gray-800 mt-2">${s.rawJobsToday}</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 relative overflow-hidden group">
+                        <div class="absolute right-0 top-0 mt-4 mr-4 text-purple-100 group-hover:scale-110 transition-transform"><i class="fas fa-brain text-4xl"></i></div>
+                        <h4 class="text-gray-500 text-sm font-medium uppercase tracking-wider">AI Evaluated</h4>
+                        <p class="text-3xl font-bold text-gray-800 mt-2">${s.aiEvaluatedCount}</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 relative overflow-hidden group border-l-4 border-l-green-500">
+                        <div class="absolute right-0 top-0 mt-4 mr-4 text-green-100 group-hover:scale-110 transition-transform"><i class="fas fa-check-double text-4xl"></i></div>
+                        <h4 class="text-gray-500 text-sm font-medium uppercase tracking-wider">Matched</h4>
+                        <p class="text-3xl font-bold text-gray-800 mt-2">${s.matchedJobsCount}</p>
+                    </div>
+                    
+                    <!-- Row 2 -->
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 relative overflow-hidden group border-l-4 border-l-yellow-400">
+                        <div class="absolute right-0 top-0 mt-4 mr-4 text-yellow-100 group-hover:scale-110 transition-transform"><i class="fas fa-bookmark text-4xl"></i></div>
+                        <h4 class="text-gray-500 text-sm font-medium uppercase tracking-wider">Saved</h4>
+                        <p class="text-3xl font-bold text-gray-800 mt-2">${s.savedJobsCount}</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 relative overflow-hidden group border-l-4 border-l-primary">
+                        <div class="absolute right-0 top-0 mt-4 mr-4 text-primary opacity-10 group-hover:scale-110 transition-transform"><i class="fas fa-paper-plane text-4xl"></i></div>
+                        <h4 class="text-gray-500 text-sm font-medium uppercase tracking-wider">Applied</h4>
+                        <p class="text-3xl font-bold text-gray-800 mt-2">${s.appliedJobsCount}</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 relative overflow-hidden group border-l-4 border-l-red-500">
+                        <div class="absolute right-0 top-0 mt-4 mr-4 text-red-100 group-hover:scale-110 transition-transform"><i class="fas fa-times-circle text-4xl"></i></div>
+                        <h4 class="text-gray-500 text-sm font-medium uppercase tracking-wider">Rejected</h4>
+                        <p class="text-3xl font-bold text-gray-800 mt-2">${s.rejectedJobsCount}</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex flex-col justify-center">
+                        <h4 class="text-gray-500 text-xs font-medium uppercase tracking-wider">Next Run</h4>
+                        <p class="text-sm font-bold text-gray-800 mt-1">${s.nextScheduledRun || 'Unknown'}</p>
+                        <h4 class="text-gray-500 text-xs font-medium uppercase tracking-wider mt-3">Last Success</h4>
+                        <p class="text-sm font-bold text-gray-800 mt-1">${s.lastSuccessfulRun ? new Date(s.lastSuccessfulRun).toLocaleString() : 'Never'}</p>
+                    </div>
+                `;
+            }
+        } catch(e) {
+            console.error(e);
+        }
+    }
 
-        <section class="page-section">
-            <div class="section-heading">
-                <h2>Jobs By Company</h2>
-                <p>Only profile-matched fresher-friendly roles are shown here.</p>
-            </div>
-            <div id="company-jobs-content" class="loading">Loading jobs...</div>
-        </section>
-    </main>
+    async function fetchLogs() {
+        const container = document.getElementById('logs-container');
+        container.innerHTML = '<span class="text-gray-500">Fetching logs...</span>';
+        try {
+            const res = await fetch("/api/jobs/logs");
+            const data = await res.json();
+            if(data.success && data.logs.length > 0) {
+                container.innerHTML = data.logs.map(log => {
+                    const d = new Date(log.createdAt).toLocaleString();
+                    const color = log.status === 'Failed' ? 'text-red-400' : 
+                                 (log.status === 'Partial Success' ? 'text-yellow-400' : 'text-green-400');
+                    return `<div><span class="text-gray-500">[${d}]</span> <span class="${color}">${log.message || 'Legacy Log: ' + log.status}</span></div>`;
+                }).join("");
+            } else {
+                container.innerHTML = '<span class="text-gray-500">No logs found.</span>';
+            }
+        } catch (e) {
+            container.innerHTML = '<span class="text-red-400">Failed to load logs.</span>';
+        }
+    }
+    
+    async function fetchPipelineStatus() {
+        try {
+            const res = await fetch("/api/jobs/status");
+            const data = await res.json();
+            if(data.success) {
+                const s = data.state;
+                const widget = document.getElementById('pipeline-widget');
+                
+                let dotColor = 'bg-gray-400';
+                let pingColor = 'bg-gray-400';
+                
+                if (s.status === 'Running') {
+                    dotColor = 'bg-primary';
+                    pingColor = 'bg-primary';
+                } else if (s.status === 'Idle') {
+                    dotColor = 'bg-green-500';
+                    pingColor = 'bg-green-500';
+                } else if (s.status === 'Failed') {
+                    dotColor = 'bg-red-500';
+                    pingColor = 'bg-red-500';
+                }
+                
+                widget.innerHTML = `
+                    <div class="relative flex h-3 w-3">
+                        ${s.status === 'Running' ? `<span class="animate-ping absolute inline-flex h-full w-full rounded-full ${pingColor} opacity-75"></span>` : ''}
+                        <span class="relative inline-flex rounded-full h-3 w-3 ${dotColor}"></span>
+                    </div>
+                    <div class="text-sm">
+                        <p class="text-gray-800 font-medium leading-none">Pipeline: ${s.status}</p>
+                        <p class="text-gray-500 text-xs mt-1 leading-none" title="${s.message}">${s.message.length > 30 ? s.message.substring(0,30) + '...' : s.message}</p>
+                    </div>
+                `;
+            }
+        } catch (e) {}
+    }
 
-    <footer class="footer">
-        <p>&copy; 2026 Job Finder. Find your dream job easily.</p>
-    </footer>
+    async function clearRawJobs() {
+        if(!confirm("Are you sure you want to delete all raw job data?")) return;
+        try {
+            const res = await fetch("/api/jobs/raw", { method: "DELETE" });
+            const data = await res.json();
+            if(data.success) alert(data.message);
+        } catch(e) {
+            alert("Error clearing raw jobs");
+        }
+    }
 
-    <script src="/js/main.js"></script>
-    <script src="/js/dashboard.js"></script>
-</body>
-</html>
+    document.addEventListener("DOMContentLoaded", () => {
+        loadDashboard();
+        fetchLogs();
+        fetchPipelineStatus();
+        
+        // Poll pipeline status every 5 seconds
+        setInterval(fetchPipelineStatus, 5000);
+    });
+</script>
+
+<%- include('partials/footer') %>

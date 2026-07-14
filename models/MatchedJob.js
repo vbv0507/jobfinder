@@ -16,12 +16,45 @@ const matchedJobSchema = new mongoose.Schema({
     location: String,
 
     score: Number,
+    
+    scoringBreakdown: {
+        roleMatch: Number,
+        skillsMatch: Number,
+        experienceMatch: Number,
+        domainMatch: Number,
+        locationMatch: Number
+    },
+
+    confidence: String,
 
     suitable: Boolean,
 
     reason: String,
 
+    primaryReasons: [String],
+
     missingSkills: [String],
+
+    domainMismatch: Boolean,
+    
+    jobDomain: String,
+    
+    evaluatedBy: {
+        type: String,
+        enum: ["Gemini", "Groq", "Local", "AI"], 
+        default: "Gemini"
+    },
+    
+    evaluationMetrics: {
+        provider: String,
+        durationMs: Number,
+        fallbackCount: Number,
+        failureReason: String
+    },
+
+    domainExplanation: String,
+
+    experienceMismatch: Boolean,
 
     roleMatch: String,
 
@@ -33,13 +66,21 @@ const matchedJobSchema = new mongoose.Schema({
 
     postedAt: Date,
 
-    // User ne apply kar diya to dashboard me Applied section me chala jayega.
-    applied: {
-        type: Boolean,
-        default: false,
+    
+    status: {
+        type: String,
+        enum: ["new", "saved", "applied", "rejected"],
+        default: "new"
     },
+    
+    notes: String,
+    
+    timeline: [{
+        status: String,
+        date: { type: Date, default: Date.now }
+    }],
 
-    appliedAt: Date
+    appliedAt: Date,
 
 }, { timestamps: true });
 

@@ -5,12 +5,15 @@ const RawJob = require("../models/RawJob");
 const MatchedJob = require("../models/MatchedJob");
 const SearchLog = require("../models/SearchLog");
 const CandidateProfile = require("../models/CandidateProfile");
+const TelegramChannel = require("../models/TelegramChannel");
 
 const fallbackProfile = require("../profile");
 
 const { scrapeCompanyJobs } = require("../services/scraperService");
 const { evaluateJob } = require("../services/geminiService");
 const { sendMatchedJobEmail } = require("../services/emailService");
+const { classifyDomain } = require("../utils/domains");
+const pipelineState = require("../services/pipelineState");
 
 const MATCH_THRESHOLD = Number(process.env.MATCH_THRESHOLD || 70);
 const MAX_JOBS_PER_COMPANY = Number(process.env.MAX_JOBS_PER_COMPANY || 10);
@@ -24,12 +27,12 @@ const getJobText = (job) =>
     .toLowerCase();
 
 const hasEntryLevelSignal = (text) =>
-  /\b(intern|internship|fresher|graduate|new grad|entry level|campus|trainee|junior|associate)\b|0\s*-\s*1|0\s*to\s*1/i.test(
+  /\b(intern|internship|fresher|new grad|entry level|campus|trainee|junior)\b|0\s*-\s*1|0\s*to\s*1/i.test(
     text,
   );
 
-// Pehle basic filter lagta hai, taaki AI quota waste na ho.
-// AI ko sirf wahi job bhejte hain jo profile ke close lagti hai.
+
+
 const getSkipReason = (job, profile) => {
   const text = getJobText(job);
   const preferredLocations = profile.preferredLocations || [];
@@ -64,6 +67,13 @@ const getSkipReason = (job, profile) => {
     return "role not aligned with profile";
   }
 
+  const jobDomain = classifyDomain(text);
+  const excludedDomains = (profile.excludedDomains || []).map(d => d.toUpperCase());
+  
+  if (excludedDomains.includes(jobDomain)) {
+    return `domain mismatch: classified as ${jobDomain}`;
+  }
+
   const hasSeniorKeyword =
     /\b(senior|sr\.?|lead|principal|manager|director|architect|staff)\b/i.test(
       text,
@@ -71,8 +81,10 @@ const getSkipReason = (job, profile) => {
   const hasTwoPlusYears = [
     ...text.matchAll(/(\d+)\s*(?:\+|-|to)?\s*(?:\d+)?\s*(?:years?|yrs?)/g),
   ].some((match) => Number(match[1]) >= 2);
+  const hasMandatoryExperience = /\b(minimum|mandatory|requires|required)\s*\d+\s*(?:years?|yrs?)\b/i.test(text);
+
   if (
-    (hasSeniorKeyword || hasTwoPlusYears) &&
+    (hasSeniorKeyword || hasTwoPlusYears || hasMandatoryExperience) &&
     !fresherRoleMatches
   ) {
     return "requires senior/experienced profile";
@@ -86,8 +98,8 @@ const getActiveProfile = async () =>
   fallbackProfile;
 
 const saveRawJob = async (company, job) => {
-  // Same job dobara aaye to new row create nahi karni.
-  // jobId ya applyLink match hua to purana raw job update hota hai.
+  
+  
   const duplicateChecks = [];
 
   if (job.jobId) {
@@ -102,10 +114,19 @@ const saveRawJob = async (company, job) => {
     $or: duplicateChecks,
   });
 
+  const sourceData = job.sourceChannel ? {
+      sourceName: job.sourceName || job.sourceChannel,
+      sourceChannel: job.sourceChannel,
+      telegramMessageId: job.telegramMessageId,
+      firstSeen: new Date(),
+      lastSeen: new Date()
+  } : null;
+
   if (existingJob) {
-    // Job same hai, bas latest details aur scrapedAt refresh kar do.
+    
     existingJob.title = job.title;
     existingJob.location = job.location;
+    existingJob.salary = job.salary;
     existingJob.experience = job.experience;
     existingJob.description = job.description;
     existingJob.applyLink = job.applyLink;
@@ -113,13 +134,31 @@ const saveRawJob = async (company, job) => {
     existingJob.postedAt = job.postedAt;
     existingJob.scrapedAt = new Date();
 
+    if (sourceData) {
+        
+        const existingSourceIndex = existingJob.sources.findIndex(s => s.sourceChannel === sourceData.sourceChannel);
+        if (existingSourceIndex >= 0) {
+            existingJob.sources[existingSourceIndex].lastSeen = new Date();
+        } else {
+            existingJob.sources.push(sourceData);
+        }
+    }
+
     return existingJob.save();
+  }
+
+  if (job.sourceChannel) {
+      await TelegramChannel.findOneAndUpdate(
+          { username: job.sourceChannel },
+          { $inc: { jobsFound: 1 } }
+      );
   }
 
   return RawJob.create({
       company: company._id,
       title: job.title,
       location: job.location,
+      salary: job.salary,
       jobId: job.jobId,
       experience: job.experience,
       description: job.description,
@@ -127,6 +166,7 @@ const saveRawJob = async (company, job) => {
       employmentType: job.employmentType,
       postedAt: job.postedAt,
       scrapedAt: new Date(),
+      sources: sourceData ? [sourceData] : []
   });
 };
 
@@ -134,12 +174,12 @@ const saveMatchedJob = async (rawJob, company, job, analysis) => {
   const score = Number(analysis.score);
   const evaluatedAt = new Date();
 
-  // Is raw job ko AI ne check kar liya, ye flag future runs me help karega.
+  
   rawJob.aiEvaluated = true;
   rawJob.aiEvaluatedAt = evaluatedAt;
 
   if (analysis.suitable !== true || score < MATCH_THRESHOLD) {
-    // AI ne reject kiya ya score threshold se kam hai.
+    
     rawJob.aiMatched = false;
     await rawJob.save();
     return false;
@@ -154,14 +194,27 @@ const saveMatchedJob = async (rawJob, company, job, analysis) => {
         role: job.title,
         location: job.location,
         score,
+        scoringBreakdown: analysis.scoringBreakdown || {},
+        confidence: analysis.confidence,
         suitable: true,
         reason: analysis.reason,
+        primaryReasons: analysis.primaryReasons || [],
         missingSkills: analysis.missingSkills || [],
+        domainMismatch: analysis.domainMismatch,
+        domainExplanation: analysis.domainExplanation || "",
+        experienceMismatch: analysis.experienceMismatch,
         roleMatch: analysis.roleMatch,
         experienceMatch: analysis.experienceMatch,
         recommendation: analysis.recommendation,
         applyLink: job.applyLink,
         postedAt: job.postedAt,
+        evaluatedBy: analysis.evaluatedBy || "Gemini",
+        evaluationMetrics: analysis.evaluationMetrics || {
+            provider: "Gemini",
+            durationMs: 0,
+            fallbackCount: 0,
+            failureReason: null
+        }
       },
     },
     {
@@ -173,6 +226,13 @@ const saveMatchedJob = async (rawJob, company, job, analysis) => {
   rawJob.aiMatched = true;
   await rawJob.save();
 
+  if (job.sourceChannel) {
+      await TelegramChannel.findOneAndUpdate(
+          { username: job.sourceChannel },
+          { $inc: { matchedJobs: 1 } }
+      );
+  }
+
   return true;
 };
 
@@ -183,7 +243,7 @@ const analyseWithGemini = async (job, profile, aiState) => {
   const skipReason = getSkipReason(job, profile);
 
   if (skipReason) {
-    // Job profile ke hisaab se weak hai, isliye AI call skip.
+    
     return { skipped: true, reason: skipReason };
   }
 
@@ -191,17 +251,12 @@ const analyseWithGemini = async (job, profile, aiState) => {
     return { skipped: true, reason: "AI evaluation limit reached" };
   }
 
-  if (aiState.quotaExceeded) {
-    return { skipped: true, reason: "Gemini quota already exceeded" };
-  }
-
   aiState.calls++;
-  // Yaha actual AI evaluation hota hai: Gemini, fir fallback service.
+  
   const analysis = await evaluateJob(job, profile);
 
-  if (analysis.errorCode === "QUOTA_EXCEEDED") {
-    aiState.quotaExceeded = true;
-    return { skipped: true, reason: "Gemini quota exceeded" };
+  if (analysis.errorCode === "QUOTA_EXCEEDED" || analysis.errorCode === "GEMINI_FAILED") {
+    return { skipped: true, reason: "Evaluator failed for this job" };
   }
 
   return { skipped: false, analysis };
@@ -209,16 +264,21 @@ const analyseWithGemini = async (job, profile, aiState) => {
 
 const saveSearchLog = async (startedAt, stats, errors) => {
   const completedAt = new Date();
+  const durationMs = completedAt - startedAt;
+  const status = errors.length ? "Partial Success" : "Success";
+  
+  const message = `[${status}] Scanned ${stats.companiesScanned} companies, found ${stats.jobsFound} jobs, matched ${stats.jobsMatched} jobs. Duration: ${(durationMs/1000).toFixed(1)}s`;
 
-  // Har run ka summary DB me save hota hai, dashboard activity ke liye.
+  
   await SearchLog.create({
     startedAt,
     completedAt,
-    durationMs: completedAt - startedAt,
+    durationMs,
     companiesScanned: stats.companiesScanned,
     jobsFound: stats.jobsFound,
     jobsMatched: stats.jobsMatched,
-    status: errors.length ? "Partial Success" : "Success",
+    status,
+    message,
     errorDetails: errors,
   });
 };
@@ -232,9 +292,15 @@ const runSearch = async () => {
     jobsMatched: 0,
   };
   const aiState = {
-    calls: 0,
-    quotaExceeded: false,
+    calls: 0
   };
+
+  pipelineState.status = "Running";
+  pipelineState.jobsScraped = 0;
+  pipelineState.jobsEvaluated = 0;
+  pipelineState.jobsMatched = 0;
+  pipelineState.lastRunTime = startedAt;
+  pipelineState.message = "Pipeline is currently running...";
 
   console.log("=================================");
   console.log("Job Search Started...");
@@ -265,6 +331,7 @@ const runSearch = async () => {
       }
 
       stats.jobsFound += scrapedJobs.length;
+      pipelineState.jobsScraped = stats.jobsFound;
 
       const jobsToProcess = scrapedJobs.slice(0, MAX_JOBS_PER_COMPANY);
 
@@ -274,7 +341,7 @@ const runSearch = async () => {
 
         try {
           if (rawJob.aiMatched || await hasExistingMatch(rawJob)) {
-            // Job pehle se matched hai, score dobara nikalne ki need nahi.
+            
             console.log(
               `Skipped AI analysis for ${job.title}: already matched earlier`,
             );
@@ -282,6 +349,7 @@ const runSearch = async () => {
           }
 
           const result = await analyseWithGemini(job, profile, aiState);
+          pipelineState.jobsEvaluated++;
 
           if (result.skipped) {
             console.log(
@@ -299,12 +367,13 @@ const runSearch = async () => {
 
           if (matched) {
             stats.jobsMatched++;
+            pipelineState.jobsMatched++;
             console.log(
               `Matched Job: ${job.title} | Score: ${result.analysis.score}`,
             );
 
             try {
-              // New match milte hi email bhejna hai, par email fail ho to search break nahi hogi.
+              
               await sendMatchedJobEmail({
                 company,
                 job,
@@ -334,8 +403,16 @@ const runSearch = async () => {
     console.log(`Jobs Found: ${stats.jobsFound}`);
     console.log(`Jobs Matched: ${stats.jobsMatched}`);
     console.log("=================================");
+    
+    pipelineState.status = "Idle";
+    pipelineState.lastRunDuration = new Date() - startedAt;
+    pipelineState.message = "Last run completed successfully.";
   } catch (error) {
     console.error("Cron Error:", error.message);
+
+    pipelineState.status = "Failed";
+    pipelineState.lastRunDuration = new Date() - startedAt;
+    pipelineState.message = `Failed: ${error.message}`;
 
     await saveSearchLog(
       startedAt,
@@ -349,12 +426,19 @@ const runSearch = async () => {
   }
 };
 
-// Runs automatically every day at 2:00 AM.
-cron.schedule("0 2 * * *", runSearch);
 
-// Exported so index.js can run it manually when RUN_SEARCH_ON_START=true.
+const schedule = "0 2 * * *";
+const cronTask = cron.schedule(schedule, runSearch);
+
+
+pipelineState.nextRunTime = "Scheduled for 02:00 AM daily";
+
+
 module.exports = runSearch;
 module.exports.runSearch = runSearch;
 module.exports.saveRawJob = saveRawJob;
+module.exports.saveMatchedJob = saveMatchedJob;
+module.exports.hasExistingMatch = hasExistingMatch;
 module.exports.analyseWithGemini = analyseWithGemini;
 module.exports.getActiveProfile = getActiveProfile;
+module.exports.saveSearchLog = saveSearchLog;

@@ -24,6 +24,8 @@ const searchLogSchema = new mongoose.Schema({
         enum: ["Success", "Partial Success", "Failed"]
     },
 
+    message: String,
+
     errorDetails: [
         {
             company: String,

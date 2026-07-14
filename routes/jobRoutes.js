@@ -6,9 +6,11 @@ const {
     getGroupedJobs,
     getCompleteJobs,
     getSearchLogs,
+    getPipelineStatus,
     getReport,
+    getAnalytics,
     runJobSearch,
-    updateAppliedStatus,
+    updateJobStatus,
     deleteRawJobs,
 } = require("../controller/jobController");
 
@@ -19,10 +21,11 @@ router.get("/matched", getMatchedJobs);
 router.get("/grouped", getGroupedJobs);
 router.get("/complete", getCompleteJobs);
 router.get("/logs", getSearchLogs);
+router.get("/status", getPipelineStatus);
 router.get("/report", getReport);
+router.get("/analytics", getAnalytics);
 router.post("/run", runJobSearch);
-// Applied checkbox isi endpoint ko hit karta hai.
-router.patch("/matched/:id/applied", updateAppliedStatus);
+router.patch("/:id/status", updateJobStatus);
 router.delete("/raw", deleteRawJobs);
 
 module.exports = router;

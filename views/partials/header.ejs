@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-gray-50">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= typeof title !== 'undefined' ? title + ' - ' : '' %>RoleNova ATS</title>
+    <!-- Tailwind CSS via CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#4f46e5',
+                        primaryHover: '#4338ca',
+                        secondary: '#f3f4f6',
+                        dark: '#111827'
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <style>
+        /* Custom scrollbar and minor tweaks */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        .fade-in { animation: fadeIn 0.3s ease-in; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body class="h-full flex overflow-hidden font-sans text-gray-800 antialiased">
+    
+    <%- include('sidebar') %>
+
+    <!-- Main Content Area -->
+    <div class="flex-1 flex flex-col w-0 overflow-hidden">
+        <!-- Top header -->
+        <header class="bg-white shadow-sm h-16 flex items-center px-6 justify-between flex-shrink-0 z-10">
+            <h1 class="text-xl font-semibold text-gray-800"><%= typeof title !== 'undefined' ? title : 'Dashboard' %></h1>
+            
+            <div class="flex items-center space-x-4">
+                <button class="text-gray-400 hover:text-gray-500">
+                    <i class="fas fa-bell"></i>
+                </button>
+                <div class="h-8 w-8 rounded-full bg-primary text-white flex items-center justify-center font-bold">
+                    RN
+                </div>
+            </div>
+        </header>
+        
+        <!-- Main Scrollable Content -->
+        <main class="flex-1 overflow-y-auto bg-gray-50 p-6">
+            <div class="max-w-7xl mx-auto space-y-6 fade-in">

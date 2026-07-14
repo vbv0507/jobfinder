@@ -46,5 +46,17 @@ module.exports = {
         "Noida",
         "Hyderabad",
         "Pune"
-    ]
+    ],
+    
+    careerStage: "Entry Level / New Grad",
+    
+    yearsOfExperience: 0,
+    
+    preferredDomains: ["BACKEND"],
+    
+    excludedDomains: ["MOBILE", "AI_ML", "DATA_ENG", "FRONTEND"],
+    
+    preferredEmploymentLevels: ["Internship", "Entry Level", "Junior", "Associate"],
+    
+    preferredJobTypes: ["Full-time", "Internship"]
 };

@@ -6,6 +6,7 @@ const rawJobSchema=new mongoose.Schema({
     },
     title:String,
     location:String,
+    salary:String,
     jobId:String,
     experience:String,
     description:String,
@@ -20,12 +21,25 @@ const rawJobSchema=new mongoose.Schema({
         type: Date,
         default: Date.now,
     },
-    // AI ne is raw job ko evaluate kiya ya nahi.
+    sources: [{
+        sourceName: String,
+        sourceChannel: String,
+        telegramMessageId: Number,
+        firstSeen: {
+            type: Date,
+            default: Date.now
+        },
+        lastSeen: {
+            type: Date,
+            default: Date.now
+        }
+    }],
+    
     aiEvaluated: {
         type: Boolean,
         default: false,
     },
-    // True hua to same job future run me AI ko dobara nahi bhejna.
+    
     aiMatched: {
         type: Boolean,
         default: false,

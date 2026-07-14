@@ -1,0 +1,91 @@
+<!-- Sidebar -->
+<div class="flex flex-col w-64 bg-dark h-full border-r border-gray-800 text-gray-300">
+    <div class="h-16 flex items-center px-6 border-b border-gray-800 shrink-0">
+        <div class="flex items-center gap-3 text-white font-bold text-xl tracking-wide">
+            <i class="fas fa-layer-group text-primary"></i>
+            RoleNova
+        </div>
+    </div>
+    
+    <div class="flex-1 overflow-y-auto py-4">
+        <nav class="space-y-1 px-3">
+            <p class="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Platform</p>
+            
+            <a href="/" class="flex items-center px-3 py-2 text-sm font-medium rounded-md hover:bg-gray-800 hover:text-white group">
+                <i class="fas fa-home w-6 text-gray-400 group-hover:text-white"></i> Dashboard
+            </a>
+            
+            <a href="/analytics" class="flex items-center px-3 py-2 text-sm font-medium rounded-md hover:bg-gray-800 hover:text-white group">
+                <i class="fas fa-chart-pie w-6 text-gray-400 group-hover:text-white"></i> Analytics
+            </a>
+            
+            <a href="/companies" class="flex items-center px-3 py-2 text-sm font-medium rounded-md hover:bg-gray-800 hover:text-white group">
+                <i class="fas fa-building w-6 text-gray-400 group-hover:text-white"></i> Companies
+            </a>
+            
+            <a href="/telegram" class="flex items-center px-3 py-2 text-sm font-medium rounded-md hover:bg-gray-800 hover:text-white group">
+                <i class="fab fa-telegram-plane w-6 text-gray-400 group-hover:text-white"></i> Telegram Channels
+            </a>
+
+            <div class="mt-8"></div>
+            <p class="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Job Tracking</p>
+
+            <a href="/jobs" class="flex items-center px-3 py-2 text-sm font-medium rounded-md hover:bg-gray-800 hover:text-white group">
+                <i class="fas fa-briefcase w-6 text-gray-400 group-hover:text-white"></i> Matched Jobs
+            </a>
+            
+            <a href="/saved" class="flex items-center px-3 py-2 text-sm font-medium rounded-md hover:bg-gray-800 hover:text-white group">
+                <i class="fas fa-bookmark w-6 text-gray-400 group-hover:text-white"></i> Saved
+            </a>
+            
+            <a href="/applied" class="flex items-center px-3 py-2 text-sm font-medium rounded-md hover:bg-gray-800 hover:text-white group">
+                <i class="fas fa-paper-plane w-6 text-gray-400 group-hover:text-white"></i> Applied
+            </a>
+            
+            <a href="/rejected" class="flex items-center px-3 py-2 text-sm font-medium rounded-md hover:bg-gray-800 hover:text-white group">
+                <i class="fas fa-times-circle w-6 text-gray-400 group-hover:text-white"></i> Rejected
+            </a>
+
+            <div class="mt-8"></div>
+            <p class="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Settings</p>
+            
+            <a href="/profile" class="flex items-center px-3 py-2 text-sm font-medium rounded-md hover:bg-gray-800 hover:text-white group">
+                <i class="fas fa-user-circle w-6 text-gray-400 group-hover:text-white"></i> Candidate Profile
+            </a>
+        </nav>
+    </div>
+
+    <div class="p-4 border-t border-gray-800 shrink-0">
+        <button onclick="triggerJobSearch()" class="w-full flex items-center justify-center gap-2 bg-primary hover:bg-primaryHover text-white py-2 px-4 rounded-md text-sm font-medium transition-colors">
+            <i class="fas fa-sync-alt"></i> Run Pipeline
+        </button>
+    </div>
+</div>
+
+<script>
+    function triggerJobSearch() {
+        if (!confirm("Trigger a fresh job scrape pipeline? This may take several minutes.")) return;
+        
+        fetch("/api/jobs/run", { method: "POST" })
+            .then(r => r.json())
+            .then(data => {
+                alert("Pipeline triggered successfully! Check logs for progress.");
+            })
+            .catch(err => alert("Error triggering pipeline."));
+    }
+    
+    // Highlight active link
+    document.addEventListener("DOMContentLoaded", () => {
+        const path = window.location.pathname;
+        const links = document.querySelectorAll('nav a');
+        links.forEach(link => {
+            if (link.getAttribute('href') === path) {
+                link.classList.add('bg-gray-800', 'text-white');
+                link.classList.remove('text-gray-300');
+                const icon = link.querySelector('i');
+                icon.classList.remove('text-gray-400');
+                icon.classList.add('text-primary');
+            }
+        });
+    });
+</script>

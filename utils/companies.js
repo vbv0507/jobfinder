@@ -1,5 +1,5 @@
-// For now the project uses only API-based scraping.
-// This keeps the code easier to understand and easier to explain in a resume.
+
+
 module.exports = [
     {
         name: "CommerceIQ",
@@ -97,8 +97,8 @@ module.exports = [
         careerUrl: "https://globalcareers.lge.com/jobs",
         scraperType: "api",
 
-        // LG also has an API, but its JSON shape is different from Visa.
-        // The "lg" strategy tells scraperService to use the LG-specific mapper.
+        
+        
         scraperConfig: {
             strategy: "lg",
             apiUrl: "https://globalcareers.lge.com/api/job/v1/jobs/",
@@ -840,4 +840,823 @@ module.exports = [
             ],
         },
     },
+    {
+        name: "Microsoft",
+        category: "Product",
+        active: true,
+        careerUrl: "https://careers.microsoft.com",
+        scraperType: "api",
+        scraperConfig: {
+            strategy: "workday",
+            apiUrl: "https://microsoft.wd1.myworkdayjobs.com/wday/cxs/microsoft/Microsoft/jobs",
+            allowedLocations: ["india", "remote", "bengaluru", "hyderabad", "noida", "bangalore"],
+            targetKeywords: ["software engineer", "sde", "backend", "developer", "api"],
+            excludedKeywords: ["senior", "principal", "manager", "director", "lead", "2+", "3+"]
+        }
+    },
+    {
+        name: "Stripe",
+        category: "Product",
+        active: true,
+        careerUrl: "https://stripe.com/jobs",
+        scraperType: "api",
+        scraperConfig: {
+            strategy: "workday",
+            apiUrl: "https://stripe.wd5.myworkdayjobs.com/wday/cxs/stripe/Stripe/jobs",
+            allowedLocations: ["india", "remote", "bengaluru", "bangalore"],
+            targetKeywords: ["software engineer", "backend", "developer", "api"],
+            excludedKeywords: ["senior", "principal", "manager", "director", "lead", "2+", "3+"]
+        }
+    },
+    {
+        name: "Atlassian",
+        category: "Product",
+        active: true,
+        careerUrl: "https://www.atlassian.com/company/careers",
+        scraperType: "api",
+        scraperConfig: {
+            strategy: "lever",
+            apiUrl: "https://api.lever.co/v0/postings/atlassian",
+            allowedLocations: ["india", "remote", "bengaluru", "bangalore"],
+            targetKeywords: ["software engineer", "backend", "developer", "api"],
+            excludedKeywords: ["senior", "principal", "manager", "director", "lead", "2+", "3+"]
+        }
+    },
+    {
+        name: "Cloudflare",
+        category: "Product",
+        active: true,
+        careerUrl: "https://www.cloudflare.com/careers/",
+        scraperType: "api",
+        scraperConfig: {
+            strategy: "greenhouse",
+            apiUrl: "https://boards-api.greenhouse.io/v1/boards/cloudflare/jobs",
+            allowedLocations: ["india", "remote", "bengaluru", "bangalore"],
+            targetKeywords: ["software engineer", "backend", "developer", "api"],
+            excludedKeywords: ["senior", "principal", "manager", "director", "lead", "2+", "3+"]
+        }
+    },
+    {
+        name: "Datadog",
+        category: "Product",
+        active: true,
+        careerUrl: "https://careers.datadoghq.com/",
+        scraperType: "api",
+        scraperConfig: {
+            strategy: "greenhouse",
+            apiUrl: "https://boards-api.greenhouse.io/v1/boards/datadog/jobs",
+            allowedLocations: ["india", "remote", "bengaluru", "bangalore", "noida", "hyderabad", "pune"],
+            targetKeywords: ["software engineer", "backend", "developer", "api"],
+            excludedKeywords: ["senior", "principal", "manager", "director", "lead", "2+", "3+"]
+        }
+    },
+    {
+        name: "Dropbox",
+        category: "Product",
+        active: true,
+        careerUrl: "https://jobs.dropbox.com/",
+        scraperType: "api",
+        scraperConfig: {
+            strategy: "greenhouse",
+            apiUrl: "https://boards-api.greenhouse.io/v1/boards/dropbox/jobs",
+            allowedLocations: ["india", "remote", "bengaluru", "bangalore"],
+            targetKeywords: ["software engineer", "backend", "developer", "api"],
+            excludedKeywords: ["senior", "principal", "manager", "director", "lead", "2+", "3+"]
+        }
+    },
+    {
+        name: "Snowflake",
+        category: "Product",
+        active: true,
+        careerUrl: "https://careers.snowflake.com/",
+        scraperType: "api",
+        scraperConfig: {
+            strategy: "greenhouse",
+            apiUrl: "https://boards-api.greenhouse.io/v1/boards/snowflake/jobs",
+            allowedLocations: ["india", "remote", "bengaluru", "bangalore", "pune"],
+            targetKeywords: ["software engineer", "backend", "developer", "api"],
+            excludedKeywords: ["senior", "principal", "manager", "director", "lead", "2+", "3+"]
+        }
+    },
+    {
+        name: "NVIDIA",
+        category: "Product",
+        active: true,
+        careerUrl: "https://www.nvidia.com/en-us/about/careers/",
+        scraperType: "api",
+        scraperConfig: {
+            strategy: "workday",
+            apiUrl: "https://nvidia.wd5.myworkdayjobs.com/wday/cxs/nvidia/NVIDIAExternalCareerSite/jobs",
+            allowedLocations: ["india", "remote", "bengaluru", "bangalore", "pune", "hyderabad"],
+            targetKeywords: ["software engineer", "backend", "developer", "api"],
+            excludedKeywords: ["senior", "principal", "manager", "director", "lead", "2+", "3+"]
+        }
+    },
+    {
+        name: "Cisco",
+        category: "Product",
+        active: true,
+        careerUrl: "https://jobs.cisco.com/",
+        scraperType: "api",
+        scraperConfig: {
+            strategy: "smartrecruiters",
+            apiUrl: "https://api.smartrecruiters.com/v1/companies/Cisco/postings",
+            allowedLocations: ["india", "remote", "bengaluru", "bangalore", "pune", "chennai"],
+            targetKeywords: ["software engineer", "backend", "developer", "api"],
+            excludedKeywords: ["senior", "principal", "manager", "director", "lead", "2+", "3+"]
+        }
+    },
+    {
+        name: "Intel",
+        category: "Product",
+        active: true,
+        careerUrl: "https://jobs.intel.com/",
+        scraperType: "api",
+        scraperConfig: {
+            strategy: "workday",
+            apiUrl: "https://intel.wd1.myworkdayjobs.com/wday/cxs/intel/External_Site/jobs",
+            allowedLocations: ["india", "remote", "bengaluru", "bangalore"],
+            targetKeywords: ["software engineer", "backend", "developer", "api"],
+            excludedKeywords: ["senior", "principal", "manager", "director", "lead", "2+", "3+"]
+        }
+    },
+    {
+        name: "AMD",
+        category: "Product",
+        active: true,
+        careerUrl: "https://careers.amd.com/",
+        scraperType: "api",
+        scraperConfig: {
+            strategy: "workday",
+            apiUrl: "https://amd.wd5.myworkdayjobs.com/wday/cxs/amd/External/jobs",
+            allowedLocations: ["india", "remote", "bengaluru", "bangalore", "hyderabad"],
+            targetKeywords: ["software engineer", "backend", "developer", "api"],
+            excludedKeywords: ["senior", "principal", "manager", "director", "lead", "2+", "3+"]
+        }
+    },
+    {
+        name: "Twilio",
+        category: "Product",
+        active: true,
+        careerUrl: "https://www.twilio.com/company/jobs",
+        scraperType: "api",
+        scraperConfig: {
+            strategy: "greenhouse",
+            apiUrl: "https://boards-api.greenhouse.io/v1/boards/twilio/jobs",
+            allowedLocations: ["india", "remote", "bengaluru", "bangalore"],
+            targetKeywords: ["software engineer", "backend", "developer", "api"],
+            excludedKeywords: ["senior", "principal", "manager", "director", "lead", "2+", "3+"]
+        }
+    },
+    {
+        name: "ServiceNow",
+        category: "Product",
+        active: true,
+        careerUrl: "https://careers.servicenow.com/",
+        scraperType: "api",
+        scraperConfig: {
+            strategy: "smartrecruiters",
+            apiUrl: "https://api.smartrecruiters.com/v1/companies/ServiceNow/postings",
+            allowedLocations: ["india", "remote", "hyderabad", "bengaluru", "bangalore"],
+            targetKeywords: ["software engineer", "backend", "developer", "api"],
+            excludedKeywords: ["senior", "principal", "manager", "director", "lead", "2+", "3+"]
+        }
+    },
+    {
+        name: "Elastic",
+        category: "Product",
+        active: true,
+        careerUrl: "https://www.elastic.co/about/careers",
+        scraperType: "api",
+        scraperConfig: {
+            strategy: "lever",
+            apiUrl: "https://api.lever.co/v0/postings/elastic",
+            allowedLocations: ["india", "remote", "bengaluru", "bangalore"],
+            targetKeywords: ["software engineer", "backend", "developer", "api"],
+            excludedKeywords: ["senior", "principal", "manager", "director", "lead", "2+", "3+"]
+        }
+    },
+    {
+        name: "HashiCorp",
+        category: "Product",
+        active: true,
+        careerUrl: "https://www.hashicorp.com/jobs",
+        scraperType: "api",
+        scraperConfig: {
+            strategy: "greenhouse",
+            apiUrl: "https://boards-api.greenhouse.io/v1/boards/hashicorp/jobs",
+            allowedLocations: ["india", "remote", "bengaluru", "bangalore"],
+            targetKeywords: ["software engineer", "backend", "developer", "api"],
+            excludedKeywords: ["senior", "principal", "manager", "director", "lead", "2+", "3+"]
+        }
+    },
+    {
+        name: "Confluent",
+        category: "Product",
+        active: true,
+        careerUrl: "https://www.confluent.io/careers/",
+        scraperType: "api",
+        scraperConfig: {
+            strategy: "greenhouse",
+            apiUrl: "https://boards-api.greenhouse.io/v1/boards/confluent/jobs",
+            allowedLocations: ["india", "remote", "bengaluru", "bangalore"],
+            targetKeywords: ["software engineer", "backend", "developer", "api"],
+            excludedKeywords: ["senior", "principal", "manager", "director", "lead", "2+", "3+"]
+        }
+    },
+    {
+        name: "Okta",
+        category: "Product",
+        active: true,
+        careerUrl: "https://www.okta.com/company/careers/",
+        scraperType: "api",
+        scraperConfig: {
+            strategy: "greenhouse",
+            apiUrl: "https://boards-api.greenhouse.io/v1/boards/okta/jobs",
+            allowedLocations: ["india", "remote", "bengaluru", "bangalore"],
+            targetKeywords: ["software engineer", "backend", "developer", "api"],
+            excludedKeywords: ["senior", "principal", "manager", "director", "lead", "2+", "3+"]
+        }
+    },
+    {
+        name: "Salesforce",
+        category: "Product",
+        active: true,
+        careerUrl: "https://careers.salesforce.com/",
+        scraperType: "api",
+        scraperConfig: {
+            strategy: "workday",
+            apiUrl: "https://salesforce.wd1.myworkdayjobs.com/wday/cxs/salesforce/External_Career_Site/jobs",
+            allowedLocations: ["india", "remote", "bengaluru", "bangalore", "hyderabad"],
+            targetKeywords: ["software engineer", "backend", "developer", "api"],
+            excludedKeywords: ["senior", "principal", "manager", "director", "lead", "2+", "3+"]
+        }
+    }
+    ,{
+    "name": "Airbnb",
+    "category": "Product",
+    "active": true,
+    "careerUrl": "https://careers.airbnb.com/",
+    "scraperType": "api",
+    "scraperConfig": {
+        "strategy": "greenhouse",
+        "apiUrl": "https://boards-api.greenhouse.io/v1/boards/airbnb/jobs",
+        "allowedLocations": [
+            "india",
+            "remote",
+            "bengaluru",
+            "bangalore"
+        ],
+        "targetKeywords": [
+            "software engineer",
+            "backend",
+            "developer",
+            "api"
+        ],
+        "excludedKeywords": [
+            "senior",
+            "principal",
+            "manager",
+            "director",
+            "lead",
+            "2+",
+            "3+"
+        ]
+    }
+},
+    {
+    "name": "Meesho",
+    "category": "Product",
+    "active": true,
+    "careerUrl": "https://job-boards.greenhouse.io/meesho",
+    "scraperType": "api",
+    "scraperConfig": {
+        "strategy": "greenhouse",
+        "apiUrl": "https://boards-api.greenhouse.io/v1/boards/meesho/jobs",
+        "allowedLocations": [
+            "india",
+            "remote",
+            "bengaluru",
+            "bangalore"
+        ],
+        "targetKeywords": [
+            "software engineer",
+            "backend",
+            "developer",
+            "api",
+            "sde"
+        ],
+        "excludedKeywords": [
+            "senior",
+            "principal",
+            "manager",
+            "director",
+            "lead",
+            "2+",
+            "3+"
+        ]
+    }
+},
+    {
+    "name": "Dream11",
+    "category": "Product",
+    "active": true,
+    "careerUrl": "https://job-boards.greenhouse.io/dream11",
+    "scraperType": "api",
+    "scraperConfig": {
+        "strategy": "greenhouse",
+        "apiUrl": "https://boards-api.greenhouse.io/v1/boards/dream11/jobs",
+        "allowedLocations": [
+            "india",
+            "remote",
+            "mumbai",
+            "pune",
+            "bengaluru",
+            "bangalore"
+        ],
+        "targetKeywords": [
+            "software engineer",
+            "backend",
+            "developer",
+            "api"
+        ],
+        "excludedKeywords": [
+            "senior",
+            "principal",
+            "manager",
+            "director",
+            "lead",
+            "2+",
+            "3+"
+        ]
+    }
+},
+    {
+    "name": "BrowserStack",
+    "category": "Product",
+    "active": true,
+    "careerUrl": "https://job-boards.greenhouse.io/browserstack",
+    "scraperType": "api",
+    "scraperConfig": {
+        "strategy": "greenhouse",
+        "apiUrl": "https://boards-api.greenhouse.io/v1/boards/browserstack/jobs",
+        "allowedLocations": [
+            "india",
+            "remote",
+            "mumbai",
+            "noida",
+            "bengaluru",
+            "bangalore"
+        ],
+        "targetKeywords": [
+            "software engineer",
+            "backend",
+            "developer",
+            "api"
+        ],
+        "excludedKeywords": [
+            "senior",
+            "principal",
+            "manager",
+            "director",
+            "lead",
+            "2+",
+            "3+"
+        ]
+    }
+},
+    {
+    "name": "Freshworks",
+    "category": "Product",
+    "active": true,
+    "careerUrl": "https://job-boards.greenhouse.io/freshworks",
+    "scraperType": "api",
+    "scraperConfig": {
+        "strategy": "greenhouse",
+        "apiUrl": "https://boards-api.greenhouse.io/v1/boards/freshworks/jobs",
+        "allowedLocations": [
+            "india",
+            "remote",
+            "chennai",
+            "bengaluru",
+            "bangalore"
+        ],
+        "targetKeywords": [
+            "software engineer",
+            "backend",
+            "developer",
+            "api"
+        ],
+        "excludedKeywords": [
+            "senior",
+            "principal",
+            "manager",
+            "director",
+            "lead",
+            "2+",
+            "3+"
+        ]
+    }
+},
+    {
+    "name": "CRED",
+    "category": "Product",
+    "active": true,
+    "careerUrl": "https://jobs.lever.co/cred",
+    "scraperType": "api",
+    "scraperConfig": {
+        "strategy": "lever",
+        "apiUrl": "https://api.lever.co/v0/postings/cred",
+        "allowedLocations": [
+            "india",
+            "remote",
+            "bengaluru",
+            "bangalore"
+        ],
+        "targetKeywords": [
+            "software engineer",
+            "backend",
+            "developer",
+            "api",
+            "sde"
+        ],
+        "excludedKeywords": [
+            "senior",
+            "principal",
+            "manager",
+            "director",
+            "lead",
+            "2+",
+            "3+"
+        ]
+    }
+},
+    {
+    "name": "Swiggy",
+    "category": "Product",
+    "active": true,
+    "careerUrl": "https://jobs.lever.co/swiggy",
+    "scraperType": "api",
+    "scraperConfig": {
+        "strategy": "lever",
+        "apiUrl": "https://api.lever.co/v0/postings/swiggy",
+        "allowedLocations": [
+            "india",
+            "remote",
+            "bengaluru",
+            "bangalore",
+            "hyderabad",
+            "gurgaon"
+        ],
+        "targetKeywords": [
+            "software engineer",
+            "backend",
+            "developer",
+            "api",
+            "sde"
+        ],
+        "excludedKeywords": [
+            "senior",
+            "principal",
+            "manager",
+            "director",
+            "lead",
+            "2+",
+            "3+"
+        ]
+    }
+},
+    {
+    "name": "Zomato",
+    "category": "Product",
+    "active": true,
+    "careerUrl": "https://jobs.lever.co/zomato",
+    "scraperType": "api",
+    "scraperConfig": {
+        "strategy": "lever",
+        "apiUrl": "https://api.lever.co/v0/postings/zomato",
+        "allowedLocations": [
+            "india",
+            "remote",
+            "gurgaon",
+            "noida",
+            "bengaluru",
+            "bangalore"
+        ],
+        "targetKeywords": [
+            "software engineer",
+            "backend",
+            "developer",
+            "api",
+            "sde"
+        ],
+        "excludedKeywords": [
+            "senior",
+            "principal",
+            "manager",
+            "director",
+            "lead",
+            "2+",
+            "3+"
+        ]
+    }
+},
+    {
+    "name": "VMware",
+    "category": "Product",
+    "active": true,
+    "careerUrl": "https://careers.vmware.com/",
+    "scraperType": "api",
+    "scraperConfig": {
+        "strategy": "workday",
+        "apiUrl": "https://vmware.wd1.myworkdayjobs.com/wday/cxs/vmware/VMware/jobs",
+        "allowedLocations": [
+            "india",
+            "remote",
+            "bengaluru",
+            "bangalore",
+            "pune"
+        ],
+        "targetKeywords": [
+            "software engineer",
+            "backend",
+            "developer",
+            "api"
+        ],
+        "excludedKeywords": [
+            "senior",
+            "principal",
+            "manager",
+            "director",
+            "lead",
+            "2+",
+            "3+"
+        ]
+    }
+},
+    {
+    "name": "PayPal",
+    "category": "Product",
+    "active": true,
+    "careerUrl": "https://careers.paypal.com/",
+    "scraperType": "api",
+    "scraperConfig": {
+        "strategy": "workday",
+        "apiUrl": "https://paypal.wd1.myworkdayjobs.com/wday/cxs/paypal/jobs/jobs",
+        "allowedLocations": [
+            "india",
+            "remote",
+            "bengaluru",
+            "bangalore",
+            "chennai"
+        ],
+        "targetKeywords": [
+            "software engineer",
+            "backend",
+            "developer",
+            "api"
+        ],
+        "excludedKeywords": [
+            "senior",
+            "principal",
+            "manager",
+            "director",
+            "lead",
+            "2+",
+            "3+"
+        ]
+    }
+},
+    {
+    "name": "Mastercard",
+    "category": "Product",
+    "active": true,
+    "careerUrl": "https://careers.mastercard.com/",
+    "scraperType": "api",
+    "scraperConfig": {
+        "strategy": "workday",
+        "apiUrl": "https://mastercard.wd1.myworkdayjobs.com/wday/cxs/mastercard/CorporateCareers/jobs",
+        "allowedLocations": [
+            "india",
+            "remote",
+            "pune",
+            "gurgaon"
+        ],
+        "targetKeywords": [
+            "software engineer",
+            "backend",
+            "developer",
+            "api"
+        ],
+        "excludedKeywords": [
+            "senior",
+            "principal",
+            "manager",
+            "director",
+            "lead",
+            "2+",
+            "3+"
+        ]
+    }
+},
+    {
+    "name": "Qualcomm",
+    "category": "Semiconductor",
+    "active": true,
+    "careerUrl": "https://careers.qualcomm.com/",
+    "scraperType": "api",
+    "scraperConfig": {
+        "strategy": "workday",
+        "apiUrl": "https://qualcomm.wd5.myworkdayjobs.com/wday/cxs/qualcomm/External/jobs",
+        "allowedLocations": [
+            "india",
+            "remote",
+            "bengaluru",
+            "bangalore",
+            "hyderabad",
+            "chennai"
+        ],
+        "targetKeywords": [
+            "software engineer",
+            "backend",
+            "developer",
+            "api"
+        ],
+        "excludedKeywords": [
+            "senior",
+            "principal",
+            "manager",
+            "director",
+            "lead",
+            "2+",
+            "3+"
+        ]
+    }
+},
+    {
+    "name": "Broadcom",
+    "category": "Semiconductor",
+    "active": true,
+    "careerUrl": "https://careers.broadcom.com/",
+    "scraperType": "api",
+    "scraperConfig": {
+        "strategy": "workday",
+        "apiUrl": "https://broadcom.wd1.myworkdayjobs.com/wday/cxs/broadcom/External_Career_Site/jobs",
+        "allowedLocations": [
+            "india",
+            "remote",
+            "bengaluru",
+            "bangalore",
+            "hyderabad",
+            "pune"
+        ],
+        "targetKeywords": [
+            "software engineer",
+            "backend",
+            "developer",
+            "api"
+        ],
+        "excludedKeywords": [
+            "senior",
+            "principal",
+            "manager",
+            "director",
+            "lead",
+            "2+",
+            "3+"
+        ]
+    }
+},
+    {
+    "name": "Cadence",
+    "category": "Semiconductor",
+    "active": true,
+    "careerUrl": "https://careers.cadence.com/",
+    "scraperType": "api",
+    "scraperConfig": {
+        "strategy": "workday",
+        "apiUrl": "https://cadence.wd1.myworkdayjobs.com/wday/cxs/cadence/External_Careers/jobs",
+        "allowedLocations": [
+            "india",
+            "remote",
+            "noida",
+            "bengaluru",
+            "bangalore",
+            "pune"
+        ],
+        "targetKeywords": [
+            "software engineer",
+            "backend",
+            "developer",
+            "api"
+        ],
+        "excludedKeywords": [
+            "senior",
+            "principal",
+            "manager",
+            "director",
+            "lead",
+            "2+",
+            "3+"
+        ]
+    }
+},
+    {
+    "name": "Micron",
+    "category": "Semiconductor",
+    "active": true,
+    "careerUrl": "https://careers.micron.com/",
+    "scraperType": "api",
+    "scraperConfig": {
+        "strategy": "workday",
+        "apiUrl": "https://micron.wd1.myworkdayjobs.com/wday/cxs/micron/External/jobs",
+        "allowedLocations": [
+            "india",
+            "remote",
+            "hyderabad",
+            "bengaluru",
+            "bangalore"
+        ],
+        "targetKeywords": [
+            "software engineer",
+            "backend",
+            "developer",
+            "api"
+        ],
+        "excludedKeywords": [
+            "senior",
+            "principal",
+            "manager",
+            "director",
+            "lead",
+            "2+",
+            "3+"
+        ]
+    }
+},
+    {
+    "name": "PwC India",
+    "category": "Service",
+    "active": true,
+    "careerUrl": "https://jobs.pwc.com/",
+    "scraperType": "api",
+    "scraperConfig": {
+        "strategy": "workday",
+        "apiUrl": "https://pwc.wd3.myworkdayjobs.com/wday/cxs/pwc/Global_Experienced_Careers/jobs",
+        "allowedLocations": [
+            "india",
+            "remote",
+            "bengaluru",
+            "bangalore",
+            "hyderabad",
+            "gurgaon"
+        ],
+        "targetKeywords": [
+            "software engineer",
+            "backend",
+            "developer",
+            "api"
+        ],
+        "excludedKeywords": [
+            "senior",
+            "principal",
+            "manager",
+            "director",
+            "lead",
+            "2+",
+            "3+"
+        ]
+    }
+},
+    {
+    "name": "Western Digital",
+    "category": "Semiconductor",
+    "active": true,
+    "careerUrl": "https://jobs.smartrecruiters.com/WesternDigital",
+    "scraperType": "api",
+    "scraperConfig": {
+        "strategy": "smartrecruiters",
+        "apiUrl": "https://api.smartrecruiters.com/v1/companies/WesternDigital/postings",
+        "allowedLocations": [
+            "india",
+            "bengaluru",
+            "bangalore"
+        ],
+        "targetKeywords": [
+            "software engineer",
+            "backend",
+            "developer",
+            "api"
+        ],
+        "excludedKeywords": [
+            "senior",
+            "principal",
+            "manager",
+            "director",
+            "lead",
+            "2+",
+            "3+"
+        ]
+    }
+}
 ];

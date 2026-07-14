@@ -1,0 +1,123 @@
+const MatchedJob = require("../models/MatchedJob");
+const RawJob = require("../models/RawJob");
+const Company = require("../models/Company");
+const pipelineState = require("./pipelineState");
+const SearchLog = require("../models/SearchLog");
+
+const getAnalyticsData = async () => {
+    try {
+        
+        const startOfDay = new Date();
+        startOfDay.setHours(0, 0, 0, 0);
+        
+        const rawJobsToday = await RawJob.countDocuments({ createdAt: { $gte: startOfDay } });
+        const rawJobsCount = await RawJob.countDocuments();
+        
+        const matchedJobsCount = await MatchedJob.countDocuments();
+        
+        
+        const aiEvaluatedCount = await RawJob.countDocuments({ aiEvaluated: true });
+        
+        const newJobsCount = await MatchedJob.countDocuments({ status: "new" });
+        const savedJobsCount = await MatchedJob.countDocuments({ status: "saved" });
+        const appliedJobsCount = await MatchedJob.countDocuments({ status: "applied" });
+        const rejectedJobsCount = await MatchedJob.countDocuments({ status: "rejected" });
+
+        const companiesMonitored = await Company.countDocuments({ active: true });
+
+        
+        const companyDistribution = await MatchedJob.aggregate([
+            {
+                $lookup: {
+                    from: "companies",
+                    localField: "company",
+                    foreignField: "_id",
+                    as: "companyInfo"
+                }
+            },
+            { $unwind: "$companyInfo" },
+            { $group: { _id: "$companyInfo.name", count: { $sum: 1 } } },
+            { $sort: { count: -1 } },
+            { $limit: 10 }
+        ]);
+
+        
+        const scoreDistribution = await MatchedJob.aggregate([
+            {
+                $bucket: {
+                    groupBy: "$score",
+                    boundaries: [0, 40, 60, 80, 101],
+                    default: "Other",
+                    output: { count: { $sum: 1 } }
+                }
+            }
+        ]);
+
+        
+        const statusDistribution = await MatchedJob.aggregate([
+            { $group: { _id: "$status", count: { $sum: 1 } } }
+        ]);
+
+        
+        const evaluationDistribution = await MatchedJob.aggregate([
+            { $group: { _id: "$evaluatedBy", count: { $sum: 1 } } }
+        ]);
+        
+        
+        const domainDistribution = await MatchedJob.aggregate([
+            { $group: { _id: "$jobDomain", count: { $sum: 1 } } },
+            { $match: { _id: { $ne: null } } },
+            { $sort: { count: -1 } },
+            { $limit: 8 }
+        ]);
+
+        
+        const sevenDaysAgo = new Date();
+        sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+        const dailyTrend = await SearchLog.aggregate([
+            { $match: { createdAt: { $gte: sevenDaysAgo } } },
+            {
+                $group: {
+                    _id: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } },
+                    jobsFound: { $sum: "$jobsFound" },
+                    jobsMatched: { $sum: "$jobsMatched" }
+                }
+            },
+            { $sort: { _id: 1 } }
+        ]);
+        
+        
+        const lastSuccess = await SearchLog.findOne({ status: "Success" }).sort({ createdAt: -1 });
+
+        return {
+            stats: {
+                companiesMonitored,
+                rawJobsCount,
+                rawJobsToday,
+                aiEvaluatedCount,
+                matchedJobsCount,
+                newJobsCount,
+                savedJobsCount,
+                appliedJobsCount,
+                rejectedJobsCount,
+                lastSuccessfulRun: lastSuccess ? lastSuccess.createdAt : null,
+                nextScheduledRun: pipelineState.nextRunTime
+            },
+            charts: {
+                companyDistribution,
+                scoreDistribution,
+                statusDistribution,
+                evaluationDistribution,
+                domainDistribution,
+                dailyTrend
+            }
+        };
+    } catch (error) {
+        console.error("Analytics Error:", error);
+        throw error;
+    }
+};
+
+module.exports = {
+    getAnalyticsData
+};

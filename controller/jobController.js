@@ -8,6 +8,8 @@ const {
     generateGroupedReport,
     generateMatchedCompanyReport,
 } = require("../services/reportService");
+const { getAnalyticsData } = require("../services/analyticsService");
+const pipelineState = require("../services/pipelineState");
 
 const sendError = (res, error) =>
     res.status(500).json({
@@ -55,7 +57,7 @@ const getGroupedJobs = async (req, res) => {
 
 const getCompleteJobs = async (req, res) => {
     try {
-        // Dashboard aur jobs page ko sirf matched/applied grouped jobs chahiye.
+        
         const jobs = await generateMatchedCompanyReport();
         res.status(200).json({
             success: true,
@@ -79,6 +81,17 @@ const getSearchLogs = async (req, res) => {
     }
 };
 
+const getPipelineStatus = async (req, res) => {
+    try {
+        res.status(200).json({
+            success: true,
+            state: pipelineState
+        });
+    } catch (error) {
+        sendError(res, error);
+    }
+};
+
 const getReport = async (req, res) => {
     try {
         const jobs = await generateReport();
@@ -86,6 +99,18 @@ const getReport = async (req, res) => {
             success: true,
             count: jobs.length,
             jobs,
+        });
+    } catch (error) {
+        sendError(res, error);
+    }
+};
+
+const getAnalytics = async (req, res) => {
+    try {
+        const data = await getAnalyticsData();
+        res.status(200).json({
+            success: true,
+            ...data
         });
     } catch (error) {
         sendError(res, error);
@@ -104,32 +129,34 @@ const runJobSearch = async (req, res) => {
     }
 };
 
-const updateAppliedStatus = async (req, res) => {
+const updateJobStatus = async (req, res) => {
     try {
-        // Checkbox tick/untick hone par matched job ka applied status update hota hai.
-        const applied = req.body.applied === true;
+        const { status, notes } = req.body;
+        const updateData = { $set: {} };
+        const pushData = { timeline: { status, date: new Date() } };
+
+        if (status) {
+            updateData.$set.status = status;
+            if (status === "applied") {
+                updateData.$set.appliedAt = new Date();
+            }
+        }
+        
+        if (notes !== undefined) {
+            updateData.$set.notes = notes;
+        }
+
         const job = await MatchedJob.findByIdAndUpdate(
             req.params.id,
-            {
-                $set: {
-                    applied,
-                    appliedAt: applied ? new Date() : null,
-                },
-            },
-            { new: true },
+            { ...updateData, $push: pushData },
+            { new: true }
         );
 
         if (!job) {
-            return res.status(404).json({
-                success: false,
-                message: "Matched job not found",
-            });
+            return res.status(404).json({ success: false, message: "Job not found" });
         }
 
-        res.status(200).json({
-            success: true,
-            job,
-        });
+        res.status(200).json({ success: true, job });
     } catch (error) {
         sendError(res, error);
     }
@@ -154,8 +181,10 @@ module.exports = {
     getGroupedJobs,
     getCompleteJobs,
     getSearchLogs,
+    getPipelineStatus,
     getReport,
+    getAnalytics,
     runJobSearch,
-    updateAppliedStatus,
+    updateJobStatus,
     deleteRawJobs,
 };

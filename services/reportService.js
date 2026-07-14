@@ -11,12 +11,12 @@ const getHostname = (value = "") => {
 };
 
 const inferCompanyName = (job, companies) => {
-    // Agar populate se company name mil gaya to wahi best source hai.
+    
     if (job.company?.name) {
         return job.company.name;
     }
 
-    // Fallback: link/title/location se company guess karte hain.
+    
     const text = [
         job.applyLink,
         job.title,
@@ -55,7 +55,7 @@ const generateReport = async () => {
     return jobs;
 };
 
-// Group jobs by company
+
 const generateGroupedReport = async () => {
     const jobs = await MatchedJob
         .find()
@@ -74,8 +74,8 @@ const generateGroupedReport = async () => {
     return grouped;
 };
 
-// Frontend ke liye jobs company-wise group hoti hain.
-// Applied jobs alag section me jati hain, active matched jobs alag.
+
+
 const generateMatchedCompanyReport = async () => {
     const companies = await Company.find().sort({ name: 1 });
     const matchedJobs = await MatchedJob
@@ -93,7 +93,7 @@ const generateMatchedCompanyReport = async () => {
         }
 
         if (job.applied) {
-            // User ne checkbox tick kiya hai, to Applied section me dikhana hai.
+            
             grouped[companyName].applied.push(job);
             return;
         }
@@ -104,30 +104,30 @@ const generateMatchedCompanyReport = async () => {
     return grouped;
 };
 
-// Group both matched AND raw jobs by company
+
 const generateCompleteReport = async () => {
     const companies = await Company.find().sort({ name: 1 });
 
-    // Get matched jobs
+    
     const matchedJobs = await MatchedJob
         .find()
         .populate("company", "name")
         .sort({ score: -1 });
 
-    // Get raw jobs with company info
+    
     const rawJobs = await RawJob
         .find()
         .populate("company", "name")
         .sort({ scrapedAt: -1 });
 
-    // Get matched job IDs to filter out
+    
     const matchedRawJobIds = new Set(
         matchedJobs
             .map(job => job.rawJob?.toString())
             .filter(Boolean)
     );
 
-    // Group by company with separate matched/raw sections
+    
     const grouped = {};
 
     matchedJobs.forEach(job => {

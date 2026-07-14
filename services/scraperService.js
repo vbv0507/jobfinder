@@ -1,7 +1,7 @@
 const axios = require("axios");
 
-// Career APIs normal browser jaisi request expect karti hain.
-// Isliye headers add kiye hain, warna kuch APIs request reject kar deti hain.
+
+
 const DEFAULT_HEADERS = {
   "User-Agent":
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/125 Safari/537.36",
@@ -9,8 +9,8 @@ const DEFAULT_HEADERS = {
   "Accept-Language": "en-US",
 };
 
-// Har company ka JSON shape alag hota hai.
-// Ye helper nested value safely nikalta hai, jaise "location.fullLocation".
+
+
 const getValue = (object, path) => {
   if (!path) {
     return "";
@@ -25,8 +25,8 @@ const getValue = (object, path) => {
   }, object);
 };
 
-// Company API description me HTML aa sakta hai.
-// Save aur AI analysis se pehle text clean kar dete hain.
+
+
 const cleanText = (value = "") =>
   value
     .toString()
@@ -40,8 +40,8 @@ const cleanText = (value = "") =>
     .replace(/\s+/g, " ")
     .trim();
 
-// Agar apply URL relative hai, to usko full URL bana do.
-// Dashboard ka Apply button direct kaam karega.
+
+
 const makeFullUrl = (url, baseUrl) => {
   if (!url) {
     return baseUrl;
@@ -54,8 +54,8 @@ const makeFullUrl = (url, baseUrl) => {
   }
 };
 
-// Some APIs give only a job id, not a public apply page.
-// This builds a browser-friendly URL when the company config provides a base.
+
+
 const makeApplyLink = (item, config) => {
   if (config.applyUrlBase && config.fields?.jobId) {
     return `${config.applyUrlBase}/${getValue(item, config.fields.jobId)}`;
@@ -88,7 +88,7 @@ const getEmploymentType = (value = "") => {
 };
 
 const hasAllowedLocation = (job, company) => {
-  // Sirf India ya remote-friendly jobs ko allow karna hai.
+  
   const allowedLocations = company.scraperConfig?.allowedLocations || [
     "india",
     "remote",
@@ -108,7 +108,7 @@ const hasAllowedLocation = (job, company) => {
 const escapeRegExp = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
 const hasExcludedKeyword = (job, excludedKeywords = []) => {
-  // Senior/experienced roles ko scraper level par hi hata dete hain.
+  
   const titleText = [job.title, job.experience].filter(Boolean).join(" ").toLowerCase();
   const fullText = [job.title, job.experience, job.description]
     .filter(Boolean)
@@ -139,7 +139,7 @@ const hasExcludedKeyword = (job, excludedKeywords = []) => {
 };
 
 const hasTargetKeyword = (job, company) => {
-  // Role title tech/backend/SDE keywords se match hona chahiye.
+  
   const targetKeywords = company.scraperConfig?.targetKeywords || [];
   const excludedKeywords = company.scraperConfig?.excludedKeywords || [];
 
@@ -159,8 +159,8 @@ const hasTargetKeyword = (job, company) => {
 const applyJobFilters = (jobs, company) =>
   jobs.filter((job) => hasAllowedLocation(job, company) && hasTargetKeyword(job, company));
 
-// Sab company jobs ko ek common format me convert karte hain.
-// Baaki project RawJob, AI analysis, MatchedJob isi shape par depend karta hai.
+
+
 const normalizeJob = (job, company) => {
   const title = cleanText(job.title);
   const applyLink = makeFullUrl(job.applyLink, company.careerUrl);
@@ -181,8 +181,8 @@ const normalizeJob = (job, company) => {
   };
 };
 
-// Generic scraper simple API responses ke liye hai.
-// Config me fields batate hain ki title/location/link kahan se read karna hai.
+
+
 const scrapeGenericApiJobs = async (company) => {
   const config = company.scraperConfig;
 
@@ -225,7 +225,7 @@ const scrapeGenericApiJobs = async (company) => {
     .filter(Boolean);
 };
 
-// LG ka response format custom hai, isliye separate mapper rakha hai.
+
 const scrapeLgJobs = async (company) => {
   const config = company.scraperConfig;
 
@@ -274,7 +274,7 @@ const getGreenhouseMetadataValue = (metadata = [], name) => {
 };
 
 const scrapeGreenhouseJobs = async (company) => {
-  // Greenhouse companies ke liye public job-board API use hoti hai.
+  
   const config = company.scraperConfig;
 
   const response = await axios.get(config.apiUrl, {
@@ -328,7 +328,7 @@ const scrapeGreenhouseJobs = async (company) => {
 };
 
 const scrapeLeverJobs = async (company) => {
-  // Lever companies ke jobs array direct postings API se milta hai.
+  
   const config = company.scraperConfig;
 
   const response = await axios.get(config.apiUrl, {
@@ -372,7 +372,7 @@ const scrapeLeverJobs = async (company) => {
 };
 
 const scrapeSmartRecruitersJobs = async (company) => {
-  // SmartRecruiters me jobs content array me aata hai.
+  
   const config = company.scraperConfig;
   const getCountryName = (country = "") => {
     const value = country.toLowerCase();
@@ -432,7 +432,7 @@ const scrapeSmartRecruitersJobs = async (company) => {
 };
 
 const scrapeWorkdayJobs = async (company) => {
-    // Workday APIs POST request leti hain aur externalPath se apply link banta hai.
+    
     const config = company.scraperConfig;
 
     console.log("Workday URL:", config.apiUrl);
@@ -513,7 +513,7 @@ const scrapeCompanyJobs = async (company) => {
   try {
     let jobs;
 
-    // Company config me strategy decide karti hai kaunsa scraper chalega.
+    
     if (company.scraperConfig?.strategy === "lg") {
       jobs = await scrapeLgJobs(company);
       return applyJobFilters(jobs, company);

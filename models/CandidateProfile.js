@@ -15,6 +15,18 @@ const candidateProfileSchema = new mongoose.Schema({
 
     careerPreferences: [String],
 
+    careerStage: String,
+
+    yearsOfExperience: Number,
+
+    preferredDomains: [String],
+
+    excludedDomains: [String],
+
+    preferredEmploymentLevels: [String],
+
+    preferredJobTypes: [String],
+
     active: {
         type: Boolean,
         default: true,

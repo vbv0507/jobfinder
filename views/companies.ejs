@@ -1,52 +1,77 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Companies - Job Finder</title>
-    <link rel="stylesheet" href="/css/style.css">
-</head>
-<body>
-    <nav class="navbar">
-        <div class="navbar-container">
-            <div class="logo">Job Finder</div>
-            <ul class="nav-menu">
-                <li><a href="/">Dashboard</a></li>
-                <li><a href="/jobs">Jobs</a></li>
-                <li><a href="/companies" class="active">Companies</a></li>
-            </ul>
-        </div>
-    </nav>
+<%- include('partials/header', { title: 'Companies Monitored' }) %>
 
-    <main class="container">
-        <section class="hero">
-            <h1>Companies</h1>
-            <p>Manage the companies used by your scraper.</p>
-        </section>
+<div class="mb-6">
+    <h2 class="text-2xl font-bold text-gray-900">Active Companies</h2>
+    <p class="text-gray-500 text-sm mt-1">Companies currently monitored by the job pipeline.</p>
+</div>
 
-        <section class="scraped-companies">
-            <h2><span></span>Currently Scraping From</h2>
-            <div id="scraping-grid" class="scraped-grid">
-                <div class="loading-spinner">Loading companies...</div>
-            </div>
-        </section>
+<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6" id="companies-grid">
+    <div class="col-span-full py-12 text-center text-gray-500">
+        <i class="fas fa-spinner fa-spin text-3xl mb-3"></i>
+        <p>Loading companies...</p>
+    </div>
+</div>
 
-        <section class="page-section">
-            <div class="section-heading">
-                <h2>Configured Companies</h2>
-                <p>These companies are stored in MongoDB and used during each search run.</p>
-            </div>
-            <div id="companies-content" class="company-groups">
-                <div class="loading-spinner">Loading companies...</div>
-            </div>
-        </section>
-    </main>
+<script>
+    async function fetchCompanies() {
+        try {
+            const res = await fetch("/api/companies");
+            const data = await res.json();
+            const container = document.getElementById("companies-grid");
+            
+            if(data.success && data.companies.length > 0) {
+                container.innerHTML = data.companies.map(c => {
+                    let domain = 'example.com';
+                    if (c.careerUrl) {
+                        try {
+                            const url = new URL(c.careerUrl);
+                            domain = url.hostname.replace('www.', '');
+                        } catch(e) {}
+                    }
+                    return `
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 flex flex-col hover:shadow-md transition">
+                        <div class="flex justify-between items-start mb-4">
+                            <div class="flex items-center gap-3">
+                                <div class="h-12 w-12 rounded-lg bg-white border border-gray-200 flex items-center justify-center overflow-hidden">
+                                    <img src="https://logo.clearbit.com/${domain}" 
+                                         onerror="this.onerror=null; this.src='data:image/svg+xml;utf8,<svg xmlns=\\'http://www.w3.org/2000/svg\\' fill=\\'%236b7280\\' viewBox=\\'0 0 24 24\\'><path d=\\'M12 2L2 7l10 5 10-5-10-5zm0 7.5l-10-5V17l10 5 10-5V4.5l-10 5z\\'/></svg>';" 
+                                         class="h-8 w-8 object-contain" alt="Logo">
+                                </div>
+                                <div>
+                                    <h3 class="font-bold text-gray-900 text-lg">${c.name}</h3>
+                                    <span class="text-xs font-medium px-2 py-1 rounded bg-blue-50 text-blue-700 mt-1 inline-block capitalize">${c.scraperConfig.strategy}</span>
+                                </div>
+                            </div>
+                            <span class="flex h-3 w-3 relative">
+                              <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                              <span class="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
+                            </span>
+                        </div>
+                        
+                        <div class="mt-auto pt-4 border-t border-gray-100">
+                            <div class="flex justify-between text-sm text-gray-600 mb-2">
+                                <span>Jobs Found</span>
+                                <span class="font-bold text-gray-900">${c.jobsFound}</span>
+                            </div>
+                            <div class="flex justify-between text-sm text-gray-600 mb-4">
+                                <span>Last Scan</span>
+                                <span class="font-medium text-gray-900">${c.lastScraped ? new Date(c.lastScraped).toLocaleDateString() : 'Never'}</span>
+                            </div>
+                            <a href="${c.careerUrl}" target="_blank" class="w-full block text-center bg-gray-50 hover:bg-gray-100 text-gray-700 font-medium py-2 rounded-lg transition text-sm">
+                                View Career Page <i class="fas fa-external-link-alt ml-1 text-xs"></i>
+                            </a>
+                        </div>
+                    </div>
+                `}).join("");
+            } else {
+                container.innerHTML = `<div class="col-span-full py-12 text-center text-gray-500">No companies configured.</div>`;
+            }
+        } catch(e) {
+            document.getElementById("companies-grid").innerHTML = `<div class="col-span-full py-12 text-center text-red-500">Error loading companies.</div>`;
+        }
+    }
 
-    <footer class="footer">
-        <p>&copy; 2026 Job Finder. Find your dream job easily.</p>
-    </footer>
+    document.addEventListener("DOMContentLoaded", fetchCompanies);
+</script>
 
-    <script src="/js/main.js"></script>
-    <script src="/js/companies.js"></script>
-</body>
-</html>
+<%- include('partials/footer') %>

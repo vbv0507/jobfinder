@@ -1,5 +1,6 @@
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 const axios = require("axios");
+const { classifyDomain } = require("../utils/domains");
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
@@ -20,15 +21,27 @@ const evaluateJobLocally = (job, profile, reasonPrefix = "Gemini unavailable") =
     const text = getText(job);
     let score = 35;
     const missingSkills = [];
+    let domainMismatch = false;
+    let experienceMismatch = false;
+    const primaryReasons = [];
 
     const roleMatches = countMatches(text, profile.preferredRoles || []);
     const skillMatches = countMatches(text, profile.skills || []);
+
+    const jobDomain = classifyDomain(text);
+    const excludedDomains = (profile.excludedDomains || []).map(d => d.toUpperCase());
+    
+    if (excludedDomains.includes(jobDomain)) {
+        domainMismatch = true;
+        score -= 50;
+        primaryReasons.push(`Domain mismatch: Role classified as ${jobDomain}, which is excluded by the candidate.`);
+    }
 
     if (roleMatches > 0) score += 22;
     if (/\b(software development engineer|software engineer|sde|backend|api developer|node\.?js developer)\b/i.test(text)) {
         score += 18;
     }
-    if (/\b(intern|internship|fresher|graduate|new grad|entry level|junior|associate)\b|0\s*-\s*1|0\s*to\s*1/i.test(text)) {
+    if (/\b(intern|internship|fresher|new grad|entry level|junior|associate)\b|0\s*-\s*1|0\s*to\s*1/i.test(text)) {
         score += 14;
     }
     if (/\b(india|bengaluru|bangalore|noida|hyderabad|pune|remote)\b/i.test(text)) {
@@ -39,41 +52,71 @@ const evaluateJobLocally = (job, profile, reasonPrefix = "Gemini unavailable") =
     }
 
     if (/\b(senior|sr\.?|staff|principal|manager|director|architect|lead)\b/i.test(text)) {
-        score -= 28;
+        score -= 50;
+        experienceMismatch = true;
+        primaryReasons.push("Seniority mismatch: Role is for senior/lead, candidate is a fresher.");
     }
-    if (/\b(2|3|4|5|6|7|8|9|10)\s*\+?\s*(?:years?|yrs?)\b|1\s*(?:-|to)\s*3\s*(?:years?|yrs?)/i.test(text)) {
-        score -= 22;
+    const hasMandatoryExperience = /\b(minimum|mandatory|requires|required)\s*\d+\s*(?:years?|yrs?)\b/i.test(text);
+    if (/\b(2|3|4|5|6|7|8|9|10)\s*\+?\s*(?:years?|yrs?)\b|1\s*(?:-|to)\s*3\s*(?:years?|yrs?)/i.test(text) || hasMandatoryExperience) {
+        score -= 20;
+        experienceMismatch = true;
+        primaryReasons.push("Experience mismatch: Requires more experience than candidate possesses.");
     }
 
-    if (!/\bnode\.?js|express|mongodb|javascript|rest api|api|backend\b/i.test(text)) {
+    if (!/\bnode\.?js|express|mongodb|javascript|rest api|api|backend\b/i.test(text) && !domainMismatch) {
         missingSkills.push("Direct Node.js/Express/MongoDB mention not found in job post");
     }
 
-    score = Math.max(0, Math.min(100, score));
+    if (score < 0) score = 0;
+    if (score > 100) score = 100;
 
     return {
         score,
-        suitable: score >= Number(process.env.MATCH_THRESHOLD || 70),
-        reason: `${reasonPrefix}; local scoring found ${roleMatches} role signal(s) and ${skillMatches} skill signal(s).`,
+        confidence: "Low",
+        suitable: score >= 50 && !domainMismatch && !experienceMismatch,
+        reason: `${reasonPrefix}; local scoring yielded ${score}.`,
+        primaryReasons: primaryReasons.length > 0 ? primaryReasons : ["Local keyword analysis"],
         missingSkills,
-        roleMatch: roleMatches > 0 ? "Aligned with preferred backend/SDE roles" : "Partial software role match",
-        experienceMatch: "Fresher or 0-1 year signal required",
-        recommendation:
-            score >= Number(process.env.MATCH_THRESHOLD || 70)
-                ? "Apply after tailoring resume to the listed backend stack"
-                : "Review manually before applying",
-        evaluatedBy: "local-fallback",
+        domainMismatch,
+        jobDomain,
+        evaluatedBy: "Local",
+        domainExplanation: `Domain classified locally as ${jobDomain}.`,
+        experienceMismatch,
+        scoringBreakdown: {
+            roleMatch: roleMatches * 10,
+            skillsMatch: skillMatches * 10,
+            experienceMatch: experienceMismatch ? 0 : 80,
+            domainMatch: domainMismatch ? 0 : 80,
+            locationMatch: 100
+        },
+        roleMatch: roleMatches > 0 ? "Strong" : "Weak",
+        experienceMatch: experienceMismatch ? "Mismatch" : "Match",
+        recommendation: score >= 50 ? "Consider applying" : "Not recommended",
+        evaluatedBy: "Local",
+        evaluationMetrics: {
+            provider: "Local",
+            durationMs: 0,
+            fallbackCount: 2,
+            failureReason: reasonPrefix
+        }
     };
 };
 
 const buildEvaluationPrompt = (job, profile) => `
 You are an expert Technical Recruiter, ATS Analyzer, and Hiring Manager.
 
-Your task is to evaluate whether this candidate is a strong match for the job.
+Your task is to critically evaluate whether this candidate is a strong match for the job. Do not be overly optimistic.
 
 ========================
 CANDIDATE PROFILE
 ========================
+
+Career Stage: ${profile.careerStage || "Not specified"}
+Years of Experience: ${profile.yearsOfExperience || 0}
+Preferred Domains: ${(profile.preferredDomains || []).join(", ")}
+Excluded Domains: ${(profile.excludedDomains || []).join(", ")}
+Preferred Employment Levels: ${(profile.preferredEmploymentLevels || []).join(", ")}
+Preferred Job Types: ${(profile.preferredJobTypes || []).join(", ")}
 
 Graduation Year:
 ${profile.graduationYear}
@@ -101,83 +144,58 @@ Description:
 ${job.description}
 
 ========================
-EVALUATION RULES
+EVALUATION RULES (MULTI-STAGE)
 ========================
 
-1. Give higher scores for:
-   - Backend Development
-   - Node.js
-   - Express.js
-   - MongoDB
-   - JavaScript
-   - REST APIs
-   - Strong DSA/problem-solving foundation
-   - Production backend projects, authentication, cron jobs, CI/CD, cloud deployment
-   - Software Development Engineer roles
-   - Backend Engineer roles
-   - Software Engineer roles
-   - Internship opportunities
-   - New Graduate opportunities
-   - Fresher opportunities
-   - 0-1 years experience
-   - SDE I / Software Engineer I only when the job does not require more than 1 year
-   - India or Remote jobs
+STAGE 1: EXPERIENCE LEVEL & GRADUATION MISMATCH
+- The candidate graduates in ${profile.graduationYear} (Years of Exp: ${profile.yearsOfExperience}).
+- Check if the job aligns with Preferred Employment Levels.
+- HEAVILY PENALIZE (score < 40) if the job requires mandatory experience exceeding the candidate's years of experience or if it demands a Senior/Manager/Lead title.
 
-For fresher, intern, new-grad, entry-level, junior, associate, or 0-1 year roles, do not reject only because the exact backend stack differs.
-If the candidate has strong backend projects, REST APIs, DSA, C++/JavaScript, and cloud/deployment experience, treat Java/Python/Postgres/AWS gaps as learnable missing skills instead of a hard rejection.
+STAGE 2: DOMAIN MATCHING
+- CLASSIFY the job into a primary engineering domain (e.g., Backend, Frontend, Mobile, AI/ML, DevOps, Data Engineering).
+- Compare against the candidate's Preferred Domains and Excluded Domains.
+- HEAVILY PENALIZE (domainMatch < 40) if the job's primary domain is in the Excluded Domains list.
 
-2. Give lower scores for:
-   - Senior roles
-   - Manager positions
-   - Roles requiring more than 1 year experience, including 1-3, 2+, or 3+ years
-   - Roles requiring unrelated technologies
-   - Non-India roles unless truly remote
+STAGE 3: SKILL MATCHING
+- Identify MUST-HAVE vs BONUS skills.
+- If a MUST-HAVE tech stack is entirely missing from the candidate, apply a strong penalty.
+- If the candidate has strong Backend (Node.js/Express) and the role requires Java/Python/Go for Backend, treat it as a learnable gap, but still reduce the score slightly compared to an exact match.
 
-3. Analyze:
-   - Skill Match
-   - Role Match
-   - Experience Match
-   - Location Match
-   - Career Growth Potential
-
-4. Score from 0 to 100.
-
-Scoring Guide:
-
-90-100 = Excellent Match
-80-89 = Strong Match
-70-79 = Good Match
-60-69 = Average Match
-Below 60 = Reject
-
-5. suitable should be:
-   - true if score >= 70
-   - false if score < 70
-
-6. missingSkills should contain only important missing skills.
-
-7. reason should be concise and recruiter-style.
+STAGE 4: SCORING
+90-100 = Excellent Match (Exact tech stack, entry-level/intern, perfect domain)
+80-89 = Strong Match (Backend domain, learnable tech stack gap, entry-level)
+70-79 = Good Match (Acceptable domain, some skill overlap)
+40-69 = Weak Match (Some domain or experience mismatch, missing core required skills)
+0-39 = Reject (Clear domain mismatch like AI/Mobile, or requires Senior/3+ years experience)
 
 ========================
 RESPONSE FORMAT
 ========================
 
-Return ONLY valid JSON.
+Return ONLY valid JSON using this exact schema. DO NOT return markdown, explanations, or code blocks.
 
 {
   "score": 0,
-  "suitable": true,
-  "reason": "",
-  "missingSkills": [],
-  "roleMatch": "",
-  "experienceMatch": "",
-  "recommendation": ""
+  "confidence": "High|Medium|Low",
+  "suitable": true|false,
+  "scoringBreakdown": {
+    "roleMatch": 0,
+    "skillsMatch": 0,
+    "experienceMatch": 0,
+    "domainMatch": 0,
+    "locationMatch": 0
+  },
+  "domainMismatch": true|false,
+  "domainExplanation": "Explain why this domain matches or mismatches the profile",
+  "jobDomain": "What is the primary domain of this job? (e.g. BACKEND, FRONTEND, DATA ENGINEERING)",
+  "experienceMismatch": boolean,
+  "roleMatch": "Strong, Moderate, or Weak",
+  "missingSkills": ["List only critical missing REQUIRED skills"],
+  "primaryReasons": ["Point 1 explaining exactly why the score was given", "Point 2"],
+  "reason": "One sentence summary of the decision",
+  "recommendation": "Short recruiter recommendation"
 }
-
-DO NOT return markdown.
-DO NOT return explanations.
-DO NOT wrap JSON in code blocks.
-Return ONLY the JSON object.
 `;
 
 const parseJsonResponse = (value = "") =>
@@ -225,22 +243,35 @@ const evaluateJobWithGroq = async (job, profile) => {
     );
 
     const content = response.data.choices?.[0]?.message?.content || "";
-    return {
-        ...parseJsonResponse(content),
-        evaluatedBy: "groq",
-    };
+    let parsed = parseJsonResponse(content);
+    if (typeof parsed.score !== "number") parsed.score = parseInt(parsed.score) || 0;
+    parsed.evaluatedBy = "Groq";
+    return parsed;
 };
 
-// Gemini receives one job and one candidate profile.
-// It returns a JSON score that tells whether the job should be shown to the user.
+
+
 const evaluateJob = async (job, profile) => {
+    const startTime = Date.now();
+    let fallbackCount = 0;
+    let failureReason = null;
+
     try {
         const result = await model.generateContent(buildEvaluationPrompt(job, profile));
-
-        return {
-            ...parseJsonResponse(result.response.text()),
-            evaluatedBy: "gemini",
+        let parsedResult = parseJsonResponse(result.response.text());
+        
+        if (typeof parsedResult.score !== "number") parsedResult.score = parseInt(parsedResult.score) || 0;
+        parsedResult.evaluatedBy = "Gemini";
+        parsedResult.jobDomain = parsedResult.jobDomain || classifyDomain(getText(job));
+        
+        parsedResult.evaluationMetrics = {
+            provider: "Gemini",
+            durationMs: Date.now() - startTime,
+            fallbackCount,
+            failureReason: null
         };
+
+        return parsedResult;
     } catch (error) {
         const isQuotaError =
             error.message.includes("429") ||
@@ -248,32 +279,57 @@ const evaluateJob = async (job, profile) => {
             error.message.toLowerCase().includes("too many requests");
 
         if (isQuotaError || process.env.ENABLE_GROQ_FALLBACK === "true") {
+            fallbackCount++;
+            failureReason = isQuotaError ? "Gemini quota exceeded" : "Gemini fallback triggered";
             try {
                 console.log("Gemini unavailable; trying Groq fallback.");
                 const groqAnalysis = await evaluateJobWithGroq(job, profile);
 
                 if (groqAnalysis) {
+                    groqAnalysis.evaluationMetrics = {
+                        provider: "Groq",
+                        durationMs: Date.now() - startTime,
+                        fallbackCount,
+                        failureReason
+                    };
                     return groqAnalysis;
                 }
             } catch (groqError) {
                 console.log(`Groq fallback failed: ${groqError.message}`);
+                failureReason = `Groq failed: ${groqError.message}`;
             }
         }
 
         if (process.env.ENABLE_LOCAL_MATCH_FALLBACK !== "false") {
+            fallbackCount++;
             console.log("Using local match fallback.");
-            return evaluateJobLocally(
+            const localResult = evaluateJobLocally(
                 job,
                 profile,
-                isQuotaError ? "Gemini quota exceeded" : "AI evaluation failed",
+                failureReason || (isQuotaError ? "Gemini quota exceeded" : "AI evaluation failed"),
             );
+            localResult.evaluationMetrics.durationMs = Date.now() - startTime;
+            localResult.evaluationMetrics.fallbackCount = fallbackCount;
+            return localResult;
         }
 
         console.error("Gemini Evaluation Error:", error.message);
 
         return {
             score: 0,
+            confidence: "Low",
             suitable: false,
+            scoringBreakdown: {
+                roleMatch: 0,
+                skillsMatch: 0,
+                experienceMatch: 0,
+                domainMatch: 0,
+                locationMatch: 0
+            },
+            domainMismatch: false,
+            domainExplanation: "Evaluation failed",
+            experienceMismatch: false,
+            primaryReasons: [isQuotaError ? "Gemini quota exceeded" : "Gemini evaluation failed"],
             reason: isQuotaError
                 ? "Gemini quota exceeded"
                 : "Gemini evaluation failed",
@@ -282,6 +338,13 @@ const evaluateJob = async (job, profile) => {
             experienceMatch: "Unknown",
             recommendation: "Not Evaluated",
             errorCode: isQuotaError ? "QUOTA_EXCEEDED" : "GEMINI_FAILED",
+            evaluatedBy: "None",
+            evaluationMetrics: {
+                provider: "None",
+                durationMs: Date.now() - startTime,
+                fallbackCount,
+                failureReason: isQuotaError ? "Gemini quota exceeded" : "Gemini evaluation failed"
+            }
         };
     }
 };

@@ -1,7 +1,7 @@
 const Company = require("../models/Company");
 const { seedCompanies } = require("../services/companyService");
 
-// Add one company manually from Postman/API.
+
 const addCompany = async (req, res) => {
     try {
         const company = await Company.create(req.body);
@@ -18,7 +18,7 @@ const addCompany = async (req, res) => {
     }
 };
 
-// Show all companies stored in MongoDB.
+
 const getCompanies = async (req, res) => {
     try {
         const companies = await Company.find();
@@ -36,7 +36,7 @@ const getCompanies = async (req, res) => {
     }
 };
 
-// Reset company collection using utils/companies.js.
+
 const seedCompanyList = async (req, res) => {
     try {
         await seedCompanies();

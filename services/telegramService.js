@@ -5,43 +5,83 @@ const axios = require("axios");
 
 const Company = require("../models/Company");
 const CandidateProfile = require("../models/CandidateProfile");
+const TelegramChannel = require("../models/TelegramChannel");
 
 const { extractUrls, getUrlStrategy } = require("../utils/urlStrategy");
 const {
     saveRawJob,
     analyseWithGemini,
     getActiveProfile,
+    saveMatchedJob
 } = require("../cron/jobSearchCron");
-const { saveMatchedJob } = require("../cron/jobSearchCron");
 const { sendMatchedJobEmail } = require("./emailService");
 
 const API_ID = Number(process.env.TELEGRAM_API_ID);
 const API_HASH = process.env.TELEGRAM_API_HASH;
-const GROUP_USERNAME = process.env.TELEGRAM_GROUP_USERNAME || "LMTJobUpdates";
 
-// Message me job posting ke signals hone chahiye
-// Warna YouTube/course ads bhi process ho jayenge
-const isJobMessage = (text = "") => {
-    const lower = text.toLowerCase();
-    return (
-        /\b(company|role|apply|hiring|intern|internship|fresher|sde|developer|engineer|opening|job|position)\b/i.test(lower)
-    );
+
+const logWithTime = (msg) => {
+    const time = new Date().toTimeString().split(" ")[0];
+    console.log(`[${time}] ${msg}`);
 };
 
-// Telegram channel ke structured posts se company/role directly parse karta hai
-// Example: "Company: Bright Money\nRole: SDE Intern\nApply at: https://..."
+const isJobMessage = (text = "", urls = []) => {
+    const lower = text.toLowerCase();
+    const hasKeywords = /\b(company|role|apply|hiring|intern|internship|fresher|sde|developer|engineer|opening|job|position)\b/i.test(lower);
+    if (hasKeywords) return true;
+
+    
+    const allUrls = [...extractUrls(text), ...urls];
+    for (const url of allUrls) {
+        if (getUrlStrategy(url) !== null) {
+            return true;
+        }
+    }
+    
+    return false;
+};
+
 const parseStructuredPost = (text = "") => {
-    const companyMatch = text.match(/company[:\s]+([^\n]+)/i);
-    const roleMatch = text.match(/role[:\s]+([^\n]+)/i);
+    const lines = text.split('\n');
+    let company, role, experience, location, salary, type;
+
+    
+    const matchLine = (regex) => {
+        const m = lines.find(l => regex.test(l));
+        return m ? m.match(regex)[1]?.trim() : null;
+    };
+
+    
+    company = matchLine(/(?:Company|Employer|Organization)[\s:]+([^\n*]+)/i) || text.match(/(?:Company|Employer|Organization)[\s:]+([^\n*]+)/i)?.[1]?.trim();
+    role = matchLine(/(?:Role|Profile|Position|Title)[\s:]+([^\n*]+)/i) || text.match(/(?:Role|Profile|Position|Title)[\s:]+([^\n*]+)/i)?.[1]?.trim();
+    experience = matchLine(/(?:Experience|Exp)[\s:]+([^\n*]+)/i) || text.match(/(?:Experience|Exp)[\s:]+([^\n*]+)/i)?.[1]?.trim();
+    location = matchLine(/(?:Location|Job Location)[\s:]+([^\n*]+)/i) || text.match(/(?:Location|Job Location)[\s:]+([^\n*]+)/i)?.[1]?.trim();
+    salary = matchLine(/(?:Salary|Stipend|CTC|Package)[\s:]+([^\n*]+)/i) || text.match(/(?:Salary|Stipend|CTC|Package)[\s:]+([^\n*]+)/i)?.[1]?.trim();
+    type = matchLine(/(?:Type|Employment Type)[\s:]+([^\n*]+)/i) || text.match(/(?:Type|Employment Type)[\s:]+([^\n*]+)/i)?.[1]?.trim();
+    
+    
+    const genericPhrases = /^(hiring|urgent hiring|frontend developers|developers|software engineers|apply now|freshers|immediate joiners|urgent|apply)$/i;
+    
+    if (company && genericPhrases.test(company)) {
+        company = null; 
+    }
+
+    
+    if (!role) {
+        const firstLine = lines.find(l => l.trim().length > 3 && !/http/i.test(l) && !genericPhrases.test(l.trim()));
+        if (firstLine && firstLine.length < 60) role = firstLine.replace(/[\*\_]/g, '').trim();
+    }
 
     return {
-        company: companyMatch?.[1]?.trim() || null,
-        role: roleMatch?.[1]?.trim() || null,
+        company: company || null,
+        role: role || null,
+        experience: experience || null,
+        location: location || null,
+        salary: salary || null,
+        type: type || null,
     };
 };
 
-// Job URL se title aur basic info scrape karta hai
-// Ye sirf un URLs ke liye hai jo greenhouse/lever/workday nahi hain
 const scrapeGenericJobPage = async (url) => {
     try {
         const response = await axios.get(url, {
@@ -52,21 +92,14 @@ const scrapeGenericJobPage = async (url) => {
         });
 
         const html = response.data || "";
-
-        // Title tag se job title nikalo
         const titleMatch = html.match(/<title[^>]*>([^<]+)<\/title>/i);
-        const title = titleMatch?.[1]
-            ?.replace(/\s*[\|\-–]\s*.*/g, "")
-            ?.trim() || "Job Opening";
+        const title = titleMatch?.[1]?.replace(/\s*[\|\-–]\s*.*/g, "")?.trim() || "Job Opening";
 
-        // Meta description se location guess karo
         const metaMatch = html.match(/<meta[^>]+name=["']description["'][^>]+content=["']([^"']+)/i);
         const metaText = metaMatch?.[1] || "";
-
         const locationMatch = metaText.match(/\b(india|bangalore|bengaluru|noida|hyderabad|pune|remote|mumbai|chennai|gurugram)\b/i);
         const location = locationMatch?.[0] || "India";
 
-        // First 800 chars of visible text as description
         const bodyText = html
             .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, "")
             .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, "")
@@ -83,56 +116,87 @@ const scrapeGenericJobPage = async (url) => {
             jobId: url.split("/").filter(Boolean).pop(),
             employmentType: /intern/i.test(title) ? "Internship" : "Full-Time",
         };
-
     } catch (error) {
-        console.log(`Generic scrape failed for ${url}: ${error.message}`);
+        logWithTime(`Generic scrape failed for ${url}: ${error.message}`);
         return null;
     }
 };
 
-// Ek URL ko process karta hai — scrape, pre-filter, Gemini, save
-const processJobUrl = async (url, telegramCompany, profile, structuredData) => {
+const processJobUrl = async (url, telegramCompany, profile, structuredData, sourceChannel, telegramMessageId) => {
     try {
         const strategy = getUrlStrategy(url);
 
         if (!strategy) {
-            console.log(`Skipped non-job URL: ${url}`);
+            logWithTime(`Skipped non-job URL: ${url}`);
             return;
         }
 
-        console.log(`Processing Telegram URL [${strategy}]: ${url}`);
+        logWithTime(`Processing URL [${strategy}] from ${sourceChannel}: ${url}`);
 
         let job = null;
 
         if (strategy === "generic-html") {
             job = await scrapeGenericJobPage(url);
+            if (job) {
+                
+                if (structuredData.experience) job.experience = structuredData.experience;
+                if (structuredData.salary) job.salary = structuredData.salary;
+                if (structuredData.type) job.employmentType = /intern/i.test(structuredData.type) ? "Internship" : "Full-Time";
+                
+            }
         } else {
-            // greenhouse/lever/workday — inke liye direct URL se scraping mushkil hai
-            // structured post data use karo agar available hai
             job = {
                 title: structuredData.role || "Job Opening",
-                location: "India",
+                location: structuredData.location || "India",
                 description: structuredData.role || "Software Engineer role",
+                experience: structuredData.experience || null,
+                salary: structuredData.salary || null,
                 applyLink: url,
                 jobId: url.split("/").filter(Boolean).pop(),
-                employmentType: /intern/i.test(structuredData.role || "") ? "Internship" : "Full-Time",
+                employmentType: /intern/i.test(structuredData.role || structuredData.type || "") ? "Internship" : "Full-Time",
             };
         }
 
+        
         if (!job) {
-            console.log(`Could not extract job from: ${url}`);
+            logWithTime(`Scraper returned null for URL: ${url}. Skipping.`);
             return;
         }
 
-        // Override title/company from structured post if available
+        
+        if (!structuredData.company) {
+            try {
+                const urlObj = new URL(url);
+                const hostParts = urlObj.hostname.split('.');
+                
+                if (urlObj.hostname.includes('greenhouse') || urlObj.hostname.includes('lever')) {
+                    const pathParts = urlObj.pathname.split('/').filter(Boolean);
+                    if (pathParts.length > 0) job.inferredCompany = pathParts[0];
+                } else if (hostParts.length > 2) {
+                    job.inferredCompany = hostParts[0] !== 'www' ? hostParts[0] : hostParts[1];
+                }
+            } catch (e) {
+                
+            }
+        }
+
+        if (!job) {
+            logWithTime(`Could not extract job from: ${url}`);
+            return;
+        }
+
         if (structuredData.role) job.title = structuredData.role;
         if (structuredData.company) job.description = `${structuredData.company} - ${job.description}`;
+        
+        job.sourceChannel = sourceChannel;
+        job.telegramMessageId = telegramMessageId;
+        job.sourceName = sourceChannel;
 
         const rawJob = await saveRawJob(telegramCompany, job);
-        console.log(`Telegram Job Saved: ${job.title}`);
+        logWithTime(`Job Parsed Successfully: ${job.title}`);
 
         if (rawJob.aiMatched) {
-            console.log(`Already matched: ${job.title}`);
+            logWithTime(`Already matched: ${job.title}`);
             return;
         }
 
@@ -140,14 +204,16 @@ const processJobUrl = async (url, telegramCompany, profile, structuredData) => {
         const result = await analyseWithGemini(job, profile, aiState);
 
         if (result.skipped) {
-            console.log(`Skipped Gemini for ${job.title}: ${result.reason}`);
+            logWithTime(`Skipped Gemini for ${job.title}: ${result.reason}`);
             return;
         }
+        
+        logWithTime(`Gemini Score: ${result.analysis.score}`);
 
         const matched = await saveMatchedJob(rawJob, telegramCompany, job, result.analysis);
 
         if (matched) {
-            console.log(`Telegram Matched Job: ${job.title} | Score: ${result.analysis.score}`);
+            logWithTime(`Matched Job: ${job.title} | Email Sent`);
             try {
                 await sendMatchedJobEmail({
                     company: telegramCompany,
@@ -155,38 +221,34 @@ const processJobUrl = async (url, telegramCompany, profile, structuredData) => {
                     analysis: result.analysis,
                 });
             } catch (emailError) {
-                console.log(`Email failed: ${emailError.message}`);
+                logWithTime(`Email failed: ${emailError.message}`);
             }
         }
 
     } catch (error) {
-        console.log(`Error processing URL ${url}: ${error.message}`);
+        logWithTime(`Error processing URL ${url}: ${error.message}`);
     }
 };
 
-// Telegram client start karta hai aur group messages sunta hai
 const startTelegramListener = async () => {
     if (!API_ID || !API_HASH) {
-        console.log("Telegram credentials missing — listener not started");
+        logWithTime("Telegram credentials missing — listener not started");
         return;
     }
 
     try {
         const session = new StringSession(process.env.TELEGRAM_SESSION || "");
-
         const client = new TelegramClient(session, API_ID, API_HASH, {
             connectionRetries: 5,
         });
 
-        // Pehli baar session empty hoga to login prompt aayega
         await client.start({
             phoneNumber: async () => await input.text("Enter your Telegram phone number: "),
             password: async () => await input.text("Enter your 2FA password (if any): "),
             phoneCode: async () => await input.text("Enter the OTP you received: "),
-            onError: (err) => console.log("Telegram auth error:", err),
+            onError: (err) => logWithTime(`Telegram auth error: ${err.message}`),
         });
 
-        // Session string save karo — .env me TELEGRAM_SESSION me paste karna hoga
         const sessionString = client.session.save();
         if (sessionString && !process.env.TELEGRAM_SESSION) {
             console.log("=================================");
@@ -195,58 +257,99 @@ const startTelegramListener = async () => {
             console.log("=================================");
         }
 
-        console.log("Telegram listener started — watching:", GROUP_USERNAME);
+        logWithTime("Connected to Telegram");
+        
+        
+        let allowedChannels = new Set();
+        
+        const loadChannels = async () => {
+            const channels = await TelegramChannel.find({ enabled: true });
+            allowedChannels = new Set(channels.map(c => c.username.toLowerCase()));
+            if(allowedChannels.size > 0) {
+                logWithTime(`Listening to ${allowedChannels.size} channels`);
+            } else {
+                logWithTime("No enabled channels found in registry.");
+            }
+        };
 
-        // Har naye message par ye handler fire hoga
+        
+        await loadChannels();
+        
+        
+        setInterval(loadChannels, 60000);
+
         client.addEventHandler(async (event) => {
             try {
                 const message = event.message;
                 if (!message?.message) return;
 
-                const text = message.message;
                 const chatUsername = event._chat?.username || "";
+                
+                
+                if (!chatUsername || !allowedChannels.has(chatUsername.toLowerCase())) return;
 
-                // Sirf target group ke messages process karo
-                if (chatUsername.toLowerCase() !== GROUP_USERNAME.toLowerCase()) return;
+                const text = message.message;
+                
+                
+                await TelegramChannel.findOneAndUpdate(
+                    { username: { $regex: new RegExp(`^${chatUsername}$`, 'i') } },
+                    { 
+                        $inc: { messagesProcessed: 1 },
+                        $set: { lastActivity: new Date() }
+                    }
+                ).catch(() => {});
 
-                // Job signal nahi hai to skip
-                if (!isJobMessage(text)) {
-                    console.log("Skipped non-job Telegram message");
-                    return;
+                let inlineUrls = [];
+                
+                if (message.entities) {
+                    message.entities.forEach(entity => {
+                        if (entity.className === 'MessageEntityTextUrl') {
+                            inlineUrls.push(entity.url);
+                        }
+                    });
                 }
 
-                console.log("Job message detected in Telegram group");
+                if (!isJobMessage(text, inlineUrls)) {
+                    return; 
+                }
 
-                // Structured data parse karo (Company/Role lines)
+                logWithTime(`New message received - Channel: ${chatUsername}`);
+
                 const structuredData = parseStructuredPost(text);
-
-                // URLs extract karo
-                const urls = extractUrls(text);
+                let urls = extractUrls(text);
+                
+                urls.push(...inlineUrls);
+                
+                
+                urls = [...new Set(urls)];
+                
                 if (urls.length === 0) return;
 
-                // Telegram placeholder company fetch karo
                 const telegramCompany = await Company.findOne({ name: "Telegram Jobs" });
                 if (!telegramCompany) {
-                    console.log("Telegram Jobs company not found in DB — run seed first");
+                    logWithTime("Telegram Jobs company not found in DB — run seed first");
                     return;
                 }
 
-                // Active profile fetch karo
                 const profile = await getActiveProfile();
+                const telegramMessageId = message.id;
 
-                // Har URL ko process karo
                 for (const url of urls) {
-                    await processJobUrl(url, telegramCompany, profile, structuredData);
+                    await processJobUrl(url, telegramCompany, profile, structuredData, chatUsername, telegramMessageId);
                 }
 
             } catch (handlerError) {
-                console.log("Telegram handler error:", handlerError.message);
+                logWithTime(`Telegram handler error: ${handlerError.message}`);
             }
         });
 
+        client.addEventHandler((event) => {
+            logWithTime(`Connection state changed... attempting recovery if needed.`);
+        });
+
     } catch (error) {
-        console.log("Telegram listener failed to start:", error.message);
+        logWithTime(`Telegram listener failed to start: ${error.message}`);
     }
 };
 
-module.exports = { startTelegramListener };
+module.exports = { startTelegramListener, parseStructuredPost, processJobUrl, isJobMessage };
