@@ -314,85 +314,116 @@ const runSearch = async () => {
 
     for (const company of companies) {
       console.log(`Searching ${company.name}...`);
+      let companyJobsFound = 0;
+      let companyJobsMatched = 0;
+      let companyStatus = "success";
+      let companyErrorMsg = null;
+      let companyErrors = 0;
 
-      const scrapedJobs = await scrapeCompanyJobs(company);
+      try {
+        const scrapedJobs = await scrapeCompanyJobs(company);
 
-      console.log(`${company.name} returned ${scrapedJobs.length} jobs`);
+        console.log(`${company.name} returned ${scrapedJobs.length} jobs`);
 
-      if (company.name === "Visa") {
-        console.log(
-          "Visa Sample Jobs:",
-          scrapedJobs.slice(0, 5).map((job) => ({
-            title: job.title,
-            location: job.location,
-            jobId: job.jobId,
-          })),
-        );
-      }
-
-      stats.jobsFound += scrapedJobs.length;
-      pipelineState.jobsScraped = stats.jobsFound;
-
-      const jobsToProcess = scrapedJobs.slice(0, MAX_JOBS_PER_COMPANY);
-
-      for (const job of jobsToProcess) {
-        const rawJob = await saveRawJob(company, job);
-        console.log(`Saved Job: ${job.title} (${company.name})`);
-
-        try {
-          if (rawJob.aiMatched || await hasExistingMatch(rawJob)) {
-            
-            console.log(
-              `Skipped AI analysis for ${job.title}: already matched earlier`,
-            );
-            continue;
-          }
-
-          const result = await analyseWithGemini(job, profile, aiState);
-          pipelineState.jobsEvaluated++;
-
-          if (result.skipped) {
-            console.log(
-              `Skipped Gemini analysis for ${job.title}: ${result.reason}`,
-            );
-            continue;
-          }
-
-          const matched = await saveMatchedJob(
-            rawJob,
-            company,
-            job,
-            result.analysis,
+        if (company.name === "Visa") {
+          console.log(
+            "Visa Sample Jobs:",
+            scrapedJobs.slice(0, 5).map((job) => ({
+              title: job.title,
+              location: job.location,
+              jobId: job.jobId,
+            })),
           );
+        }
 
-          if (matched) {
-            stats.jobsMatched++;
-            pipelineState.jobsMatched++;
-            console.log(
-              `Matched Job: ${job.title} | Score: ${result.analysis.score}`,
+        companyJobsFound = scrapedJobs.length;
+        stats.jobsFound += scrapedJobs.length;
+        pipelineState.jobsScraped = stats.jobsFound;
+
+        const jobsToProcess = scrapedJobs.slice(0, MAX_JOBS_PER_COMPANY);
+
+        for (const job of jobsToProcess) {
+          const rawJob = await saveRawJob(company, job);
+          console.log(`Saved Job: ${job.title} (${company.name})`);
+
+          try {
+            if (rawJob.aiMatched || await hasExistingMatch(rawJob)) {
+              
+              console.log(
+                `Skipped AI analysis for ${job.title}: already matched earlier`,
+              );
+              continue;
+            }
+
+            const result = await analyseWithGemini(job, profile, aiState);
+            pipelineState.jobsEvaluated++;
+
+            if (result.skipped) {
+              console.log(
+                `Skipped Gemini analysis for ${job.title}: ${result.reason}`,
+              );
+              continue;
+            }
+
+            const matched = await saveMatchedJob(
+              rawJob,
+              company,
+              job,
+              result.analysis,
             );
 
-            try {
-              
-              await sendMatchedJobEmail({
-                company,
-                job,
-                analysis: result.analysis,
-              });
-              console.log(`Email sent for matched job: ${job.title}`);
-            } catch (emailError) {
-              console.log(`Email failed for ${job.title}: ${emailError.message}`);
+            if (matched) {
+              stats.jobsMatched++;
+              companyJobsMatched++;
+              pipelineState.jobsMatched++;
+              console.log(
+                `Matched Job: ${job.title} | Score: ${result.analysis.score}`,
+              );
+
+              try {
+                
+                await sendMatchedJobEmail({
+                  company,
+                  job,
+                  analysis: result.analysis,
+                });
+                console.log(`Email sent for matched job: ${job.title}`);
+              } catch (emailError) {
+                console.log(`Email failed for ${job.title}: ${emailError.message}`);
+              }
             }
+          } catch (error) {
+            companyErrors++;
+            errors.push({
+              company: company.name,
+              jobTitle: job.title,
+              message: error.message,
+            });
+            console.error(`Gemini Error for ${job.title}:`, error.message);
           }
-        } catch (error) {
-          errors.push({
-            company: company.name,
-            jobTitle: job.title,
-            message: error.message,
-          });
-          console.error(`Gemini Error for ${job.title}:`, error.message);
         }
+
+        if (companyErrors > 0) {
+          companyStatus = "partial";
+          companyErrorMsg = `${companyErrors} jobs failed analysis`;
+        }
+      } catch (error) {
+        companyStatus = "failed";
+        companyErrorMsg = error.message;
+        errors.push({
+          company: company.name,
+          message: error.message,
+        });
+        console.error(`Scrape Error for ${company.name}:`, error.message);
       }
+
+      await Company.findByIdAndUpdate(company._id, {
+        lastScan: new Date(),
+        jobsFound: companyJobsFound,
+        matchedJobs: companyJobsMatched,
+        lastRunStatus: companyStatus,
+        lastError: companyErrorMsg
+      });
     }
 
     await saveSearchLog(startedAt, stats, errors);

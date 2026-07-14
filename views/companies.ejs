@@ -13,6 +13,25 @@
 </div>
 
 <script>
+    const timeAgo = (dateStr) => {
+        if (!dateStr) return 'Never';
+        const date = new Date(dateStr);
+        const seconds = Math.floor((new Date() - date) / 1000);
+        
+        let interval = seconds / 31536000;
+        if (interval > 1) return Math.floor(interval) + " years ago";
+        interval = seconds / 2592000;
+        if (interval > 1) return Math.floor(interval) + " months ago";
+        interval = seconds / 86400;
+        if (interval > 1) return Math.floor(interval) + " days ago";
+        interval = seconds / 3600;
+        if (interval > 1) return Math.floor(interval) + " hours ago";
+        interval = seconds / 60;
+        if (interval > 1) return Math.floor(interval) + " minutes ago";
+        if (seconds < 0) return "Just now";
+        return Math.floor(seconds) + " seconds ago";
+    };
+
     async function fetchCompanies() {
         try {
             const res = await fetch("/api/companies");
@@ -43,11 +62,11 @@
                         <div class="mt-auto pt-4 border-t border-gray-100">
                             <div class="flex justify-between text-sm text-gray-600 mb-2">
                                 <span>Jobs Found</span>
-                                <span class="font-bold text-gray-900">${c.jobsFound}</span>
+                                <span class="font-bold text-gray-900">${c.jobsFound !== undefined ? c.jobsFound : 0}</span>
                             </div>
                             <div class="flex justify-between text-sm text-gray-600 mb-4">
                                 <span>Last Scan</span>
-                                <span class="font-medium text-gray-900">${c.lastScraped ? new Date(c.lastScraped).toLocaleDateString() : 'Never'}</span>
+                                <span class="font-medium text-gray-900">${timeAgo(c.lastScan)}</span>
                             </div>
                             <a href="${c.careerUrl}" target="_blank" class="w-full flex items-center justify-center bg-gray-50 hover:bg-gray-100 text-gray-700 font-medium py-2 min-h-[44px] rounded-lg transition text-sm">
                                 View Career Page <i class="fas fa-external-link-alt ml-2 text-xs"></i>

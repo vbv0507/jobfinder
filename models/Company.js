@@ -38,6 +38,29 @@ const companySchema = new mongoose.Schema({
         type: mongoose.Schema.Types.Mixed,
         default: {},
     },
+
+    lastScan: {
+        type: Date,
+    },
+
+    jobsFound: {
+        type: Number,
+        default: 0,
+    },
+
+    matchedJobs: {
+        type: Number,
+        default: 0,
+    },
+
+    lastRunStatus: {
+        type: String,
+        enum: ["success", "partial", "failed"],
+    },
+
+    lastError: {
+        type: String,
+    },
 }, { timestamps: true });
 
 module.exports = mongoose.model("Company", companySchema);
