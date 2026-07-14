@@ -8,13 +8,19 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
+            darkMode: 'class',
             theme: {
                 extend: {
                     colors: {
-                        primary: '#4f46e5',
-                        primaryHover: '#4338ca',
-                        secondary: '#f3f4f6',
-                        dark: '#111827'
+                        primary: 'var(--color-primary, #4f46e5)',
+                        primaryHover: 'var(--color-primary-hover, #4338ca)',
+                        secondary: 'var(--color-secondary, #f3f4f6)',
+                        dark: 'var(--color-dark, #111827)',
+                        bg: 'var(--color-bg, #f9fafb)',
+                        surface: 'var(--color-surface, #ffffff)',
+                        border: 'var(--color-border, #e5e7eb)',
+                        text: 'var(--color-text, #1f2937)',
+                        textMuted: 'var(--color-text-muted, #6b7280)'
                     }
                 }
             }
@@ -26,6 +32,17 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
     <style>
+        :root {
+            --color-primary: #4f46e5;
+            --color-primary-hover: #4338ca;
+            --color-secondary: #f3f4f6;
+            --color-dark: #111827;
+            --color-bg: #f9fafb;
+            --color-surface: #ffffff;
+            --color-border: #e5e7eb;
+            --color-text: #1f2937;
+            --color-text-muted: #6b7280;
+        }
         /* Custom scrollbar and minor tweaks */
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
@@ -34,27 +51,68 @@
         .fade-in { animation: fadeIn 0.3s ease-in; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
     </style>
-</head>
-<body class="h-full flex overflow-hidden font-sans text-gray-800 antialiased">
     
+    <script>
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            if (!sidebar || !overlay) return;
+            
+            const isOpen = sidebar.classList.contains('translate-x-0');
+            if (isOpen) {
+                sidebar.classList.remove('translate-x-0');
+                sidebar.classList.add('-translate-x-full');
+                overlay.classList.add('opacity-0');
+                setTimeout(() => overlay.classList.add('hidden'), 300);
+            } else {
+                sidebar.classList.remove('-translate-x-full');
+                sidebar.classList.add('translate-x-0');
+                overlay.classList.remove('hidden');
+                setTimeout(() => overlay.classList.remove('opacity-0'), 10);
+            }
+        }
+        
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                const sidebar = document.getElementById('sidebar');
+                if (sidebar && sidebar.classList.contains('translate-x-0') && window.innerWidth < 1024) {
+                    toggleSidebar();
+                }
+            }
+        });
+    </script>
+</head>
+<body class="h-full flex overflow-hidden font-sans text-text antialiased bg-bg relative">
+    
+    <!-- Mobile Sidebar Overlay -->
+    <div id="sidebarOverlay" class="fixed inset-0 bg-gray-900/50 z-20 hidden lg:hidden transition-opacity duration-300 opacity-0" onclick="toggleSidebar()"></div>
+
     <%- include('sidebar') %>
 
     <!-- Main Content Area -->
-    <div class="flex-1 flex flex-col w-0 overflow-hidden">
+    <div class="flex-1 flex flex-col w-0 overflow-hidden relative z-0">
         <!-- Top header -->
-        <header class="bg-white shadow-sm h-16 flex items-center px-6 justify-between flex-shrink-0 z-10">
-            <h1 class="text-xl font-semibold text-gray-800"><%= typeof title !== 'undefined' ? title : 'Dashboard' %></h1>
+        <header class="bg-surface shadow-sm border-b border-border h-16 flex items-center px-4 lg:px-6 justify-between flex-shrink-0 z-10 w-full">
+            <div class="flex items-center gap-3">
+                <button onclick="toggleSidebar()" class="lg:hidden text-textMuted hover:text-text focus:outline-none p-2 rounded-md hover:bg-secondary transition min-h-[44px] min-w-[44px] flex items-center justify-center" aria-label="Toggle Sidebar">
+                    <i class="fas fa-bars text-lg"></i>
+                </button>
+                <div class="lg:hidden font-bold text-xl tracking-wide text-primary flex items-center gap-2">
+                    <i class="fas fa-layer-group"></i> RoleNova
+                </div>
+                <h1 class="hidden lg:block text-xl font-semibold text-text"><%= typeof title !== 'undefined' ? title : 'Dashboard' %></h1>
+            </div>
             
-            <div class="flex items-center space-x-4">
-                <button class="text-gray-400 hover:text-gray-500">
+            <div class="flex items-center space-x-3 lg:space-x-4">
+                <button class="text-textMuted hover:text-text p-2 rounded-full hover:bg-secondary transition min-h-[44px] min-w-[44px] flex items-center justify-center" aria-label="Notifications">
                     <i class="fas fa-bell"></i>
                 </button>
-                <div class="h-8 w-8 rounded-full bg-primary text-white flex items-center justify-center font-bold">
+                <div class="h-9 w-9 rounded-full bg-primary text-white flex items-center justify-center font-bold shadow-sm cursor-pointer hover:bg-primaryHover transition">
                     RN
                 </div>
             </div>
         </header>
         
         <!-- Main Scrollable Content -->
-        <main class="flex-1 overflow-y-auto bg-gray-50 p-6">
+        <main class="flex-1 overflow-y-auto bg-bg p-4 md:p-6">
             <div class="max-w-7xl mx-auto space-y-6 fade-in">

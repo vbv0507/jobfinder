@@ -21,7 +21,7 @@
 </div>
 
 <!-- Stats Grid with Skeletons -->
-<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8" id="stats-container">
+<div class="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-4 gap-4 md:gap-6 mb-8" id="stats-container">
     <!-- Skeleton Loaders -->
     <% for(let i=0; i<8; i++) { %>
     <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 animate-pulse">
@@ -32,14 +32,14 @@
 </div>
 
 <!-- Quick Actions & Activity -->
-<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+<div class="grid grid-cols-1 xl:grid-cols-3 gap-6 md:gap-8">
     
     <!-- Action Cards -->
     <div class="lg:col-span-1 space-y-6">
         <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
             <h3 class="text-lg font-semibold text-gray-800 mb-2">Manual Trigger</h3>
             <p class="text-gray-500 text-sm mb-4">Start the scraping and matching pipeline immediately.</p>
-            <button onclick="triggerJobSearch()" class="w-full bg-primary hover:bg-primaryHover text-white py-2 rounded-lg font-medium transition shadow-sm">
+            <button onclick="triggerJobSearch()" class="w-full bg-primary hover:bg-primaryHover text-white py-2 px-4 min-h-[44px] rounded-lg font-medium transition shadow-sm flex items-center justify-center">
                 <i class="fas fa-play mr-2"></i> Start Pipeline
             </button>
         </div>
@@ -47,19 +47,19 @@
         <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 border-l-4 border-l-red-500">
             <h3 class="text-lg font-semibold text-gray-800 mb-2">Maintenance</h3>
             <p class="text-gray-500 text-sm mb-4">Clear raw un-matched scraped jobs to free up database space.</p>
-            <button onclick="clearRawJobs()" class="w-full bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 py-2 rounded-lg font-medium transition">
+            <button onclick="clearRawJobs()" class="w-full bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 py-2 px-4 min-h-[44px] rounded-lg font-medium transition flex items-center justify-center">
                 <i class="fas fa-trash-alt mr-2 text-red-500"></i> Clear Raw DB
             </button>
         </div>
     </div>
 
     <!-- Recent Logs -->
-    <div class="lg:col-span-2 bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden flex flex-col h-96">
+    <div class="xl:col-span-2 bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden flex flex-col h-96">
         <div class="p-4 border-b border-gray-100 flex justify-between items-center bg-gray-50 shrink-0">
             <h3 class="text-lg font-semibold text-gray-800"><i class="fas fa-terminal mr-2 text-gray-400"></i> System Logs</h3>
             <button onclick="fetchLogs()" class="text-gray-400 hover:text-primary transition" title="Refresh Logs"><i class="fas fa-sync-alt"></i></button>
         </div>
-        <div class="p-4 overflow-y-auto flex-1 bg-gray-900 text-green-400 font-mono text-sm space-y-1" id="logs-container">
+        <div class="p-4 overflow-y-auto flex-1 bg-gray-900 text-green-400 font-mono text-sm space-y-2 break-words whitespace-pre-wrap" id="logs-container">
             Loading logs...
         </div>
     </div>
@@ -137,7 +137,7 @@
                     const d = new Date(log.createdAt).toLocaleString();
                     const color = log.status === 'Failed' ? 'text-red-400' : 
                                  (log.status === 'Partial Success' ? 'text-yellow-400' : 'text-green-400');
-                    return `<div><span class="text-gray-500">[${d}]</span> <span class="${color}">${log.message || 'Legacy Log: ' + log.status}</span></div>`;
+                    return `<div class="flex flex-col sm:flex-row sm:gap-2 border-b border-gray-800 pb-2 sm:border-0 sm:pb-0"><span class="text-gray-500 shrink-0">[${d}]</span> <span class="${color} flex-1 break-words">${log.message || 'Legacy Log: ' + log.status}</span></div>`;
                 }).join("");
             } else {
                 container.innerHTML = '<span class="text-gray-500">No logs found.</span>';

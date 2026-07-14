@@ -9,7 +9,7 @@
     <!-- Daily Scraping Trend -->
     <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 lg:col-span-2">
         <h3 class="text-lg font-semibold text-gray-900 mb-4">Daily Pipeline Activity (Last 7 Days)</h3>
-        <div class="relative h-72">
+        <div class="relative w-full">
             <canvas id="trendChart"></canvas>
         </div>
     </div>
@@ -17,7 +17,7 @@
     <!-- Jobs Evaluated per Company -->
     <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
         <h3 class="text-lg font-semibold text-gray-900 mb-4">Jobs by Company</h3>
-        <div class="relative h-64">
+        <div class="relative w-full">
             <canvas id="companyChart"></canvas>
         </div>
     </div>
@@ -25,7 +25,7 @@
     <!-- Match Score Distribution -->
     <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
         <h3 class="text-lg font-semibold text-gray-900 mb-4">Match Score Distribution</h3>
-        <div class="relative h-64">
+        <div class="relative w-full flex justify-center">
             <canvas id="scoreChart"></canvas>
         </div>
     </div>
@@ -33,23 +33,23 @@
     <!-- Jobs by Domain -->
     <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
         <h3 class="text-lg font-semibold text-gray-900 mb-4">Jobs by Domain</h3>
-        <div class="relative h-64">
+        <div class="relative w-full">
             <canvas id="domainChart"></canvas>
         </div>
     </div>
     
     <!-- Application Status Distribution -->
     <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-        <div class="grid grid-cols-2 gap-4 h-full">
-            <div class="h-64">
-                <h3 class="text-sm font-semibold text-gray-900 mb-2">Status</h3>
-                <div class="relative h-48">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+                <h3 class="text-sm font-semibold text-gray-900 mb-2 text-center">Status</h3>
+                <div class="relative w-full flex justify-center">
                     <canvas id="statusChart"></canvas>
                 </div>
             </div>
-            <div class="h-64">
-                <h3 class="text-sm font-semibold text-gray-900 mb-2">AI vs Local</h3>
-                <div class="relative h-48">
+            <div>
+                <h3 class="text-sm font-semibold text-gray-900 mb-2 text-center">AI vs Local</h3>
+                <div class="relative w-full flex justify-center">
                     <canvas id="evalChart"></canvas>
                 </div>
             </div>
@@ -65,7 +65,7 @@
             
             if(data.success && data.charts) {
                 // Common options
-                const commonOptions = { responsive: true, maintainAspectRatio: false };
+                const commonOptions = { responsive: true, maintainAspectRatio: true };
                 
                 // 1. Daily Trend (Line Chart)
                 const tCtx = document.getElementById('trendChart').getContext('2d');

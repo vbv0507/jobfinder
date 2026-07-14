@@ -14,19 +14,19 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Name</label>
-                    <input type="text" id="name" class="w-full border border-gray-300 rounded-md p-2.5 focus:ring-primary focus:border-primary">
+                    <input type="text" id="name" class="w-full border border-gray-300 rounded-md p-2.5 min-h-[44px] focus:ring-primary focus:border-primary">
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Graduation Year</label>
-                    <input type="number" id="graduationYear" class="w-full border border-gray-300 rounded-md p-2.5 focus:ring-primary focus:border-primary">
+                    <input type="number" id="graduationYear" class="w-full border border-gray-300 rounded-md p-2.5 min-h-[44px] focus:ring-primary focus:border-primary">
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Career Stage</label>
-                    <input type="text" id="careerStage" class="w-full border border-gray-300 rounded-md p-2.5 focus:ring-primary focus:border-primary" placeholder="e.g. Entry Level / New Grad">
+                    <input type="text" id="careerStage" class="w-full border border-gray-300 rounded-md p-2.5 min-h-[44px] focus:ring-primary focus:border-primary" placeholder="e.g. Entry Level / New Grad">
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Years of Experience</label>
-                    <input type="number" id="yearsOfExperience" class="w-full border border-gray-300 rounded-md p-2.5 focus:ring-primary focus:border-primary">
+                    <input type="number" id="yearsOfExperience" class="w-full border border-gray-300 rounded-md p-2.5 min-h-[44px] focus:ring-primary focus:border-primary">
                 </div>
             </div>
         </div>
@@ -37,21 +37,21 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Preferred Domains (comma separated)</label>
-                    <textarea id="preferredDomains" rows="3" class="w-full border border-gray-300 rounded-md p-2.5 focus:ring-primary focus:border-primary text-sm"></textarea>
+                    <textarea id="preferredDomains" rows="3" class="w-full border border-gray-300 rounded-md p-2.5 min-h-[44px] focus:ring-primary focus:border-primary text-sm"></textarea>
                     <p class="text-xs text-gray-500 mt-1">e.g. BACKEND, PLATFORM</p>
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Excluded Domains (comma separated)</label>
-                    <textarea id="excludedDomains" rows="3" class="w-full border border-gray-300 rounded-md p-2.5 focus:ring-primary focus:border-primary text-sm"></textarea>
+                    <textarea id="excludedDomains" rows="3" class="w-full border border-gray-300 rounded-md p-2.5 min-h-[44px] focus:ring-primary focus:border-primary text-sm"></textarea>
                     <p class="text-xs text-red-500 mt-1">Jobs matching these domains will be instantly rejected.</p>
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Preferred Employment Levels</label>
-                    <textarea id="preferredEmploymentLevels" rows="2" class="w-full border border-gray-300 rounded-md p-2.5 focus:ring-primary focus:border-primary text-sm"></textarea>
+                    <textarea id="preferredEmploymentLevels" rows="2" class="w-full border border-gray-300 rounded-md p-2.5 min-h-[44px] focus:ring-primary focus:border-primary text-sm"></textarea>
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Preferred Job Types</label>
-                    <textarea id="preferredJobTypes" rows="2" class="w-full border border-gray-300 rounded-md p-2.5 focus:ring-primary focus:border-primary text-sm"></textarea>
+                    <textarea id="preferredJobTypes" rows="2" class="w-full border border-gray-300 rounded-md p-2.5 min-h-[44px] focus:ring-primary focus:border-primary text-sm"></textarea>
                 </div>
             </div>
         </div>
@@ -62,23 +62,23 @@
             <div class="space-y-6">
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Skills (comma separated)</label>
-                    <textarea id="skills" rows="4" class="w-full border border-gray-300 rounded-md p-2.5 focus:ring-primary focus:border-primary font-mono text-sm"></textarea>
+                    <textarea id="skills" rows="4" class="w-full border border-gray-300 rounded-md p-2.5 min-h-[44px] focus:ring-primary focus:border-primary font-mono text-sm"></textarea>
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Preferred Roles (comma separated)</label>
-                        <textarea id="preferredRoles" rows="2" class="w-full border border-gray-300 rounded-md p-2.5 focus:ring-primary focus:border-primary text-sm"></textarea>
+                        <textarea id="preferredRoles" rows="2" class="w-full border border-gray-300 rounded-md p-2.5 min-h-[44px] focus:ring-primary focus:border-primary text-sm"></textarea>
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Preferred Locations (comma separated)</label>
-                        <textarea id="preferredLocations" rows="2" class="w-full border border-gray-300 rounded-md p-2.5 focus:ring-primary focus:border-primary text-sm"></textarea>
+                        <textarea id="preferredLocations" rows="2" class="w-full border border-gray-300 rounded-md p-2.5 min-h-[44px] focus:ring-primary focus:border-primary text-sm"></textarea>
                     </div>
                 </div>
             </div>
         </div>
         
         <div class="flex justify-end pt-4 border-t">
-            <button type="submit" class="bg-primary hover:bg-primaryHover text-white font-medium py-2 px-6 rounded-lg transition shadow-sm">
+            <button type="submit" class="bg-primary hover:bg-primaryHover text-white font-medium py-2 px-6 min-h-[44px] rounded-lg transition shadow-sm w-full md:w-auto">
                 Save Profile Configuration
             </button>
         </div>
