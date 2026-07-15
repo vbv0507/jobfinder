@@ -59,6 +59,16 @@
                                     <span class="px-2.5 py-0.5 inline-flex text-xs leading-5 font-semibold rounded-full <%= scoreColor %>">
                                         <%= job.score %>/100
                                     </span>
+                                    <% 
+                                        let aiColor = "bg-green-100 text-green-800";
+                                        let aiIcon = "🟢";
+                                        let aiName = job.provider ? (job.provider.charAt(0).toUpperCase() + job.provider.slice(1)) : (job.evaluatedBy || 'Gemini');
+                                        if (job.provider === 'groq' || job.evaluatedBy === 'Groq') { aiColor = "bg-orange-100 text-orange-800"; aiIcon = "🟠"; }
+                                        if (job.provider === 'local' || job.provider === 'unknown' || job.evaluatedBy === 'Local') { aiColor = "bg-gray-100 text-gray-800"; aiIcon = "⚪"; }
+                                    %>
+                                    <span class="ml-2 px-2 py-0.5 inline-flex text-[10px] leading-4 font-semibold rounded-full <%= aiColor %> whitespace-nowrap" title="Evaluated by <%= aiName %>">
+                                        <%= aiIcon %> <%= aiName %>
+                                    </span>
                                 </div>
                             </td>
                             <td class="md:px-6 md:py-4 md:whitespace-nowrap text-sm text-gray-500 flex items-center justify-between md:table-cell mb-4 md:mb-0">

@@ -71,6 +71,35 @@ const getAnalyticsData = async () => {
             { $limit: 8 }
         ]);
 
+        const aiProviderStats = await MatchedJob.aggregate([
+            { $match: { provider: { $exists: true } } },
+            { $group: {
+                _id: "$provider",
+                count: { $sum: 1 },
+                avgTime: { $avg: "$evaluationTimeMs" },
+                fallbacks: { $sum: { $cond: [{ $gt: ["$fallbackCount", 0] }, 1, 0] } }
+            }}
+        ]);
+        
+        let totalAiEvaluations = 0;
+        let totalAiTime = 0;
+        let totalFallbacks = 0;
+        
+        aiProviderStats.forEach(stat => {
+            totalAiEvaluations += stat.count;
+            totalAiTime += (stat.avgTime * stat.count);
+            totalFallbacks += stat.fallbacks;
+        });
+        
+        const aiMetrics = {
+            geminiUsage: aiProviderStats.find(s => s._id === 'gemini')?.count || 0,
+            groqUsage: aiProviderStats.find(s => s._id === 'groq')?.count || 0,
+            localUsage: aiProviderStats.find(s => s._id === 'local')?.count || 0,
+            averageEvaluationTimeMs: totalAiEvaluations > 0 ? Math.round(totalAiTime / totalAiEvaluations) : 0,
+            fallbackPercentage: totalAiEvaluations > 0 ? Math.round((totalFallbacks / totalAiEvaluations) * 100) : 0,
+            providerStats: aiProviderStats
+        };
+
         
         const sevenDaysAgo = new Date();
         sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
@@ -80,11 +109,27 @@ const getAnalyticsData = async () => {
                 $group: {
                     _id: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } },
                     jobsFound: { $sum: "$jobsFound" },
-                    jobsMatched: { $sum: "$jobsMatched" }
+                    jobsMatched: { $sum: "$jobsMatched" },
+                    jobsArchived: { $sum: "$jobsArchived" },
+                    jobsRefreshed: { $sum: "$jobsRefreshed" }
                 }
             },
             { $sort: { _id: 1 } }
         ]);
+        
+        const globalSearchLogStats = await SearchLog.aggregate([
+            {
+                $group: {
+                    _id: null,
+                    totalJobsArchived: { $sum: "$jobsArchived" },
+                    totalJobsRefreshed: { $sum: "$jobsRefreshed" },
+                    totalDuplicatePrevention: { $sum: "$duplicatePreventionCount" },
+                    avgEvaluationTime: { $avg: "$averageEvaluationTimeMs" },
+                    avgMetadataRefreshTime: { $avg: "$averageMetadataRefreshTimeMs" }
+                }
+            }
+        ]);
+        const systemMetrics = globalSearchLogStats.length > 0 ? globalSearchLogStats[0] : {};
         
         
         const lastSuccess = await SearchLog.findOne({ status: "Success" }).sort({ createdAt: -1 });
@@ -100,6 +145,11 @@ const getAnalyticsData = async () => {
                 savedJobsCount,
                 appliedJobsCount,
                 rejectedJobsCount,
+                totalJobsArchived: systemMetrics.totalJobsArchived || 0,
+                totalJobsRefreshed: systemMetrics.totalJobsRefreshed || 0,
+                totalDuplicatePrevention: systemMetrics.totalDuplicatePrevention || 0,
+                avgEvaluationTimeMs: Math.round(systemMetrics.avgEvaluationTime || 0),
+                avgMetadataRefreshTimeMs: Math.round(systemMetrics.avgMetadataRefreshTime || 0),
                 lastSuccessfulRun: lastSuccess ? lastSuccess.createdAt : null,
                 nextScheduledRun: pipelineState.nextRunTime
             },
@@ -110,7 +160,8 @@ const getAnalyticsData = async () => {
                 evaluationDistribution,
                 domainDistribution,
                 dailyTrend
-            }
+            },
+            aiMetrics
         };
     } catch (error) {
         console.error("Analytics Error:", error);

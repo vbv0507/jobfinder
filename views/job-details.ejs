@@ -118,6 +118,41 @@
 
     <!-- Sidebar Analytics -->
     <div class="lg:col-span-1 space-y-6">
+        <!-- AI Evaluation Card -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2"><i class="fas fa-robot text-primary"></i> AI Evaluation</h3>
+            <div class="space-y-3 text-sm">
+                <% 
+                    let aiIcon = "🟢";
+                    let aiName = job.provider ? (job.provider.charAt(0).toUpperCase() + job.provider.slice(1)) : (job.evaluatedBy || 'Gemini');
+                    if (job.provider === 'groq' || job.evaluatedBy === 'Groq') { aiIcon = "🟠"; }
+                    if (job.provider === 'local' || job.provider === 'unknown' || job.evaluatedBy === 'Local') { aiIcon = "⚪"; aiName = "Local Heuristic"; }
+                %>
+                <div class="flex justify-between border-b border-gray-50 pb-2">
+                    <span class="text-gray-500">Provider</span>
+                    <span class="font-semibold text-gray-800"><%= aiIcon %> <%= aiName %></span>
+                </div>
+                <div class="flex justify-between border-b border-gray-50 pb-2">
+                    <span class="text-gray-500">Model</span>
+                    <span class="font-semibold text-gray-800"><%= job.model || 'unknown' %></span>
+                </div>
+                <div class="flex justify-between border-b border-gray-50 pb-2">
+                    <span class="text-gray-500">Evaluation Time</span>
+                    <span class="font-semibold text-gray-800"><%= job.evaluationTimeMs || job.evaluationMetrics?.durationMs || 0 %> ms</span>
+                </div>
+                <div class="flex justify-between border-b border-gray-50 pb-2">
+                    <span class="text-gray-500">Fallback Count</span>
+                    <span class="font-semibold text-gray-800"><%= job.fallbackCount || job.evaluationMetrics?.fallbackCount || 0 %></span>
+                </div>
+                <% if(job.fallbackReason || job.evaluationMetrics?.failureReason) { %>
+                <div class="pt-2">
+                    <span class="text-gray-500 block mb-1">Fallback Reason</span>
+                    <span class="font-semibold text-red-600"><%= job.fallbackReason || job.evaluationMetrics?.failureReason %></span>
+                </div>
+                <% } %>
+            </div>
+        </div>
+
         <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
             <h3 class="text-lg font-semibold text-gray-900 mb-4">Scoring Radar</h3>
             

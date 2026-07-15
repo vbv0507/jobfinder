@@ -22,6 +22,15 @@
         </div>
     </div>
     
+    <!-- AI Provider Statistics -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 lg:col-span-2">
+        <h3 class="text-lg font-semibold text-gray-900 mb-4"><i class="fas fa-robot text-primary mr-2"></i> AI Provider Statistics</h3>
+        <div class="grid grid-cols-2 md:grid-cols-5 gap-4" id="aiStatsContainer">
+            <!-- Populated by JS -->
+            <div class="animate-pulse h-16 bg-gray-100 rounded"></div>
+        </div>
+    </div>
+    
     <!-- Match Score Distribution -->
     <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
         <h3 class="text-lg font-semibold text-gray-900 mb-4">Match Score Distribution</h3>
@@ -174,6 +183,33 @@
                     },
                     options: { ...commonOptions, plugins: { legend: { position: 'bottom' } } }
                 });
+
+                // 7. AI Metrics UI
+                if (data.aiMetrics) {
+                    const ai = data.aiMetrics;
+                    document.getElementById('aiStatsContainer').innerHTML = `
+                        <div class="bg-gray-50 p-4 rounded-lg border border-gray-100 text-center">
+                            <p class="text-xs text-gray-500 uppercase tracking-wider font-semibold">🟢 Gemini</p>
+                            <p class="text-xl font-bold text-gray-800 mt-1">${ai.geminiUsage}</p>
+                        </div>
+                        <div class="bg-gray-50 p-4 rounded-lg border border-gray-100 text-center">
+                            <p class="text-xs text-gray-500 uppercase tracking-wider font-semibold">🟠 Groq</p>
+                            <p class="text-xl font-bold text-gray-800 mt-1">${ai.groqUsage}</p>
+                        </div>
+                        <div class="bg-gray-50 p-4 rounded-lg border border-gray-100 text-center">
+                            <p class="text-xs text-gray-500 uppercase tracking-wider font-semibold">⚪ Local</p>
+                            <p class="text-xl font-bold text-gray-800 mt-1">${ai.localUsage}</p>
+                        </div>
+                        <div class="bg-gray-50 p-4 rounded-lg border border-gray-100 text-center">
+                            <p class="text-xs text-gray-500 uppercase tracking-wider font-semibold">Avg Time</p>
+                            <p class="text-xl font-bold text-blue-600 mt-1">${ai.averageEvaluationTimeMs}ms</p>
+                        </div>
+                        <div class="bg-gray-50 p-4 rounded-lg border border-gray-100 text-center">
+                            <p class="text-xs text-gray-500 uppercase tracking-wider font-semibold">Fallbacks</p>
+                            <p class="text-xl font-bold ${ai.fallbackPercentage > 10 ? 'text-red-600' : 'text-gray-800'} mt-1">${ai.fallbackPercentage}%</p>
+                        </div>
+                    `;
+                }
             }
         } catch(e) {
             console.error("Error loading analytics", e);

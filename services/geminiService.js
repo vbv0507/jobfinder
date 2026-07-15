@@ -93,6 +93,10 @@ const evaluateJobLocally = (job, profile, reasonPrefix = "Gemini unavailable") =
         experienceMatch: experienceMismatch ? "Mismatch" : "Match",
         recommendation: score >= 50 ? "Consider applying" : "Not recommended",
         evaluatedBy: "Local",
+        provider: "local",
+        model: "heuristic",
+        fallbackCount: 2,
+        fallbackReason: reasonPrefix,
         evaluationMetrics: {
             provider: "Local",
             durationMs: 0,
@@ -246,6 +250,8 @@ const evaluateJobWithGroq = async (job, profile) => {
     let parsed = parseJsonResponse(content);
     if (typeof parsed.score !== "number") parsed.score = parseInt(parsed.score) || 0;
     parsed.evaluatedBy = "Groq";
+    parsed.provider = "groq";
+    parsed.model = process.env.GROQ_MODEL || "llama-3.3-70b-versatile";
     return parsed;
 };
 
@@ -271,6 +277,12 @@ const evaluateJob = async (job, profile) => {
             failureReason: null
         };
 
+        parsedResult.provider = "gemini";
+        parsedResult.model = process.env.GEMINI_MODEL || "gemini-2.0-flash";
+        parsedResult.evaluationTimeMs = Date.now() - startTime;
+        parsedResult.fallbackCount = fallbackCount;
+        parsedResult.fallbackReason = null;
+
         return parsedResult;
     } catch (error) {
         const isQuotaError =
@@ -292,6 +304,9 @@ const evaluateJob = async (job, profile) => {
                         fallbackCount,
                         failureReason
                     };
+                    groqAnalysis.evaluationTimeMs = Date.now() - startTime;
+                    groqAnalysis.fallbackCount = fallbackCount;
+                    groqAnalysis.fallbackReason = failureReason;
                     return groqAnalysis;
                 }
             } catch (groqError) {
@@ -310,6 +325,9 @@ const evaluateJob = async (job, profile) => {
             );
             localResult.evaluationMetrics.durationMs = Date.now() - startTime;
             localResult.evaluationMetrics.fallbackCount = fallbackCount;
+            localResult.evaluationTimeMs = Date.now() - startTime;
+            localResult.fallbackCount = fallbackCount;
+            localResult.fallbackReason = failureReason || (isQuotaError ? "Gemini quota exceeded" : "AI evaluation failed");
             return localResult;
         }
 
@@ -344,7 +362,12 @@ const evaluateJob = async (job, profile) => {
                 durationMs: Date.now() - startTime,
                 fallbackCount,
                 failureReason: isQuotaError ? "Gemini quota exceeded" : "Gemini evaluation failed"
-            }
+            },
+            provider: "unknown",
+            model: "unknown",
+            evaluationTimeMs: Date.now() - startTime,
+            fallbackCount,
+            fallbackReason: isQuotaError ? "Gemini quota exceeded" : "Gemini evaluation failed"
         };
     }
 };

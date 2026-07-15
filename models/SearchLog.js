@@ -26,6 +26,12 @@ const searchLogSchema = new mongoose.Schema({
 
     message: String,
 
+    jobsArchived: { type: Number, default: 0 },
+    jobsRefreshed: { type: Number, default: 0 },
+    duplicatePreventionCount: { type: Number, default: 0 },
+    averageEvaluationTimeMs: { type: Number, default: 0 },
+    averageMetadataRefreshTimeMs: { type: Number, default: 0 },
+
     errorDetails: [
         {
             company: String,

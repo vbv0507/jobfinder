@@ -2,6 +2,8 @@ const { TelegramClient } = require("telegram");
 const { StringSession } = require("telegram/sessions");
 const input = require("input");
 const axios = require("axios");
+const { HttpsProxyAgent } = require("https-proxy-agent");
+const { normalizeJobUrl } = require("../utils/urlNormalizer");
 
 const Company = require("../models/Company");
 const CandidateProfile = require("../models/CandidateProfile");
@@ -112,7 +114,7 @@ const scrapeGenericJobPage = async (url) => {
             title,
             location,
             description: bodyText || title,
-            applyLink: url,
+            applyLink: normalizeJobUrl(url),
             jobId: url.split("/").filter(Boolean).pop(),
             employmentType: /intern/i.test(title) ? "Internship" : "Full-Time",
         };
@@ -151,7 +153,7 @@ const processJobUrl = async (url, telegramCompany, profile, structuredData, sour
                 description: structuredData.role || "Software Engineer role",
                 experience: structuredData.experience || null,
                 salary: structuredData.salary || null,
-                applyLink: url,
+                applyLink: normalizeJobUrl(url),
                 jobId: url.split("/").filter(Boolean).pop(),
                 employmentType: /intern/i.test(structuredData.role || structuredData.type || "") ? "Internship" : "Full-Time",
             };

@@ -7,15 +7,33 @@
         <p class="text-gray-500 text-sm mt-1">Real-time statistics of your Job Intelligence Engine.</p>
     </div>
     
-    <!-- Pipeline Status Widget -->
-    <div id="pipeline-widget" class="bg-white px-4 py-2 rounded-lg shadow-sm border border-gray-100 flex items-center gap-3">
-        <div class="relative flex h-3 w-3">
-            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-gray-400 opacity-75"></span>
-            <span class="relative inline-flex rounded-full h-3 w-3 bg-gray-500"></span>
+    <div class="flex flex-col sm:flex-row gap-4">
+        <!-- AI Status Widget -->
+        <div class="bg-white px-4 py-2 rounded-lg shadow-sm border border-gray-100 flex items-center gap-3">
+            <div class="text-sm border-r border-gray-100 pr-3">
+                <p class="text-gray-500 text-xs font-medium uppercase">🟢 Gemini</p>
+                <p class="text-gray-800 font-semibold leading-none mt-1">Working</p>
+            </div>
+            <div class="text-sm border-r border-gray-100 pr-3">
+                <p class="text-gray-500 text-xs font-medium uppercase">🟠 Groq</p>
+                <p class="text-gray-800 font-semibold leading-none mt-1">Ready</p>
+            </div>
+            <div class="text-sm">
+                <p class="text-gray-500 text-xs font-medium uppercase">⚪ Local</p>
+                <p class="text-gray-800 font-semibold leading-none mt-1">Ready</p>
+            </div>
         </div>
-        <div class="text-sm">
-            <p class="text-gray-800 font-medium leading-none">Status: Loading...</p>
-            <p class="text-gray-500 text-xs mt-1 leading-none" id="pipeline-msg">Connecting to engine</p>
+
+        <!-- Pipeline Status Widget -->
+        <div id="pipeline-widget" class="bg-white px-4 py-2 rounded-lg shadow-sm border border-gray-100 flex items-center gap-3">
+            <div class="relative flex h-3 w-3">
+                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-gray-400 opacity-75"></span>
+                <span class="relative inline-flex rounded-full h-3 w-3 bg-gray-500"></span>
+            </div>
+            <div class="text-sm">
+                <p class="text-gray-800 font-medium leading-none">Status: Loading...</p>
+                <p class="text-gray-500 text-xs mt-1 leading-none" id="pipeline-msg">Connecting to engine</p>
+            </div>
         </div>
     </div>
 </div>

@@ -45,12 +45,36 @@ const matchedJobSchema = new mongoose.Schema({
         default: "Gemini"
     },
     
+    provider: String,
+    model: String,
+    evaluationTimeMs: Number,
+    fallbackCount: Number,
+    fallbackReason: String,
+    
     evaluationMetrics: {
         provider: String,
         durationMs: Number,
         fallbackCount: Number,
         failureReason: String
     },
+
+    evaluationHistory: [{
+        provider: String,
+        model: String,
+        score: Number,
+        evaluatedAt: { type: Date, default: Date.now },
+        durationMs: Number,
+        fallbackCount: Number,
+        fallbackReason: String
+    }],
+
+    lastScrapedAt: Date,
+    lastMetadataUpdate: Date,
+    lastAIEvaluation: Date,
+
+    isActive: { type: Boolean, default: true },
+    jobStatus: String,
+    closedAt: Date,
 
     domainExplanation: String,
 

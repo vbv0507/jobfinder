@@ -14,6 +14,7 @@ const { evaluateJob } = require("../services/geminiService");
 const { sendMatchedJobEmail } = require("../services/emailService");
 const { classifyDomain } = require("../utils/domains");
 const pipelineState = require("../services/pipelineState");
+const crypto = require("crypto");
 
 const MATCH_THRESHOLD = Number(process.env.MATCH_THRESHOLD || 70);
 const MAX_JOBS_PER_COMPANY = Number(process.env.MAX_JOBS_PER_COMPANY || 10);
@@ -156,10 +157,15 @@ const saveRawJob = async (company, job) => {
     }
   };
 
+  let resolvedJobId = job.jobId;
+  if (!resolvedJobId || resolvedJobId === "unknown") {
+      resolvedJobId = crypto.createHash("md5").update(job.applyLink).digest("hex");
+  }
+
   const rawJob = await RawJob.findOneAndUpdate(
-    { company: company._id, jobId: job.jobId || "unknown" },
+    { company: company._id, jobId: resolvedJobId },
     updateData,
-    { new: true, upsert: true }
+    { new: true, upsert: true, returnDocument: "after" }
   );
 
   if (sourceData) {
@@ -199,6 +205,15 @@ const saveMatchedJob = async (rawJob, company, job, analysis) => {
     return false;
   }
 
+  const existingJob = await MatchedJob.findOne({ rawJob: rawJob._id });
+  if (existingJob) {
+      console.log(`[Dedup] Existing job detected for ${job.title}`);
+      if (existingJob.status && existingJob.status !== 'new') {
+          console.log(`[Dedup] Status preserved: ${existingJob.status}`);
+      }
+      console.log(`[Dedup] Metadata updated | No duplicate created`);
+  }
+
   await MatchedJob.findOneAndUpdate(
     { rawJob: rawJob._id },
     {
@@ -223,13 +238,34 @@ const saveMatchedJob = async (rawJob, company, job, analysis) => {
         applyLink: job.applyLink,
         postedAt: job.postedAt,
         evaluatedBy: analysis.evaluatedBy || "Gemini",
+        provider: analysis.provider || "gemini",
+        model: analysis.model || "unknown",
+        evaluationTimeMs: analysis.evaluationTimeMs || 0,
+        fallbackCount: analysis.fallbackCount || 0,
+        fallbackReason: analysis.fallbackReason || null,
         evaluationMetrics: analysis.evaluationMetrics || {
             provider: "Gemini",
             durationMs: 0,
             fallbackCount: 0,
             failureReason: null
-        }
+        },
+        lastScrapedAt: new Date(),
+        lastMetadataUpdate: new Date(),
+        lastAIEvaluation: new Date(),
+        isActive: true,
+        jobStatus: "Open"
       },
+      $push: {
+        evaluationHistory: {
+          provider: analysis.provider || "gemini",
+          model: analysis.model || "unknown",
+          score,
+          evaluatedAt: evaluatedAt,
+          durationMs: analysis.evaluationTimeMs || 0,
+          fallbackCount: analysis.fallbackCount || 0,
+          fallbackReason: analysis.fallbackReason || null
+        }
+      }
     },
     {
       upsert: true,
@@ -291,6 +327,11 @@ const saveSearchLog = async (startedAt, stats, errors) => {
     companiesScanned: stats.companiesScanned,
     jobsFound: stats.jobsFound,
     jobsMatched: stats.jobsMatched,
+    jobsArchived: stats.jobsArchived,
+    jobsRefreshed: stats.jobsRefreshed,
+    duplicatePreventionCount: stats.duplicatePreventionCount,
+    averageEvaluationTimeMs: stats.jobsMatched > 0 ? Math.round(stats.totalEvaluationTimeMs / stats.jobsMatched) : 0,
+    averageMetadataRefreshTimeMs: stats.jobsRefreshed > 0 ? Math.round(stats.totalMetadataRefreshTimeMs / stats.jobsRefreshed) : 0,
     status,
     message,
     errorDetails: errors,
@@ -304,6 +345,11 @@ const runSearch = async () => {
     companiesScanned: 0,
     jobsFound: 0,
     jobsMatched: 0,
+    jobsArchived: 0,
+    jobsRefreshed: 0,
+    duplicatePreventionCount: 0,
+    totalEvaluationTimeMs: 0,
+    totalMetadataRefreshTimeMs: 0,
   };
   const aiState = {
     calls: 0
@@ -366,14 +412,33 @@ const runSearch = async () => {
 
           try {
             if (rawJob.aiMatched || await hasExistingMatch(rawJob)) {
+              console.log(`[Dedup] Existing job detected for ${job.title} (${company.name})`);
+              console.log(`[Metadata] Refreshed existing job: ${job.title}`);
               
-              console.log(
-                `Skipped AI analysis for ${job.title}: already matched earlier`,
+              const startRefresh = Date.now();
+              await MatchedJob.findOneAndUpdate(
+                { rawJob: rawJob._id },
+                { $set: { 
+                    role: job.title,
+                    location: job.location,
+                    applyLink: job.applyLink,
+                    lastScrapedAt: new Date(),
+                    lastMetadataUpdate: new Date(),
+                    isActive: true,
+                    jobStatus: "Open"
+                 } }
               );
+              stats.totalMetadataRefreshTimeMs += (Date.now() - startRefresh);
+              stats.jobsRefreshed++;
+              stats.duplicatePreventionCount++;
               continue;
             }
 
+            const evalStart = Date.now();
             const result = await analyseWithGemini(job, profile, aiState);
+            if (result.analysis && result.analysis.evaluationTimeMs) {
+                stats.totalEvaluationTimeMs += result.analysis.evaluationTimeMs;
+            }
             pipelineState.jobsEvaluated++;
 
             if (result.skipped) {
@@ -394,9 +459,15 @@ const runSearch = async () => {
               stats.jobsMatched++;
               companyJobsMatched++;
               pipelineState.jobsMatched++;
-              console.log(
-                `Matched Job: ${job.title} | Score: ${result.analysis.score}`,
-              );
+              
+              const providerStr = result.analysis.provider ? result.analysis.provider.charAt(0).toUpperCase() + result.analysis.provider.slice(1) : "Gemini";
+              console.log(`Matched Job: ${job.title} | Score: ${result.analysis.score}`);
+              
+              if (result.analysis.fallbackReason) {
+                  console.log(`[AI] Provider: ${providerStr} | Reason: ${result.analysis.fallbackReason} | Time: ${result.analysis.evaluationTimeMs}ms`);
+              } else {
+                  console.log(`[AI] Provider: ${providerStr} | Model: ${result.analysis.model} | Time: ${result.analysis.evaluationTimeMs}ms | Fallbacks: ${result.analysis.fallbackCount}`);
+              }
 
               try {
                 
@@ -425,6 +496,34 @@ const runSearch = async () => {
           companyStatus = "partial";
           companyErrorMsg = `${companyErrors} jobs failed analysis`;
         }
+        
+        // --------------------------------------------------
+        // Closed Job Detection
+        // --------------------------------------------------
+        if (scrapedJobs.length > 0) {
+            const crypto = require("crypto");
+            const activeJobIds = scrapedJobs.map(j => {
+                let jId = j.jobId;
+                if (!jId || jId === "unknown") jId = crypto.createHash("md5").update(j.applyLink || "").digest("hex");
+                return jId;
+            });
+            
+            // Find raw jobs that belong to this company but are not in activeJobIds
+            const missingRawJobs = await RawJob.find({ company: company._id, jobId: { $nin: activeJobIds } }).select("_id");
+            const missingRawJobIds = missingRawJobs.map(r => r._id);
+            
+            if (missingRawJobIds.length > 0) {
+                const archiveResult = await MatchedJob.updateMany(
+                    { rawJob: { $in: missingRawJobIds }, isActive: { $ne: false } },
+                    { $set: { isActive: false, jobStatus: "Closed", closedAt: new Date() } }
+                );
+                if (archiveResult.modifiedCount > 0) {
+                    console.log(`[Archive] Job marked Closed: ${archiveResult.modifiedCount} jobs for ${company.name}`);
+                    stats.jobsArchived += archiveResult.modifiedCount;
+                }
+            }
+        }
+        
       } catch (error) {
         companyStatus = "failed";
         companyErrorMsg = error.message;

@@ -1,6 +1,7 @@
 const axios = require("axios");
 const { detectATS } = require("./atsDetector");
 const { scrapeCareerWebsite } = require("./careerWebsiteScraper");
+const { normalizeJobUrl } = require("../utils/urlNormalizer");
 
 
 const DEFAULT_HEADERS = {
@@ -49,10 +50,10 @@ const cleanText = (value = "") =>
 
 const makeApplyLink = (item, config) => {
   if (config.applyUrlBase && config.fields?.jobId) {
-    return `${config.applyUrlBase}/${getValue(item, config.fields.jobId)}`;
+    return normalizeJobUrl(`${config.applyUrlBase}/${getValue(item, config.fields.jobId)}`);
   }
 
-  return getValue(item, config.fields.applyLink);
+  return normalizeJobUrl(getValue(item, config.fields.applyLink));
 };
 
 const parseDate = (value) => {
@@ -161,14 +162,9 @@ const normalizeJob = (job, company) => {
   } else {
     try {
       const url = new URL(job.applyLink, company.careerUrl);
-      url.search = '';
-      url.hash = '';
-      applyLink = url.toString().toLowerCase();
-      if (applyLink.endsWith('/')) {
-          applyLink = applyLink.slice(0, -1);
-      }
+      applyLink = normalizeJobUrl(url.toString());
     } catch {
-      applyLink = job.applyLink.trim().toLowerCase();
+      applyLink = normalizeJobUrl(job.applyLink.trim());
     }
   }
 
