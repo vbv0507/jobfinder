@@ -574,9 +574,10 @@ const runSearch = async () => {
 };
 
 
-const schedule = "0 2 * * *";
-const cronTask = cron.schedule(schedule, runSearch);
-
+// Internal node-cron scheduling disabled in favor of GitHub Actions workflow
+// to prevent duplicate executions and API token waste.
+// const schedule = "0 2 * * *";
+// const cronTask = cron.schedule(schedule, runSearch);
 
 pipelineState.nextRunTime = "Scheduled for 02:00 AM daily";
 
