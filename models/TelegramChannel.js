@@ -40,6 +40,22 @@ const telegramChannelSchema = new mongoose.Schema({
         type: Number,
         default: 0
     },
+    lastMessageAt: Date,
+    lastProcessedAt: Date,
+    ignoredMessages: {
+        type: Number,
+        default: 0
+    },
+    parsingFailures: {
+        type: Number,
+        default: 0
+    },
+    lastError: String,
+    status: {
+        type: String,
+        enum: ["Online", "Idle", "Error"],
+        default: "Idle"
+    },
     lastActivity: Date,
 }, { timestamps: true });
 

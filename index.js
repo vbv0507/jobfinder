@@ -71,6 +71,10 @@ app.get("/telegram", (req, res) => {
     res.render("telegram-channels", { title: "Telegram Channels" });
 });
 
+app.get("/telegram-monitoring", (req, res) => {
+    res.render("telegram-monitoring", { title: "Telegram Monitoring" });
+});
+
 app.get("/job/:id", async (req, res) => {
     try {
         const job = await MatchedJob.findById(req.params.id).populate("company", "name");

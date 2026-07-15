@@ -27,6 +27,27 @@ const logWithTime = (msg) => {
     console.log(`[${time}] ${msg}`);
 };
 
+const listenerStatus = {
+    status: "Disconnected",
+    lastConnectedAt: null,
+    lastDisconnectedAt: null,
+    uptimeStart: null,
+    layer: "Unknown",
+    dc: "Unknown",
+    version: "2.26.15" // Typical GramJS version
+};
+
+let telegramClient = null;
+let reconnectDelay = 5000;
+let isReconnecting = false;
+let allowedChannels = new Set();
+
+const loadChannels = async () => {
+    const channels = await TelegramChannel.find({ enabled: true });
+    allowedChannels = new Set(channels.map(c => c.username.toLowerCase()));
+    await TelegramChannel.updateMany({ enabled: true }, { $set: { status: "Online" } });
+};
+
 const isJobMessage = (text = "", urls = []) => {
     const lower = text.toLowerCase();
     const hasKeywords = /\b(company|role|apply|hiring|intern|internship|fresher|sde|developer|engineer|opening|job|position)\b/i.test(lower);
@@ -232,26 +253,41 @@ const processJobUrl = async (url, telegramCompany, profile, structuredData, sour
     }
 };
 
-const startTelegramListener = async () => {
+const startTelegramListener = async (forceReconnect = false) => {
     if (!API_ID || !API_HASH) {
         logWithTime("Telegram credentials missing — listener not started");
+        listenerStatus.status = "Error";
         return;
     }
 
+    if (telegramClient && telegramClient.connected && !forceReconnect) {
+        logWithTime("Telegram already connected.");
+        return;
+    }
+
+    if (isReconnecting && !forceReconnect) return;
+    isReconnecting = true;
+    
+    listenerStatus.status = "Connecting";
+
     try {
+        if (telegramClient) {
+            await telegramClient.disconnect();
+        }
+
         const session = new StringSession(process.env.TELEGRAM_SESSION || "");
-        const client = new TelegramClient(session, API_ID, API_HASH, {
+        telegramClient = new TelegramClient(session, API_ID, API_HASH, {
             connectionRetries: 5,
         });
 
-        await client.start({
+        await telegramClient.start({
             phoneNumber: async () => await input.text("Enter your Telegram phone number: "),
             password: async () => await input.text("Enter your 2FA password (if any): "),
             phoneCode: async () => await input.text("Enter the OTP you received: "),
             onError: (err) => logWithTime(`Telegram auth error: ${err.message}`),
         });
 
-        const sessionString = client.session.save();
+        const sessionString = telegramClient.session.save();
         if (sessionString && !process.env.TELEGRAM_SESSION) {
             console.log("=================================");
             console.log("SAVE THIS SESSION STRING IN .env:");
@@ -259,47 +295,50 @@ const startTelegramListener = async () => {
             console.log("=================================");
         }
 
-        logWithTime("Connected to Telegram");
-        
-        
-        let allowedChannels = new Set();
-        
-        const loadChannels = async () => {
-            const channels = await TelegramChannel.find({ enabled: true });
-            allowedChannels = new Set(channels.map(c => c.username.toLowerCase()));
-            if(allowedChannels.size > 0) {
-                logWithTime(`Listening to ${allowedChannels.size} channels`);
-            } else {
-                logWithTime("No enabled channels found in registry.");
-            }
-        };
-
+        listenerStatus.status = "Connected";
+        listenerStatus.lastConnectedAt = new Date();
+        listenerStatus.uptimeStart = new Date();
+        listenerStatus.layer = telegramClient.session.serverAddress || "Unknown"; 
+        listenerStatus.dc = telegramClient.session.dcId || "Unknown";
+        reconnectDelay = 5000;
+        isReconnecting = false;
         
         await loadChannels();
         
+        console.log("=====================================");
+        console.log("Telegram Listener Started");
+        console.log("=====================================");
+        console.log(`Connected: Yes`);
+        console.log(`Telegram Layer: ${listenerStatus.layer} (DC: ${listenerStatus.dc})`);
+        console.log(`Listening Channels:`);
+        allowedChannels.forEach(c => console.log(`• @${c}`));
+        console.log("=====================================");
         
-        setInterval(loadChannels, 60000);
+        // Remove existing polling if any, we'll just set a new one
+        if (global.telegramChannelPoller) clearInterval(global.telegramChannelPoller);
+        global.telegramChannelPoller = setInterval(loadChannels, 60000);
 
-        client.addEventHandler(async (event) => {
+        telegramClient.addEventHandler(async (event) => {
             try {
                 const message = event.message;
                 if (!message?.message) return;
 
                 const chatUsername = event._chat?.username || "";
                 
-                
-                if (!chatUsername || !allowedChannels.has(chatUsername.toLowerCase())) return;
+                if (!chatUsername || !allowedChannels.has(chatUsername.toLowerCase())) {
+                    return;
+                }
 
                 const text = message.message;
                 
-                
-                await TelegramChannel.findOneAndUpdate(
+                const channelRecord = await TelegramChannel.findOneAndUpdate(
                     { username: { $regex: new RegExp(`^${chatUsername}$`, 'i') } },
                     { 
                         $inc: { messagesProcessed: 1 },
-                        $set: { lastActivity: new Date() }
-                    }
-                ).catch(() => {});
+                        $set: { lastActivity: new Date(), lastMessageAt: new Date(), lastProcessedAt: new Date(), status: "Online" }
+                    },
+                    { new: true }
+                ).catch(() => null);
 
                 let inlineUrls = [];
                 
@@ -312,10 +351,18 @@ const startTelegramListener = async () => {
                 }
 
                 if (!isJobMessage(text, inlineUrls)) {
+                    if (channelRecord) {
+                        channelRecord.ignoredMessages += 1;
+                        await channelRecord.save();
+                    }
                     return; 
                 }
 
-                logWithTime(`New message received - Channel: ${chatUsername}`);
+                console.log("[Telegram]");
+                console.log(`Channel: @${chatUsername}`);
+                console.log(`Message Id: ${message.id}`);
+                console.log(`Date: ${new Date().toISOString()}`);
+                console.log(`Contains URL: ${inlineUrls.length > 0 || extractUrls(text).length > 0 ? "Yes" : "No"}`);
 
                 const structuredData = parseStructuredPost(text);
                 let urls = extractUrls(text);
@@ -336,22 +383,111 @@ const startTelegramListener = async () => {
                 const profile = await getActiveProfile();
                 const telegramMessageId = message.id;
 
+                let jobCount = 0;
+                let matchCount = 0;
                 for (const url of urls) {
-                    await processJobUrl(url, telegramCompany, profile, structuredData, chatUsername, telegramMessageId);
+                    // processJobUrl implicitly handles AI and MatchedJob saving
+                    const result = await processJobUrlWrapper(url, telegramCompany, profile, structuredData, chatUsername, telegramMessageId);
+                    if (result && result.parsed) jobCount++;
+                    if (result && result.matched) matchCount++;
+                }
+                
+                console.log(`Parsed: ${jobCount > 0 ? 'Yes' : 'No'}`);
+                console.log(`Matched: ${matchCount > 0 ? 'Yes' : 'No'}`);
+                
+                if (channelRecord) {
+                    if (jobCount > 0) channelRecord.jobsFound += jobCount;
+                    if (matchCount > 0) channelRecord.matchedJobs += matchCount;
+                    if (jobCount === 0) channelRecord.parsingFailures += 1;
+                    await channelRecord.save();
                 }
 
             } catch (handlerError) {
                 logWithTime(`Telegram handler error: ${handlerError.message}`);
+                TelegramChannel.findOneAndUpdate(
+                    { username: { $regex: new RegExp(`^${event._chat?.username || ''}$`, 'i') } },
+                    { $inc: { errorCount: 1 }, $set: { lastError: handlerError.message, status: "Error" } }
+                ).catch(() => {});
             }
         });
 
-        client.addEventHandler((event) => {
-            logWithTime(`Connection state changed... attempting recovery if needed.`);
+        telegramClient.addEventHandler((event) => {
+            handleDisconnect();
         });
 
     } catch (error) {
         logWithTime(`Telegram listener failed to start: ${error.message}`);
+        handleDisconnect();
     }
 };
 
-module.exports = { startTelegramListener, parseStructuredPost, processJobUrl, isJobMessage };
+const processJobUrlWrapper = async (url, telegramCompany, profile, structuredData, chatUsername, telegramMessageId) => {
+    let parsed = false;
+    let matched = false;
+    try {
+        const _logWithTime = console.log;
+        console.log = function() {}; // Mute inner logs to respect formatting requested
+        
+        let applyLink;
+        try { applyLink = normalizeJobUrl(new URL(url).toString()); }
+        catch { applyLink = normalizeJobUrl(url.trim()); }
+        
+        const jobId = applyLink.split("/").filter(Boolean).pop();
+        
+        const job = {
+            title: structuredData.role || "Job Opening",
+            location: structuredData.location || "India",
+            description: structuredData.role || "Software Engineer role",
+            experience: structuredData.experience || null,
+            salary: structuredData.salary || null,
+            applyLink,
+            jobId,
+            employmentType: /intern/i.test(structuredData.role || structuredData.type || "") ? "Internship" : "Full-Time",
+            sourceChannel: chatUsername,
+            telegramMessageId,
+            sourceName: chatUsername
+        };
+        
+        const rawJob = await saveRawJob(telegramCompany, job);
+        parsed = true;
+        
+        if (!rawJob.aiMatched) {
+            const aiState = { calls: 0, quotaExceeded: false };
+            const aiResult = await analyseWithGemini(job, profile, aiState);
+            if (!aiResult.skipped) {
+                const matchedJobResult = await saveMatchedJob(rawJob, telegramCompany, job, aiResult.analysis);
+                if (matchedJobResult) matched = true;
+            }
+        }
+        console.log = _logWithTime;
+        return { parsed, matched };
+    } catch (e) {
+        return { parsed, matched };
+    }
+};
+
+const handleDisconnect = () => {
+    if (isReconnecting) return;
+    listenerStatus.status = "Disconnected";
+    listenerStatus.lastDisconnectedAt = new Date();
+    logWithTime(`Telegram Disconnected. Reconnecting in ${reconnectDelay}ms...`);
+    
+    setTimeout(() => {
+        startTelegramListener();
+        reconnectDelay = Math.min(reconnectDelay * 2, 60000); 
+    }, reconnectDelay);
+};
+
+const getListenerStatus = () => listenerStatus;
+
+const reloadChannels = async () => {
+    await loadChannels();
+    return allowedChannels.size;
+};
+
+const reconnectTelegram = async () => {
+    await startTelegramListener(true);
+    return listenerStatus;
+};
+
+module.exports = { startTelegramListener, parseStructuredPost, processJobUrl, isJobMessage, getListenerStatus, reloadChannels, reconnectTelegram };

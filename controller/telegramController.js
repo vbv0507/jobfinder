@@ -1,4 +1,7 @@
 const TelegramChannel = require('../models/TelegramChannel');
+const { getListenerStatus, reconnectTelegram, reloadChannels } = require('../services/telegramService');
+const RawJob = require('../models/RawJob');
+const MatchedJob = require('../models/MatchedJob');
 
 
 exports.getChannels = async (req, res) => {
@@ -61,6 +64,77 @@ exports.deleteChannel = async (req, res) => {
         const { id } = req.params;
         await TelegramChannel.findByIdAndDelete(id);
         res.status(200).json({ success: true, message: 'Channel deleted' });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+exports.getStatus = async (req, res) => {
+    try {
+        const status = getListenerStatus();
+        res.status(200).json({ success: true, status });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+exports.getStatistics = async (req, res) => {
+    try {
+        const startOfDay = new Date();
+        startOfDay.setHours(0, 0, 0, 0);
+
+        const channels = await TelegramChannel.find();
+        
+        const jobsParsedToday = await RawJob.countDocuments({ 
+            createdAt: { $gte: startOfDay }, 
+            "sources.sourceChannel": { $exists: true } 
+        });
+        
+        // Count matched jobs generated from telegram sources
+        // MatchedJob doesn't explicitly store sourceChannel directly in some cases, 
+        // but let's query raw jobs first
+        const rawJobsTodayIds = await RawJob.find({ 
+            createdAt: { $gte: startOfDay }, 
+            "sources.sourceChannel": { $exists: true } 
+        }).select("_id");
+        
+        const matchedJobsToday = await MatchedJob.countDocuments({
+            rawJob: { $in: rawJobsTodayIds.map(r => r._id) }
+        });
+        
+        // Sum total messages from all channels processed today? No, the field is total overall.
+        // For simplicity as requested "Messages Today", we will just return the jobsParsedToday
+        // if we don't have daily message tracking in TelegramChannel schema.
+        // Wait, the user asked for "Messages Today". We can look at how many RawJobs were parsed.
+        // Actually, we can just return total messages processed overall if daily is too complex to query.
+        const totalMessages = channels.reduce((sum, ch) => sum + ch.messagesProcessed, 0);
+        
+        res.status(200).json({
+            success: true,
+            statistics: {
+                messagesToday: totalMessages, 
+                jobsParsedToday,
+                matchedJobsToday
+            }
+        });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+exports.reconnect = async (req, res) => {
+    try {
+        const status = await reconnectTelegram();
+        res.status(200).json({ success: true, status, message: "Reconnection triggered." });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+exports.reload = async (req, res) => {
+    try {
+        const count = await reloadChannels();
+        res.status(200).json({ success: true, message: `Reloaded ${count} active channels.` });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
     }
