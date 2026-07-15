@@ -39,6 +39,13 @@ const companySchema = new mongoose.Schema({
         default: {},
     },
 
+    logo: { type: String },
+    industry: { type: String },
+    country: { type: String },
+    atsProvider: { type: String },
+    companyDescription: { type: String },
+    careerPage: { type: String },
+
     lastScan: {
         type: Date,
     },

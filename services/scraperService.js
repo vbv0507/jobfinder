@@ -159,9 +159,15 @@ const normalizeJob = (job, company) => {
     console.log(`[Missing Apply Link] Company: ${company.name} | Job ID: ${job.jobId || 'Unknown'} | ATS Strategy: ${company.scraperConfig?.strategy || 'generic'} | Reason: Scraper could not extract applyLink`);
   } else {
     try {
-      applyLink = new URL(job.applyLink, company.careerUrl).toString();
+      const url = new URL(job.applyLink, company.careerUrl);
+      url.search = '';
+      url.hash = '';
+      applyLink = url.toString().toLowerCase();
+      if (applyLink.endsWith('/')) {
+          applyLink = applyLink.slice(0, -1);
+      }
     } catch {
-      applyLink = job.applyLink;
+      applyLink = job.applyLink.trim().toLowerCase();
     }
   }
 
@@ -169,10 +175,17 @@ const normalizeJob = (job, company) => {
     return null;
   }
 
+  let jobId = cleanText(job.jobId || (applyLink ? applyLink.split("/").filter(Boolean).pop() : "unknown"));
+  if (jobId) {
+      jobId = jobId.toLowerCase();
+  } else {
+      jobId = "unknown";
+  }
+
   return {
     title,
     location: cleanText(job.location || "Not specified"),
-    jobId: cleanText(job.jobId || (applyLink ? applyLink.split("/").filter(Boolean).pop() : "Unknown")),
+    jobId,
     experience: cleanText(job.experience),
     description: cleanText(job.description || title),
     applyLink,

@@ -134,20 +134,6 @@ const saveRawJob = async (company, job) => {
     return null;
   }
 
-  const duplicateChecks = [];
-
-  if (job.jobId) {
-    duplicateChecks.push({ jobId: job.jobId });
-  }
-  if (job.applyLink) {
-    duplicateChecks.push({ applyLink: job.applyLink });
-  }
-
-  const existingJob = await RawJob.findOne({
-    company: company._id,
-    $or: duplicateChecks,
-  });
-
   const sourceData = job.sourceChannel ? {
       sourceName: job.sourceName || job.sourceChannel,
       sourceChannel: job.sourceChannel,
@@ -156,52 +142,46 @@ const saveRawJob = async (company, job) => {
       lastSeen: new Date()
   } : null;
 
-  if (existingJob) {
-    
-    existingJob.title = job.title;
-    existingJob.location = job.location;
-    existingJob.salary = job.salary;
-    existingJob.experience = job.experience;
-    existingJob.description = job.description;
-    existingJob.applyLink = job.applyLink;
-    existingJob.employmentType = job.employmentType;
-    existingJob.postedAt = job.postedAt;
-    existingJob.scrapedAt = new Date();
-
-    if (sourceData) {
-        
-        const existingSourceIndex = existingJob.sources.findIndex(s => s.sourceChannel === sourceData.sourceChannel);
-        if (existingSourceIndex >= 0) {
-            existingJob.sources[existingSourceIndex].lastSeen = new Date();
-        } else {
-            existingJob.sources.push(sourceData);
-        }
-    }
-
-    return existingJob.save();
-  }
-
-  if (job.sourceChannel) {
-      await TelegramChannel.findOneAndUpdate(
-          { username: job.sourceChannel },
-          { $inc: { jobsFound: 1 } }
-      );
-  }
-
-  return RawJob.create({
-      company: company._id,
+  const updateData = {
+    $set: {
       title: job.title,
       location: job.location,
       salary: job.salary,
-      jobId: job.jobId,
       experience: job.experience,
       description: job.description,
       applyLink: job.applyLink,
       employmentType: job.employmentType,
       postedAt: job.postedAt,
       scrapedAt: new Date(),
-      sources: sourceData ? [sourceData] : []
-  });
+    }
+  };
+
+  const rawJob = await RawJob.findOneAndUpdate(
+    { company: company._id, jobId: job.jobId || "unknown" },
+    updateData,
+    { new: true, upsert: true }
+  );
+
+  if (sourceData) {
+    const updated = await RawJob.findOneAndUpdate(
+        { _id: rawJob._id, "sources.sourceChannel": sourceData.sourceChannel },
+        { $set: { "sources.$.lastSeen": new Date() } },
+        { new: true }
+    );
+    if (!updated) {
+        await RawJob.findByIdAndUpdate(rawJob._id, {
+            $push: { sources: sourceData }
+        });
+        if (job.sourceChannel) {
+           await TelegramChannel.findOneAndUpdate(
+              { username: job.sourceChannel },
+              { $inc: { jobsFound: 1 } }
+           );
+        }
+    }
+  }
+
+  return rawJob;
 };
 
 const saveMatchedJob = async (rawJob, company, job, analysis) => {
