@@ -98,8 +98,42 @@ const getActiveProfile = async () =>
   fallbackProfile;
 
 const saveRawJob = async (company, job) => {
+  if (!job.applyLink) {
+    console.log(`[Validation Error] Missing applyLink for job: ${job.title}`);
+    return null;
+  }
   
+  if (!job.applyLink.startsWith('https://')) {
+    console.log(`[Validation Error] Invalid protocol for job: ${job.title} - URL: ${job.applyLink}`);
+    return null;
+  }
+
+  const invalidSubstrings = ['undefined', '//job/', 'samecorp', 'example', 'localhost', 'error=true'];
+  if (invalidSubstrings.some(sub => job.applyLink.toLowerCase().includes(sub))) {
+    console.log(`[Validation Error] Malformed or dummy URL for job: ${job.title} - URL: ${job.applyLink}`);
+    return null;
+  }
   
+  if (job.applyLink.includes('null')) {
+      console.log(`[Validation Error] Null placeholder URL for job: ${job.title} - URL: ${job.applyLink}`);
+      return null;
+  }
+  
+  try {
+    const parsedUrl = new URL(job.applyLink);
+    if (!parsedUrl.hostname) {
+      console.log(`[Validation Error] Missing hostname for job: ${job.title} - URL: ${job.applyLink}`);
+      return null;
+    }
+    if (parsedUrl.hostname === 'api.smartrecruiters.com') {
+      console.log(`[Validation Error] Backend API URL rejected for job: ${job.title} - URL: ${job.applyLink}`);
+      return null;
+    }
+  } catch (e) {
+    console.log(`[Validation Error] Unparseable URL for job: ${job.title} - URL: ${job.applyLink}`);
+    return null;
+  }
+
   const duplicateChecks = [];
 
   if (job.jobId) {

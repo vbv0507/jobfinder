@@ -421,7 +421,9 @@ const scrapeSmartRecruitersJobs = async (company) => {
           ]
             .filter(Boolean)
             .join(" "),
-          applyLink: item.ref || item.url,
+          applyLink: (item.company?.identifier && item.id) 
+            ? `https://jobs.smartrecruiters.com/${item.company.identifier}/${item.id}` 
+            : (item.ref || item.url),
           employmentType: item.typeOfEmployment?.label,
           postedAt: item.releasedDate || item.updatedOn,
         },
@@ -463,6 +465,14 @@ const scrapeWorkdayJobs = async (company) => {
 
         console.log("Jobs Found:", jobsFromApi.length);
 
+        let applyBaseUrl = company.careerUrl;
+        if (config.apiUrl) {
+            const match = config.apiUrl.match(/https:\/\/(.+?)\/wday\/cxs\/[^\/]+\/([^\/]+)/);
+            if (match) {
+                applyBaseUrl = `https://${match[1]}/en-US/${match[2]}`;
+            }
+        }
+
         return jobsFromApi
             .map((item) =>
                 normalizeJob(
@@ -482,7 +492,7 @@ const scrapeWorkdayJobs = async (company) => {
 
                         applyLink:
                             item.externalPath
-                                ? `${company.careerUrl}${item.externalPath}`
+                                ? `${applyBaseUrl}${item.externalPath}`
                                 : "",
 
                         postedAt: item.postedOn,
