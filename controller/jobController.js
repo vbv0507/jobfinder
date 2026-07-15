@@ -119,6 +119,13 @@ const getAnalytics = async (req, res) => {
 
 const runJobSearch = async (req, res) => {
     try {
+        if (pipelineState.status === "Running") {
+            return res.status(409).json({
+                success: false,
+                message: "Pipeline is already running."
+            });
+        }
+        
         await runSearch();
         res.status(200).json({
             success: true,
