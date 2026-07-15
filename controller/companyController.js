@@ -26,7 +26,7 @@ const getCompanies = async (req, res) => {
 
         const companiesWithLogos = companies.map(c => ({
             ...c,
-            logoUrl: getCompanyLogo(c.name)
+            logoUrl: c.logo || getCompanyLogo(c.name)
         }));
 
         res.status(200).json({

@@ -1,5 +1,6 @@
 const axios = require("axios");
-
+const { detectATS } = require("./atsDetector");
+const { scrapeCareerWebsite } = require("./careerWebsiteScraper");
 
 
 const DEFAULT_HEADERS = {
@@ -536,32 +537,45 @@ const scrapeCompanyJobs = async (company) => {
   try {
     let jobs;
 
+    const atsData = await detectATS(company.careerUrl);
     
-    if (company.scraperConfig?.strategy === "lg") {
+    // Inject detected API URL if we found one
+    if (atsData.apiUrl) {
+      if (!company.scraperConfig) company.scraperConfig = {};
+      company.scraperConfig.apiUrl = atsData.apiUrl;
+    }
+
+    if (atsData.provider === "lg") { // Specific manual override if needed
       jobs = await scrapeLgJobs(company);
       return applyJobFilters(jobs, company);
     }
 
-    if (company.scraperConfig?.strategy === "greenhouse") {
+    if (atsData.provider === "greenhouse") {
       jobs = await scrapeGreenhouseJobs(company);
       return applyJobFilters(jobs, company);
     }
 
-    if (company.scraperConfig?.strategy === "lever") {
+    if (atsData.provider === "lever") {
       jobs = await scrapeLeverJobs(company);
       return applyJobFilters(jobs, company);
     }
 
-    if (company.scraperConfig?.strategy === "smartrecruiters") {
+    if (atsData.provider === "smartrecruiters") {
       jobs = await scrapeSmartRecruitersJobs(company);
       return applyJobFilters(jobs, company);
     }
 
-    if (company.scraperConfig?.strategy === "workday") {
+    if (atsData.provider === "workday") {
       jobs = await scrapeWorkdayJobs(company);
       return applyJobFilters(jobs, company);
     }
 
+    if (atsData.provider === "custom") {
+      jobs = await scrapeCareerWebsite(company);
+      return applyJobFilters(jobs, company);
+    }
+
+    // Fallback if none matched but we still reached here
     jobs = await scrapeGenericApiJobs(company);
     return applyJobFilters(jobs, company);
   } catch (error) {

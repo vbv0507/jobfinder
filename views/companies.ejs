@@ -50,12 +50,15 @@
                                 </div>
                                 <div>
                                     <h3 class="font-bold text-gray-900 text-lg">${c.name}</h3>
-                                    <span class="text-xs font-medium px-2 py-1 rounded bg-blue-50 text-blue-700 mt-1 inline-block capitalize">${c.scraperConfig.strategy}</span>
+                                    <div class="flex gap-2 mt-1">
+                                      <span class="text-xs font-medium px-2 py-1 rounded bg-blue-50 text-blue-700 capitalize">${c.atsProvider || 'Auto-Detect'}</span>
+                                      ${c.industry ? `<span class="text-xs font-medium px-2 py-1 rounded bg-purple-50 text-purple-700 capitalize">${c.industry}</span>` : ''}
+                                    </div>
                                 </div>
                             </div>
-                            <span class="flex h-3 w-3 relative">
-                              <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                              <span class="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
+                            <span class="flex h-3 w-3 relative" title="Status: ${c.lastRunStatus || 'Pending'}">
+                              <span class="animate-ping absolute inline-flex h-full w-full rounded-full ${c.lastRunStatus === 'failed' ? 'bg-red-400' : 'bg-green-400'} opacity-75"></span>
+                              <span class="relative inline-flex rounded-full h-3 w-3 ${c.lastRunStatus === 'failed' ? 'bg-red-500' : 'bg-green-500'}"></span>
                             </span>
                         </div>
                         
@@ -64,13 +67,22 @@
                                 <span>Jobs Found</span>
                                 <span class="font-bold text-gray-900">${c.jobsFound !== undefined ? c.jobsFound : 0}</span>
                             </div>
+                            <div class="flex justify-between text-sm text-gray-600 mb-2">
+                                <span>Matched Jobs</span>
+                                <span class="font-bold text-gray-900">${c.matchedJobs !== undefined ? c.matchedJobs : 0}</span>
+                            </div>
                             <div class="flex justify-between text-sm text-gray-600 mb-4">
                                 <span>Last Scan</span>
                                 <span class="font-medium text-gray-900">${timeAgo(c.lastScan)}</span>
                             </div>
-                            <a href="${c.careerUrl}" target="_blank" class="w-full flex items-center justify-center bg-gray-50 hover:bg-gray-100 text-gray-700 font-medium py-2 min-h-[44px] rounded-lg transition text-sm">
-                                View Career Page <i class="fas fa-external-link-alt ml-2 text-xs"></i>
-                            </a>
+                            <div class="grid grid-cols-2 gap-2 mt-2">
+                              <a href="${c.careerUrl}" target="_blank" class="w-full flex items-center justify-center bg-gray-50 hover:bg-gray-100 text-gray-700 font-medium py-2 min-h-[44px] rounded-lg transition text-xs">
+                                  View Careers <i class="fas fa-external-link-alt ml-2"></i>
+                              </a>
+                              <a href="/jobs?company=${c.name}" class="w-full flex items-center justify-center bg-blue-50 hover:bg-blue-100 text-blue-700 font-medium py-2 min-h-[44px] rounded-lg transition text-xs">
+                                  View Jobs <i class="fas fa-search ml-2"></i>
+                              </a>
+                            </div>
                         </div>
                     </div>
                 `}).join("");

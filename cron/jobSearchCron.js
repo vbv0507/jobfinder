@@ -326,7 +326,11 @@ const runSearch = async () => {
 
     stats.companiesScanned = companies.length;
 
-    for (const company of companies) {
+    // Use p-limit for concurrent scraping (max 5 companies at a time)
+    const { default: pLimit } = await import('p-limit');
+    const limit = pLimit(5);
+
+    await Promise.allSettled(companies.map((company) => limit(async () => {
       console.log(`Searching ${company.name}...`);
       let companyJobsFound = 0;
       let companyJobsMatched = 0;
@@ -431,14 +435,13 @@ const runSearch = async () => {
         console.error(`Scrape Error for ${company.name}:`, error.message);
       }
 
-      await Company.findByIdAndUpdate(company._id, {
-        lastScan: new Date(),
-        jobsFound: companyJobsFound,
-        matchedJobs: companyJobsMatched,
-        lastRunStatus: companyStatus,
-        lastError: companyErrorMsg
-      });
-    }
+      company.jobsFound = companyJobsFound;
+      company.matchedJobs = companyJobsMatched;
+      company.lastScan = new Date();
+      company.lastRunStatus = companyStatus;
+      if (companyErrorMsg) company.lastError = companyErrorMsg;
+      await company.save();
+    })));
 
     await saveSearchLog(startedAt, stats, errors);
 
