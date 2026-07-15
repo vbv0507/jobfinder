@@ -42,17 +42,7 @@ const cleanText = (value = "") =>
 
 
 
-const makeFullUrl = (url, baseUrl) => {
-  if (!url) {
-    return baseUrl;
-  }
 
-  try {
-    return new URL(url, baseUrl).toString();
-  } catch {
-    return url;
-  }
-};
 
 
 
@@ -163,16 +153,26 @@ const applyJobFilters = (jobs, company) =>
 
 const normalizeJob = (job, company) => {
   const title = cleanText(job.title);
-  const applyLink = makeFullUrl(job.applyLink, company.careerUrl);
+  
+  let applyLink = "";
+  if (!job.applyLink) {
+    console.log(`[Missing Apply Link] Company: ${company.name} | Job ID: ${job.jobId || 'Unknown'} | ATS Strategy: ${company.scraperConfig?.strategy || 'generic'} | Reason: Scraper could not extract applyLink`);
+  } else {
+    try {
+      applyLink = new URL(job.applyLink, company.careerUrl).toString();
+    } catch {
+      applyLink = job.applyLink;
+    }
+  }
 
-  if (!title || !applyLink) {
+  if (!title) {
     return null;
   }
 
   return {
     title,
     location: cleanText(job.location || "Not specified"),
-    jobId: cleanText(job.jobId || applyLink.split("/").filter(Boolean).pop()),
+    jobId: cleanText(job.jobId || (applyLink ? applyLink.split("/").filter(Boolean).pop() : "Unknown")),
     experience: cleanText(job.experience),
     description: cleanText(job.description || title),
     applyLink,
@@ -483,7 +483,7 @@ const scrapeWorkdayJobs = async (company) => {
                         applyLink:
                             item.externalPath
                                 ? `${company.careerUrl}${item.externalPath}`
-                                : company.careerUrl,
+                                : "",
 
                         postedAt: item.postedOn,
 

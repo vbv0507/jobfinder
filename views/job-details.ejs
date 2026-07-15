@@ -10,9 +10,15 @@
                 <i class="fas fa-paper-plane"></i> Mark Applied
             </button>
         <% } %>
-        <a href="<%= job.url %>" target="_blank" class="bg-gray-100 hover:bg-gray-200 text-gray-800 px-4 py-2 min-h-[44px] rounded-md transition shadow-sm border border-gray-200 flex items-center justify-center gap-2 w-full sm:w-auto">
-            <i class="fas fa-external-link-alt"></i> Apply Externally
-        </a>
+        <% if(job.applyLink) { %>
+            <a href="<%= job.applyLink %>" target="_blank" rel="noopener noreferrer" class="bg-gray-100 hover:bg-gray-200 text-gray-800 px-4 py-2 min-h-[44px] rounded-md transition shadow-sm border border-gray-200 flex items-center justify-center gap-2 w-full sm:w-auto">
+                <i class="fas fa-external-link-alt"></i> Apply Externally
+            </a>
+        <% } else { %>
+            <button disabled class="bg-gray-100 text-gray-400 px-4 py-2 min-h-[44px] rounded-md shadow-sm border border-gray-200 flex items-center justify-center gap-2 w-full sm:w-auto cursor-not-allowed">
+                <i class="fas fa-external-link-alt"></i> Application link unavailable
+            </button>
+        <% } %>
     </div>
 </div>
 
