@@ -361,8 +361,10 @@
                         </div>
                     `;
                 } else {
-                    if (s.status === 'Idle') {
+                    if (s.status === 'Completed' || s.status === 'Idle') {
                         dotColor = 'bg-green-500';
+                    } else if (s.status === 'Completed with Warnings') {
+                        dotColor = 'bg-yellow-500';
                     } else if (s.status === 'Failed') {
                         dotColor = 'bg-red-500';
                     }

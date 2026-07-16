@@ -454,6 +454,8 @@ const runSearch = async (triggerSource = "Unknown") => {
   console.log("Job Search Started...");
   console.log("=================================");
 
+  const errors = [];
+
   try {
     const companies = await Company.find({ active: true });
     const profile = await getActiveProfile();
@@ -672,9 +674,14 @@ const runSearch = async (triggerSource = "Unknown") => {
     console.log(`Jobs Matched: ${stats.jobsMatched}`);
     console.log("=================================");
     
-    pipelineState.status = "Idle";
+    if (errors.length > 0) {
+      pipelineState.status = "Completed with Warnings";
+      pipelineState.message = `Completed with ${errors.length} warnings.`;
+    } else {
+      pipelineState.status = "Completed";
+      pipelineState.message = "Last run completed successfully.";
+    }
     pipelineState.lastRunDuration = new Date() - startedAt;
-    pipelineState.message = "Last run completed successfully.";
   } catch (error) {
     console.error("Cron Error:", error.message);
 
