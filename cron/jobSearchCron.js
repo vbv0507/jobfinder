@@ -19,7 +19,6 @@ const crypto = require("crypto");
 
 const MATCH_THRESHOLD = Number(process.env.MATCH_THRESHOLD || 70);
 const MAX_JOBS_PER_COMPANY = Number(process.env.MAX_JOBS_PER_COMPANY || 10);
-const MAX_AI_CALLS = Number(process.env.MAX_AI_EVALUATIONS_PER_RUN || 15);
 const STRICT_LOCATION_MATCH = process.env.STRICT_LOCATION_MATCH !== "false";
 
 const getJobText = (job) =>
@@ -294,19 +293,20 @@ const analyseWithGemini = async (job, profile, aiState) => {
   const skipReason = getSkipReason(job, profile);
 
   if (skipReason) {
-    
     return { skipped: true, reason: skipReason };
-  }
-
-  if (aiState.calls >= MAX_AI_CALLS) {
-    return { skipped: true, reason: "AI evaluation limit reached" };
   }
 
   aiState.calls++;
   
-  const analysis = await evaluateJob(job, profile);
+  const analysis = await evaluateJob(job, profile, aiState);
 
-  if (analysis.errorCode === "QUOTA_EXCEEDED" || analysis.errorCode === "GEMINI_FAILED") {
+  // Ensure pipelineState reflects real-time availability
+  pipelineState.geminiStatus = aiState.gemini.available ? "Working" : "Unavailable";
+  pipelineState.geminiReason = aiState.gemini.reason;
+  pipelineState.groqStatus = aiState.groq.available ? "Working" : "Unavailable";
+  pipelineState.groqReason = aiState.groq.reason;
+
+  if (!analysis || (analysis.errorCode && analysis.provider === "unknown")) {
     return { skipped: true, reason: "Evaluator failed for this job" };
   }
 
@@ -426,8 +426,15 @@ const runSearch = async (triggerSource = "Unknown") => {
     localCount: 0,
   };
   const aiState = {
+    gemini: { available: true, reason: null, disabledAt: null },
+    groq: { available: true, reason: null, disabledAt: null },
     calls: 0
   };
+
+  pipelineState.geminiStatus = "Ready";
+  pipelineState.geminiReason = null;
+  pipelineState.groqStatus = "Ready";
+  pipelineState.groqReason = null;
 
   pipelineState.status = "Running";
   pipelineState.pipelineId = pipelineId;

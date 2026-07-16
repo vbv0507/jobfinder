@@ -257,119 +257,182 @@ const evaluateJobWithGroq = async (job, profile) => {
 
 
 
-const evaluateJob = async (job, profile) => {
+const analyzeError = (error) => {
+    const msg = (error.message || "").toLowerCase();
+    const status = error.response ? error.response.status : null;
+    
+    // Check for permanent errors
+    const isPermanent = 
+        msg.includes("429") || 
+        msg.includes("quota") || 
+        msg.includes("too many requests") || 
+        msg.includes("invalid api key") ||
+        msg.includes("unauthenticated") ||
+        msg.includes("unauthorized") ||
+        msg.includes("billing") ||
+        msg.includes("disabled") ||
+        status === 429 ||
+        status === 401 ||
+        status === 403;
+
+    let reason = "Unknown Error";
+    if (msg.includes("quota") || status === 429 || msg.includes("429") || msg.includes("too many requests")) reason = "Quota Exceeded";
+    else if (msg.includes("key") || status === 401 || status === 403 || msg.includes("unauthenticated") || msg.includes("unauthorized")) reason = "Authentication Failed";
+    else if (msg.includes("billing")) reason = "Billing Disabled";
+    
+    if (isPermanent) {
+        return { permanent: true, reason };
+    }
+
+    // Temporary errors
+    const isTemporary =
+        msg.includes("timeout") ||
+        msg.includes("econnreset") ||
+        msg.includes("etimedout") ||
+        msg.includes("dns") ||
+        msg.includes("network") ||
+        status >= 500;
+        
+    return { permanent: false, reason: isTemporary ? "Temporary Network/API Issue" : "Unhandled Temporary Error" };
+};
+
+const evaluateJob = async (job, profile, aiState = { gemini: { available: true }, groq: { available: true } }) => {
     const startTime = Date.now();
     let fallbackCount = 0;
     let failureReason = null;
 
-    try {
-        const result = await model.generateContent(buildEvaluationPrompt(job, profile));
-        let parsedResult = parseJsonResponse(result.response.text());
-        
-        if (typeof parsedResult.score !== "number") parsedResult.score = parseInt(parsedResult.score) || 0;
-        parsedResult.evaluatedBy = "Gemini";
-        parsedResult.jobDomain = parsedResult.jobDomain || classifyDomain(getText(job));
-        
-        parsedResult.evaluationMetrics = {
-            provider: "Gemini",
-            durationMs: Date.now() - startTime,
-            fallbackCount,
-            failureReason: null
-        };
-
-        parsedResult.provider = "gemini";
-        parsedResult.model = process.env.GEMINI_MODEL || "gemini-2.0-flash";
-        parsedResult.evaluationTimeMs = Date.now() - startTime;
-        parsedResult.fallbackCount = fallbackCount;
-        parsedResult.fallbackReason = null;
-
-        return parsedResult;
-    } catch (error) {
-        const isQuotaError =
-            error.message.includes("429") ||
-            error.message.toLowerCase().includes("quota") ||
-            error.message.toLowerCase().includes("too many requests");
-
-        if (isQuotaError || process.env.ENABLE_GROQ_FALLBACK === "true") {
-            fallbackCount++;
-            failureReason = isQuotaError ? "Gemini quota exceeded" : "Gemini fallback triggered";
-            try {
-                console.log("Gemini unavailable; trying Groq fallback.");
-                const groqAnalysis = await evaluateJobWithGroq(job, profile);
-
-                if (groqAnalysis) {
-                    groqAnalysis.evaluationMetrics = {
-                        provider: "Groq",
-                        durationMs: Date.now() - startTime,
-                        fallbackCount,
-                        failureReason
-                    };
-                    groqAnalysis.evaluationTimeMs = Date.now() - startTime;
-                    groqAnalysis.fallbackCount = fallbackCount;
-                    groqAnalysis.fallbackReason = failureReason;
-                    return groqAnalysis;
-                }
-            } catch (groqError) {
-                console.log(`Groq fallback failed: ${groqError.message}`);
-                failureReason = `Groq failed: ${groqError.message}`;
-            }
-        }
-
-        if (process.env.ENABLE_LOCAL_MATCH_FALLBACK !== "false") {
-            fallbackCount++;
-            console.log("Using local match fallback.");
-            const localResult = evaluateJobLocally(
-                job,
-                profile,
-                failureReason || (isQuotaError ? "Gemini quota exceeded" : "AI evaluation failed"),
-            );
-            localResult.evaluationMetrics.durationMs = Date.now() - startTime;
-            localResult.evaluationMetrics.fallbackCount = fallbackCount;
-            localResult.evaluationTimeMs = Date.now() - startTime;
-            localResult.fallbackCount = fallbackCount;
-            localResult.fallbackReason = failureReason || (isQuotaError ? "Gemini quota exceeded" : "AI evaluation failed");
-            return localResult;
-        }
-
-        console.error("Gemini Evaluation Error:", error.message);
-
-        return {
-            score: 0,
-            confidence: "Low",
-            suitable: false,
-            scoringBreakdown: {
-                roleMatch: 0,
-                skillsMatch: 0,
-                experienceMatch: 0,
-                domainMatch: 0,
-                locationMatch: 0
-            },
-            domainMismatch: false,
-            domainExplanation: "Evaluation failed",
-            experienceMismatch: false,
-            primaryReasons: [isQuotaError ? "Gemini quota exceeded" : "Gemini evaluation failed"],
-            reason: isQuotaError
-                ? "Gemini quota exceeded"
-                : "Gemini evaluation failed",
-            missingSkills: [],
-            roleMatch: "Unknown",
-            experienceMatch: "Unknown",
-            recommendation: "Not Evaluated",
-            errorCode: isQuotaError ? "QUOTA_EXCEEDED" : "GEMINI_FAILED",
-            evaluatedBy: "None",
-            evaluationMetrics: {
-                provider: "None",
+    if (aiState.gemini.available) {
+        try {
+            const result = await model.generateContent(buildEvaluationPrompt(job, profile));
+            let parsedResult = parseJsonResponse(result.response.text());
+            
+            if (typeof parsedResult.score !== "number") parsedResult.score = parseInt(parsedResult.score) || 0;
+            parsedResult.evaluatedBy = "Gemini";
+            parsedResult.jobDomain = parsedResult.jobDomain || classifyDomain(getText(job));
+            
+            parsedResult.evaluationMetrics = {
+                provider: "Gemini",
                 durationMs: Date.now() - startTime,
                 fallbackCount,
-                failureReason: isQuotaError ? "Gemini quota exceeded" : "Gemini evaluation failed"
-            },
-            provider: "unknown",
-            model: "unknown",
-            evaluationTimeMs: Date.now() - startTime,
-            fallbackCount,
-            fallbackReason: isQuotaError ? "Gemini quota exceeded" : "Gemini evaluation failed"
-        };
+                failureReason: null
+            };
+
+            parsedResult.provider = "gemini";
+            parsedResult.model = process.env.GEMINI_MODEL || "gemini-2.0-flash";
+            parsedResult.evaluationTimeMs = Date.now() - startTime;
+            parsedResult.fallbackCount = fallbackCount;
+            parsedResult.fallbackReason = null;
+
+            return parsedResult;
+        } catch (error) {
+            const errorAnalysis = analyzeError(error);
+
+            if (errorAnalysis.permanent) {
+                console.log(`[AI] Gemini disabled for this pipeline.\nReason: ${errorAnalysis.reason}.`);
+                aiState.gemini.available = false;
+                aiState.gemini.reason = errorAnalysis.reason;
+                aiState.gemini.disabledAt = new Date();
+            } else {
+                console.log(`[AI] Gemini temporary failure: ${errorAnalysis.reason}.\nFalling back to Groq.\nProvider remains available.`);
+            }
+
+            fallbackCount++;
+            failureReason = `Gemini failed: ${errorAnalysis.reason}`;
+            console.error("Gemini Evaluation Error:", error.message);
+        }
+    } else {
+        fallbackCount++;
+        failureReason = `Gemini disabled: ${aiState.gemini.reason}`;
     }
+
+    if (aiState.groq.available && (process.env.ENABLE_GROQ_FALLBACK === "true" || process.env.ENABLE_GROQ_FALLBACK !== "false")) {
+        try {
+            console.log("Trying Groq fallback.");
+            const groqAnalysis = await evaluateJobWithGroq(job, profile);
+
+            if (groqAnalysis) {
+                groqAnalysis.evaluationMetrics = {
+                    provider: "Groq",
+                    durationMs: Date.now() - startTime,
+                    fallbackCount,
+                    failureReason
+                };
+                groqAnalysis.evaluationTimeMs = Date.now() - startTime;
+                groqAnalysis.fallbackCount = fallbackCount;
+                groqAnalysis.fallbackReason = failureReason;
+                return groqAnalysis;
+            }
+        } catch (groqError) {
+            const errorAnalysis = analyzeError(groqError);
+
+            if (errorAnalysis.permanent) {
+                console.log(`[AI] Groq disabled for this pipeline.\nReason: ${errorAnalysis.reason}.`);
+                aiState.groq.available = false;
+                aiState.groq.reason = errorAnalysis.reason;
+                aiState.groq.disabledAt = new Date();
+            } else {
+                console.log(`[AI] Groq temporary failure: ${errorAnalysis.reason}.\nFalling back to Local.\nProvider remains available.`);
+            }
+
+            fallbackCount++;
+            failureReason = `Groq failed: ${errorAnalysis.reason}`;
+            console.error("Groq Evaluation Error:", groqError.message);
+        }
+    } else if (!aiState.groq.available) {
+        fallbackCount++;
+        failureReason = failureReason ? `${failureReason} | Groq disabled: ${aiState.groq.reason}` : `Groq disabled: ${aiState.groq.reason}`;
+    }
+
+    if (process.env.ENABLE_LOCAL_MATCH_FALLBACK !== "false") {
+        fallbackCount++;
+        console.log("Using local match fallback.");
+        const localResult = evaluateJobLocally(
+            job,
+            profile,
+            failureReason || "AI evaluation failed",
+        );
+        localResult.evaluationMetrics.durationMs = Date.now() - startTime;
+        localResult.evaluationMetrics.fallbackCount = fallbackCount;
+        localResult.evaluationTimeMs = Date.now() - startTime;
+        localResult.fallbackCount = fallbackCount;
+        localResult.fallbackReason = failureReason || "AI evaluation failed";
+        return localResult;
+    }
+
+    return {
+        score: 0,
+        confidence: "Low",
+        suitable: false,
+        scoringBreakdown: {
+            roleMatch: 0,
+            skillsMatch: 0,
+            experienceMatch: 0,
+            domainMatch: 0,
+            locationMatch: 0
+        },
+        domainMismatch: false,
+        domainExplanation: "Evaluation failed",
+        experienceMismatch: false,
+        primaryReasons: [failureReason || "AI evaluation failed"],
+        reason: failureReason || "AI evaluation failed",
+        missingSkills: [],
+        roleMatch: "Unknown",
+        experienceMatch: "Unknown",
+        recommendation: "Not Evaluated",
+        errorCode: "QUOTA_EXCEEDED",
+        evaluatedBy: "None",
+        evaluationMetrics: {
+            provider: "None",
+            durationMs: Date.now() - startTime,
+            fallbackCount,
+            failureReason: failureReason || "AI evaluation failed"
+        },
+        provider: "unknown",
+        model: "unknown",
+        evaluationTimeMs: Date.now() - startTime,
+        fallbackCount,
+        fallbackReason: failureReason || "AI evaluation failed"
+    };
 };
 
 module.exports = {

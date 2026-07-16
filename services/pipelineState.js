@@ -13,7 +13,11 @@ const pipelineState = {
     jobsMatched: 0,
     lastRunTime: null,
     nextRunTime: null,
-    message: ""
+    message: "",
+    geminiStatus: "Ready",
+    geminiReason: null,
+    groqStatus: "Ready",
+    groqReason: null
 };
 
 module.exports = pipelineState;

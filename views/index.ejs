@@ -11,16 +11,22 @@
         <!-- AI Status Widget -->
         <div class="bg-white px-4 py-2 rounded-lg shadow-sm border border-gray-100 flex items-center gap-3">
             <div class="text-sm border-r border-gray-100 pr-3">
-                <p class="text-gray-500 text-xs font-medium uppercase">🟢 Gemini</p>
-                <p class="text-gray-800 font-semibold leading-none mt-1">Working</p>
+                <p id="gemini-title" class="text-gray-500 text-xs font-medium uppercase">🟢 Gemini</p>
+                <div class="flex flex-col">
+                    <p id="gemini-status" class="text-gray-800 font-semibold leading-none mt-1">Ready</p>
+                    <p id="gemini-reason" class="text-red-500 text-[10px] mt-1 hidden max-w-[100px] truncate" title=""></p>
+                </div>
             </div>
             <div class="text-sm border-r border-gray-100 pr-3">
-                <p class="text-gray-500 text-xs font-medium uppercase">🟠 Groq</p>
-                <p class="text-gray-800 font-semibold leading-none mt-1">Ready</p>
+                <p id="groq-title" class="text-gray-500 text-xs font-medium uppercase">🟠 Groq</p>
+                <div class="flex flex-col">
+                    <p id="groq-status" class="text-gray-800 font-semibold leading-none mt-1">Ready</p>
+                    <p id="groq-reason" class="text-red-500 text-[10px] mt-1 hidden max-w-[100px] truncate" title=""></p>
+                </div>
             </div>
             <div class="text-sm">
                 <p class="text-gray-500 text-xs font-medium uppercase">⚪ Local</p>
-                <p class="text-gray-800 font-semibold leading-none mt-1">Ready</p>
+                <p id="local-status" class="text-gray-800 font-semibold leading-none mt-1">Ready</p>
             </div>
         </div>
 
@@ -262,6 +268,49 @@
             if(data.success) {
                 const s = data.state;
                 const widget = document.getElementById('pipeline-widget');
+                
+                // Update AI provider statuses
+                const geminiStatusEl = document.getElementById('gemini-status');
+                const geminiTitleEl = document.getElementById('gemini-title');
+                const geminiReasonEl = document.getElementById('gemini-reason');
+                
+                if (geminiStatusEl && s.geminiStatus) {
+                    geminiStatusEl.innerText = s.geminiStatus;
+                    if (s.geminiStatus === 'Unavailable') {
+                        geminiStatusEl.className = "text-red-500 font-semibold leading-none mt-1";
+                        if (geminiTitleEl) geminiTitleEl.innerText = "🔴 Gemini";
+                        if (geminiReasonEl && s.geminiReason) {
+                            geminiReasonEl.innerText = s.geminiReason;
+                            geminiReasonEl.title = s.geminiReason;
+                            geminiReasonEl.classList.remove('hidden');
+                        }
+                    } else {
+                        geminiStatusEl.className = "text-gray-800 font-semibold leading-none mt-1";
+                        if (geminiTitleEl) geminiTitleEl.innerText = "🟢 Gemini";
+                        if (geminiReasonEl) geminiReasonEl.classList.add('hidden');
+                    }
+                }
+
+                const groqStatusEl = document.getElementById('groq-status');
+                const groqTitleEl = document.getElementById('groq-title');
+                const groqReasonEl = document.getElementById('groq-reason');
+
+                if (groqStatusEl && s.groqStatus) {
+                    groqStatusEl.innerText = s.groqStatus;
+                    if (s.groqStatus === 'Unavailable') {
+                        groqStatusEl.className = "text-red-500 font-semibold leading-none mt-1";
+                        if (groqTitleEl) groqTitleEl.innerText = "🔴 Groq";
+                        if (groqReasonEl && s.groqReason) {
+                            groqReasonEl.innerText = s.groqReason;
+                            groqReasonEl.title = s.groqReason;
+                            groqReasonEl.classList.remove('hidden');
+                        }
+                    } else {
+                        groqStatusEl.className = "text-gray-800 font-semibold leading-none mt-1";
+                        if (groqTitleEl) groqTitleEl.innerText = "🟠 Groq";
+                        if (groqReasonEl) groqReasonEl.classList.add('hidden');
+                    }
+                }
                 
                 let dotColor = 'bg-gray-400';
                 let pingColor = 'bg-gray-400';
