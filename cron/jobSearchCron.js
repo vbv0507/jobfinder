@@ -6,6 +6,7 @@ const MatchedJob = require("../models/MatchedJob");
 const SearchLog = require("../models/SearchLog");
 const CandidateProfile = require("../models/CandidateProfile");
 const TelegramChannel = require("../models/TelegramChannel");
+const PipelineLock = require("../models/PipelineLock");
 
 const fallbackProfile = require("../profile");
 
@@ -338,8 +339,44 @@ const saveSearchLog = async (startedAt, stats, errors) => {
   });
 };
 
-const runSearch = async () => {
+const runSearch = async (triggerSource = "Unknown") => {
   const startedAt = new Date();
+  const runnerName = triggerSource;
+
+  // Ensure the lock document exists
+  await PipelineLock.updateOne(
+    { lockId: "global_pipeline_lock" },
+    { $setOnInsert: { status: "Idle", startedAt: null, runner: "none", expiresAt: null } },
+    { upsert: true }
+  );
+
+  // Try to acquire the lock
+  const lock = await PipelineLock.findOneAndUpdate(
+    {
+      lockId: "global_pipeline_lock",
+      $or: [
+        { status: "Idle" },
+        { expiresAt: { $lt: startedAt } }
+      ]
+    },
+    {
+      $set: {
+        status: "Running",
+        startedAt: startedAt,
+        runner: runnerName,
+        expiresAt: new Date(startedAt.getTime() + 2 * 60 * 60 * 1000)
+      }
+    },
+    { new: true }
+  );
+
+  if (!lock) {
+    console.log(`[Pipeline] Another execution is already running. Skipping.`);
+    return { skipped: true, reason: "Already running" };
+  }
+
+  console.log(`[Pipeline] Trigger source: ${runnerName}. Start time: ${startedAt.toISOString()}`);
+
   const errors = [];
   const stats = {
     companiesScanned: 0,
@@ -570,14 +607,22 @@ const runSearch = async () => {
       },
       [{ message: error.message }],
     );
+  } finally {
+    const endTime = new Date();
+    const duration = endTime - startedAt;
+    console.log(`[Pipeline] End time: ${endTime.toISOString()}. Duration: ${duration}ms`);
+    
+    await PipelineLock.updateOne(
+      { lockId: "global_pipeline_lock" },
+      { $set: { status: "Idle", runner: "none" } }
+    );
   }
 };
 
 
-// Internal node-cron scheduling disabled in favor of GitHub Actions workflow
-// to prevent duplicate executions and API token waste.
-// const schedule = "0 2 * * *";
-// const cronTask = cron.schedule(schedule, runSearch);
+// Internal node-cron scheduling restored for Azure
+const schedule = "0 2 * * *";
+const cronTask = cron.schedule(schedule, () => runSearch("Azure Cron"));
 
 pipelineState.nextRunTime = "Scheduled for 02:00 AM daily";
 

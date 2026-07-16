@@ -15,7 +15,7 @@ const runJobSearchOnce = async () => {
         // Keep MongoDB company list updated before running the scraper.
         await seedCompanies();
 
-        await runSearch();
+        await runSearch("GitHub Actions");
 
         console.log("GitHub Action job search completed");
         process.exit(0);
