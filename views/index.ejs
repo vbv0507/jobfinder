@@ -137,6 +137,24 @@
                         <h4 class="text-gray-500 text-xs font-medium uppercase tracking-wider mt-3">Last Success</h4>
                         <p class="text-sm font-bold text-gray-800 mt-1">${s.lastSuccessfulRun ? new Date(s.lastSuccessfulRun).toLocaleString() : 'Never'}</p>
                     </div>
+                    
+                    <!-- Row 3: Historical Statistics -->
+                    <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 relative overflow-hidden group">
+                        <h4 class="text-gray-500 text-xs font-medium uppercase tracking-wider">Avg Runtime</h4>
+                        <p class="text-xl font-bold text-gray-800 mt-1">${s.avgRuntimeMs ? (s.avgRuntimeMs/1000).toFixed(1) + 's' : '0s'}</p>
+                    </div>
+                    <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 relative overflow-hidden group">
+                        <h4 class="text-gray-500 text-xs font-medium uppercase tracking-wider">Success Rate</h4>
+                        <p class="text-xl font-bold text-green-600 mt-1">${s.successRate}%</p>
+                    </div>
+                    <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 relative overflow-hidden group">
+                        <h4 class="text-gray-500 text-xs font-medium uppercase tracking-wider">Failure Rate</h4>
+                        <p class="text-xl font-bold text-red-500 mt-1">${s.failureRate}%</p>
+                    </div>
+                    <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 relative overflow-hidden group">
+                        <h4 class="text-gray-500 text-xs font-medium uppercase tracking-wider">Avg Jobs / Match</h4>
+                        <p class="text-xl font-bold text-gray-800 mt-1">${s.avgJobsFound} / ${s.avgMatches}</p>
+                    </div>
                 `;
             }
         } catch(e) {
@@ -152,10 +170,82 @@
             const data = await res.json();
             if(data.success && data.logs.length > 0) {
                 container.innerHTML = data.logs.map(log => {
-                    const d = new Date(log.createdAt).toLocaleString();
-                    const color = log.status === 'Failed' ? 'text-red-400' : 
-                                 (log.status === 'Partial Success' ? 'text-yellow-400' : 'text-green-400');
-                    return `<div class="flex flex-col sm:flex-row sm:gap-2 border-b border-gray-800 pb-2 sm:border-0 sm:pb-0"><span class="text-gray-500 shrink-0">[${d}]</span> <span class="${color} flex-1 break-words">${log.message || 'Legacy Log: ' + log.status}</span></div>`;
+                    const dateObj = new Date(log.startedAt || log.createdAt);
+                    
+                    const d = `[${dateObj.toLocaleDateString('en-GB')} ${dateObj.toLocaleTimeString('en-GB', {hour: '2-digit', minute:'2-digit'})}]`;
+                    
+                    const source = log.triggerSource || "Manual";
+                    
+                    let badgeColor = 'bg-green-500/20 text-green-400 border border-green-500/30';
+                    if (log.status === 'Failed') { badgeColor = 'bg-red-500/20 text-red-400 border border-red-500/30'; }
+                    else if (log.status === 'Running' || log.status === 'Partial Success') { badgeColor = 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/30'; }
+                    else if (log.status === 'Skipped') { badgeColor = 'bg-gray-500/20 text-gray-400 border border-gray-500/30'; }
+                    
+                    let contentHTML = '';
+                    if (log.status === 'Skipped') {
+                        contentHTML = `
+                            <div class="text-gray-400 mb-2">Reason: ${log.skipReason || 'Unknown'}</div>
+                            <div class="grid grid-cols-2 gap-1 text-xs">
+                                <div class="text-gray-500">Current Runner:</div>
+                                <div class="text-gray-300">${log.currentRunner || '-'}</div>
+                                <div class="text-gray-500">Expected Unlock:</div>
+                                <div class="text-gray-300">${log.expectedUnlock ? new Date(log.expectedUnlock).toLocaleTimeString() : '-'}</div>
+                            </div>
+                        `;
+                    } else if (log.status === 'Failed') {
+                        contentHTML = `
+                            <div class="text-red-400 mb-2">${log.errorType || 'Error'}: ${log.message}</div>
+                            <div class="grid grid-cols-2 gap-1 text-xs">
+                                <div class="text-gray-500">Company:</div>
+                                <div class="text-gray-300">${log.companyBeingProcessed || '-'}</div>
+                                <div class="text-gray-500">Stage:</div>
+                                <div class="text-gray-300">${log.currentStage || '-'}</div>
+                            </div>
+                        `;
+                    } else if (log.status === 'Running') {
+                        contentHTML = `<div class="text-yellow-400">Pipeline is currently executing...</div>`;
+                    } else if (log.totalCompanies !== undefined || log.companiesScanned !== undefined) {
+                        const totalC = log.totalCompanies !== undefined ? log.totalCompanies : log.companiesScanned;
+                        const totalJ = log.totalJobs !== undefined ? log.totalJobs : log.jobsFound;
+                        const durationSecs = log.durationMs ? Math.round(log.durationMs/1000) : 0;
+                        contentHTML = `
+                            <div class="grid grid-cols-2 gap-y-1 gap-x-4 text-xs mb-2">
+                                <div class="text-gray-500">Duration:</div>
+                                <div class="text-gray-300">${durationSecs}s</div>
+                                <div class="text-gray-500">Companies:</div>
+                                <div class="text-gray-300">${totalC}</div>
+                                <div class="text-gray-500">Jobs Found:</div>
+                                <div class="text-gray-300">${totalJ}</div>
+                                <div class="text-gray-500">Matched Jobs:</div>
+                                <div class="text-green-400 font-medium">${log.jobsMatched || 0}</div>
+                            </div>
+                            <div class="border-t border-gray-700 pt-1 mt-1">
+                                <div class="text-gray-400 text-[10px] uppercase tracking-wider mb-1">AI Provider Stats</div>
+                                <div class="grid grid-cols-3 gap-1 text-xs">
+                                    <div><span class="text-gray-500">Gemini:</span> <span class="text-gray-300">${log.geminiCount || 0}</span></div>
+                                    <div><span class="text-gray-500">Groq:</span> <span class="text-gray-300">${log.groqCount || 0}</span></div>
+                                    <div><span class="text-gray-500">Local:</span> <span class="text-gray-300">${log.localCount || 0}</span></div>
+                                </div>
+                            </div>
+                        `;
+                    } else {
+                        contentHTML = `<div class="text-gray-400">${log.message || 'Legacy Log'}</div>`;
+                    }
+                    
+                    return `
+                    <div class="mb-4 bg-gray-800 rounded-lg p-3 border border-gray-700">
+                        <div class="flex justify-between items-start mb-2">
+                            <div class="inline-block px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${badgeColor}">${log.status || 'Success'}</div>
+                            <div class="text-gray-500 text-[10px]">${d}</div>
+                        </div>
+                        <div class="text-xs text-gray-400 mb-2">
+                            <div>ID: <span class="text-gray-300 font-mono">${log.pipelineId || 'N/A'}</span></div>
+                            <div>Source: <span class="text-white">${source}</span></div>
+                        </div>
+                        <div class="space-y-1">
+                            ${contentHTML}
+                        </div>
+                    </div>`;
                 }).join("");
             } else {
                 container.innerHTML = '<span class="text-gray-500">No logs found.</span>';
@@ -179,24 +269,64 @@
                 if (s.status === 'Running') {
                     dotColor = 'bg-primary';
                     pingColor = 'bg-primary';
-                } else if (s.status === 'Idle') {
-                    dotColor = 'bg-green-500';
-                    pingColor = 'bg-green-500';
-                } else if (s.status === 'Failed') {
-                    dotColor = 'bg-red-500';
-                    pingColor = 'bg-red-500';
+                    
+                    let extraInfo = '';
+                    if (s.currentCompany || s.currentStage) {
+                        extraInfo = `
+                            <div class="mt-3 text-xs border-t border-gray-100 pt-2 space-y-1">
+                                <div class="flex justify-between">
+                                    <span class="text-gray-500">Stage:</span>
+                                    <span class="font-medium text-gray-800">${s.currentStage || '-'}</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-500">Target:</span>
+                                    <span class="font-medium text-primary truncate max-w-[120px] text-right" title="${s.currentCompany || '-'}">${s.currentCompany || '-'}</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-500">Progress:</span>
+                                    <span class="font-medium text-gray-800">${s.progress || '-'}</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-500">ETA:</span>
+                                    <span class="font-medium text-gray-800">${s.estimatedRemainingTime ? Math.round(s.estimatedRemainingTime/1000) + 's' : '-'}</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-500">AI Engine:</span>
+                                    <span class="font-medium text-gray-800">${s.currentAiProvider || '-'}</span>
+                                </div>
+                            </div>
+                        `;
+                    }
+                    
+                    widget.innerHTML = `
+                        <div class="flex items-start gap-3 w-full min-w-[240px]">
+                            <div class="relative flex h-3 w-3 mt-1 shrink-0">
+                                <span class="animate-ping absolute inline-flex h-full w-full rounded-full ${pingColor} opacity-75"></span>
+                                <span class="relative inline-flex rounded-full h-3 w-3 ${dotColor}"></span>
+                            </div>
+                            <div class="text-sm w-full">
+                                <p class="text-gray-800 font-medium leading-none">Pipeline: ${s.status}</p>
+                                <p class="text-gray-500 text-xs mt-1 leading-none" title="${s.message}">${s.message.length > 30 ? s.message.substring(0,30) + '...' : s.message}</p>
+                                ${extraInfo}
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    if (s.status === 'Idle') {
+                        dotColor = 'bg-green-500';
+                    } else if (s.status === 'Failed') {
+                        dotColor = 'bg-red-500';
+                    }
+                    widget.innerHTML = `
+                        <div class="relative flex h-3 w-3">
+                            <span class="relative inline-flex rounded-full h-3 w-3 ${dotColor}"></span>
+                        </div>
+                        <div class="text-sm">
+                            <p class="text-gray-800 font-medium leading-none">Pipeline: ${s.status}</p>
+                            <p class="text-gray-500 text-xs mt-1 leading-none" title="${s.message}">${s.message.length > 30 ? s.message.substring(0,30) + '...' : s.message}</p>
+                        </div>
+                    `;
                 }
-                
-                widget.innerHTML = `
-                    <div class="relative flex h-3 w-3">
-                        ${s.status === 'Running' ? `<span class="animate-ping absolute inline-flex h-full w-full rounded-full ${pingColor} opacity-75"></span>` : ''}
-                        <span class="relative inline-flex rounded-full h-3 w-3 ${dotColor}"></span>
-                    </div>
-                    <div class="text-sm">
-                        <p class="text-gray-800 font-medium leading-none">Pipeline: ${s.status}</p>
-                        <p class="text-gray-500 text-xs mt-1 leading-none" title="${s.message}">${s.message.length > 30 ? s.message.substring(0,30) + '...' : s.message}</p>
-                    </div>
-                `;
             }
         } catch (e) {}
     }

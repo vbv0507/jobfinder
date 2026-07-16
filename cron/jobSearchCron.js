@@ -313,7 +313,7 @@ const analyseWithGemini = async (job, profile, aiState) => {
   return { skipped: false, analysis };
 };
 
-const saveSearchLog = async (startedAt, stats, errors) => {
+const saveSearchLog = async (logId, startedAt, stats, errors) => {
   const completedAt = new Date();
   const durationMs = completedAt - startedAt;
   const status = errors.length ? "Partial Success" : "Success";
@@ -321,8 +321,7 @@ const saveSearchLog = async (startedAt, stats, errors) => {
   const message = `[${status}] Scanned ${stats.companiesScanned} companies, found ${stats.jobsFound} jobs, matched ${stats.jobsMatched} jobs. Duration: ${(durationMs/1000).toFixed(1)}s`;
 
   
-  await SearchLog.create({
-    startedAt,
+  await SearchLog.findByIdAndUpdate(logId, {
     completedAt,
     durationMs,
     companiesScanned: stats.companiesScanned,
@@ -333,9 +332,20 @@ const saveSearchLog = async (startedAt, stats, errors) => {
     duplicatePreventionCount: stats.duplicatePreventionCount,
     averageEvaluationTimeMs: stats.jobsMatched > 0 ? Math.round(stats.totalEvaluationTimeMs / stats.jobsMatched) : 0,
     averageMetadataRefreshTimeMs: stats.jobsRefreshed > 0 ? Math.round(stats.totalMetadataRefreshTimeMs / stats.jobsRefreshed) : 0,
+    totalCompanies: stats.companiesScanned,
+    successfulCompanies: stats.successfulCompanies,
+    failedCompanies: stats.failedCompanies,
+    totalJobs: stats.jobsFound,
+    newJobs: stats.newJobs,
+    aiEvaluations: stats.aiEvaluations,
+    geminiCount: stats.geminiCount,
+    groqCount: stats.groqCount,
+    localCount: stats.localCount,
+    averageCompanyTime: stats.companiesScanned > 0 ? Math.round(durationMs / stats.companiesScanned) : 0,
     status,
     message,
     errorDetails: errors,
+    aiProviderUsed: stats.aiProviderUsed || "None",
   });
 };
 
@@ -370,34 +380,68 @@ const runSearch = async (triggerSource = "Unknown") => {
     { new: true }
   );
 
+  const pipelineId = `${startedAt.toISOString().replace(/[-:T]/g, '').slice(0, 14)}-${runnerName.replace(/\s+/g, '').toUpperCase()}`;
+
   if (!lock) {
+    const currentLock = await PipelineLock.findOne({ lockId: "global_pipeline_lock" });
     console.log(`[Pipeline] Another execution is already running. Skipping.`);
+    await SearchLog.create({
+      pipelineId,
+      triggerSource: runnerName,
+      status: "Skipped",
+      skipReason: "Distributed lock already active",
+      currentRunner: currentLock ? currentLock.runner : "Unknown",
+      expectedUnlock: currentLock ? currentLock.expiresAt : null,
+      startedAt: startedAt,
+      completedAt: new Date(),
+      durationMs: new Date() - startedAt
+    });
     return { skipped: true, reason: "Already running" };
   }
 
-  console.log(`[Pipeline] Trigger source: ${runnerName}. Start time: ${startedAt.toISOString()}`);
+  const pipelineLog = await SearchLog.create({
+    pipelineId,
+    triggerSource: runnerName,
+    status: "Running",
+    startedAt: startedAt
+  });
 
-  const errors = [];
+  console.log(`[Pipeline] ID: ${pipelineId} | Trigger source: ${runnerName}. Start time: ${startedAt.toISOString()}`);
+
   const stats = {
     companiesScanned: 0,
+    successfulCompanies: 0,
+    failedCompanies: 0,
     jobsFound: 0,
     jobsMatched: 0,
+    newJobs: 0,
     jobsArchived: 0,
     jobsRefreshed: 0,
     duplicatePreventionCount: 0,
     totalEvaluationTimeMs: 0,
     totalMetadataRefreshTimeMs: 0,
+    aiEvaluations: 0,
+    geminiCount: 0,
+    groqCount: 0,
+    localCount: 0,
   };
   const aiState = {
     calls: 0
   };
 
   pipelineState.status = "Running";
+  pipelineState.pipelineId = pipelineId;
   pipelineState.jobsScraped = 0;
   pipelineState.jobsEvaluated = 0;
   pipelineState.jobsMatched = 0;
   pipelineState.lastRunTime = startedAt;
   pipelineState.message = "Pipeline is currently running...";
+  pipelineState.currentStage = "Initializing";
+  pipelineState.currentCompany = null;
+  pipelineState.progress = "0 / 0 companies";
+  pipelineState.elapsedTime = 0;
+  pipelineState.estimatedRemainingTime = 0;
+  pipelineState.currentAiProvider = null;
 
   console.log("=================================");
   console.log("Job Search Started...");
@@ -413,7 +457,17 @@ const runSearch = async (triggerSource = "Unknown") => {
     const { default: pLimit } = await import('p-limit');
     const limit = pLimit(5);
 
+    let completedCompanies = 0;
+
     await Promise.allSettled(companies.map((company) => limit(async () => {
+      pipelineState.currentCompany = company.name;
+      pipelineState.currentStage = "Fetching Jobs";
+      pipelineState.progress = `${completedCompanies} / ${stats.companiesScanned} companies`;
+      pipelineState.elapsedTime = Date.now() - startedAt;
+      if (completedCompanies > 0) {
+          pipelineState.estimatedRemainingTime = (pipelineState.elapsedTime / completedCompanies) * (stats.companiesScanned - completedCompanies);
+      }
+
       console.log(`Searching ${company.name}...`);
       let companyJobsFound = 0;
       let companyJobsMatched = 0;
@@ -471,10 +525,22 @@ const runSearch = async (triggerSource = "Unknown") => {
               continue;
             }
 
+            pipelineState.currentStage = "AI Evaluation";
             const evalStart = Date.now();
             const result = await analyseWithGemini(job, profile, aiState);
             if (result.analysis && result.analysis.evaluationTimeMs) {
                 stats.totalEvaluationTimeMs += result.analysis.evaluationTimeMs;
+            }
+            stats.aiEvaluations++;
+            if (result.analysis && result.analysis.provider) {
+                const p = result.analysis.provider.toLowerCase();
+                if (p === 'gemini') stats.geminiCount++;
+                else if (p === 'groq') stats.groqCount++;
+                else if (p === 'local') stats.localCount++;
+                pipelineState.currentAiProvider = p;
+            } else if (!result.skipped) {
+                stats.geminiCount++;
+                pipelineState.currentAiProvider = 'gemini';
             }
             pipelineState.jobsEvaluated++;
 
@@ -485,6 +551,7 @@ const runSearch = async (triggerSource = "Unknown") => {
               continue;
             }
 
+            pipelineState.currentStage = "Saving Results";
             const matched = await saveMatchedJob(
               rawJob,
               company,
@@ -494,10 +561,12 @@ const runSearch = async (triggerSource = "Unknown") => {
 
             if (matched) {
               stats.jobsMatched++;
+              stats.newJobs++;
               companyJobsMatched++;
               pipelineState.jobsMatched++;
               
               const providerStr = result.analysis.provider ? result.analysis.provider.charAt(0).toUpperCase() + result.analysis.provider.slice(1) : "Gemini";
+              stats.aiProviderUsed = providerStr;
               console.log(`Matched Job: ${job.title} | Score: ${result.analysis.score}`);
               
               if (result.analysis.fallbackReason) {
@@ -532,6 +601,9 @@ const runSearch = async (triggerSource = "Unknown") => {
         if (companyErrors > 0) {
           companyStatus = "partial";
           companyErrorMsg = `${companyErrors} jobs failed analysis`;
+          stats.failedCompanies++;
+        } else {
+          stats.successfulCompanies++;
         }
         
         // --------------------------------------------------
@@ -564,12 +636,17 @@ const runSearch = async (triggerSource = "Unknown") => {
       } catch (error) {
         companyStatus = "failed";
         companyErrorMsg = error.message;
+        stats.failedCompanies++;
         errors.push({
           company: company.name,
           message: error.message,
         });
         console.error(`Scrape Error for ${company.name}:`, error.message);
       }
+
+      completedCompanies++;
+      pipelineState.progress = `${completedCompanies} / ${stats.companiesScanned} companies`;
+      pipelineState.elapsedTime = Date.now() - startedAt;
 
       company.jobsFound = companyJobsFound;
       company.matchedJobs = companyJobsMatched;
@@ -579,7 +656,7 @@ const runSearch = async (triggerSource = "Unknown") => {
       await company.save();
     })));
 
-    await saveSearchLog(startedAt, stats, errors);
+    await saveSearchLog(pipelineLog._id, startedAt, stats, errors);
 
     console.log("=================================");
     console.log("Job Search Completed");
@@ -598,15 +675,22 @@ const runSearch = async (triggerSource = "Unknown") => {
     pipelineState.lastRunDuration = new Date() - startedAt;
     pipelineState.message = `Failed: ${error.message}`;
 
-    await saveSearchLog(
-      startedAt,
-      {
-        companiesScanned: stats.companiesScanned,
-        jobsFound: stats.jobsFound,
-        jobsMatched: stats.jobsMatched,
-      },
-      [{ message: error.message }],
-    );
+    await SearchLog.findByIdAndUpdate(pipelineLog._id, {
+      completedAt: new Date(),
+      durationMs: new Date() - startedAt,
+      status: "Failed",
+      message: `Failed: ${error.message}`,
+      errorType: error.name || "Error",
+      stackTrace: error.stack,
+      companyBeingProcessed: pipelineState.currentCompany,
+      currentStage: pipelineState.currentStage,
+      companiesScanned: stats.companiesScanned,
+      successfulCompanies: stats.successfulCompanies,
+      failedCompanies: stats.failedCompanies,
+      totalJobs: stats.jobsFound,
+      jobsMatched: stats.jobsMatched,
+      errorDetails: [{ message: error.message }],
+    });
   } finally {
     const endTime = new Date();
     const duration = endTime - startedAt;

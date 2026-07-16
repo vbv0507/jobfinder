@@ -121,11 +121,18 @@ const getAnalyticsData = async () => {
             {
                 $group: {
                     _id: null,
+                    totalRuns: { $sum: 1 },
+                    successRuns: { $sum: { $cond: [{ $eq: ["$status", "Success"] }, 1, 0] } },
+                    failedRuns: { $sum: { $cond: [{ $eq: ["$status", "Failed"] }, 1, 0] } },
+                    skippedRuns: { $sum: { $cond: [{ $eq: ["$status", "Skipped"] }, 1, 0] } },
                     totalJobsArchived: { $sum: "$jobsArchived" },
                     totalJobsRefreshed: { $sum: "$jobsRefreshed" },
                     totalDuplicatePrevention: { $sum: "$duplicatePreventionCount" },
                     avgEvaluationTime: { $avg: "$averageEvaluationTimeMs" },
-                    avgMetadataRefreshTime: { $avg: "$averageMetadataRefreshTimeMs" }
+                    avgMetadataRefreshTime: { $avg: "$averageMetadataRefreshTimeMs" },
+                    avgRuntime: { $avg: "$durationMs" },
+                    avgJobsFound: { $avg: "$jobsFound" },
+                    avgMatches: { $avg: "$jobsMatched" }
                 }
             }
         ]);
@@ -150,6 +157,12 @@ const getAnalyticsData = async () => {
                 totalDuplicatePrevention: systemMetrics.totalDuplicatePrevention || 0,
                 avgEvaluationTimeMs: Math.round(systemMetrics.avgEvaluationTime || 0),
                 avgMetadataRefreshTimeMs: Math.round(systemMetrics.avgMetadataRefreshTime || 0),
+                avgRuntimeMs: Math.round(systemMetrics.avgRuntime || 0),
+                avgJobsFound: Math.round(systemMetrics.avgJobsFound || 0),
+                avgMatches: Math.round(systemMetrics.avgMatches || 0),
+                successRate: systemMetrics.totalRuns > 0 ? Math.round((systemMetrics.successRuns / systemMetrics.totalRuns) * 100) : 0,
+                failureRate: systemMetrics.totalRuns > 0 ? Math.round((systemMetrics.failedRuns / systemMetrics.totalRuns) * 100) : 0,
+                skippedRuns: systemMetrics.skippedRuns || 0,
                 lastSuccessfulRun: lastSuccess ? lastSuccess.createdAt : null,
                 nextScheduledRun: pipelineState.nextRunTime
             },

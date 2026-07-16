@@ -1,5 +1,12 @@
 const pipelineState = {
     status: "Idle", 
+    pipelineId: null,
+    currentStage: null,
+    currentCompany: null,
+    progress: "",
+    elapsedTime: 0,
+    estimatedRemainingTime: 0,
+    currentAiProvider: null,
     lastRunDuration: 0,
     jobsScraped: 0,
     jobsEvaluated: 0,

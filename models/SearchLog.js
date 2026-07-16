@@ -21,8 +21,32 @@ const searchLogSchema = new mongoose.Schema({
 
     status: {
         type: String,
-        enum: ["Success", "Partial Success", "Failed"]
+        enum: ["Success", "Partial Success", "Failed", "Skipped", "Running"]
     },
+
+    pipelineId: String,
+    triggerSource: String,
+    skipReason: String,
+    aiProviderUsed: String,
+
+    currentRunner: String,
+    expectedUnlock: Date,
+
+    totalCompanies: Number,
+    successfulCompanies: Number,
+    failedCompanies: Number,
+    totalJobs: Number,
+    newJobs: Number,
+    aiEvaluations: Number,
+    geminiCount: { type: Number, default: 0 },
+    groqCount: { type: Number, default: 0 },
+    localCount: { type: Number, default: 0 },
+    averageCompanyTime: Number,
+
+    errorType: String,
+    companyBeingProcessed: String,
+    currentStage: String,
+    stackTrace: String,
 
     message: String,
 
