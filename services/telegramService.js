@@ -17,6 +17,7 @@ const {
     saveMatchedJob
 } = require("../cron/jobSearchCron");
 const { sendMatchedJobEmail } = require("./emailService");
+const { saveTrainingSample } = require("./trainingDatasetService");
 
 const API_ID = Number(process.env.TELEGRAM_API_ID);
 const API_HASH = process.env.TELEGRAM_API_HASH;
@@ -232,6 +233,12 @@ const processJobUrl = async (url, telegramCompany, profile, structuredData, sour
         }
         
         logWithTime(`Gemini Score: ${result.analysis.score}`);
+        
+        if (result.analysis) {
+            saveTrainingSample(job, telegramCompany, result.analysis, "TelegramListener", "Telegram").catch(err => {
+                logWithTime(`[TrainingDataset] Async save error: ${err.message}`);
+            });
+        }
 
         const matched = await saveMatchedJob(rawJob, telegramCompany, job, result.analysis);
 
@@ -455,6 +462,11 @@ const processJobUrlWrapper = async (url, telegramCompany, profile, structuredDat
             const aiState = { calls: 0, quotaExceeded: false };
             const aiResult = await analyseWithGemini(job, profile, aiState);
             if (!aiResult.skipped) {
+                if (aiResult.analysis) {
+                    saveTrainingSample(job, telegramCompany, aiResult.analysis, "TelegramListener", "Telegram").catch(err => {
+                        _logWithTime(`[TrainingDataset] Async save error: ${err.message}`);
+                    });
+                }
                 const matchedJobResult = await saveMatchedJob(rawJob, telegramCompany, job, aiResult.analysis);
                 if (matchedJobResult) matched = true;
             }

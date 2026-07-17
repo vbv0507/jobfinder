@@ -13,6 +13,7 @@ const fallbackProfile = require("../profile");
 const { scrapeCompanyJobs } = require("../services/scraperService");
 const { evaluateJob } = require("../services/geminiService");
 const { sendMatchedJobEmail } = require("../services/emailService");
+const { saveTrainingSample } = require("../services/trainingDatasetService");
 const { classifyDomain } = require("../utils/domains");
 const pipelineState = require("../services/pipelineState");
 const crypto = require("crypto");
@@ -589,6 +590,14 @@ const runSearch = async (triggerSource = "Unknown") => {
             }
 
             pipelineState.currentStage = "Saving Results";
+            
+            // ML Dataset Collection (Asynchronous, Non-Blocking)
+            if (result.analysis) {
+               saveTrainingSample(job, company, result.analysis, pipelineId, triggerSource).catch(err => {
+                  console.log(`[TrainingDataset] Async save error: ${err.message}`);
+               });
+            }
+
             const matched = await saveMatchedJob(
               rawJob,
               company,
