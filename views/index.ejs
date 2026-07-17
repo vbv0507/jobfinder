@@ -34,6 +34,18 @@
                 <p id="groq-reason" class="text-red-500 text-[10px] mt-1 hidden max-w-[120px] truncate" title=""></p>
             </div>
             
+            <!-- Z.ai -->
+            <div class="border-r border-gray-100 pr-4">
+                <p id="zai-title" class="text-gray-500 text-xs font-medium uppercase">🔵 Z.ai</p>
+                <p id="zai-status" class="text-gray-800 font-semibold leading-none mt-1">Ready</p>
+                <div class="text-[10px] mt-2 space-y-0.5 text-gray-500">
+                    <p>Reqs: <span id="zai-reqs" class="font-medium text-gray-700">0</span></p>
+                    <p>Fallbacks: <span id="zai-fallbacks" class="font-medium text-gray-700">0</span></p>
+                    <p id="zai-disabled" class="text-red-500 hidden">Disabled: <span></span></p>
+                </div>
+                <p id="zai-reason" class="text-red-500 text-[10px] mt-1 hidden max-w-[120px] truncate" title=""></p>
+            </div>
+            
             <!-- Local -->
             <div>
                 <p class="text-gray-500 text-xs font-medium uppercase">⚪ Local</p>
@@ -244,6 +256,7 @@
         
         const geminiCount = log.geminiCount !== undefined ? log.geminiCount : 0;
         const groqCount = log.groqCount !== undefined ? log.groqCount : 0;
+        const zaiCount = log.zaiCount !== undefined ? log.zaiCount : 0;
         const localCount = log.localCount !== undefined ? log.localCount : 0;
         
         const pipelineIdDisplay = log.pipelineId ? log.pipelineId.substring(0,8) + '...' : 'N/A';
@@ -292,22 +305,35 @@
                     <div class="mt-4 pt-3 border-t border-gray-700 grid grid-cols-2 md:grid-cols-4 gap-4 text-xs cursor-text select-text" onclick="event.stopPropagation()">
                         <div><span class="text-gray-500 block mb-1">Pipeline ID</span><span class="text-gray-200 font-mono">${log.pipelineId || 'N/A'}</span></div>
                         <div><span class="text-gray-500 block mb-1">Runner</span><span class="text-gray-200">${log.runnerId || 'N/A'}</span></div>
-                        <div><span class="text-gray-500 block mb-1">Start Time</span><span class="text-gray-200">${log.startedAt ? new Date(log.startedAt).toLocaleTimeString() : 'N/A'}</span></div>
-                        <div><span class="text-gray-500 block mb-1">End Time</span><span class="text-gray-200">${log.completedAt ? new Date(log.completedAt).toLocaleTimeString() : 'N/A'}</span></div>
+                        <div><span class="text-gray-500 block mb-1">Trigger</span><span class="text-gray-200">${log.triggerSource || 'Manual'}</span></div>
+                        <div><span class="text-gray-500 block mb-1">Started</span><span class="text-gray-200">${log.startedAt ? new Date(log.startedAt).toLocaleTimeString() : 'N/A'}</span></div>
                         
+                        <div><span class="text-gray-500 block mb-1">Finished</span><span class="text-gray-200">${log.completedAt ? new Date(log.completedAt).toLocaleTimeString() : 'N/A'}</span></div>
+                        <div><span class="text-gray-500 block mb-1">Duration</span><span class="text-gray-200">${durationSecs}</span></div>
                         <div><span class="text-gray-500 block mb-1">Companies Successful</span><span class="text-green-400">${log.successfulCompanies !== undefined ? log.successfulCompanies : 'N/A'}</span></div>
                         <div><span class="text-gray-500 block mb-1">Companies Failed</span><span class="text-red-400">${log.failedCompanies !== undefined ? log.failedCompanies : 'N/A'}</span></div>
+                        
                         <div><span class="text-gray-500 block mb-1">Duplicate Jobs</span><span class="text-gray-200">${log.duplicateJobs !== undefined ? log.duplicateJobs : (log.duplicatesRemoved !== undefined ? log.duplicatesRemoved : 'N/A')}</span></div>
                         <div><span class="text-gray-500 block mb-1">Jobs Evaluated</span><span class="text-gray-200">${log.jobsEvaluated !== undefined ? log.jobsEvaluated : 'N/A'}</span></div>
-                        
-                        <div><span class="text-gray-500 block mb-1">Gemini AI</span><span class="text-purple-400">${geminiCount}</span></div>
-                        <div><span class="text-gray-500 block mb-1">Groq AI</span><span class="text-orange-400">${groqCount}</span></div>
-                        <div><span class="text-gray-500 block mb-1">Local AI</span><span class="text-gray-200">${localCount}</span></div>
+                        <div><span class="text-gray-500 block mb-1">Matched Jobs</span><span class="text-gray-200">${matchedJobs}</span></div>
                         <div><span class="text-gray-500 block mb-1">Provider Used</span><span class="text-gray-200">${log.provider || 'N/A'}</span></div>
                         
-                        <div><span class="text-gray-500 block mb-1">Avg AI Time</span><span class="text-gray-200">${log.avgAiTimeMs ? Math.round(log.avgAiTimeMs) + 'ms' : 'N/A'}</span></div>
+                        <div><span class="text-gray-500 block mb-1">Gemini Requests</span><span class="text-purple-400">${geminiCount}</span></div>
+                        <div><span class="text-gray-500 block mb-1">Groq Requests</span><span class="text-orange-400">${groqCount}</span></div>
+                        <div><span class="text-gray-500 block mb-1">Z.ai Requests</span><span class="text-blue-400">${zaiCount}</span></div>
+                        <div><span class="text-gray-500 block mb-1">Local Requests</span><span class="text-gray-200">${localCount}</span></div>
+                        
+                        <div><span class="text-gray-500 block mb-1">Gemini Fallbacks</span><span class="text-purple-400">${log.geminiFallbacks || 0}</span></div>
+                        <div><span class="text-gray-500 block mb-1">Groq Fallbacks</span><span class="text-orange-400">${log.groqFallbacks || 0}</span></div>
+                        <div><span class="text-gray-500 block mb-1">Z.ai Fallbacks</span><span class="text-blue-400">${log.zaiFallbacks || 0}</span></div>
                         <div><span class="text-gray-500 block mb-1">Avg Company Time</span><span class="text-gray-200">${log.avgCompanyTimeMs ? Math.round(log.avgCompanyTimeMs) + 'ms' : 'N/A'}</span></div>
                         
+                        <div><span class="text-gray-500 block mb-1">Avg AI Time</span><span class="text-gray-200">${log.avgAiTimeMs ? Math.round(log.avgAiTimeMs) + 'ms' : 'N/A'}</span></div>
+                        <div><span class="text-gray-500 block mb-1">Failure Reason</span><span class="text-red-400">${log.message || log.errorType || 'N/A'}</span></div>
+                        <div><span class="text-gray-500 block mb-1">Current Stage</span><span class="text-gray-200">${log.currentStage || 'N/A'}</span></div>
+                        <div><span class="text-gray-500 block mb-1">Company Being Processed</span><span class="text-gray-200">${log.companyBeingProcessed || 'N/A'}</span></div>
+
+                        ${log.stackTrace ? `<div class="col-span-full"><span class="text-gray-500 block mb-1">Stack Trace</span><pre class="text-[10px] text-gray-400 bg-gray-900 p-2 rounded overflow-x-auto max-h-32 whitespace-pre-wrap">${log.stackTrace}</pre></div>` : ''}
                         ${log.warnings && log.warnings.length > 0 ? `<div class="col-span-full"><span class="text-gray-500 block mb-1">Warnings</span><ul class="text-yellow-400 list-disc pl-4 space-y-1">${log.warnings.map(w => `<li>${w}</li>`).join('')}</ul></div>` : ''}
                         ${log.errors && log.errors.length > 0 ? `<div class="col-span-full"><span class="text-gray-500 block mb-1">Errors</span><ul class="text-red-400 list-disc pl-4 space-y-1">${log.errors.map(e => `<li>${e}</li>`).join('')}</ul></div>` : ''}
                     </div>
@@ -338,6 +364,8 @@
                             <span class="hidden sm:inline">&bull;</span>
                             <span class="text-gray-200 font-medium">${source}</span>
                             <span class="hidden sm:inline">&bull;</span>
+                            <span class="text-gray-300" title="Runner"><i class="fas fa-server mr-1 text-gray-500"></i>${log.runnerId || 'N/A'}</span>
+                            <span class="hidden sm:inline">&bull;</span>
                             <span><i class="fas fa-clock mr-1"></i>${durationSecs}</span>
                             <span class="hidden md:inline">&bull;</span>
                             <span class="hidden md:inline font-mono text-gray-500">${pipelineIdDisplay}</span>
@@ -350,15 +378,16 @@
                         <div class="flex gap-3 bg-gray-900/50 rounded px-3 py-1.5 border border-gray-700/50">
                             <div title="Companies"><i class="fas fa-building text-gray-500 mr-1"></i><span class="text-gray-200 font-medium">${totalC}</span></div>
                             <div title="Jobs Found"><i class="fas fa-search text-gray-500 mr-1"></i><span class="text-gray-200 font-medium">${totalJ}</span></div>
+                            <div title="Jobs Evaluated"><i class="fas fa-robot text-gray-500 mr-1"></i><span class="text-gray-200 font-medium">${log.jobsEvaluated !== undefined ? log.jobsEvaluated : 'N/A'}</span></div>
                             <div title="Matched Jobs"><i class="fas fa-check-double text-green-500/70 mr-1"></i><span class="text-green-400 font-medium">${matchedJobs}</span></div>
                         </div>
                         ` : ''}
                         
                         <div class="flex gap-2 bg-gray-900/50 rounded px-2 py-1.5 border border-gray-700/50" title="AI Usage">
-                            <span class="text-gray-500 font-medium mr-1">AI</span>
-                            <span class="text-purple-400">🟣 G:${geminiCount}</span>
-                            <span class="text-orange-400">🟠 Q:${groqCount}</span>
-                            <span class="text-gray-300">⚪ L:${localCount}</span>
+                            <span class="text-purple-400">🟣 Gemini: ${geminiCount}</span>
+                            <span class="text-orange-400">🟠 Groq: ${groqCount}</span>
+                            <span class="text-blue-400">🔵 Z.ai: ${zaiCount}</span>
+                            <span class="text-gray-300">⚪ Local: ${localCount}</span>
                         </div>
                         
                         <div class="text-gray-400 hover:text-white font-medium ml-2 w-16 text-right transition-colors">
@@ -514,6 +543,35 @@
                         if (groqTitleEl) groqTitleEl.innerText = "🟠 Groq";
                         if (groqReasonEl) groqReasonEl.classList.add('hidden');
                         document.getElementById('groq-disabled').classList.add('hidden');
+                    }
+                }
+                
+                const zaiStatusEl = document.getElementById('zai-status');
+                const zaiTitleEl = document.getElementById('zai-title');
+                const zaiReasonEl = document.getElementById('zai-reason');
+
+                if (zaiStatusEl && s.zaiStatus) {
+                    zaiStatusEl.innerText = s.zaiStatus;
+                    document.getElementById('zai-reqs').innerText = s.zaiRequests || 0;
+                    document.getElementById('zai-fallbacks').innerText = s.zaiFallbacks || 0;
+                    if (s.zaiStatus === 'Unavailable') {
+                        zaiStatusEl.className = "text-red-500 font-semibold leading-none mt-1";
+                        if (zaiTitleEl) zaiTitleEl.innerText = "🔴 Z.ai";
+                        if (zaiReasonEl && s.zaiReason) {
+                            zaiReasonEl.innerText = 'Reason: ' + s.zaiReason;
+                            zaiReasonEl.title = s.zaiReason;
+                            zaiReasonEl.classList.remove('hidden');
+                        }
+                        if (s.zaiDisabledAt) {
+                            const disabledEl = document.getElementById('zai-disabled');
+                            disabledEl.querySelector('span').innerText = new Date(s.zaiDisabledAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                            disabledEl.classList.remove('hidden');
+                        }
+                    } else {
+                        zaiStatusEl.className = "text-gray-800 font-semibold leading-none mt-1";
+                        if (zaiTitleEl) zaiTitleEl.innerText = "🔵 Z.ai";
+                        if (zaiReasonEl) zaiReasonEl.classList.add('hidden');
+                        document.getElementById('zai-disabled').classList.add('hidden');
                     }
                 }
                 

@@ -313,6 +313,12 @@ const analyseWithGemini = async (job, profile, aiState) => {
   pipelineState.groqFallbacks = aiState.groqFallbacks || 0;
   pipelineState.groqDisabledAt = aiState.groq.disabledAt;
   
+  pipelineState.zaiStatus = aiState.zai.available ? "Working" : "Unavailable";
+  pipelineState.zaiReason = aiState.zai.reason;
+  pipelineState.zaiRequests = aiState.zaiRequests || 0;
+  pipelineState.zaiFallbacks = aiState.zaiFallbacks || 0;
+  pipelineState.zaiDisabledAt = aiState.zai.disabledAt;
+  
   pipelineState.localRequests = aiState.localRequests || 0;
 
   if (!analysis || (analysis.errorCode && analysis.provider === "unknown")) {
@@ -349,6 +355,7 @@ const saveSearchLog = async (logId, startedAt, stats, errors) => {
     aiEvaluations: stats.aiEvaluations,
     geminiCount: stats.geminiCount,
     groqCount: stats.groqCount,
+    zaiCount: stats.zaiCount,
     localCount: stats.localCount,
     averageCompanyTime: stats.companiesScanned > 0 ? Math.round(durationMs / stats.companiesScanned) : 0,
     status,
@@ -432,11 +439,13 @@ const runSearch = async (triggerSource = "Unknown") => {
     aiEvaluations: 0,
     geminiCount: 0,
     groqCount: 0,
+    zaiCount: 0,
     localCount: 0,
   };
   const aiState = {
     gemini: { available: true, reason: null, disabledAt: null },
     groq: { available: true, reason: null, disabledAt: null },
+    zai: { available: true, reason: null, disabledAt: null },
     calls: 0
   };
 
@@ -451,6 +460,12 @@ const runSearch = async (triggerSource = "Unknown") => {
   pipelineState.groqRequests = 0;
   pipelineState.groqFallbacks = 0;
   pipelineState.groqDisabledAt = null;
+  
+  pipelineState.zaiStatus = "Ready";
+  pipelineState.zaiReason = null;
+  pipelineState.zaiRequests = 0;
+  pipelineState.zaiFallbacks = 0;
+  pipelineState.zaiDisabledAt = null;
   
   pipelineState.localRequests = 0;
 
@@ -679,6 +694,7 @@ const runSearch = async (triggerSource = "Unknown") => {
     })));
     stats.geminiCount = aiState.geminiRequests || 0;
     stats.groqCount = aiState.groqRequests || 0;
+    stats.zaiCount = aiState.zaiRequests || 0;
     stats.localCount = aiState.localRequests || 0;
 
     await saveSearchLog(pipelineLog._id, startedAt, stats, errors);

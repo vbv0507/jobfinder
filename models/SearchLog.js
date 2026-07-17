@@ -40,6 +40,7 @@ const searchLogSchema = new mongoose.Schema({
     aiEvaluations: Number,
     geminiCount: { type: Number, default: 0 },
     groqCount: { type: Number, default: 0 },
+    zaiCount: { type: Number, default: 0 },
     localCount: { type: Number, default: 0 },
     averageCompanyTime: Number,
 

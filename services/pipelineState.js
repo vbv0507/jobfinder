@@ -26,6 +26,12 @@ const pipelineState = {
     groqFallbacks: 0,
     groqDisabledAt: null,
     groqNextRetry: null,
+    zaiStatus: "Ready",
+    zaiReason: null,
+    zaiRequests: 0,
+    zaiFallbacks: 0,
+    zaiDisabledAt: null,
+    zaiNextRetry: null,
     localStatus: "Ready",
     localRequests: 0
 };
