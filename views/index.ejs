@@ -9,24 +9,38 @@
     
     <div class="flex flex-col sm:flex-row gap-4">
         <!-- AI Status Widget -->
-        <div class="bg-white px-4 py-2 rounded-lg shadow-sm border border-gray-100 flex items-center gap-3">
-            <div class="text-sm border-r border-gray-100 pr-3">
+        <div class="bg-white px-4 py-2 rounded-lg shadow-sm border border-gray-100 flex items-start gap-4">
+            <!-- Gemini -->
+            <div class="border-r border-gray-100 pr-4">
                 <p id="gemini-title" class="text-gray-500 text-xs font-medium uppercase">🟢 Gemini</p>
-                <div class="flex flex-col">
-                    <p id="gemini-status" class="text-gray-800 font-semibold leading-none mt-1">Ready</p>
-                    <p id="gemini-reason" class="text-red-500 text-[10px] mt-1 hidden max-w-[100px] truncate" title=""></p>
+                <p id="gemini-status" class="text-gray-800 font-semibold leading-none mt-1">Ready</p>
+                <div class="text-[10px] mt-2 space-y-0.5 text-gray-500">
+                    <p>Reqs: <span id="gemini-reqs" class="font-medium text-gray-700">0</span></p>
+                    <p>Fallbacks: <span id="gemini-fallbacks" class="font-medium text-gray-700">0</span></p>
+                    <p id="gemini-disabled" class="text-red-500 hidden">Disabled: <span></span></p>
                 </div>
+                <p id="gemini-reason" class="text-red-500 text-[10px] mt-1 hidden max-w-[120px] truncate" title=""></p>
             </div>
-            <div class="text-sm border-r border-gray-100 pr-3">
+            
+            <!-- Groq -->
+            <div class="border-r border-gray-100 pr-4">
                 <p id="groq-title" class="text-gray-500 text-xs font-medium uppercase">🟠 Groq</p>
-                <div class="flex flex-col">
-                    <p id="groq-status" class="text-gray-800 font-semibold leading-none mt-1">Ready</p>
-                    <p id="groq-reason" class="text-red-500 text-[10px] mt-1 hidden max-w-[100px] truncate" title=""></p>
+                <p id="groq-status" class="text-gray-800 font-semibold leading-none mt-1">Ready</p>
+                <div class="text-[10px] mt-2 space-y-0.5 text-gray-500">
+                    <p>Reqs: <span id="groq-reqs" class="font-medium text-gray-700">0</span></p>
+                    <p>Fallbacks: <span id="groq-fallbacks" class="font-medium text-gray-700">0</span></p>
+                    <p id="groq-disabled" class="text-red-500 hidden">Disabled: <span></span></p>
                 </div>
+                <p id="groq-reason" class="text-red-500 text-[10px] mt-1 hidden max-w-[120px] truncate" title=""></p>
             </div>
-            <div class="text-sm">
+            
+            <!-- Local -->
+            <div>
                 <p class="text-gray-500 text-xs font-medium uppercase">⚪ Local</p>
                 <p id="local-status" class="text-gray-800 font-semibold leading-none mt-1">Ready</p>
+                <div class="text-[10px] mt-2 space-y-0.5 text-gray-500">
+                    <p>Reqs: <span id="local-reqs" class="font-medium text-gray-700">0</span></p>
+                </div>
             </div>
         </div>
 
@@ -83,14 +97,280 @@
             <h3 class="text-lg font-semibold text-gray-800"><i class="fas fa-terminal mr-2 text-gray-400"></i> System Logs</h3>
             <button onclick="fetchLogs()" class="text-gray-400 hover:text-primary transition" title="Refresh Logs"><i class="fas fa-sync-alt"></i></button>
         </div>
-        <div class="p-4 overflow-y-auto flex-1 bg-gray-900 text-green-400 font-mono text-sm space-y-2 break-words whitespace-pre-wrap" id="logs-container">
-            Loading logs...
+        <div class="p-4 overflow-y-auto flex-1 bg-gray-900" id="logs-container">
+            <span class="text-gray-500 block">Loading logs...</span>
         </div>
     </div>
 
 </div>
 
 <script>
+    let allLogs = [];
+    let renderedCount = 20;
+    const expandedLogs = new Set();
+    const logNodes = new Map();
+
+    function toggleLog(id) {
+        if (expandedLogs.has(id)) {
+            expandedLogs.delete(id);
+        } else {
+            expandedLogs.add(id);
+        }
+        
+        const row = logNodes.get(id);
+        if (row) {
+            const log = allLogs.find(l => (l._id || l.pipelineId || id) === id);
+            if (log) updateLogRow(row, log, id);
+        }
+    }
+
+    function loadMoreLogs() {
+        renderedCount += 20;
+        renderLogs();
+    }
+
+    async function fetchLogs() {
+        try {
+            const res = await fetch("/api/jobs/logs");
+            const data = await res.json();
+            if(data.success && data.logs) {
+                allLogs = data.logs;
+                renderLogs();
+            }
+        } catch (e) {
+            console.error("Failed to fetch logs", e);
+        }
+    }
+
+    function renderLogs() {
+        const container = document.getElementById('logs-container');
+        if (allLogs.length === 0) {
+            container.innerHTML = '<span class="text-gray-500 p-4 block">No logs found.</span>';
+            logNodes.clear();
+            return;
+        }
+
+        if (container.querySelector('span.text-gray-500.block')) {
+            container.innerHTML = '';
+        }
+
+        const logsToRender = allLogs.slice(0, renderedCount);
+        
+        let loadMoreBtn = document.getElementById('load-more-btn');
+        if (!loadMoreBtn) {
+            loadMoreBtn = document.createElement('div');
+            loadMoreBtn.id = 'load-more-btn';
+            loadMoreBtn.className = 'text-center mt-4 mb-2';
+            loadMoreBtn.innerHTML = `<button onclick="event.stopPropagation(); loadMoreLogs()" class="px-4 py-2 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded text-xs font-medium transition-colors border border-gray-700"></button>`;
+            container.appendChild(loadMoreBtn);
+        }
+        
+        let previousNode = null;
+
+        for (let i = 0; i < logsToRender.length; i++) {
+            const log = logsToRender[i];
+            const logId = log._id || log.pipelineId || `idx-${i}`;
+            
+            let row = logNodes.get(logId);
+            if (!row) {
+                row = createLogRow(log, logId);
+                logNodes.set(logId, row);
+                
+                if (previousNode) {
+                    previousNode.after(row);
+                } else {
+                    container.insertBefore(row, container.firstChild);
+                }
+            } else {
+                updateLogRow(row, log, logId);
+                
+                if (previousNode && previousNode.nextSibling !== row) {
+                    previousNode.after(row);
+                } else if (!previousNode && container.firstChild !== row) {
+                    container.insertBefore(row, container.firstChild);
+                }
+            }
+            previousNode = row;
+        }
+        
+        const btn = loadMoreBtn.querySelector('button');
+        if (renderedCount < allLogs.length) {
+            btn.textContent = `Load More (${allLogs.length - renderedCount} remaining)`;
+            loadMoreBtn.style.display = 'block';
+        } else {
+            loadMoreBtn.style.display = 'none';
+        }
+    }
+
+    function createLogRow(log, logId) {
+        const div = document.createElement('div');
+        div.onclick = () => toggleLog(logId);
+        updateLogRow(div, log, logId);
+        return div;
+    }
+
+    function updateLogRow(row, log, logId) {
+        logId = logId || log._id || log.pipelineId;
+        const isExpanded = expandedLogs.has(logId);
+        
+        const dateObj = new Date(log.startedAt || log.createdAt);
+        const d = `${dateObj.toLocaleDateString('en-GB', {day:'numeric', month:'short', year:'numeric'})} ${dateObj.toLocaleTimeString('en-GB', {hour: '2-digit', minute:'2-digit', second:'2-digit'})}`;
+        
+        const source = log.triggerSource || "Manual";
+        
+        let badgeColor = 'text-green-500';
+        let badgeIcon = '🟢';
+        let statusText = 'SUCCESS';
+        let borderColor = 'border-l-green-500';
+        
+        if (log.status === 'Failed') { 
+            badgeColor = 'text-red-500'; badgeIcon = '🔴'; statusText = 'FAILED'; borderColor = 'border-l-red-500';
+        } else if (log.status === 'Running') { 
+            badgeColor = 'text-blue-500'; badgeIcon = '🔵'; statusText = 'RUNNING'; borderColor = 'border-l-blue-500';
+        } else if (log.status === 'Partial Success' || log.status === 'Completed with Warnings') { 
+            badgeColor = 'text-yellow-500'; badgeIcon = '🟡'; statusText = 'WARNING'; borderColor = 'border-l-yellow-500';
+        } else if (log.status === 'Skipped') { 
+            badgeColor = 'text-gray-400'; badgeIcon = '⚪'; statusText = 'SKIPPED'; borderColor = 'border-l-gray-400';
+        } else if (log.status === 'Locked') {
+            badgeColor = 'text-purple-500'; badgeIcon = '🟣'; statusText = 'LOCKED'; borderColor = 'border-l-purple-500';
+        }
+        
+        row.className = `mb-3 bg-gray-800 rounded-lg border-l-4 ${borderColor} shadow-sm border-y border-r border-gray-700 hover:bg-gray-700 transition-colors cursor-pointer select-none`;
+        
+        const totalC = log.totalCompanies !== undefined ? log.totalCompanies : (log.companiesScanned !== undefined ? log.companiesScanned : 'N/A');
+        const totalJ = log.totalJobs !== undefined ? log.totalJobs : (log.jobsFound !== undefined ? log.jobsFound : 'N/A');
+        const durationSecs = log.durationMs ? Math.round(log.durationMs/1000) + 's' : 'N/A';
+        const matchedJobs = log.jobsMatched !== undefined ? log.jobsMatched : 'N/A';
+        
+        const geminiCount = log.geminiCount !== undefined ? log.geminiCount : 0;
+        const groqCount = log.groqCount !== undefined ? log.groqCount : 0;
+        const localCount = log.localCount !== undefined ? log.localCount : 0;
+        
+        const pipelineIdDisplay = log.pipelineId ? log.pipelineId.substring(0,8) + '...' : 'N/A';
+        
+        let expandedContent = '';
+        if (isExpanded) {
+            if (log.status === 'Skipped' || log.status === 'Locked') {
+                expandedContent = `
+                    <div class="mt-4 pt-3 border-t border-gray-700 grid grid-cols-1 md:grid-cols-2 gap-4 text-xs cursor-text select-text" onclick="event.stopPropagation()">
+                        <div><span class="text-gray-500 block mb-1">Reason</span><span class="text-gray-200">${log.skipReason || log.message || 'Unknown'}</span></div>
+                        <div><span class="text-gray-500 block mb-1">Current Runner</span><span class="text-gray-200">${log.currentRunner || log.runnerId || 'N/A'}</span></div>
+                        <div><span class="text-gray-500 block mb-1">Expected Unlock</span><span class="text-gray-200">${log.expectedUnlock ? new Date(log.expectedUnlock).toLocaleTimeString() : 'N/A'}</span></div>
+                    </div>
+                `;
+            } else if (log.status === 'Failed') {
+                expandedContent = `
+                    <div class="mt-4 pt-3 border-t border-gray-700 grid grid-cols-1 gap-4 text-xs cursor-text select-text" onclick="event.stopPropagation()">
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                            <div><span class="text-gray-500 block mb-1">Pipeline ID</span><span class="text-gray-200 font-mono">${log.pipelineId || 'N/A'}</span></div>
+                            <div><span class="text-gray-500 block mb-1">Runner</span><span class="text-gray-200">${log.runnerId || 'N/A'}</span></div>
+                            <div><span class="text-gray-500 block mb-1">Error Type</span><span class="text-red-400">${log.errorType || 'Error'}</span></div>
+                            <div><span class="text-gray-500 block mb-1">Company</span><span class="text-gray-200">${log.companyBeingProcessed || 'N/A'}</span></div>
+                        </div>
+                        <div><span class="text-gray-500 block mb-1">Current Stage</span><span class="text-gray-200">${log.currentStage || 'N/A'}</span></div>
+                        <div><span class="text-gray-500 block mb-1">Message</span><span class="text-red-400">${log.message || 'N/A'}</span></div>
+                        ${log.stackTrace ? `<div><span class="text-gray-500 block mb-1">Stack Trace</span><pre class="text-[10px] text-gray-400 bg-gray-900 p-2 rounded overflow-x-auto max-h-32 whitespace-pre-wrap">${log.stackTrace}</pre></div>` : ''}
+                    </div>
+                `;
+            } else if (log.status === 'Running') {
+                expandedContent = `
+                    <div class="mt-4 pt-3 border-t border-gray-700 grid grid-cols-2 md:grid-cols-4 gap-4 text-xs cursor-text select-text" onclick="event.stopPropagation()">
+                        <div><span class="text-gray-500 block mb-1">Pipeline ID</span><span class="text-gray-200 font-mono">${log.pipelineId || 'N/A'}</span></div>
+                        <div><span class="text-gray-500 block mb-1">Runner</span><span class="text-gray-200">${log.runnerId || 'N/A'}</span></div>
+                        <div><span class="text-gray-500 block mb-1">Start Time</span><span class="text-gray-200">${log.startedAt ? new Date(log.startedAt).toLocaleTimeString() : 'N/A'}</span></div>
+                        <div><span class="text-gray-500 block mb-1">Current Stage</span><span class="text-gray-200">${log.currentStage || 'N/A'}</span></div>
+                        
+                        <div><span class="text-gray-500 block mb-1">Current Company</span><span class="text-blue-400">${log.currentCompany || 'N/A'}</span></div>
+                        <div><span class="text-gray-500 block mb-1">Progress</span><span class="text-gray-200">${log.currentCompanyIndex !== undefined ? log.currentCompanyIndex + ' / ' + (log.totalCompanies || '?') : 'N/A'}</span></div>
+                        
+                        <div><span class="text-gray-500 block mb-1">Jobs Found</span><span class="text-gray-200">${totalJ}</span></div>
+                        <div><span class="text-gray-500 block mb-1">Matched Jobs</span><span class="text-green-400">${matchedJobs}</span></div>
+                    </div>
+                `;
+            } else {
+                expandedContent = `
+                    <div class="mt-4 pt-3 border-t border-gray-700 grid grid-cols-2 md:grid-cols-4 gap-4 text-xs cursor-text select-text" onclick="event.stopPropagation()">
+                        <div><span class="text-gray-500 block mb-1">Pipeline ID</span><span class="text-gray-200 font-mono">${log.pipelineId || 'N/A'}</span></div>
+                        <div><span class="text-gray-500 block mb-1">Runner</span><span class="text-gray-200">${log.runnerId || 'N/A'}</span></div>
+                        <div><span class="text-gray-500 block mb-1">Start Time</span><span class="text-gray-200">${log.startedAt ? new Date(log.startedAt).toLocaleTimeString() : 'N/A'}</span></div>
+                        <div><span class="text-gray-500 block mb-1">End Time</span><span class="text-gray-200">${log.completedAt ? new Date(log.completedAt).toLocaleTimeString() : 'N/A'}</span></div>
+                        
+                        <div><span class="text-gray-500 block mb-1">Companies Successful</span><span class="text-green-400">${log.successfulCompanies !== undefined ? log.successfulCompanies : 'N/A'}</span></div>
+                        <div><span class="text-gray-500 block mb-1">Companies Failed</span><span class="text-red-400">${log.failedCompanies !== undefined ? log.failedCompanies : 'N/A'}</span></div>
+                        <div><span class="text-gray-500 block mb-1">Duplicate Jobs</span><span class="text-gray-200">${log.duplicateJobs !== undefined ? log.duplicateJobs : (log.duplicatesRemoved !== undefined ? log.duplicatesRemoved : 'N/A')}</span></div>
+                        <div><span class="text-gray-500 block mb-1">Jobs Evaluated</span><span class="text-gray-200">${log.jobsEvaluated !== undefined ? log.jobsEvaluated : 'N/A'}</span></div>
+                        
+                        <div><span class="text-gray-500 block mb-1">Gemini AI</span><span class="text-purple-400">${geminiCount}</span></div>
+                        <div><span class="text-gray-500 block mb-1">Groq AI</span><span class="text-orange-400">${groqCount}</span></div>
+                        <div><span class="text-gray-500 block mb-1">Local AI</span><span class="text-gray-200">${localCount}</span></div>
+                        <div><span class="text-gray-500 block mb-1">Provider Used</span><span class="text-gray-200">${log.provider || 'N/A'}</span></div>
+                        
+                        <div><span class="text-gray-500 block mb-1">Avg AI Time</span><span class="text-gray-200">${log.avgAiTimeMs ? Math.round(log.avgAiTimeMs) + 'ms' : 'N/A'}</span></div>
+                        <div><span class="text-gray-500 block mb-1">Avg Company Time</span><span class="text-gray-200">${log.avgCompanyTimeMs ? Math.round(log.avgCompanyTimeMs) + 'ms' : 'N/A'}</span></div>
+                        
+                        ${log.warnings && log.warnings.length > 0 ? `<div class="col-span-full"><span class="text-gray-500 block mb-1">Warnings</span><ul class="text-yellow-400 list-disc pl-4 space-y-1">${log.warnings.map(w => `<li>${w}</li>`).join('')}</ul></div>` : ''}
+                        ${log.errors && log.errors.length > 0 ? `<div class="col-span-full"><span class="text-gray-500 block mb-1">Errors</span><ul class="text-red-400 list-disc pl-4 space-y-1">${log.errors.map(e => `<li>${e}</li>`).join('')}</ul></div>` : ''}
+                    </div>
+                `;
+            }
+        }
+        
+        let liveUpdateBadge = '';
+        if (log.status === 'Running' && !isExpanded) {
+            liveUpdateBadge = `
+                <div class="hidden md:flex items-center gap-2 bg-blue-900/30 px-2 py-1 rounded border border-blue-500/30 text-[10px]">
+                    <span class="text-blue-400 animate-pulse">●</span>
+                    <span class="text-gray-300 truncate max-w-[150px]">${log.currentCompany || 'Initializing...'}</span>
+                    <span class="text-gray-500">${log.currentStage || ''}</span>
+                </div>
+            `;
+        }
+
+        row.innerHTML = `
+            <div class="p-3">
+                <div class="flex flex-col xl:flex-row xl:items-center justify-between gap-3">
+                    <div class="flex flex-1 items-center gap-4 min-w-0">
+                        <div class="w-24 shrink-0 font-bold text-xs tracking-wider uppercase ${badgeColor}">
+                            ${badgeIcon} ${statusText}
+                        </div>
+                        <div class="flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-gray-400">
+                            <span>${d}</span>
+                            <span class="hidden sm:inline">&bull;</span>
+                            <span class="text-gray-200 font-medium">${source}</span>
+                            <span class="hidden sm:inline">&bull;</span>
+                            <span><i class="fas fa-clock mr-1"></i>${durationSecs}</span>
+                            <span class="hidden md:inline">&bull;</span>
+                            <span class="hidden md:inline font-mono text-gray-500">${pipelineIdDisplay}</span>
+                        </div>
+                        ${liveUpdateBadge}
+                    </div>
+                    
+                    <div class="flex shrink-0 flex-wrap items-center justify-end gap-3 text-[11px]">
+                        ${totalC !== 'N/A' || totalJ !== 'N/A' ? `
+                        <div class="flex gap-3 bg-gray-900/50 rounded px-3 py-1.5 border border-gray-700/50">
+                            <div title="Companies"><i class="fas fa-building text-gray-500 mr-1"></i><span class="text-gray-200 font-medium">${totalC}</span></div>
+                            <div title="Jobs Found"><i class="fas fa-search text-gray-500 mr-1"></i><span class="text-gray-200 font-medium">${totalJ}</span></div>
+                            <div title="Matched Jobs"><i class="fas fa-check-double text-green-500/70 mr-1"></i><span class="text-green-400 font-medium">${matchedJobs}</span></div>
+                        </div>
+                        ` : ''}
+                        
+                        <div class="flex gap-2 bg-gray-900/50 rounded px-2 py-1.5 border border-gray-700/50" title="AI Usage">
+                            <span class="text-gray-500 font-medium mr-1">AI</span>
+                            <span class="text-purple-400">🟣 G:${geminiCount}</span>
+                            <span class="text-orange-400">🟠 Q:${groqCount}</span>
+                            <span class="text-gray-300">⚪ L:${localCount}</span>
+                        </div>
+                        
+                        <div class="text-gray-400 hover:text-white font-medium ml-2 w-16 text-right transition-colors">
+                            ${isExpanded ? '▲ Hide' : '▼ Details'}
+                        </div>
+                    </div>
+                </div>
+                ${expandedContent}
+            </div>
+        `;
+    }
+
     async function loadDashboard() {
         try {
             const res = await fetch("/api/jobs/analytics");
@@ -168,98 +448,7 @@
         }
     }
 
-    async function fetchLogs() {
-        const container = document.getElementById('logs-container');
-        container.innerHTML = '<span class="text-gray-500">Fetching logs...</span>';
-        try {
-            const res = await fetch("/api/jobs/logs");
-            const data = await res.json();
-            if(data.success && data.logs.length > 0) {
-                container.innerHTML = data.logs.map(log => {
-                    const dateObj = new Date(log.startedAt || log.createdAt);
-                    
-                    const d = `[${dateObj.toLocaleDateString('en-GB')} ${dateObj.toLocaleTimeString('en-GB', {hour: '2-digit', minute:'2-digit'})}]`;
-                    
-                    const source = log.triggerSource || "Manual";
-                    
-                    let badgeColor = 'bg-green-500/20 text-green-400 border border-green-500/30';
-                    if (log.status === 'Failed') { badgeColor = 'bg-red-500/20 text-red-400 border border-red-500/30'; }
-                    else if (log.status === 'Running' || log.status === 'Partial Success') { badgeColor = 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/30'; }
-                    else if (log.status === 'Skipped') { badgeColor = 'bg-gray-500/20 text-gray-400 border border-gray-500/30'; }
-                    
-                    let contentHTML = '';
-                    if (log.status === 'Skipped') {
-                        contentHTML = `
-                            <div class="text-gray-400 mb-2">Reason: ${log.skipReason || 'Unknown'}</div>
-                            <div class="grid grid-cols-2 gap-1 text-xs">
-                                <div class="text-gray-500">Current Runner:</div>
-                                <div class="text-gray-300">${log.currentRunner || '-'}</div>
-                                <div class="text-gray-500">Expected Unlock:</div>
-                                <div class="text-gray-300">${log.expectedUnlock ? new Date(log.expectedUnlock).toLocaleTimeString() : '-'}</div>
-                            </div>
-                        `;
-                    } else if (log.status === 'Failed') {
-                        contentHTML = `
-                            <div class="text-red-400 mb-2">${log.errorType || 'Error'}: ${log.message}</div>
-                            <div class="grid grid-cols-2 gap-1 text-xs">
-                                <div class="text-gray-500">Company:</div>
-                                <div class="text-gray-300">${log.companyBeingProcessed || '-'}</div>
-                                <div class="text-gray-500">Stage:</div>
-                                <div class="text-gray-300">${log.currentStage || '-'}</div>
-                            </div>
-                        `;
-                    } else if (log.status === 'Running') {
-                        contentHTML = `<div class="text-yellow-400">Pipeline is currently executing...</div>`;
-                    } else if (log.totalCompanies !== undefined || log.companiesScanned !== undefined) {
-                        const totalC = log.totalCompanies !== undefined ? log.totalCompanies : log.companiesScanned;
-                        const totalJ = log.totalJobs !== undefined ? log.totalJobs : log.jobsFound;
-                        const durationSecs = log.durationMs ? Math.round(log.durationMs/1000) : 0;
-                        contentHTML = `
-                            <div class="grid grid-cols-2 gap-y-1 gap-x-4 text-xs mb-2">
-                                <div class="text-gray-500">Duration:</div>
-                                <div class="text-gray-300">${durationSecs}s</div>
-                                <div class="text-gray-500">Companies:</div>
-                                <div class="text-gray-300">${totalC}</div>
-                                <div class="text-gray-500">Jobs Found:</div>
-                                <div class="text-gray-300">${totalJ}</div>
-                                <div class="text-gray-500">Matched Jobs:</div>
-                                <div class="text-green-400 font-medium">${log.jobsMatched || 0}</div>
-                            </div>
-                            <div class="border-t border-gray-700 pt-1 mt-1">
-                                <div class="text-gray-400 text-[10px] uppercase tracking-wider mb-1">AI Provider Stats</div>
-                                <div class="grid grid-cols-3 gap-1 text-xs">
-                                    <div><span class="text-gray-500">Gemini:</span> <span class="text-gray-300">${log.geminiCount || 0}</span></div>
-                                    <div><span class="text-gray-500">Groq:</span> <span class="text-gray-300">${log.groqCount || 0}</span></div>
-                                    <div><span class="text-gray-500">Local:</span> <span class="text-gray-300">${log.localCount || 0}</span></div>
-                                </div>
-                            </div>
-                        `;
-                    } else {
-                        contentHTML = `<div class="text-gray-400">${log.message || 'Legacy Log'}</div>`;
-                    }
-                    
-                    return `
-                    <div class="mb-4 bg-gray-800 rounded-lg p-3 border border-gray-700">
-                        <div class="flex justify-between items-start mb-2">
-                            <div class="inline-block px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${badgeColor}">${log.status || 'Success'}</div>
-                            <div class="text-gray-500 text-[10px]">${d}</div>
-                        </div>
-                        <div class="text-xs text-gray-400 mb-2">
-                            <div>ID: <span class="text-gray-300 font-mono">${log.pipelineId || 'N/A'}</span></div>
-                            <div>Source: <span class="text-white">${source}</span></div>
-                        </div>
-                        <div class="space-y-1">
-                            ${contentHTML}
-                        </div>
-                    </div>`;
-                }).join("");
-            } else {
-                container.innerHTML = '<span class="text-gray-500">No logs found.</span>';
-            }
-        } catch (e) {
-            container.innerHTML = '<span class="text-red-400">Failed to load logs.</span>';
-        }
-    }
+
     
     async function fetchPipelineStatus() {
         try {
@@ -276,18 +465,26 @@
                 
                 if (geminiStatusEl && s.geminiStatus) {
                     geminiStatusEl.innerText = s.geminiStatus;
+                    document.getElementById('gemini-reqs').innerText = s.geminiRequests || 0;
+                    document.getElementById('gemini-fallbacks').innerText = s.geminiFallbacks || 0;
                     if (s.geminiStatus === 'Unavailable') {
                         geminiStatusEl.className = "text-red-500 font-semibold leading-none mt-1";
                         if (geminiTitleEl) geminiTitleEl.innerText = "🔴 Gemini";
                         if (geminiReasonEl && s.geminiReason) {
-                            geminiReasonEl.innerText = s.geminiReason;
+                            geminiReasonEl.innerText = 'Reason: ' + s.geminiReason;
                             geminiReasonEl.title = s.geminiReason;
                             geminiReasonEl.classList.remove('hidden');
+                        }
+                        if (s.geminiDisabledAt) {
+                            const disabledEl = document.getElementById('gemini-disabled');
+                            disabledEl.querySelector('span').innerText = new Date(s.geminiDisabledAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                            disabledEl.classList.remove('hidden');
                         }
                     } else {
                         geminiStatusEl.className = "text-gray-800 font-semibold leading-none mt-1";
                         if (geminiTitleEl) geminiTitleEl.innerText = "🟢 Gemini";
                         if (geminiReasonEl) geminiReasonEl.classList.add('hidden');
+                        document.getElementById('gemini-disabled').classList.add('hidden');
                     }
                 }
 
@@ -297,20 +494,31 @@
 
                 if (groqStatusEl && s.groqStatus) {
                     groqStatusEl.innerText = s.groqStatus;
+                    document.getElementById('groq-reqs').innerText = s.groqRequests || 0;
+                    document.getElementById('groq-fallbacks').innerText = s.groqFallbacks || 0;
                     if (s.groqStatus === 'Unavailable') {
                         groqStatusEl.className = "text-red-500 font-semibold leading-none mt-1";
                         if (groqTitleEl) groqTitleEl.innerText = "🔴 Groq";
                         if (groqReasonEl && s.groqReason) {
-                            groqReasonEl.innerText = s.groqReason;
+                            groqReasonEl.innerText = 'Reason: ' + s.groqReason;
                             groqReasonEl.title = s.groqReason;
                             groqReasonEl.classList.remove('hidden');
+                        }
+                        if (s.groqDisabledAt) {
+                            const disabledEl = document.getElementById('groq-disabled');
+                            disabledEl.querySelector('span').innerText = new Date(s.groqDisabledAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                            disabledEl.classList.remove('hidden');
                         }
                     } else {
                         groqStatusEl.className = "text-gray-800 font-semibold leading-none mt-1";
                         if (groqTitleEl) groqTitleEl.innerText = "🟠 Groq";
                         if (groqReasonEl) groqReasonEl.classList.add('hidden');
+                        document.getElementById('groq-disabled').classList.add('hidden');
                     }
                 }
+                
+                const localReqsEl = document.getElementById('local-reqs');
+                if (localReqsEl) localReqsEl.innerText = s.localRequests || 0;
                 
                 let dotColor = 'bg-gray-400';
                 let pingColor = 'bg-gray-400';
@@ -398,8 +606,11 @@
         fetchLogs();
         fetchPipelineStatus();
         
-        // Poll pipeline status every 5 seconds
-        setInterval(fetchPipelineStatus, 5000);
+        // Poll pipeline status and logs every 5 seconds
+        setInterval(() => {
+            fetchPipelineStatus();
+            fetchLogs();
+        }, 5000);
     });
 </script>
 

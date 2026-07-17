@@ -16,8 +16,18 @@ const pipelineState = {
     message: "",
     geminiStatus: "Ready",
     geminiReason: null,
+    geminiRequests: 0,
+    geminiFallbacks: 0,
+    geminiDisabledAt: null,
+    geminiNextRetry: null,
     groqStatus: "Ready",
-    groqReason: null
+    groqReason: null,
+    groqRequests: 0,
+    groqFallbacks: 0,
+    groqDisabledAt: null,
+    groqNextRetry: null,
+    localStatus: "Ready",
+    localRequests: 0
 };
 
 module.exports = pipelineState;

@@ -7,10 +7,15 @@ const SearchLog = require("../models/SearchLog");
 const getAnalyticsData = async () => {
     try {
         
-        const startOfDay = new Date();
-        startOfDay.setHours(0, 0, 0, 0);
+        const getISTStartOfDay = () => {
+            const now = new Date();
+            const istTime = new Date(now.getTime() + (5.5 * 60 * 60 * 1000));
+            const utcMidnight = new Date(Date.UTC(istTime.getUTCFullYear(), istTime.getUTCMonth(), istTime.getUTCDate()));
+            return new Date(utcMidnight.getTime() - (5.5 * 60 * 60 * 1000));
+        };
+        const startOfDay = getISTStartOfDay();
         
-        const rawJobsToday = await RawJob.countDocuments({ createdAt: { $gte: startOfDay } });
+        const rawJobsToday = await RawJob.countDocuments({ scrapedAt: { $gte: startOfDay } });
         const rawJobsCount = await RawJob.countDocuments();
         
         const matchedJobsCount = await MatchedJob.countDocuments();
@@ -101,7 +106,7 @@ const getAnalyticsData = async () => {
         };
 
         
-        const sevenDaysAgo = new Date();
+        const sevenDaysAgo = getISTStartOfDay();
         sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
         const dailyTrend = await SearchLog.aggregate([
             { $match: { createdAt: { $gte: sevenDaysAgo } } },

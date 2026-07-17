@@ -259,7 +259,7 @@ const evaluateJobWithGroq = async (job, profile) => {
 
 const analyzeError = (error) => {
     const msg = (error.message || "").toLowerCase();
-    const status = error.response ? error.response.status : null;
+    const status = error.status || (error.response ? error.response.status : null);
     
     // Check for permanent errors
     const isPermanent = 
@@ -267,17 +267,19 @@ const analyzeError = (error) => {
         msg.includes("quota") || 
         msg.includes("too many requests") || 
         msg.includes("invalid api key") ||
+        msg.includes("api key not valid") ||
         msg.includes("unauthenticated") ||
         msg.includes("unauthorized") ||
         msg.includes("billing") ||
         msg.includes("disabled") ||
         status === 429 ||
         status === 401 ||
-        status === 403;
+        status === 403 ||
+        status === 400;
 
     let reason = "Unknown Error";
     if (msg.includes("quota") || status === 429 || msg.includes("429") || msg.includes("too many requests")) reason = "Quota Exceeded";
-    else if (msg.includes("key") || status === 401 || status === 403 || msg.includes("unauthenticated") || msg.includes("unauthorized")) reason = "Authentication Failed";
+    else if (msg.includes("key") || status === 401 || status === 403 || status === 400 || msg.includes("unauthenticated") || msg.includes("unauthorized")) reason = "Authentication Failed";
     else if (msg.includes("billing")) reason = "Billing Disabled";
     
     if (isPermanent) {
@@ -291,6 +293,9 @@ const analyzeError = (error) => {
         msg.includes("etimedout") ||
         msg.includes("dns") ||
         msg.includes("network") ||
+        status === 502 ||
+        status === 503 ||
+        status === 504 ||
         status >= 500;
         
     return { permanent: false, reason: isTemporary ? "Temporary Network/API Issue" : "Unhandled Temporary Error" };
@@ -302,6 +307,7 @@ const evaluateJob = async (job, profile, aiState = { gemini: { available: true }
     let failureReason = null;
 
     if (aiState.gemini.available) {
+        aiState.geminiRequests = (aiState.geminiRequests || 0) + 1;
         try {
             const result = await model.generateContent(buildEvaluationPrompt(job, profile));
             let parsedResult = parseJsonResponse(result.response.text());
@@ -336,16 +342,19 @@ const evaluateJob = async (job, profile, aiState = { gemini: { available: true }
                 console.log(`[AI] Gemini temporary failure: ${errorAnalysis.reason}.\nFalling back to Groq.\nProvider remains available.`);
             }
 
+            aiState.geminiFallbacks = (aiState.geminiFallbacks || 0) + 1;
             fallbackCount++;
             failureReason = `Gemini failed: ${errorAnalysis.reason}`;
             console.error("Gemini Evaluation Error:", error.message);
         }
     } else {
+        aiState.geminiFallbacks = (aiState.geminiFallbacks || 0) + 1;
         fallbackCount++;
         failureReason = `Gemini disabled: ${aiState.gemini.reason}`;
     }
 
     if (aiState.groq.available && (process.env.ENABLE_GROQ_FALLBACK === "true" || process.env.ENABLE_GROQ_FALLBACK !== "false")) {
+        aiState.groqRequests = (aiState.groqRequests || 0) + 1;
         try {
             console.log("Trying Groq fallback.");
             const groqAnalysis = await evaluateJobWithGroq(job, profile);
@@ -374,16 +383,19 @@ const evaluateJob = async (job, profile, aiState = { gemini: { available: true }
                 console.log(`[AI] Groq temporary failure: ${errorAnalysis.reason}.\nFalling back to Local.\nProvider remains available.`);
             }
 
+            aiState.groqFallbacks = (aiState.groqFallbacks || 0) + 1;
             fallbackCount++;
             failureReason = `Groq failed: ${errorAnalysis.reason}`;
             console.error("Groq Evaluation Error:", groqError.message);
         }
     } else if (!aiState.groq.available) {
+        aiState.groqFallbacks = (aiState.groqFallbacks || 0) + 1;
         fallbackCount++;
         failureReason = failureReason ? `${failureReason} | Groq disabled: ${aiState.groq.reason}` : `Groq disabled: ${aiState.groq.reason}`;
     }
 
     if (process.env.ENABLE_LOCAL_MATCH_FALLBACK !== "false") {
+        aiState.localRequests = (aiState.localRequests || 0) + 1;
         fallbackCount++;
         console.log("Using local match fallback.");
         const localResult = evaluateJobLocally(

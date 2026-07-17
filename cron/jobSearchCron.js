@@ -303,8 +303,17 @@ const analyseWithGemini = async (job, profile, aiState) => {
   // Ensure pipelineState reflects real-time availability
   pipelineState.geminiStatus = aiState.gemini.available ? "Working" : "Unavailable";
   pipelineState.geminiReason = aiState.gemini.reason;
+  pipelineState.geminiRequests = aiState.geminiRequests || 0;
+  pipelineState.geminiFallbacks = aiState.geminiFallbacks || 0;
+  pipelineState.geminiDisabledAt = aiState.gemini.disabledAt;
+  
   pipelineState.groqStatus = aiState.groq.available ? "Working" : "Unavailable";
   pipelineState.groqReason = aiState.groq.reason;
+  pipelineState.groqRequests = aiState.groqRequests || 0;
+  pipelineState.groqFallbacks = aiState.groqFallbacks || 0;
+  pipelineState.groqDisabledAt = aiState.groq.disabledAt;
+  
+  pipelineState.localRequests = aiState.localRequests || 0;
 
   if (!analysis || (analysis.errorCode && analysis.provider === "unknown")) {
     return { skipped: true, reason: "Evaluator failed for this job" };
@@ -433,8 +442,17 @@ const runSearch = async (triggerSource = "Unknown") => {
 
   pipelineState.geminiStatus = "Ready";
   pipelineState.geminiReason = null;
+  pipelineState.geminiRequests = 0;
+  pipelineState.geminiFallbacks = 0;
+  pipelineState.geminiDisabledAt = null;
+  
   pipelineState.groqStatus = "Ready";
   pipelineState.groqReason = null;
+  pipelineState.groqRequests = 0;
+  pipelineState.groqFallbacks = 0;
+  pipelineState.groqDisabledAt = null;
+  
+  pipelineState.localRequests = 0;
 
   pipelineState.status = "Running";
   pipelineState.pipelineId = pipelineId;
@@ -542,13 +560,8 @@ const runSearch = async (triggerSource = "Unknown") => {
             }
             stats.aiEvaluations++;
             if (result.analysis && result.analysis.provider) {
-                const p = result.analysis.provider.toLowerCase();
-                if (p === 'gemini') stats.geminiCount++;
-                else if (p === 'groq') stats.groqCount++;
-                else if (p === 'local') stats.localCount++;
-                pipelineState.currentAiProvider = p;
+                pipelineState.currentAiProvider = result.analysis.provider.toLowerCase();
             } else if (!result.skipped) {
-                stats.geminiCount++;
                 pipelineState.currentAiProvider = 'gemini';
             }
             pipelineState.jobsEvaluated++;
@@ -664,6 +677,9 @@ const runSearch = async (triggerSource = "Unknown") => {
       if (companyErrorMsg) company.lastError = companyErrorMsg;
       await company.save();
     })));
+    stats.geminiCount = aiState.geminiRequests || 0;
+    stats.groqCount = aiState.groqRequests || 0;
+    stats.localCount = aiState.localRequests || 0;
 
     await saveSearchLog(pipelineLog._id, startedAt, stats, errors);
 
