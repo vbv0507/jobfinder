@@ -1,288 +1,416 @@
 <div align="center">
-  <h1>🚀 RoleNova</h1>
-  <p><strong>AI-Powered Job Intelligence Platform</strong></p>
-  <p>An intelligent, highly automated Applicant Tracking System (ATS) and job discovery engine that ingests opportunities in real-time, evaluates them using large language models, and matches them against dynamic engineering profiles.</p>
+  <img src="https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=nodedotjs&logoColor=white" />
+  <img src="https://img.shields.io/badge/MongoDB-4EA94B?style=for-the-badge&logo=mongodb&logoColor=white" />
+  <img src="https://img.shields.io/badge/Express.js-000000?style=for-the-badge&logo=express&logoColor=white" />
+  <img src="https://img.shields.io/badge/Puppeteer-40B5A4?style=for-the-badge&logo=puppeteer&logoColor=white" />
+  <img src="https://img.shields.io/badge/Gemini-8E75B2?style=for-the-badge&logo=googlebard&logoColor=white" />
+  <img src="https://img.shields.io/badge/GitHub_Actions-2088FF?style=for-the-badge&logo=github-actions&logoColor=white" />
+  <img src="https://img.shields.io/badge/Microsoft_Azure-0089D6?style=for-the-badge&logo=microsoft-azure&logoColor=white" />
+  <img src="https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge" />
 </div>
 
----
+<h1 align="center">RoleNova</h1>
+<h4 align="center">Automated Job Discovery & Evaluation Pipeline</h4>
+
+<p align="center">
+  <b>RoleNova</b><br/>
+  <a href="https://github.com/vbv0507/jobfinder">Repository</a>
+</p>
+<p align="center">
+  <b>Monitorly (API Monitoring System)</b><br/>
+  <a href="https://github.com/vbv0507/api-monitoring-system">Repository</a> • <a href="https://monitorly-ahcrd4h6bydndscw.centralindia-01.azurewebsites.net/">Live Demo</a>
+</p>
 
 ---
 
-## ✨ Features
+## 📖 Overview
 
-### 🧠 AI Features
-- **Explainable AI Matching**: Deep analysis of job descriptions against your exact skills and experience.
-- **Multi-LLM Architecture**: Seamless cascading fallbacks between Google Gemini and Groq (Llama 3).
-- **Intelligent Scoring**: Weighted scoring breakdowns based on Role, Skills, Experience, Domain, and Location.
+**RoleNova** is an automated pipeline that discovers, extracts, deduplicates, and evaluates software engineering job postings.
 
-### ⚙️ Backend Features
-- **Scalable Cron Architecture**: Background job scraping and processing intervals.
-- **Robust Deduplication**: Complex URL extraction and normalization to prevent redundant processing.
-- **Multi-Source Ingestion**: Unified data pipeline merging standard ATS scrapers and unstructured Telegram messages.
+**Problem:** Job boards often contain irrelevant roles or mismatched experience requirements. Manually filtering these postings takes time.
 
-### 📱 Telegram Features
-- **MTProto Integration**: Real-time channel monitoring using GramJS.
-- **Advanced Regex Parser**: Graceful fallback extraction for unstructured posts (Company, Role, Salary, Experience).
-- **Inline Link Resolution**: Direct extraction of hidden HTML/Markdown entity links within Telegram messages.
+**Solution:** This project monitors corporate career websites and Telegram channels, normalizes the extracted job data, and evaluates postings against a candidate profile using LLMs.
 
-### 📊 Dashboard & Analytics
-- **Real-Time KPIs**: Track jobs scraped, evaluated, matched, applied, and rejected daily.
-- **Chart.js Visualizations**: Deep analytics on job domains, match score distributions, and application trends.
-- **ATS Workflow Board**: Kanban-style status tracking (New, Saved, Applied, Rejected).
+**Why AI?** Keyword matching often misses context (e.g., "Must have 5+ years" vs. "Bonus: 5+ years"). RoleNova uses LLMs to parse domains, graduation requirements, skills, and employment levels to score roles.
 
 ---
 
-## 💻 Technology Stack
+## ✨ Key Features
 
-| Category | Technologies |
-|---|---|
-| **Backend** | Node.js, Express.js |
-| **Frontend** | HTML5, EJS, Vanilla CSS, Chart.js, TailwindCSS (Utility) |
-| **Database** | MongoDB (Mongoose ODM) |
-| **AI Providers** | Google Gemini (2.0 Flash), Groq (Llama 3) |
-| **Automation** | node-cron, GramJS, Puppeteer / Axios (Scraping) |
-| **Libraries** | dotenv, nodemailer, telegram |
+### 🧠 AI
+- **Gemini Evaluation**: Primary engine for candidate-to-job matching.
+- **Groq Fallback**: Fails over to Llama 3.3 70B if Gemini returns errors.
+- **Z.ai Fallback**: Tertiary fallback (GLM).
+- **Local Heuristic**: Regex-based evaluation if all API providers fail.
+- **AI Match Score**: Assigns a 0-100 score and categorizes jobs based on relevance.
+
+### 🔍 Job Aggregation
+- **Multi-company scraping**: Supports Workday, Greenhouse, and custom ATS platforms.
+- **Telegram ingestion**: Parses job updates from Telegram channels.
+- **URL normalization**: Removes tracking parameters to avoid duplicate processing.
+- **Duplicate detection**: Uses MD5 hashes to identify and skip existing jobs.
+- **Applied Job Preservation**: Retains state for jobs marked as "Applied."
+
+### ⚙️ Pipeline
+- **Azure Cron**: Triggered on a schedule by Azure infrastructure.
+- **GitHub Actions**: Alternative cron trigger.
+- **Manual Trigger**: UI-based manual start.
+- **Distributed MongoDB Lock**: Prevents multiple triggers from executing the pipeline concurrently.
+- **Concurrent Scraping**: Uses `p-limit` to manage concurrency for corporate site requests.
+
+### 📊 Dashboard
+- **Analytics**: Tracks counts for Scraped, Evaluated, Matched, Applied, and Rejected jobs.
+- **Pipeline Monitoring**: Displays the current stage of the scraping engine.
+- **AI Provider Monitoring**: Logs requests and fallback counts per provider.
+- **Company Statistics**: Breakdown of job yields by company.
+- **System Logs**: UI for viewing pipeline logs and runtimes.
+
+### 📈 Monitoring
+- **Search Logs**: MongoDB documents containing execution metrics and stack traces.
+- **Pipeline Telemetry**: Live metrics exposed via an API for the UI.
+- **AI Telemetry**: Tracks provider error types (temporary vs. permanent).
 
 ---
 
-## 🏗️ System Architecture
+## 🏛️ Architecture
 
 ### Overall Architecture
 ```mermaid
 graph TD
-    Telegram[Telegram Channels] --> Parser[Telegram Parser]
-    Careers[Career Pages/ATS] --> Scraper[ATS Scraper]
-    Parser --> Normalizer[Data Normalization]
-    Scraper --> Normalizer
-    Normalizer --> DB_Raw[(RawJobs DB)]
-    DB_Raw --> AI_Eval[AI Evaluation Engine]
-    AI_Eval --> DB_Match[(MatchedJobs DB)]
-    DB_Match --> UI[Dashboard / UI]
-    DB_Match --> Notification[Email Notifications]
+    A[Cron Triggers: Azure/GitHub] -->|Requests Lock| B(MongoDB Distributed Lock)
+    B -->|Granted| C{Scraping Engine}
+    C -->|Puppeteer/Cheerio| D[Corporate Career Pages]
+    C -->|MTProto| E[Telegram Channels]
+    
+    D --> F[Raw Jobs Collection]
+    E --> F
+    
+    F --> G{AI Evaluation Pipeline}
+    
+    G -->|Gemini| H(Score & Metrics)
+    G -->|Groq| H
+    G -->|Z.ai| H
+    G -->|Local| H
+    
+    H --> I[(Matched Jobs DB)]
+    I --> J[User Dashboard]
 ```
 
-### Job Evaluation Pipeline & AI Fallback
+### AI Evaluation Flow
+```mermaid
+flowchart TD
+    Start[Job Evaluation Triggered] --> G[Gemini 2.0 Flash]
+    G -- Success --> End[Return Score]
+    G -- Rate Limit/Error --> Gr[Groq Llama 3.3]
+    Gr -- Success --> End
+    Gr -- Rate Limit/Error --> Z[Z.ai GLM]
+    Z -- Success --> End
+    Z -- Complete Failure --> L[Local Regex Heuristic]
+    L --> End
+```
+
+### Distributed Lock
+```mermaid
+sequenceDiagram
+    participant Azure Cron
+    participant GitHub Action
+    participant MongoDB PipelineLock
+
+    Azure Cron->>MongoDB PipelineLock: Request Lock
+    MongoDB PipelineLock-->>Azure Cron: Granted (Acquired)
+    Azure Cron->>Azure Cron: Executes Pipeline
+    GitHub Action->>MongoDB PipelineLock: Request Lock
+    MongoDB PipelineLock-->>GitHub Action: Denied (Locked by Azure)
+    GitHub Action->>GitHub Action: Skips Execution
+    Azure Cron->>MongoDB PipelineLock: Release Lock
+```
+
+### Pipeline Flow
 ```mermaid
 graph TD
-    A[New RawJob] --> B{Pre-filters}
-    B -->|Mismatch| C[Skip]
-    B -->|Pass| D[Gemini Evaluation]
-    D -->|429 Quota/Error| E[Groq Fallback]
-    D -->|Success| G
-    E -->|Error/Timeout| F[Local Heuristics Fallback]
-    E -->|Success| G
-    F --> G[Extract Metrics & Confidence]
-    G --> H[Save MatchedJob]
+    A[Trigger Pipeline] --> B[Obtain Lock]
+    B --> C[Fetch Active Companies]
+    C --> D[Scrape Company Jobs]
+    D --> E[Normalize URLs]
+    E --> F{Is Duplicate?}
+    F -- Yes --> G[Update Last Seen]
+    F -- No --> H[Evaluate via AI]
+    H --> I[Save to Matched DB]
+    I --> J[Release Lock]
+    J --> K[Update Dashboard]
 ```
 
-### Database Flow
+### Dashboard Flow
 ```mermaid
-erDiagram
-    CandidateProfile ||--o{ MatchedJob : defines
-    Company ||--o{ RawJob : posts
-    RawJob ||--o| MatchedJob : evaluates_into
-    TelegramChannel ||--o{ RawJob : sources
+graph TD
+    A[User Opens Dashboard] --> B[Fetch Analytics Data]
+    A --> C[Fetch Live Pipeline Status]
+    A --> D[Fetch System Logs]
+    A --> E[Fetch Matched Jobs]
+    
+    B --> F[Render Stats Grid]
+    C --> G[Render Status Cards]
+    D --> H[Render Expandable Logs]
+    E --> I[Render Job Cards]
 ```
 
 ---
 
-## 📁 Folder Structure
+## 📂 Folder Structure
 
 ```text
-rolenova/
-├── controllers/      # Route handlers and business logic coordination
-├── cron/             # Scheduled background tasks (Scraping, AI Evaluation)
-├── models/           # Mongoose schemas (Company, RawJob, MatchedJob, etc.)
-├── public/           # Static assets (CSS, client-side JS, images)
-├── routes/           # Express router definitions
-├── services/         # Core business logic (Gemini, Telegram, Email)
-├── utils/            # Helper functions (URL strategies, Domain classification)
-├── views/            # EJS templates for the frontend dashboard
-├── .env.example      # Environment variable template
-├── index.js          # Main application entry point
-└── package.json      # Node.js dependencies and scripts
+├── controller/         # Request handlers
+├── cron/               # Pipeline execution logic and lock handling
+├── models/             # Mongoose schemas
+├── public/             # Static frontend assets
+├── routes/             # Express API route definitions
+├── scripts/            # Database maintenance scripts
+├── services/           # AI services and scraping logic
+├── utils/              # Helper functions and normalizers
+├── views/              # EJS templates for the UI
+├── .env.example        # Environment variable template
+└── index.js            # Express application entry point
 ```
 
 ---
 
-## 🔄 Core Workflow
+## 🛠️ Technology Stack
 
-1. **Company APIs & Scrapers**: Scheduled cron jobs ping known ATS platforms (Greenhouse, Workday, Lever, etc.) to fetch fresh job postings.
-2. **Telegram Ingestion**: GramJS listens in real-time to configured Telegram channels, extracting metadata and nested URLs using regex fallbacks.
-3. **Normalization & Deduplication**: Extracted data is routed through a normalization layer. Duplicate links update the `sources` and `lastSeen` properties of existing jobs instead of creating redundant rows.
-4. **Candidate Profile Sync**: The dynamic MongoDB candidate profile is loaded to establish baseline engineering constraints (e.g. backend domains, specific tech stacks).
-5. **Cascading Evaluation**:
-   - The job is fed to **Gemini**. 
-   - If quota limits are hit, it falls back to **Groq**. 
-   - If Groq fails, it falls back to a **Local Rule Engine**.
-6. **Data Persistence**: The final scored, explained, and enriched job is saved as a `MatchedJob` in MongoDB.
-7. **Actionable UI**: The job appears instantly on the EJS Dashboard, and an email notification is dispatched for high-confidence matches.
-
----
-
-## 🧠 AI Evaluation Engine
-
-RoleNova doesn't just keyword-match; it structurally evaluates candidates like a Senior Technical Recruiter.
-
-- **Gemini**: The primary LLM, instructed to analyze nuanced domains, infer missing skills, and provide explainable AI reasoning.
-- **Groq**: The immediate, high-speed fallback for rate-limiting and quota exhaustion.
-- **Local Rule Engine**: An offline heuristic fallback that heavily penalizes seniority mismatches, explicitly checks strict technology arrays, and scores using weighted math.
-- **Explainability**: Every matched job includes a `scoringBreakdown` (Role, Skills, Experience, Domain, Location) and a strict `primaryReasons` array detailing the algorithmic decisions.
-- **Confidence**: Dynamic confidence scoring ensures that noisy scrape data doesn't trigger false positives.
-- **Scoring**: Bounds between 0-100, where only jobs scoring > 50 and devoid of fatal mismatches are forwarded to the user.
+| Category | Technologies |
+| :--- | :--- |
+| **Frontend** | EJS Templates, Vanilla JS, Tailwind CSS |
+| **Backend** | Node.js, Express.js |
+| **Database** | MongoDB (Mongoose) |
+| **AI Providers** | Google Gemini, Groq, Z.ai |
+| **Deployment** | Azure App Service |
+| **Automation** | GitHub Actions, Azure Cron |
+| **Libraries** | Axios, Cheerio, Puppeteer, p-limit |
 
 ---
 
-## 📡 Telegram Engine
+## 🧠 AI Evaluation Pipeline
 
-A fully decoupled MTProto client capable of massive ingestion throughput.
+RoleNova uses multiple AI providers to handle rate limits and availability issues.
 
-- **Multiple Channels**: Monitored concurrently via a dynamic MongoDB registry.
-- **Parser**: Extracts `Company`, `Role`, `Experience`, `Location`, and `Salary` using cascading Regex logic.
-- **ATS Detection**: Cross-references bare URLs (e.g., Oracle, ICIMS, Ashby) against the internal URL Strategy Engine to silently convert freeform texts into structured ATS scrapes.
-- **Deduplication**: Deep merge logic ensures that overlapping cross-channel posts augment existing data instead of spamming the database.
-- **Normalization**: Extracts raw text blocks and normalizes whitespace, missing line breaks, and odd character encodings.
-- **Error Handling**: Graceful recovery from FloodWaits and API disconnects.
+```
+Gemini ➝ Groq ➝ Z.ai ➝ Local
+```
 
----
-
-## 👤 Candidate Profile Engine
-
-A dynamic MongoDB-driven identity profile that directs the AI's strictness.
-
-- **Career Stage & Experience**: Filters out Principal/Staff roles if configured for Entry Level, utilizing the dynamic `yearsOfExperience` anchor.
-- **Preferred Roles**: Boosts exact title matches explicitly outlined in the profile array.
-- **Preferred & Excluded Domains**: Understands the difference between `Backend`, `AI/ML`, and `DevOps`. Uses Excluded Domains to instantly reject mismatched engineering branches.
-- **Skills**: Defines absolute must-haves versus nice-to-haves, tracking explicit `missingSkills` gaps.
-- **Locations**: Direct geo-preference matching algorithm.
-- **Dynamic MongoDB Profile**: Fetched dynamically per-job batch, enabling the user to pivot their entire strategy from the dashboard instantly.
-- **Fallback Profile**: Ensures that missing DB configurations safely default to a local standard payload.
+- **Temporary failures**: Timeout or `502 Bad Gateway` errors skip to the next provider for the current job but keep the failing provider available for subsequent jobs.
+- **Permanent failures**: Authentication or quota errors (`401`, `429`) disable the affected provider for the remainder of the pipeline run.
+- **Fallback strategy**: If all APIs fail, evaluation defaults to a regex-based local heuristic.
 
 ---
 
-## 🖥️ Dashboard
+## 🔒 Distributed Lock
 
-RoleNova features a beautiful, server-rendered EJS dashboard built for speed and aesthetics:
-- **Dashboard**: High-level KPIs and urgent action items (Jobs Evaluated, Matched, Saved, Rejected).
-- **Jobs**: Interactive ATS-style board with Kanban status tracking.
-- **Companies**: Coverage grid of monitored global tech giants and startups.
-- **Analytics**: Deep visual metrics utilizing Chart.js to map scores, domains, and timeline ingestion.
-- **Profile**: Frontend form to dynamically alter the AI's marching orders in real-time.
-- **ATS Workflow**: Integrated tracking allowing users to funnel roles from "New" -> "Applied" -> "Rejected".
+When using multiple triggers (like Azure Cron and GitHub Actions), overlapping executions can cause duplicate processing.
+
+- **MongoDB Lock**: Ensures only one trigger can run the scraping pipeline at a time.
+- **TTL Recovery**: Lock documents include a time-to-live (TTL). If a process crashes, the lock expires automatically, allowing subsequent runs to proceed.
 
 ---
 
-## 🗄️ Database Design
+## 🔄 Pipeline Workflow
 
-- `Company`: Global registry of target organizations and their designated ATS platform identifiers.
-- `RawJob`: The absolute truth of ingestion. Stores unstructured text, apply links, and multi-channel source histories.
-- `MatchedJob`: The enriched output of the AI engine. Contains deep scoring, JSON breakdowns, telemetry, and applicant tracking states.
-- `CandidateProfile`: Singleton configuration document storing user preferences.
-- `SearchLog`: Telemetry and duration metrics for background cron runs.
-- `TelegramChannel`: Dynamic registry for MTProto listeners and statistics.
+1. **Company scraping**: Fetches jobs using Cheerio, falling back to Puppeteer for dynamic sites.
+2. **Job extraction**: Parses titles, locations, and apply links.
+3. **Deduplication**: Normalizes URLs and checks MD5 hashes against existing records.
+4. **AI evaluation**: Sends the job description through the provider chain.
+5. **Database**: Saves the results to MongoDB.
+6. **Dashboard**: Updates the pipeline state for the frontend.
 
 ---
 
-## 🔌 API Overview
+## 🗄️ Database
+
+- **Company**: Stores target URLs and ATS configurations.
+- **RawJob**: Stores normalized raw scrape data.
+- **MatchedJob**: Jobs that pass the AI evaluation.
+- **SearchLog**: Telemetry logs for each pipeline run.
+- **PipelineLock**: Manages distributed mutex logic.
+- **TelegramChannel**: Configurations for Telegram ingestion.
+- **CandidateProfile**: User skills and preferences used in the AI prompt.
+
+### ER Diagram
+```mermaid
+erDiagram
+    Company ||--o{ RawJob : scrapes
+    Company {
+        ObjectId _id
+        string name
+        boolean active
+    }
+    RawJob ||--|{ MatchedJob : evaluates_into
+    RawJob {
+        ObjectId _id
+        string title
+        string applyLink
+        date scrapedAt
+        boolean aiEvaluated
+    }
+    MatchedJob {
+        ObjectId _id
+        number score
+        string status
+        boolean applied
+    }
+    SearchLog {
+        ObjectId _id
+        string pipelineId
+        string status
+        number geminiCount
+        number groqCount
+    }
+    PipelineLock {
+        string lockId
+        date lockedAt
+        string runnerId
+    }
+    CandidateProfile {
+        string name
+        array skills
+        number yearsOfExperience
+    }
+    TelegramChannel {
+        string name
+        string channelId
+        boolean active
+    }
+```
+
+---
+
+## ⚡ API Endpoints
 
 | Method | Endpoint | Description |
-|---|---|---|
-| `GET` | `/api/jobs` | Retrieve all matched jobs with pagination |
-| `POST` | `/api/jobs/:id/status` | Update application status (Saved/Applied) |
-| `GET` | `/api/analytics` | Fetch Chart.js telemetry data |
-| `POST` | `/api/profile` | Update the Candidate Profile constraints |
-| `GET` | `/api/telegram/channels` | Retrieve active Telegram listeners |
+| :--- | :--- | :--- |
+| `GET` | `/api/jobs/matched` | Retrieves paginated matched jobs |
+| `GET` | `/api/jobs/analytics` | Fetches dashboard metrics |
+| `GET` | `/api/jobs/logs` | Retrieves system logs |
+| `GET` | `/api/jobs/status` | Polling endpoint for pipeline state |
+| `POST` | `/api/jobs/run` | Manually triggers the pipeline |
+| `PATCH` | `/api/jobs/:id/status` | Updates job status (e.g., Applied) |
+| `DELETE`| `/api/jobs/raw` | Clears unmatched raw jobs |
+| `GET` | `/api/telegram/status` | Checks Telegram client status |
+| `POST` | `/api/companies/seed` | Seeds initial target companies |
 
 ---
 
 ## 🔐 Environment Variables
 
 | Variable | Description |
-|---|---|
-| `PORT` | Application port (default `5000`) |
-| `MONGO_URI` | MongoDB connection string |
-| `GEMINI_API_KEY` | Google AI Studio API Key |
-| `GEMINI_MODEL` | Gemini LLM model (e.g. `gemini-2.0-flash`) |
-| `GROQ_API_KEY` | Groq API Key for fallback LLM |
-| `GROQ_MODEL` | Groq LLM Model (e.g. `llama-3.3-70b-versatile`) |
-| `ENABLE_GROQ_FALLBACK` | Boolean toggle for Groq (`true` / `false`) |
-| `ENABLE_LOCAL_MATCH_FALLBACK` | Boolean toggle for the heuristic engine |
-| `TELEGRAM_API_ID` | Telegram Developer API ID |
-| `TELEGRAM_API_HASH` | Telegram Developer API Hash |
-| `TELEGRAM_SESSION` | Persistent GramJS string session |
-| `EMAIL_USER` | SMTP User for notifications |
-| `EMAIL_PASS` | SMTP Password |
+| :--- | :--- |
+| `PORT` | Application server port |
+| `MONGO_URI` | MongoDB Connection String |
+| `GEMINI_API_KEY` | Google Gemini API Key |
+| `GEMINI_MODEL` | Gemini Model Name |
+| `GROQ_API_KEY` | Groq API Key |
+| `GROQ_MODEL` | Groq Model Name |
+| `ENABLE_GROQ_FALLBACK` | Toggle Groq Provider |
+| `ZAI_API_KEY` | Z.ai API Key |
+| `ZAI_MODEL` | Z.ai Model Name |
+| `ZAI_BASE_URL` | Z.ai API Endpoint |
+| `ENABLE_ZAI_FALLBACK` | Toggle Z.ai Provider |
+| `ENABLE_LOCAL_MATCH_FALLBACK` | Toggle local regex fallback |
+| `TELEGRAM_API_ID` | Telegram API ID |
+| `TELEGRAM_API_HASH` | Telegram API Hash |
+| `TELEGRAM_SESSION` | Persistent Telegram Session String |
 
 ---
 
-## 🛠️ Installation
+## 🚀 Installation
 
-1. **Clone the repository**
+1. **Clone**
    ```bash
-   git clone https://github.com/yourusername/rolenova.git
-   cd rolenova
+   git clone https://github.com/vbv0507/jobfinder.git
+   cd jobfinder
    ```
-
 2. **Install dependencies**
    ```bash
    npm install
    ```
-
-3. **Configure Environment Variables**
-   ```bash
-   cp .env.example .env
-   # Edit .env with your MongoDB URI, API Keys, and Telegram credentials
-   ```
-
-4. **Start the Application**
+3. **Configure Environment**
+   Copy `.env.example` to `.env` and set your variables.
+4. **Configure MongoDB**
+   Point `MONGO_URI` to a MongoDB instance. Use `/api/companies/seed` to populate the company list.
+5. **Run**
    ```bash
    npm start
    ```
-   *Note: On first boot, the Telegram client will require phone number authentication via the terminal to generate a persistent `TELEGRAM_SESSION`.*
 
 ---
 
-## 🚀 Deployment
+## 💻 Usage
 
-RoleNova is optimized for modern cloud deployments:
-- **Cron Limitations**: If deploying to serverless environments (like Vercel), background cron jobs should be extracted to GitHub Actions or external trigger services.
-- **Long-running Services**: Best deployed on VPS providers (DigitalOcean, AWS EC2, Render, Azure App Service) to support the persistent GramJS TCP connection and background scraping intervals.
-
----
-
-## 📈 Project Highlights
-
-- **50+** Companies Supported Out-of-the-Box
-- **Multi-Channel** Telegram ATS Extraction
-- **3-Layer** Fallback Evaluation Architecture (Gemini -> Groq -> Local)
-- **6** MongoDB Collections handling complex relational deduplication
-- **Dynamic Charting** and deeply explainable AI rationale
-- **Automated REST APIs** and cron telemetry tracking
+- **Manual Pipeline**: Use the "Start Pipeline" button on the dashboard to scrape jobs.
+- **Automatic Pipeline**: Set up a CRON job in Azure or GitHub Actions.
+- **Dashboard**: View analytics, track scraped jobs, and update job statuses.
+- **Telegram**: Configure MTProto variables to ingest jobs from Telegram.
+- **AI Evaluation**: Update the Candidate Profile to improve matching accuracy.
 
 ---
 
-## 🔮 Future Roadmap
+## 🏎️ Performance Optimizations
 
-- Integrate Playwright for JavaScript-heavy shadow-DOM ATS platforms.
-- Native LinkedIn OAuth for dynamic Candidate Profile synchronization.
-- Daily digest email reporting instead of per-job notifications.
-- Semantic vector-search clustering for similar job roles.
+- **Distributed Lock**: Prevents duplicate executions across different environments.
+- **Concurrent scraping**: Uses `p-limit` to fetch from multiple websites in parallel.
+- **URL normalization**: Removes tracking tags (`?utm_source`, etc.) before hashing.
+- **Deduplication**: Hashes normalized URLs to prevent redundant API calls.
+- **AI fallback chain**: Handles API rate limits by switching providers.
+- **Database indexes**: Uses indexes on URLs and status fields for faster queries.
+
+---
+
+## 🚨 Error Handling
+
+- **AI failures**: Differentiates between temporary errors (e.g., timeouts) and permanent errors (e.g., quota exceeded).
+- **Fallback mechanism**: Routes requests to the next available provider on failure.
+- **Lock recovery**: MongoDB documents use a TTL index to release orphaned locks.
+- **Pipeline recovery**: Wraps scraping loops in try-catch blocks to prevent a single failure from halting the run.
+- **Logging**: Execution details and errors are saved to the `SearchLog` collection.
+
+---
+
+## ☁️ Deployment
+
+- **Azure App Service**: Compatible with Azure App Service deployment.
+- **GitHub Actions**: Pipeline can be triggered via scheduled GitHub Actions.
+- **Environment Variables**: Configure secrets in Azure App Settings or GitHub Secrets.
+
+---
+
+## 🔮 Future Enhancements
+
+- Webhook integration for instant notifications on highly scored jobs.
+- Automated resume submission for standard ATS platforms.
 
 ---
 
 ## 🤝 Contributing
 
-We welcome contributions! Please follow these steps:
-1. Fork the repository.
-2. Create a feature branch (`git checkout -b feature/AmazingFeature`).
-3. Commit your changes with descriptive messages (`git commit -m 'Add some AmazingFeature'`).
-4. Push to the branch (`git push origin feature/AmazingFeature`).
-5. Open a Pull Request.
+Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
 
-Please ensure all tests pass and your code adheres to the existing architectural patterns (especially concerning the AI Fallback chain).
+1. Fork the Project
+2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the Branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
 
 ---
 
 ## 📄 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+Distributed under the [MIT License](./LICENSE).
+
+---
+
+## 👨‍💻 Author
+
+**Vaibhav Rai**  
+B.Tech Information Technology  
+Parul University  
+
+- [GitHub Profile](https://github.com/vbv0507)
+- [LinkedIn Profile](https://www.linkedin.com/in/vaibhav-rai-ab6b17270/)
+- [Email](mailto:vbvrai1407@gmail.com)
