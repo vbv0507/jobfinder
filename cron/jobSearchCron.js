@@ -166,14 +166,14 @@ const saveRawJob = async (company, job) => {
   const rawJob = await RawJob.findOneAndUpdate(
     { company: company._id, jobId: resolvedJobId },
     updateData,
-    { new: true, upsert: true, returnDocument: "after" }
+    { upsert: true, returnDocument: "after" }
   );
 
   if (sourceData) {
     const updated = await RawJob.findOneAndUpdate(
         { _id: rawJob._id, "sources.sourceChannel": sourceData.sourceChannel },
         { $set: { "sources.$.lastSeen": new Date() } },
-        { new: true }
+        { returnDocument: "after" }
     );
     if (!updated) {
         await RawJob.findByIdAndUpdate(rawJob._id, {
@@ -196,14 +196,13 @@ const saveMatchedJob = async (rawJob, company, job, analysis) => {
   const evaluatedAt = new Date();
 
   
-  rawJob.aiEvaluated = true;
   rawJob.aiEvaluatedAt = evaluatedAt;
 
   if (analysis.suitable !== true || score < MATCH_THRESHOLD) {
     
     rawJob.aiMatched = false;
     await rawJob.save();
-    return false;
+    return { matched: false, isDuplicate: false };
   }
 
   const existingJob = await MatchedJob.findOne({ rawJob: rawJob._id });
@@ -254,7 +253,9 @@ const saveMatchedJob = async (rawJob, company, job, analysis) => {
         lastMetadataUpdate: new Date(),
         lastAIEvaluation: new Date(),
         isActive: true,
-        jobStatus: "Open"
+        jobStatus: "Open",
+        providerChain: analysis.providerChain || [],
+        isDuplicate: !!existingJob
       },
       $push: {
         evaluationHistory: {
@@ -284,7 +285,7 @@ const saveMatchedJob = async (rawJob, company, job, analysis) => {
       );
   }
 
-  return true;
+  return { matched: true, isDuplicate: !!existingJob };
 };
 
 const hasExistingMatch = async (rawJob) =>
@@ -301,26 +302,33 @@ const analyseWithGemini = async (job, profile, aiState) => {
   
   const analysis = await evaluateJob(job, profile, aiState);
 
-  // Ensure pipelineState reflects real-time availability
   pipelineState.geminiStatus = aiState.gemini.available ? "Working" : "Unavailable";
   pipelineState.geminiReason = aiState.gemini.reason;
-  pipelineState.geminiRequests = aiState.geminiRequests || 0;
+  pipelineState.geminiRequests = aiState.gemini.requests || 0;
+  pipelineState.geminiSuccess = aiState.gemini.success || 0;
+  pipelineState.geminiFailed = aiState.gemini.failed || 0;
   pipelineState.geminiFallbacks = aiState.geminiFallbacks || 0;
   pipelineState.geminiDisabledAt = aiState.gemini.disabledAt;
   
   pipelineState.groqStatus = aiState.groq.available ? "Working" : "Unavailable";
   pipelineState.groqReason = aiState.groq.reason;
-  pipelineState.groqRequests = aiState.groqRequests || 0;
+  pipelineState.groqRequests = aiState.groq.requests || 0;
+  pipelineState.groqSuccess = aiState.groq.success || 0;
+  pipelineState.groqFailed = aiState.groq.failed || 0;
   pipelineState.groqFallbacks = aiState.groqFallbacks || 0;
   pipelineState.groqDisabledAt = aiState.groq.disabledAt;
   
   pipelineState.zaiStatus = aiState.zai.available ? "Working" : "Unavailable";
   pipelineState.zaiReason = aiState.zai.reason;
-  pipelineState.zaiRequests = aiState.zaiRequests || 0;
+  pipelineState.zaiRequests = aiState.zai.requests || 0;
+  pipelineState.zaiSuccess = aiState.zai.success || 0;
+  pipelineState.zaiFailed = aiState.zai.failed || 0;
   pipelineState.zaiFallbacks = aiState.zaiFallbacks || 0;
   pipelineState.zaiDisabledAt = aiState.zai.disabledAt;
   
-  pipelineState.localRequests = aiState.localRequests || 0;
+  pipelineState.localRequests = aiState.local?.requests || 0;
+  pipelineState.localSuccess = aiState.local?.success || 0;
+  pipelineState.localFailed = aiState.local?.failed || 0;
 
   if (!analysis || (analysis.errorCode && analysis.provider === "unknown")) {
     return { skipped: true, reason: "Evaluator failed for this job" };
@@ -355,9 +363,19 @@ const saveSearchLog = async (logId, startedAt, stats, errors) => {
     newJobs: stats.newJobs,
     aiEvaluations: stats.aiEvaluations,
     geminiCount: stats.geminiCount,
+    geminiSuccess: stats.geminiSuccess,
+    geminiFailed: stats.geminiFailed,
+    geminiFallbacks: stats.geminiFallbacks,
     groqCount: stats.groqCount,
+    groqSuccess: stats.groqSuccess,
+    groqFailed: stats.groqFailed,
+    groqFallbacks: stats.groqFallbacks,
     zaiCount: stats.zaiCount,
+    zaiSuccess: stats.zaiSuccess,
+    zaiFailed: stats.zaiFailed,
+    zaiFallbacks: stats.zaiFallbacks,
     localCount: stats.localCount,
+    localSuccess: stats.localSuccess,
     averageCompanyTime: stats.companiesScanned > 0 ? Math.round(durationMs / stats.companiesScanned) : 0,
     status,
     message,
@@ -394,7 +412,7 @@ const runSearch = async (triggerSource = "Unknown") => {
         expiresAt: new Date(startedAt.getTime() + 2 * 60 * 60 * 1000)
       }
     },
-    { new: true }
+    { returnDocument: "after" }
   );
 
   const pipelineId = `${startedAt.toISOString().replace(/[-:T]/g, '').slice(0, 14)}-${runnerName.replace(/\s+/g, '').toUpperCase()}`;
@@ -439,14 +457,25 @@ const runSearch = async (triggerSource = "Unknown") => {
     totalMetadataRefreshTimeMs: 0,
     aiEvaluations: 0,
     geminiCount: 0,
+    geminiSuccess: 0,
+    geminiFailed: 0,
+    geminiFallbacks: 0,
     groqCount: 0,
+    groqSuccess: 0,
+    groqFailed: 0,
+    groqFallbacks: 0,
     zaiCount: 0,
+    zaiSuccess: 0,
+    zaiFailed: 0,
+    zaiFallbacks: 0,
     localCount: 0,
+    localSuccess: 0,
   };
   const aiState = {
-    gemini: { available: true, reason: null, disabledAt: null },
-    groq: { available: true, reason: null, disabledAt: null },
-    zai: { available: true, reason: null, disabledAt: null },
+    gemini: { available: true, reason: null, disabledAt: null, requests: 0, success: 0, failed: 0 },
+    groq: { available: true, reason: null, disabledAt: null, requests: 0, success: 0, failed: 0 },
+    zai: { available: true, reason: null, disabledAt: null, requests: 0, success: 0, failed: 0 },
+    local: { requests: 0, success: 0, failed: 0 },
     calls: 0
   };
 
@@ -598,7 +627,7 @@ const runSearch = async (triggerSource = "Unknown") => {
                });
             }
 
-            const matched = await saveMatchedJob(
+            const { matched, isDuplicate } = await saveMatchedJob(
               rawJob,
               company,
               job,
@@ -613,25 +642,29 @@ const runSearch = async (triggerSource = "Unknown") => {
               
               const providerStr = result.analysis.provider ? result.analysis.provider.charAt(0).toUpperCase() + result.analysis.provider.slice(1) : "Gemini";
               stats.aiProviderUsed = providerStr;
-              console.log(`Matched Job: ${job.title} | Score: ${result.analysis.score}`);
               
-              if (result.analysis.fallbackReason) {
-                  console.log(`[AI] Provider: ${providerStr} | Reason: ${result.analysis.fallbackReason} | Time: ${result.analysis.evaluationTimeMs}ms`);
+              const providerChainStr = result.analysis.providerChain ? result.analysis.providerChain.join(' -> ') : providerStr;
+              console.log(`[Production Log] Pipeline ID: ${pipelineId} | Runner: ${runnerName} | Trigger: ${runnerName} | Company: ${company.name} | Job: ${job.title} | Provider: ${providerStr} | Provider Chain: ${providerChainStr} | Duration: ${result.analysis.evaluationTimeMs || 0}ms | Success: true | Failure: false | Reason: Matched (${result.analysis.score}) | Email Status: ${isDuplicate ? 'Skipped' : 'Sent'} | Training Dataset Status: ${result.analysis ? 'Saved' : 'N/A'}`);
+              
+              if (!isDuplicate) {
+                try {
+                  await sendMatchedJobEmail({
+                    company,
+                    job,
+                    analysis: result.analysis,
+                    pipelineId,
+                    isDuplicate: false
+                  });
+                } catch (emailError) {
+                  // Error is already logged in sendMatchedJobEmail
+                }
               } else {
-                  console.log(`[AI] Provider: ${providerStr} | Model: ${result.analysis.model} | Time: ${result.analysis.evaluationTimeMs}ms | Fallbacks: ${result.analysis.fallbackCount}`);
+                 console.log(`[Job Evaluated] Email Skipped: Duplicate Job | Job: ${job.title} | Company: ${company.name}`);
               }
-
-              try {
-                
-                await sendMatchedJobEmail({
-                  company,
-                  job,
-                  analysis: result.analysis,
-                });
-                console.log(`Email sent for matched job: ${job.title}`);
-              } catch (emailError) {
-                console.log(`Email failed for ${job.title}: ${emailError.message}`);
-              }
+            } else {
+               const providerStr = result.analysis?.provider ? result.analysis.provider.charAt(0).toUpperCase() + result.analysis.provider.slice(1) : "Unknown";
+               const providerChainStr = result.analysis?.providerChain ? result.analysis.providerChain.join(' -> ') : providerStr;
+               console.log(`[Production Log] Pipeline ID: ${pipelineId} | Runner: ${runnerName} | Trigger: ${runnerName} | Company: ${company.name} | Job: ${job.title} | Provider: ${providerStr} | Provider Chain: ${providerChainStr} | Duration: ${result.analysis?.evaluationTimeMs || 0}ms | Success: true | Failure: false | Reason: Not Matched | Email Status: Skipped | Training Dataset Status: ${result.analysis ? 'Saved' : 'N/A'}`);
             }
           } catch (error) {
             companyErrors++;
@@ -640,7 +673,7 @@ const runSearch = async (triggerSource = "Unknown") => {
               jobTitle: job.title,
               message: error.message,
             });
-            console.error(`Gemini Error for ${job.title}:`, error.message);
+            console.error(`[Production Log] Pipeline ID: ${pipelineId} | Runner: ${runnerName} | Trigger: ${runnerName} | Company: ${company.name} | Job: ${job.title} | Provider: N/A | Provider Chain: N/A | Duration: 0ms | Success: false | Failure: true | Reason: ${error.message} | Email Status: Skipped | Training Dataset Status: Failed`);
           }
         }
 
@@ -701,10 +734,23 @@ const runSearch = async (triggerSource = "Unknown") => {
       if (companyErrorMsg) company.lastError = companyErrorMsg;
       await company.save();
     })));
-    stats.geminiCount = aiState.geminiRequests || 0;
-    stats.groqCount = aiState.groqRequests || 0;
-    stats.zaiCount = aiState.zaiRequests || 0;
-    stats.localCount = aiState.localRequests || 0;
+    stats.geminiCount = aiState.gemini.requests || 0;
+    stats.geminiSuccess = aiState.gemini.success || 0;
+    stats.geminiFailed = aiState.gemini.failed || 0;
+    stats.geminiFallbacks = aiState.geminiFallbacks || 0;
+    
+    stats.groqCount = aiState.groq.requests || 0;
+    stats.groqSuccess = aiState.groq.success || 0;
+    stats.groqFailed = aiState.groq.failed || 0;
+    stats.groqFallbacks = aiState.groqFallbacks || 0;
+    
+    stats.zaiCount = aiState.zai.requests || 0;
+    stats.zaiSuccess = aiState.zai.success || 0;
+    stats.zaiFailed = aiState.zai.failed || 0;
+    stats.zaiFallbacks = aiState.zaiFallbacks || 0;
+    
+    stats.localCount = aiState.local.requests || 0;
+    stats.localSuccess = aiState.local.success || 0;
 
     await saveSearchLog(pipelineLog._id, startedAt, stats, errors);
 

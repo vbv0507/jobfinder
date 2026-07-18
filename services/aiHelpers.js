@@ -112,48 +112,42 @@ const analyzeError = (error) => {
     const msg = (error.message || "").toLowerCase();
     const status = error.status || (error.response ? error.response.status : null);
     
-    // Check for permanent errors
-    const isPermanent = 
-        msg.includes("429") || 
-        msg.includes("quota") || 
-        msg.includes("too many requests") || 
-        msg.includes("invalid api key") ||
-        msg.includes("api key not valid") ||
-        msg.includes("unauthenticated") ||
-        msg.includes("unauthorized") ||
-        msg.includes("billing") ||
-        msg.includes("disabled") ||
-        msg.includes("permission denied") ||
-        msg.includes("model unavailable") ||
-        status === 429 ||
-        status === 401 ||
-        status === 403 ||
-        status === 400;
+    // Log the complete error object for production observability
+    console.error("[Error Audit] Complete Error Object:", {
+        status: status,
+        code: error.code,
+        message: error.message,
+        stack: error.stack,
+        response: error.response?.data || error.response,
+        details: error.details || error
+    });
+
+    const is429 = status === 429 || msg.includes("429") || msg.includes("quota");
+    const is401 = status === 401 || msg.includes("401") || msg.includes("unauthorized") || msg.includes("unauthenticated");
+    const is400 = status === 400 || msg.includes("400") || msg.includes("invalid api key");
+    const is403 = status === 403 || msg.includes("403") || msg.includes("billing disabled");
+
+    const isPermanent = is429 || is401 || is400 || is403;
 
     let reason = "Unknown Error";
-    if (msg.includes("quota") || status === 429 || msg.includes("429") || msg.includes("too many requests")) reason = "Quota Exceeded";
-    else if (msg.includes("key") || status === 401 || status === 403 || status === 400 || msg.includes("unauthenticated") || msg.includes("unauthorized")) reason = "Authentication Failed";
-    else if (msg.includes("billing")) reason = "Billing Disabled";
-    else if (msg.includes("permission denied")) reason = "Permission Denied";
-    else if (msg.includes("model unavailable")) reason = "Model Unavailable";
+    if (is429) reason = "429 Quota";
+    else if (is401) reason = "401 Unauthorized";
+    else if (is400) reason = "400 Invalid API Key";
+    else if (is403) reason = "403 Billing Disabled";
     
     if (isPermanent) {
         return { permanent: true, reason };
     }
 
     // Temporary errors
-    const isTemporary =
-        msg.includes("timeout") ||
-        msg.includes("econnreset") ||
-        msg.includes("etimedout") ||
-        msg.includes("dns") ||
-        msg.includes("network") ||
-        status === 500 ||
-        status === 502 ||
-        status === 503 ||
-        status === 504;
-        
-    return { permanent: false, reason: isTemporary ? "Temporary Network/API Issue" : "Unhandled Temporary Error" };
+    const isTempStatus = [500, 502, 503, 504].includes(status) || msg.includes("500") || msg.includes("502") || msg.includes("503") || msg.includes("504") || msg.includes("too many requests");
+    const isNetwork = msg.includes("timeout") || msg.includes("econnreset") || msg.includes("etimedout") || msg.includes("socket");
+
+    if (isTempStatus || isNetwork) {
+        return { permanent: false, reason: "Temporary failures" };
+    }
+
+    return { permanent: false, reason: "Unhandled Temporary Error" };
 };
 
 module.exports = {

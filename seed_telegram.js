@@ -27,7 +27,7 @@ mongoose.connect(process.env.MONGO_URI, {
         await TelegramChannel.findOneAndUpdate(
             { username: ch.username },
             { $set: ch },
-            { upsert: true, new: true }
+            { upsert: true, returnDocument: "after" }
         );
     }
     console.log("Channels seeded.");

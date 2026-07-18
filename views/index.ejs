@@ -9,13 +9,15 @@
     
     <div class="flex flex-col sm:flex-row gap-4">
         <!-- AI Status Widget -->
-        <div class="bg-white px-4 py-2 rounded-lg shadow-sm border border-gray-100 flex items-start gap-4">
+        <div class="bg-white px-4 py-2 rounded-lg shadow-sm border border-gray-100 flex flex-wrap items-start gap-4 overflow-x-auto w-full md:w-auto">
             <!-- Gemini -->
-            <div class="border-r border-gray-100 pr-4">
+            <div class="border-r border-gray-100 pr-4 min-w-[100px]">
                 <p id="gemini-title" class="text-gray-500 text-xs font-medium uppercase">🟢 Gemini</p>
                 <p id="gemini-status" class="text-gray-800 font-semibold leading-none mt-1">Ready</p>
                 <div class="text-[10px] mt-2 space-y-0.5 text-gray-500">
                     <p>Reqs: <span id="gemini-reqs" class="font-medium text-gray-700">0</span></p>
+                    <p>Success: <span id="gemini-success" class="font-medium text-green-600">0</span></p>
+                    <p>Failed: <span id="gemini-failed" class="font-medium text-red-500">0</span></p>
                     <p>Fallbacks: <span id="gemini-fallbacks" class="font-medium text-gray-700">0</span></p>
                     <p id="gemini-disabled" class="text-red-500 hidden">Disabled: <span></span></p>
                 </div>
@@ -23,11 +25,13 @@
             </div>
             
             <!-- Groq -->
-            <div class="border-r border-gray-100 pr-4">
+            <div class="border-r border-gray-100 pr-4 min-w-[100px]">
                 <p id="groq-title" class="text-gray-500 text-xs font-medium uppercase">🟠 Groq</p>
                 <p id="groq-status" class="text-gray-800 font-semibold leading-none mt-1">Ready</p>
                 <div class="text-[10px] mt-2 space-y-0.5 text-gray-500">
                     <p>Reqs: <span id="groq-reqs" class="font-medium text-gray-700">0</span></p>
+                    <p>Success: <span id="groq-success" class="font-medium text-green-600">0</span></p>
+                    <p>Failed: <span id="groq-failed" class="font-medium text-red-500">0</span></p>
                     <p>Fallbacks: <span id="groq-fallbacks" class="font-medium text-gray-700">0</span></p>
                     <p id="groq-disabled" class="text-red-500 hidden">Disabled: <span></span></p>
                 </div>
@@ -35,11 +39,13 @@
             </div>
             
             <!-- Z.ai -->
-            <div class="border-r border-gray-100 pr-4">
+            <div class="border-r border-gray-100 pr-4 min-w-[100px]">
                 <p id="zai-title" class="text-gray-500 text-xs font-medium uppercase">🔵 Z.ai</p>
                 <p id="zai-status" class="text-gray-800 font-semibold leading-none mt-1">Ready</p>
                 <div class="text-[10px] mt-2 space-y-0.5 text-gray-500">
                     <p>Reqs: <span id="zai-reqs" class="font-medium text-gray-700">0</span></p>
+                    <p>Success: <span id="zai-success" class="font-medium text-green-600">0</span></p>
+                    <p>Failed: <span id="zai-failed" class="font-medium text-red-500">0</span></p>
                     <p>Fallbacks: <span id="zai-fallbacks" class="font-medium text-gray-700">0</span></p>
                     <p id="zai-disabled" class="text-red-500 hidden">Disabled: <span></span></p>
                 </div>
@@ -47,11 +53,13 @@
             </div>
             
             <!-- Local -->
-            <div>
+            <div class="min-w-[100px]">
                 <p class="text-gray-500 text-xs font-medium uppercase">⚪ Local</p>
                 <p id="local-status" class="text-gray-800 font-semibold leading-none mt-1">Ready</p>
                 <div class="text-[10px] mt-2 space-y-0.5 text-gray-500">
                     <p>Reqs: <span id="local-reqs" class="font-medium text-gray-700">0</span></p>
+                    <p>Success: <span id="local-success" class="font-medium text-green-600">0</span></p>
+                    <p>Failed: <span id="local-failed" class="font-medium text-red-500">0</span></p>
                 </div>
             </div>
         </div>
@@ -249,10 +257,10 @@
         
         row.className = `mb-3 bg-gray-800 rounded-lg border-l-4 ${borderColor} shadow-sm border-y border-r border-gray-700 hover:bg-gray-700 transition-colors cursor-pointer select-none`;
         
-        const totalC = log.totalCompanies !== undefined ? log.totalCompanies : (log.companiesScanned !== undefined ? log.companiesScanned : 'N/A');
-        const totalJ = log.totalJobs !== undefined ? log.totalJobs : (log.jobsFound !== undefined ? log.jobsFound : 'N/A');
-        const durationSecs = log.durationMs ? Math.round(log.durationMs/1000) + 's' : 'N/A';
-        const matchedJobs = log.jobsMatched !== undefined ? log.jobsMatched : 'N/A';
+        const totalC = log.totalCompanies !== undefined ? log.totalCompanies : (log.companiesScanned !== undefined ? log.companiesScanned : 0);
+        const totalJ = log.totalJobs !== undefined ? log.totalJobs : (log.jobsFound !== undefined ? log.jobsFound : 0);
+        const durationSecs = log.durationMs ? Math.round(log.durationMs/1000) + 's' : '0s';
+        const matchedJobs = log.jobsMatched !== undefined ? log.jobsMatched : 0;
         
         const geminiCount = log.geminiCount !== undefined ? log.geminiCount : 0;
         const groqCount = log.groqCount !== undefined ? log.groqCount : 0;
@@ -310,28 +318,28 @@
                         
                         <div><span class="text-gray-500 block mb-1">Finished</span><span class="text-gray-200">${log.completedAt ? new Date(log.completedAt).toLocaleTimeString() : 'N/A'}</span></div>
                         <div><span class="text-gray-500 block mb-1">Duration</span><span class="text-gray-200">${durationSecs}</span></div>
-                        <div><span class="text-gray-500 block mb-1">Companies Successful</span><span class="text-green-400">${log.successfulCompanies !== undefined ? log.successfulCompanies : 'N/A'}</span></div>
-                        <div><span class="text-gray-500 block mb-1">Companies Failed</span><span class="text-red-400">${log.failedCompanies !== undefined ? log.failedCompanies : 'N/A'}</span></div>
+                        <div><span class="text-gray-500 block mb-1">Companies Successful</span><span class="text-green-400">${log.successfulCompanies !== undefined ? log.successfulCompanies : 0}</span></div>
+                        <div><span class="text-gray-500 block mb-1">Companies Failed</span><span class="text-red-400">${log.failedCompanies !== undefined ? log.failedCompanies : 0}</span></div>
                         
-                        <div><span class="text-gray-500 block mb-1">Duplicate Jobs</span><span class="text-gray-200">${log.duplicateJobs !== undefined ? log.duplicateJobs : (log.duplicatesRemoved !== undefined ? log.duplicatesRemoved : 'N/A')}</span></div>
-                        <div><span class="text-gray-500 block mb-1">Jobs Evaluated</span><span class="text-gray-200">${log.jobsEvaluated !== undefined ? log.jobsEvaluated : 'N/A'}</span></div>
+                        <div><span class="text-gray-500 block mb-1">Duplicate Jobs</span><span class="text-gray-200">${log.duplicateJobs !== undefined ? log.duplicateJobs : (log.duplicatesRemoved !== undefined ? log.duplicatesRemoved : 0)}</span></div>
+                        <div><span class="text-gray-500 block mb-1">Jobs Evaluated</span><span class="text-gray-200">${log.jobsEvaluated !== undefined ? log.jobsEvaluated : 0}</span></div>
                         <div><span class="text-gray-500 block mb-1">Matched Jobs</span><span class="text-gray-200">${matchedJobs}</span></div>
-                        <div><span class="text-gray-500 block mb-1">Provider Used</span><span class="text-gray-200">${log.provider || 'N/A'}</span></div>
+                        <div><span class="text-gray-500 block mb-1">Provider Used</span><span class="text-gray-200">${log.provider || 'None'}</span></div>
                         
-                        <div><span class="text-gray-500 block mb-1">Gemini Requests</span><span class="text-purple-400">${geminiCount}</span></div>
-                        <div><span class="text-gray-500 block mb-1">Groq Requests</span><span class="text-orange-400">${groqCount}</span></div>
-                        <div><span class="text-gray-500 block mb-1">Z.ai Requests</span><span class="text-blue-400">${zaiCount}</span></div>
-                        <div><span class="text-gray-500 block mb-1">Local Requests</span><span class="text-gray-200">${localCount}</span></div>
+                        <div><span class="text-gray-500 block mb-1">Gemini (R/S/F)</span><span class="text-purple-400">${geminiCount}/${log.geminiSuccess||0}/${log.geminiFailed||0}</span></div>
+                        <div><span class="text-gray-500 block mb-1">Groq (R/S/F)</span><span class="text-orange-400">${groqCount}/${log.groqSuccess||0}/${log.groqFailed||0}</span></div>
+                        <div><span class="text-gray-500 block mb-1">Z.ai (R/S/F)</span><span class="text-blue-400">${zaiCount}/${log.zaiSuccess||0}/${log.zaiFailed||0}</span></div>
+                        <div><span class="text-gray-500 block mb-1">Local (R/S/F)</span><span class="text-gray-200">${localCount}/${log.localSuccess||0}/${log.localFailed||0}</span></div>
                         
                         <div><span class="text-gray-500 block mb-1">Gemini Fallbacks</span><span class="text-purple-400">${log.geminiFallbacks || 0}</span></div>
                         <div><span class="text-gray-500 block mb-1">Groq Fallbacks</span><span class="text-orange-400">${log.groqFallbacks || 0}</span></div>
                         <div><span class="text-gray-500 block mb-1">Z.ai Fallbacks</span><span class="text-blue-400">${log.zaiFallbacks || 0}</span></div>
-                        <div><span class="text-gray-500 block mb-1">Avg Company Time</span><span class="text-gray-200">${log.avgCompanyTimeMs ? Math.round(log.avgCompanyTimeMs) + 'ms' : 'N/A'}</span></div>
+                        <div><span class="text-gray-500 block mb-1">Avg Company Time</span><span class="text-gray-200">${log.avgCompanyTimeMs !== undefined ? Math.round(log.avgCompanyTimeMs) + 'ms' : '0ms'}</span></div>
                         
-                        <div><span class="text-gray-500 block mb-1">Avg AI Time</span><span class="text-gray-200">${log.avgAiTimeMs ? Math.round(log.avgAiTimeMs) + 'ms' : 'N/A'}</span></div>
-                        <div><span class="text-gray-500 block mb-1">Failure Reason</span><span class="text-red-400">${log.message || log.errorType || 'N/A'}</span></div>
-                        <div><span class="text-gray-500 block mb-1">Current Stage</span><span class="text-gray-200">${log.currentStage || 'N/A'}</span></div>
-                        <div><span class="text-gray-500 block mb-1">Company Being Processed</span><span class="text-gray-200">${log.companyBeingProcessed || 'N/A'}</span></div>
+                        <div><span class="text-gray-500 block mb-1">Avg AI Time</span><span class="text-gray-200">${log.avgAiTimeMs !== undefined ? Math.round(log.avgAiTimeMs) + 'ms' : '0ms'}</span></div>
+                        <div><span class="text-gray-500 block mb-1">Failure Reason</span><span class="text-red-400">${log.message || log.errorType || 'None'}</span></div>
+                        <div><span class="text-gray-500 block mb-1">Current Stage</span><span class="text-gray-200">${log.currentStage || 'Finished'}</span></div>
+                        <div><span class="text-gray-500 block mb-1">Company Being Processed</span><span class="text-gray-200">${log.companyBeingProcessed || 'None'}</span></div>
 
                         ${log.stackTrace ? `<div class="col-span-full"><span class="text-gray-500 block mb-1">Stack Trace</span><pre class="text-[10px] text-gray-400 bg-gray-900 p-2 rounded overflow-x-auto max-h-32 whitespace-pre-wrap">${log.stackTrace}</pre></div>` : ''}
                         ${log.warnings && log.warnings.length > 0 ? `<div class="col-span-full"><span class="text-gray-500 block mb-1">Warnings</span><ul class="text-yellow-400 list-disc pl-4 space-y-1">${log.warnings.map(w => `<li>${w}</li>`).join('')}</ul></div>` : ''}
@@ -495,6 +503,8 @@
                 if (geminiStatusEl && s.geminiStatus) {
                     geminiStatusEl.innerText = s.geminiStatus;
                     document.getElementById('gemini-reqs').innerText = s.geminiRequests || 0;
+                    document.getElementById('gemini-success').innerText = s.geminiSuccess || 0;
+                    document.getElementById('gemini-failed').innerText = s.geminiFailed || 0;
                     document.getElementById('gemini-fallbacks').innerText = s.geminiFallbacks || 0;
                     if (s.geminiStatus === 'Unavailable') {
                         geminiStatusEl.className = "text-red-500 font-semibold leading-none mt-1";
@@ -524,6 +534,8 @@
                 if (groqStatusEl && s.groqStatus) {
                     groqStatusEl.innerText = s.groqStatus;
                     document.getElementById('groq-reqs').innerText = s.groqRequests || 0;
+                    document.getElementById('groq-success').innerText = s.groqSuccess || 0;
+                    document.getElementById('groq-failed').innerText = s.groqFailed || 0;
                     document.getElementById('groq-fallbacks').innerText = s.groqFallbacks || 0;
                     if (s.groqStatus === 'Unavailable') {
                         groqStatusEl.className = "text-red-500 font-semibold leading-none mt-1";
@@ -553,6 +565,8 @@
                 if (zaiStatusEl && s.zaiStatus) {
                     zaiStatusEl.innerText = s.zaiStatus;
                     document.getElementById('zai-reqs').innerText = s.zaiRequests || 0;
+                    document.getElementById('zai-success').innerText = s.zaiSuccess || 0;
+                    document.getElementById('zai-failed').innerText = s.zaiFailed || 0;
                     document.getElementById('zai-fallbacks').innerText = s.zaiFallbacks || 0;
                     if (s.zaiStatus === 'Unavailable') {
                         zaiStatusEl.className = "text-red-500 font-semibold leading-none mt-1";
@@ -577,6 +591,10 @@
                 
                 const localReqsEl = document.getElementById('local-reqs');
                 if (localReqsEl) localReqsEl.innerText = s.localRequests || 0;
+                const localSuccessEl = document.getElementById('local-success');
+                if (localSuccessEl) localSuccessEl.innerText = s.localSuccess || 0;
+                const localFailedEl = document.getElementById('local-failed');
+                if (localFailedEl) localFailedEl.innerText = s.localFailed || 0;
                 
                 let dotColor = 'bg-gray-400';
                 let pingColor = 'bg-gray-400';

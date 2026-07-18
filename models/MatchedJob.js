@@ -50,6 +50,8 @@ const matchedJobSchema = new mongoose.Schema({
     evaluationTimeMs: Number,
     fallbackCount: Number,
     fallbackReason: String,
+    providerChain: [String],
+    isDuplicate: { type: Boolean, default: false },
     
     evaluationMetrics: {
         provider: String,

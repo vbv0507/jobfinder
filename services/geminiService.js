@@ -109,13 +109,6 @@ const evaluateJobLocally = (job, profile, reasonPrefix = "Gemini unavailable") =
 };
 
 const evaluateJobWithGroq = async (job, profile) => {
-    if (
-        process.env.ENABLE_GROQ_FALLBACK === "false" ||
-        !process.env.GROQ_API_KEY
-    ) {
-        return null;
-    }
-
     const response = await axios.post(
         "https://api.groq.com/openai/v1/chat/completions",
         {
@@ -160,9 +153,13 @@ const evaluateJob = async (job, profile, aiState = { gemini: { available: true }
     const startTime = Date.now();
     let fallbackCount = 0;
     let failureReason = null;
+    let providerChain = [];
 
+    // 1. Gemini
     if (aiState.gemini.available) {
-        aiState.geminiRequests = (aiState.geminiRequests || 0) + 1;
+        console.log("[AI] Trying Gemini");
+        providerChain.push("Gemini");
+        aiState.gemini.requests = (aiState.gemini.requests || 0) + 1;
         try {
             const result = await model.generateContent(buildEvaluationPrompt(job, profile));
             let parsedResult = parseJsonResponse(result.response.text());
@@ -170,6 +167,8 @@ const evaluateJob = async (job, profile, aiState = { gemini: { available: true }
             if (typeof parsedResult.score !== "number") parsedResult.score = parseInt(parsedResult.score) || 0;
             parsedResult.evaluatedBy = "Gemini";
             parsedResult.jobDomain = parsedResult.jobDomain || classifyDomain(getText(job));
+            
+            aiState.gemini.success = (aiState.gemini.success || 0) + 1;
             
             parsedResult.evaluationMetrics = {
                 provider: "Gemini",
@@ -183,14 +182,17 @@ const evaluateJob = async (job, profile, aiState = { gemini: { available: true }
             parsedResult.evaluationTimeMs = Date.now() - startTime;
             parsedResult.fallbackCount = fallbackCount;
             parsedResult.fallbackReason = null;
+            parsedResult.providerChain = providerChain;
 
             return parsedResult;
         } catch (error) {
+            aiState.gemini.failed = (aiState.gemini.failed || 0) + 1;
             const errorAnalysis = analyzeError(error);
 
             if (errorAnalysis.permanent) {
                 console.log(`[AI] Gemini disabled for this pipeline.\nReason: ${errorAnalysis.reason}.`);
                 aiState.gemini.available = false;
+                aiState.gemini.disabled = true;
                 aiState.gemini.reason = errorAnalysis.reason;
                 aiState.gemini.disabledAt = new Date();
             } else {
@@ -200,21 +202,23 @@ const evaluateJob = async (job, profile, aiState = { gemini: { available: true }
             aiState.geminiFallbacks = (aiState.geminiFallbacks || 0) + 1;
             fallbackCount++;
             failureReason = `Gemini failed: ${errorAnalysis.reason}`;
+            console.log("[AI] Gemini Failed");
             console.error("Gemini Evaluation Error:", error.message);
         }
     } else {
-        aiState.geminiFallbacks = (aiState.geminiFallbacks || 0) + 1;
-        fallbackCount++;
-        failureReason = `Gemini disabled: ${aiState.gemini.reason}`;
+        failureReason = `Gemini disabled${aiState.gemini.reason ? ': ' + aiState.gemini.reason : ''}`;
     }
 
-    if (aiState.groq.available && (process.env.ENABLE_GROQ_FALLBACK === "true" || process.env.ENABLE_GROQ_FALLBACK !== "false")) {
-        aiState.groqRequests = (aiState.groqRequests || 0) + 1;
+    // 2. Groq
+    if (aiState.groq.available && process.env.ENABLE_GROQ_FALLBACK !== "false" && process.env.GROQ_API_KEY) {
+        providerChain.push("Groq");
+        aiState.groq.requests = (aiState.groq.requests || 0) + 1;
         try {
-            console.log("Trying Groq fallback.");
+            console.log("[AI] Trying Groq");
             const groqAnalysis = await evaluateJobWithGroq(job, profile);
 
             if (groqAnalysis) {
+                aiState.groq.success = (aiState.groq.success || 0) + 1;
                 groqAnalysis.evaluationMetrics = {
                     provider: "Groq",
                     durationMs: Date.now() - startTime,
@@ -224,14 +228,17 @@ const evaluateJob = async (job, profile, aiState = { gemini: { available: true }
                 groqAnalysis.evaluationTimeMs = Date.now() - startTime;
                 groqAnalysis.fallbackCount = fallbackCount;
                 groqAnalysis.fallbackReason = failureReason;
+                groqAnalysis.providerChain = providerChain;
                 return groqAnalysis;
             }
         } catch (groqError) {
+            aiState.groq.failed = (aiState.groq.failed || 0) + 1;
             const errorAnalysis = analyzeError(groqError);
 
             if (errorAnalysis.permanent) {
                 console.log(`[AI] Groq disabled for this pipeline.\nReason: ${errorAnalysis.reason}.`);
                 aiState.groq.available = false;
+                aiState.groq.disabled = true;
                 aiState.groq.reason = errorAnalysis.reason;
                 aiState.groq.disabledAt = new Date();
             } else {
@@ -240,22 +247,24 @@ const evaluateJob = async (job, profile, aiState = { gemini: { available: true }
 
             aiState.groqFallbacks = (aiState.groqFallbacks || 0) + 1;
             fallbackCount++;
-            failureReason = `Groq failed: ${errorAnalysis.reason}`;
+            failureReason = failureReason ? `${failureReason} | Groq failed: ${errorAnalysis.reason}` : `Groq failed: ${errorAnalysis.reason}`;
+            console.log("[AI] Groq Failed");
             console.error("Groq Evaluation Error:", groqError.message);
         }
     } else if (!aiState.groq.available) {
-        aiState.groqFallbacks = (aiState.groqFallbacks || 0) + 1;
-        fallbackCount++;
-        failureReason = failureReason ? `${failureReason} | Groq disabled: ${aiState.groq.reason}` : `Groq disabled: ${aiState.groq.reason}`;
+        failureReason = failureReason ? `${failureReason} | Groq disabled${aiState.groq.reason ? ': ' + aiState.groq.reason : ''}` : `Groq disabled${aiState.groq.reason ? ': ' + aiState.groq.reason : ''}`;
     }
 
-    if (aiState.zai.available && (process.env.ENABLE_ZAI_FALLBACK === "true" || process.env.ENABLE_ZAI_FALLBACK !== "false")) {
-        aiState.zaiRequests = (aiState.zaiRequests || 0) + 1;
+    // 3. Z.ai
+    if (aiState.zai.available && process.env.ENABLE_ZAI_FALLBACK !== "false" && process.env.ZAI_API_KEY) {
+        providerChain.push("Z.ai");
+        aiState.zai.requests = (aiState.zai.requests || 0) + 1;
         try {
-            console.log("Trying Z.ai (GLM) fallback.");
+            console.log("[AI] Trying Z.ai");
             const zaiAnalysis = await evaluateJobWithZai(job, profile);
 
             if (zaiAnalysis) {
+                aiState.zai.success = (aiState.zai.success || 0) + 1;
                 zaiAnalysis.evaluationMetrics = {
                     provider: "Z.ai",
                     durationMs: Date.now() - startTime,
@@ -266,14 +275,17 @@ const evaluateJob = async (job, profile, aiState = { gemini: { available: true }
                 zaiAnalysis.fallbackCount = fallbackCount;
                 zaiAnalysis.fallbackReason = failureReason;
                 zaiAnalysis.provider = "zai";
+                zaiAnalysis.providerChain = providerChain;
                 return zaiAnalysis;
             }
         } catch (zaiError) {
+            aiState.zai.failed = (aiState.zai.failed || 0) + 1;
             const errorAnalysis = analyzeError(zaiError);
 
             if (errorAnalysis.permanent) {
                 console.log(`[AI] Z.ai disabled for this pipeline.\nReason: ${errorAnalysis.reason}.`);
                 aiState.zai.available = false;
+                aiState.zai.disabled = true;
                 aiState.zai.reason = errorAnalysis.reason;
                 aiState.zai.disabledAt = new Date();
             } else {
@@ -282,19 +294,22 @@ const evaluateJob = async (job, profile, aiState = { gemini: { available: true }
 
             aiState.zaiFallbacks = (aiState.zaiFallbacks || 0) + 1;
             fallbackCount++;
-            failureReason = `Z.ai failed: ${errorAnalysis.reason}`;
+            failureReason = failureReason ? `${failureReason} | Z.ai failed: ${errorAnalysis.reason}` : `Z.ai failed: ${errorAnalysis.reason}`;
+            console.log("[AI] Z.ai Failed");
             console.error("Z.ai Evaluation Error:", zaiError.message);
         }
     } else if (!aiState.zai.available) {
-        aiState.zaiFallbacks = (aiState.zaiFallbacks || 0) + 1;
-        fallbackCount++;
-        failureReason = failureReason ? `${failureReason} | Z.ai disabled: ${aiState.zai.reason}` : `Z.ai disabled: ${aiState.zai.reason}`;
+        failureReason = failureReason ? `${failureReason} | Z.ai disabled${aiState.zai.reason ? ': ' + aiState.zai.reason : ''}` : `Z.ai disabled${aiState.zai.reason ? ': ' + aiState.zai.reason : ''}`;
     }
 
+    // 4. Local
     if (process.env.ENABLE_LOCAL_MATCH_FALLBACK !== "false") {
-        aiState.localRequests = (aiState.localRequests || 0) + 1;
+        providerChain.push("Local");
+        if (!aiState.local) aiState.local = {};
+        aiState.local.requests = (aiState.local.requests || 0) + 1;
+        aiState.local.success = (aiState.local.success || 0) + 1;
         fallbackCount++;
-        console.log("Using local match fallback.");
+        console.log("[AI] Using Local Heuristic");
         const localResult = evaluateJobLocally(
             job,
             profile,
@@ -305,6 +320,7 @@ const evaluateJob = async (job, profile, aiState = { gemini: { available: true }
         localResult.evaluationTimeMs = Date.now() - startTime;
         localResult.fallbackCount = fallbackCount;
         localResult.fallbackReason = failureReason || "AI evaluation failed";
+        localResult.providerChain = providerChain;
         return localResult;
     }
 
@@ -340,7 +356,8 @@ const evaluateJob = async (job, profile, aiState = { gemini: { available: true }
         model: "unknown",
         evaluationTimeMs: Date.now() - startTime,
         fallbackCount,
-        fallbackReason: failureReason || "AI evaluation failed"
+        fallbackReason: failureReason || "AI evaluation failed",
+        providerChain
     };
 };
 

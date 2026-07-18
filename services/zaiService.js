@@ -2,12 +2,6 @@ const axios = require("axios");
 const { buildEvaluationPrompt, parseJsonResponse } = require("./aiHelpers");
 
 const evaluateJobWithZai = async (job, profile) => {
-    if (
-        process.env.ENABLE_ZAI_FALLBACK === "false" ||
-        !process.env.ZAI_API_KEY
-    ) {
-        return null;
-    }
 
     const apiUrl = process.env.ZAI_BASE_URL || "https://api.z.ai/api/paas/v4/chat/completions";
     const model = process.env.ZAI_MODEL || "glm-4.5-air";

@@ -157,7 +157,7 @@ const updateJobStatus = async (req, res) => {
         const job = await MatchedJob.findByIdAndUpdate(
             req.params.id,
             { ...updateData, $push: pushData },
-            { new: true }
+            { returnDocument: "after" }
         );
 
         if (!job) {

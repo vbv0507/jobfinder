@@ -133,23 +133,25 @@
                     <span class="font-semibold text-gray-800"><%= aiIcon %> <%= aiName %></span>
                 </div>
                 <div class="flex justify-between border-b border-gray-50 pb-2">
+                    <span class="text-gray-500">Provider Chain</span>
+                    <span class="font-semibold text-gray-800 text-right"><%= (job.providerChain && job.providerChain.length > 0) ? job.providerChain.join(' → ') : 'N/A' %></span>
+                </div>
+                <div class="flex justify-between border-b border-gray-50 pb-2">
                     <span class="text-gray-500">Model</span>
-                    <span class="font-semibold text-gray-800"><%= job.model || 'unknown' %></span>
+                    <span class="font-semibold text-gray-800"><%= job.model || 'N/A' %></span>
                 </div>
                 <div class="flex justify-between border-b border-gray-50 pb-2">
                     <span class="text-gray-500">Evaluation Time</span>
-                    <span class="font-semibold text-gray-800"><%= job.evaluationTimeMs || job.evaluationMetrics?.durationMs || 0 %> ms</span>
+                    <span class="font-semibold text-gray-800"><%= (job.evaluationTimeMs || job.evaluationMetrics?.durationMs) !== undefined ? (job.evaluationTimeMs || job.evaluationMetrics?.durationMs) : 'N/A' %> ms</span>
                 </div>
                 <div class="flex justify-between border-b border-gray-50 pb-2">
                     <span class="text-gray-500">Fallback Count</span>
-                    <span class="font-semibold text-gray-800"><%= job.fallbackCount || job.evaluationMetrics?.fallbackCount || 0 %></span>
+                    <span class="font-semibold text-gray-800"><%= (job.fallbackCount || job.evaluationMetrics?.fallbackCount) !== undefined ? (job.fallbackCount || job.evaluationMetrics?.fallbackCount) : 0 %></span>
                 </div>
-                <% if(job.fallbackReason || job.evaluationMetrics?.failureReason) { %>
                 <div class="pt-2">
                     <span class="text-gray-500 block mb-1">Fallback Reason</span>
-                    <span class="font-semibold text-red-600"><%= job.fallbackReason || job.evaluationMetrics?.failureReason %></span>
+                    <span class="font-semibold text-red-600"><%= job.fallbackReason || job.evaluationMetrics?.failureReason || 'N/A' %></span>
                 </div>
-                <% } %>
             </div>
         </div>
 

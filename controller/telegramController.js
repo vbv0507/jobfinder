@@ -22,7 +22,7 @@ exports.toggleChannel = async (req, res) => {
         const channel = await TelegramChannel.findByIdAndUpdate(
             id,
             { enabled },
-            { new: true }
+            { returnDocument: "after" }
         );
         
         if (!channel) {

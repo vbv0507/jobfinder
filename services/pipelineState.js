@@ -17,23 +17,31 @@ const pipelineState = {
     geminiStatus: "Ready",
     geminiReason: null,
     geminiRequests: 0,
+    geminiSuccess: 0,
+    geminiFailed: 0,
     geminiFallbacks: 0,
     geminiDisabledAt: null,
     geminiNextRetry: null,
     groqStatus: "Ready",
     groqReason: null,
     groqRequests: 0,
+    groqSuccess: 0,
+    groqFailed: 0,
     groqFallbacks: 0,
     groqDisabledAt: null,
     groqNextRetry: null,
     zaiStatus: "Ready",
     zaiReason: null,
     zaiRequests: 0,
+    zaiSuccess: 0,
+    zaiFailed: 0,
     zaiFallbacks: 0,
     zaiDisabledAt: null,
     zaiNextRetry: null,
     localStatus: "Ready",
-    localRequests: 0
+    localRequests: 0,
+    localSuccess: 0,
+    localFailed: 0
 };
 
 module.exports = pipelineState;

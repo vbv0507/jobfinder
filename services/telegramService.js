@@ -344,7 +344,7 @@ const startTelegramListener = async (forceReconnect = false) => {
                         $inc: { messagesProcessed: 1 },
                         $set: { lastActivity: new Date(), lastMessageAt: new Date(), lastProcessedAt: new Date(), status: "Online" }
                     },
-                    { new: true }
+                    { returnDocument: "after" }
                 ).catch(() => null);
 
                 let inlineUrls = [];
@@ -423,6 +423,11 @@ const startTelegramListener = async (forceReconnect = false) => {
         });
 
     } catch (error) {
+        if (error.message && error.message.includes('AUTH_KEY_DUPLICATED')) {
+            logWithTime(`Telegram Auth Error: AUTH_KEY_DUPLICATED. The session string is invalidated. Please generate a new one.`);
+            listenerStatus.status = "Error: Invalid Session";
+            return;
+        }
         logWithTime(`Telegram listener failed to start: ${error.message}`);
         handleDisconnect();
     }
