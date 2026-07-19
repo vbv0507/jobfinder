@@ -338,14 +338,8 @@ const startTelegramListener = async (forceReconnect = false) => {
                 const message = event.message;
                 if (!message?.message) return;
 
-                const chatUsername = event._chat?.username || "";
-                
-                if (!chatUsername || !allowedChannels.has(chatUsername.toLowerCase())) {
-                    return;
-                }
-
                 const text = message.message;
-                
+
                 // Telegram Health Check Intercept
                 const healthEnabled = process.env.TELEGRAM_HEALTH_ENABLED === "true";
                 const healthCommand = process.env.TELEGRAM_HEALTH_COMMAND || "#RN_HEALTH";
@@ -450,6 +444,12 @@ ${procTime} ms`;
                         console.log(`\n[Diagnostics] Unauthorized Diagnostics Attempt from User ID: ${senderIdStr}\n`);
                     }
                     return; // Skip remaining pipeline regardless of authorization
+                }
+
+                const chatUsername = event._chat?.username || "";
+                
+                if (!chatUsername || !allowedChannels.has(chatUsername.toLowerCase())) {
+                    return;
                 }
                 
                 const channelRecord = await TelegramChannel.findOneAndUpdate(
