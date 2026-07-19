@@ -534,7 +534,7 @@ ${procTime} ms`;
             }
         });
 
-        telegramClient.addEventHandler((event) => {
+        telegramClient.setDisconnectedHandler(() => {
             handleDisconnect();
         });
 
