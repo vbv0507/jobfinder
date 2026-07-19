@@ -316,6 +316,9 @@ erDiagram
 | `TELEGRAM_API_ID` | Telegram API ID |
 | `TELEGRAM_API_HASH` | Telegram API Hash |
 | `TELEGRAM_SESSION` | Persistent Telegram Session String |
+| `TELEGRAM_HEALTH_ENABLED` | Toggle Telegram Health Check Command |
+| `TELEGRAM_HEALTH_COMMAND` | Custom Command for Health Check (e.g. #RN_HEALTH) |
+| `TELEGRAM_HEALTH_ALLOWED_USERS` | Comma separated user IDs allowed to perform Health Check |
 
 ---
 

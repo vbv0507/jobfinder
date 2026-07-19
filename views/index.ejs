@@ -75,6 +75,22 @@
                 <p class="text-gray-500 text-xs mt-1 leading-none" id="pipeline-msg">Connecting to engine</p>
             </div>
         </div>
+
+        <!-- Telegram Health Widget -->
+        <div id="telegram-health-widget" class="bg-white px-4 py-2 rounded-lg shadow-sm border border-gray-100 flex items-start gap-3">
+            <div class="text-sm">
+                <p class="text-gray-800 font-medium leading-none">Telegram Status <span id="tg-health-status">⚪ Loading</span></p>
+                <div class="text-[10px] text-gray-500 mt-2 space-y-0.5">
+                    <p>Last Health Check: <span id="tg-last-health" class="font-medium text-gray-700">-</span></p>
+                    <p>Last Diagnostics User: <span id="tg-last-user" class="font-medium text-gray-700">-</span></p>
+                    <p>Last Job Msg: <span id="tg-last-job" class="font-medium text-gray-700">-</span></p>
+                    <p>App Uptime: <span id="tg-app-uptime" class="font-medium text-gray-700">-</span></p>
+                    <p>Running Since: <span id="tg-uptime" class="font-medium text-gray-700">-</span></p>
+                    <p>Environment: <span class="font-medium text-gray-800">Production</span></p>
+                    <p>Connection: <span id="tg-conn-status" class="font-medium text-gray-700">Checking...</span></p>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -666,6 +682,79 @@
         } catch (e) {}
     }
 
+    async function fetchTelegramStatus() {
+        try {
+            const res = await fetch("/api/telegram/status");
+            const data = await res.json();
+            if(data.success && data.status) {
+                const status = data.status;
+                const statusEl = document.getElementById('tg-health-status');
+                const lastHealthEl = document.getElementById('tg-last-health');
+                const lastJobEl = document.getElementById('tg-last-job');
+                const lastUserEl = document.getElementById('tg-last-user');
+                const appUptimeEl = document.getElementById('tg-app-uptime');
+                const uptimeEl = document.getElementById('tg-uptime');
+                const connStatusEl = document.getElementById('tg-conn-status');
+
+                let isStale = false;
+                if (status.lastHealthCheckAt) {
+                    const healthDate = new Date(status.lastHealthCheckAt);
+                    lastHealthEl.innerText = healthDate.toLocaleTimeString();
+                    if (new Date() - healthDate > 30 * 60 * 1000) {
+                        isStale = true;
+                    }
+                } else {
+                    lastHealthEl.innerText = "Never";
+                }
+
+                if (status.lastJobMessageAt) {
+                    lastJobEl.innerText = new Date(status.lastJobMessageAt).toLocaleTimeString();
+                } else {
+                    lastJobEl.innerText = "Never";
+                }
+                
+                if (status.lastDiagnosticsUser) {
+                    lastUserEl.innerText = status.lastDiagnosticsUser;
+                } else {
+                    lastUserEl.innerText = "None";
+                }
+
+                if (status.appUptime) {
+                    const hrs = Math.floor(status.appUptime / 3600);
+                    const mins = Math.floor((status.appUptime % 3600) / 60);
+                    appUptimeEl.innerText = `${hrs}h ${mins}m`;
+                } else {
+                    appUptimeEl.innerText = "-";
+                }
+
+                if (status.uptimeStart) {
+                    const start = new Date(status.uptimeStart);
+                    const diff = Math.floor((new Date() - start) / 1000);
+                    const hrs = Math.floor(diff / 3600);
+                    const mins = Math.floor((diff % 3600) / 60);
+                    uptimeEl.innerText = `${hrs}h ${mins}m`;
+                } else {
+                    uptimeEl.innerText = "-";
+                }
+
+                connStatusEl.innerText = status.status;
+                
+                if (status.status === 'Connected') {
+                    if (isStale) {
+                        statusEl.innerText = "🟡 Stale";
+                        statusEl.className = "text-yellow-500 font-semibold";
+                    } else {
+                        statusEl.innerText = "🟢 Connected";
+                        statusEl.className = "text-green-500 font-semibold";
+                    }
+                } else {
+                    statusEl.innerText = "🔴 Offline";
+                    statusEl.className = "text-red-500 font-semibold";
+                }
+            }
+        } catch(e) {}
+    }
+
     async function clearRawJobs() {
         if(!confirm("Are you sure you want to delete all raw job data?")) return;
         try {
@@ -681,10 +770,12 @@
         loadDashboard();
         fetchLogs();
         fetchPipelineStatus();
+        fetchTelegramStatus();
         
         // Poll pipeline status and logs every 5 seconds
         setInterval(() => {
             fetchPipelineStatus();
+            fetchTelegramStatus();
             fetchLogs();
         }, 5000);
     });

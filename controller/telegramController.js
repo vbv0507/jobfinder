@@ -72,7 +72,7 @@ exports.deleteChannel = async (req, res) => {
 exports.getStatus = async (req, res) => {
     try {
         const status = getListenerStatus();
-        res.status(200).json({ success: true, status });
+        res.status(200).json({ success: true, status: { ...status, appUptime: process.uptime() } });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
     }

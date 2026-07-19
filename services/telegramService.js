@@ -22,6 +22,11 @@ const { saveTrainingSample } = require("./trainingDatasetService");
 const API_ID = Number(process.env.TELEGRAM_API_ID);
 const API_HASH = process.env.TELEGRAM_API_HASH;
 
+const mongoose = require("mongoose");
+const { execSync } = require("child_process");
+const PipelineLock = require("../models/PipelineLock");
+const pipelineState = require("./pipelineState");
+
 
 const logWithTime = (msg) => {
     const time = new Date().toTimeString().split(" ")[0];
@@ -35,7 +40,10 @@ const listenerStatus = {
     uptimeStart: null,
     layer: "Unknown",
     dc: "Unknown",
-    version: "2.26.15" // Typical GramJS version
+    version: "2.26.15", // Typical GramJS version
+    lastHealthCheckAt: null,
+    lastJobMessageAt: null,
+    lastDiagnosticsUser: null
 };
 
 let telegramClient = null;
@@ -338,6 +346,112 @@ const startTelegramListener = async (forceReconnect = false) => {
 
                 const text = message.message;
                 
+                // Telegram Health Check Intercept
+                const healthEnabled = process.env.TELEGRAM_HEALTH_ENABLED === "true";
+                const healthCommand = process.env.TELEGRAM_HEALTH_COMMAND || "#RN_HEALTH";
+                const senderIdStr = message.senderId ? message.senderId.toString() : (message.fromId?.userId ? message.fromId.userId.toString() : "");
+
+                if (healthEnabled && text === healthCommand) {
+                    const allowedUsers = (process.env.TELEGRAM_HEALTH_ALLOWED_USERS || "").split(",").map(u => u.trim());
+                    if (allowedUsers.includes(senderIdStr)) {
+                        const receivedTime = new Date();
+                        listenerStatus.lastHealthCheckAt = new Date();
+                        listenerStatus.lastDiagnosticsUser = senderIdStr;
+                        
+                        // Gather Diagnostics
+                        let gitCommit = "Unknown";
+                        try {
+                            gitCommit = execSync('git rev-parse --short HEAD').toString().trim();
+                        } catch (e) {}
+                        
+                        const appUptime = process.uptime();
+                        const hrs = Math.floor(appUptime / 3600);
+                        const mins = Math.floor((appUptime % 3600) / 60);
+                        const uptimeStr = `${hrs}h ${mins}m`;
+                        
+                        const memUsage = Math.round(process.memoryUsage().rss / 1024 / 1024);
+                        const mongoStatus = mongoose.connection.readyState === 1 ? "🟢 Connected" : "🔴 Offline";
+                        
+                        let lockStatus = "Unlocked";
+                        try {
+                            const lock = await PipelineLock.findOne({ lockId: "global_pipeline_lock" });
+                            if (lock && lock.status === "Running") lockStatus = `Locked by ${lock.runner}`;
+                        } catch (e) {}
+
+                        const lastPipelineStart = pipelineState.lastRunTime ? new Date(pipelineState.lastRunTime).toLocaleString("en-IN", { timeZone: "Asia/Kolkata", month: "short", day: "numeric", year: "numeric", hour: "2-digit", minute: "2-digit" }) + " IST" : "Never";
+                        const lastTelegramMsg = listenerStatus.lastJobMessageAt ? new Date(listenerStatus.lastJobMessageAt).toLocaleString("en-IN", { timeZone: "Asia/Kolkata", hour: "2-digit", minute: "2-digit" }) + " IST" : "Never";
+                        
+                        const procTime = new Date() - receivedTime;
+                        
+                        const replyMessage = `✅ RoleNova Diagnostics
+
+Environment
+${process.env.NODE_ENV === "production" ? "Production" : "Development"}
+
+Version
+v1.0.0 (${gitCommit})
+
+Status
+Healthy
+
+Telegram
+🟢 Connected
+
+MongoDB
+${mongoStatus}
+
+Pipeline
+${pipelineState.status === "Running" ? "🔵 Running" : "🟢 Idle"}
+
+Distributed Lock
+${lockStatus}
+
+Gemini
+${pipelineState.geminiStatus === "Ready" ? "🟢 Ready" : "🔴 " + pipelineState.geminiStatus}
+${pipelineState.geminiReason ? "Reason:\n" + pipelineState.geminiReason : ""}
+
+Groq
+${pipelineState.groqStatus === "Ready" ? "🟢 Ready" : "🔴 " + pipelineState.groqStatus}
+
+Z.ai
+${pipelineState.zaiStatus === "Ready" ? "🟢 Ready" : "🔴 " + pipelineState.zaiStatus}
+
+Local
+${pipelineState.localStatus === "Ready" ? "🟢 Ready" : "🔴 " + pipelineState.localStatus}
+
+Last Pipeline
+${lastPipelineStart}
+
+Last Telegram Message
+${lastTelegramMsg}
+
+Memory
+${memUsage} MB
+
+Uptime
+${uptimeStr}
+
+Latency
+${procTime} ms`;
+                        
+                        try {
+                            await telegramClient.sendMessage(message.peerId, { message: replyMessage, replyTo: message.id });
+                        } catch (e) {
+                            console.log(`[Diagnostics] Failed to reply: ${e.message}`);
+                        }
+
+                        console.log(`\n[Diagnostics]`);
+                        console.log(`User: ${senderIdStr}`);
+                        console.log(`Timestamp: ${new Date().toISOString()}`);
+                        console.log(`Latency: ${procTime} ms`);
+                        console.log(`Environment: Production`);
+                        console.log(`Status: SUCCESS\n`);
+                    } else {
+                        console.log(`\n[Diagnostics] Unauthorized Diagnostics Attempt from User ID: ${senderIdStr}\n`);
+                    }
+                    return; // Skip remaining pipeline regardless of authorization
+                }
+                
                 const channelRecord = await TelegramChannel.findOneAndUpdate(
                     { username: { $regex: new RegExp(`^${chatUsername}$`, 'i') } },
                     { 
@@ -364,6 +478,8 @@ const startTelegramListener = async (forceReconnect = false) => {
                     }
                     return; 
                 }
+
+                listenerStatus.lastJobMessageAt = new Date();
 
                 console.log("[Telegram]");
                 console.log(`Channel: @${chatUsername}`);
