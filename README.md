@@ -281,6 +281,27 @@ erDiagram
 
 ---
 
+## 🧪 Telegram Test Mode
+
+A dedicated deterministic testing mode allows you to verify the entire Telegram ingestion and evaluation pipeline without relying on random job postings from production channels or impacting real data analytics.
+
+**Why it exists:** Provides a clean, isolated environment to ensure the listener, parser, AI evaluation, and MongoDB ingestion work flawlessly when updates are made to the pipeline.
+
+**Configuration:**
+1. Create a **Public** Telegram channel (e.g., `@RoleNovaTestJobs`).
+2. Add the following to your environment variables (`.env` or Azure App Settings):
+   ```env
+   TELEGRAM_TEST_MODE=true
+   TELEGRAM_TEST_CHANNEL=@RoleNovaTestJobs
+   ```
+3. Restart the application. 
+4. Post a test message in your channel. The pipeline will process it normally but tag the logs with `[Telegram Test]`.
+
+**Disabling:**
+Set `TELEGRAM_TEST_MODE=false` or remove it from the environment entirely. Restart the application to resume listening to production channels configured in MongoDB.
+
+---
+
 ## ⚡ API Endpoints
 
 | Method | Endpoint | Description |

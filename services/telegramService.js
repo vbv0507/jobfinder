@@ -35,19 +35,14 @@ const logWithTime = (msg) => {
 };
 
 const listenerStatus = {
-    status: "Disconnected",
-    lastConnectedAt: null,
-    lastDisconnectedAt: null,
-    uptimeStart: null,
-    layer: "Unknown",
-    dc: "Unknown",
-    version: "2.26.15", // Typical GramJS version
-    lastHealthCheckAt: null,
+    connected: false,
     lastJobMessageAt: null,
+    lastHealthCheckAt: null,
     lastDiagnosticsUser: null
 };
 
 let telegramClient = null;
+let messagesReceivedSinceStartup = 0;
 let reconnectDelay = 5000;
 let isReconnecting = false;
 let allowedChannels = new Set();
@@ -270,11 +265,29 @@ const processJobUrl = async (url, telegramCompany, profile, structuredData, sour
 };
 
 const handleIncomingMessage = async (event) => {
+    messagesReceivedSinceStartup++;
     let chatUsername = "";
     try {
         const message = event.message;
-        console.log("[Telegram] New Message Received");
-        if (!message?.message) return;
+        console.log("==================================================");
+        console.log("NEW TELEGRAM EVENT RECEIVED");
+        console.log("==================================================");
+        console.log("Time: " + new Date().toISOString());
+        console.log("Message ID: " + (message?.id || "Unknown"));
+        
+        let peerId = "Unknown";
+        if (message?.peerId) {
+            peerId = message.peerId.channelId || message.peerId.userId || message.peerId.chatId || "Unknown";
+        }
+        console.log("Peer ID: " + peerId);
+        console.log("Class Name: " + (event.className || "Unknown"));
+        console.log("Text Preview: " + (message?.message ? message.message.substring(0, 100) : "None"));
+        console.log("Messages received since startup: " + messagesReceivedSinceStartup);
+
+        if (!message?.message) {
+            console.log("RETURN REASON: - Empty message");
+            return;
+        }
 
         const text = message.message;
 
@@ -327,26 +340,78 @@ const handleIncomingMessage = async (event) => {
                 console.log(`[Telegram] Health Diagnostics sent in ${procTime}ms`);
             } else {
                 console.log(`[Telegram] Unauthorized Diagnostics Attempt from User ID: ${senderIdStr}`);
+                console.log("RETURN REASON: - Unauthorized health command");
+                return;
             }
+            console.log("RETURN REASON: - Health command handled");
             return; // Skip remaining pipeline regardless of authorization
         }
 
+        let chat = null;
         try {
-            const chat = await message.getChat();
+            chat = await message.getChat();
             chatUsername = chat?.username || "";
+            console.log("Chat ID: " + (chat?.id ? chat.id.toString() : "Undefined"));
+            console.log("Chat Title: " + (chat?.title || "Undefined"));
+            console.log("Chat Username: " + (chat?.username || "Undefined"));
+            console.log("Chat Class: " + (chat?.className || "Undefined"));
+            console.log("Broadcast: " + (chat?.broadcast ? "true" : "false"));
+            console.log("Megagroup: " + (chat?.megagroup ? "true" : "false"));
+            console.log("Verified: " + (chat?.verified ? "true" : "false"));
         } catch (e) {
             console.log(`[Telegram] Failed to get chat for message: ${e.message}`);
         }
         
-        console.log(`[Telegram] Channel Identified: ${chatUsername}`);
+        console.log("Allowed\n[\n" + Array.from(allowedChannels).join(",\n") + "\n]");
+        console.log("Incoming Username\n" + (chatUsername || ""));
+        const testMode = process.env.TELEGRAM_TEST_MODE === "true";
+        const rawTestChannel = process.env.TELEGRAM_TEST_CHANNEL || "";
+        const testChannelEnv = rawTestChannel.trim().replace(/^@/, "").toLowerCase();
+        const incomingNorm = chatUsername ? chatUsername.trim().toLowerCase() : "";
         
-        if (!chatUsername || !allowedChannels.has(chatUsername.toLowerCase())) {
-            return;
+        let isAllowed = false;
+        
+        if (testMode) {
+            isAllowed = chatUsername && incomingNorm === testChannelEnv;
+            if (!isAllowed) {
+                console.log("Expected Channel:\n" + rawTestChannel);
+                console.log("Incoming Channel:\n" + (chatUsername || ""));
+                console.log("Normalized Expected:\n" + testChannelEnv);
+                console.log("Normalized Incoming:\n" + incomingNorm);
+                console.log("Decision:\nREJECTED");
+                console.log("Reason:\nTest channel mismatch or missing username");
+                return;
+            }
+        } else {
+            isAllowed = chatUsername && allowedChannels.has(incomingNorm);
+            console.log("Result\n" + isAllowed.toString().toUpperCase());
+
+            if (!chatUsername) {
+                console.log("RETURN REASON: - Channel Username Missing");
+                return;
+            }
+
+            if (!isAllowed) {
+                console.log("RETURN REASON: - Production channel mismatch");
+                return;
+            }
         }
         
-        console.log("[Telegram] Channel Allowed");
-        
-        console.log(`[Telegram] Channel Message from @${chatUsername}`);
+        if (testMode) {
+            console.log("===================================");
+            console.log("[Telegram Test]");
+            console.log("Message Received");
+            console.log("Channel ID\n" + (chat?.id ? chat.id.toString() : "Undefined"));
+            console.log("Channel Username\n" + chatUsername);
+            console.log("Channel Title\n" + (chat?.title || "Undefined"));
+            console.log("Message ID\n" + message.id);
+            console.log("Message Preview\n" + (message?.message ? message.message.substring(0, 100) : "None"));
+            console.log("Allowed Channel = " + isAllowed.toString().toUpperCase());
+            console.log("===================================");
+        } else {
+            console.log("[Telegram] Channel Allowed");
+            console.log(`[Telegram] Channel Message from @${chatUsername}`);
+        }
         
         const channelRecord = await TelegramChannel.findOneAndUpdate(
             { username: { $regex: new RegExp(`^${chatUsername}$`, 'i') } },
@@ -371,25 +436,31 @@ const handleIncomingMessage = async (event) => {
                 channelRecord.ignoredMessages += 1;
                 await channelRecord.save();
             }
+            console.log("RETURN REASON: - Not a Job Message (Parser skipped)");
             return; 
         }
 
         listenerStatus.lastJobMessageAt = new Date();
 
-        console.log("[Telegram] Message Received");
-        console.log(`[Telegram] Channel: @${chatUsername} | Message Id: ${message.id}`);
-
-        console.log("[Telegram] Parsing Started");
+        if (testMode) {
+            console.log("[Telegram Test]\nParser Started");
+            console.log("[Telegram Test]\nDashboard Updated"); // Since lastJobMessageAt updates dashboard
+        } else {
+            console.log("[Telegram]\nParser Started");
+        }
         const structuredData = parseStructuredPost(text);
         let urls = extractUrls(text);
         urls.push(...inlineUrls);
         urls = [...new Set(urls)];
         
-        if (urls.length === 0) return;
+        if (urls.length === 0) {
+            console.log("RETURN REASON: - No URLs found (Parser skipped)");
+            return;
+        }
 
         const telegramCompany = await Company.findOne({ name: "Telegram Jobs" });
         if (!telegramCompany) {
-            logWithTime("Telegram Jobs company not found in DB — run seed first");
+            console.log("RETURN REASON: - Telegram Jobs company not found in DB");
             return;
         }
 
@@ -399,7 +470,7 @@ const handleIncomingMessage = async (event) => {
         let jobCount = 0;
         let matchCount = 0;
         for (const url of urls) {
-            const result = await processJobUrlWrapper(url, telegramCompany, profile, structuredData, chatUsername, telegramMessageId);
+            const result = await processJobUrlWrapper(url, telegramCompany, profile, structuredData, chatUsername, telegramMessageId, testMode);
             if (result && result.parsed) jobCount++;
             if (result && result.matched) matchCount++;
         }
@@ -491,8 +562,31 @@ const startTelegramListener = async () => {
         global.telegramChannelPoller = setInterval(loadChannels, 60000);
 
         // Bind cleanly
-        telegramClient.addEventHandler(handleIncomingMessage, new NewMessage({}));
+        const filter = new NewMessage({});
+        telegramClient.addEventHandler(handleIncomingMessage, filter);
+        console.log("TelegramClient initialized");
+        console.log("Client connected");
+        console.log("Event handler registered");
+        console.log("NewMessage filter");
+        console.log(`{ _noCheck: ${filter._noCheck}, chats: ${filter.chats} }`);
+        console.log("Number of handlers registered");
+        console.log(telegramClient._eventBuilders.length);
         console.log("[Telegram] Listener Registered");
+        
+        const testMode = process.env.TELEGRAM_TEST_MODE === "true";
+        const rawTestChannel = process.env.TELEGRAM_TEST_CHANNEL || "None";
+        const normalizedTestChannel = rawTestChannel.trim().replace(/^@/, "").toLowerCase();
+        
+        console.log("========================================");
+        console.log("Telegram Configuration");
+        console.log("========================================");
+        console.log("Mode:\n" + (testMode ? "Test" : "Production"));
+        console.log("Test Mode:\n" + (testMode ? "Enabled" : "Disabled"));
+        console.log("Configured Test Channel:\n<" + rawTestChannel + ">");
+        console.log("Normalized Test Channel:\n<" + normalizedTestChannel + ">");
+        console.log("Listener Registered:\nYES");
+        console.log("Environment:\n" + (process.env.NODE_ENV === "production" ? "Production" : "Development"));
+        console.log("========================================");
         
 
 
@@ -508,7 +602,7 @@ const startTelegramListener = async () => {
     }
 };
 
-const processJobUrlWrapper = async (url, telegramCompany, profile, structuredData, chatUsername, telegramMessageId) => {
+const processJobUrlWrapper = async (url, telegramCompany, profile, structuredData, chatUsername, telegramMessageId, testMode = false) => {
     let parsed = false;
     let matched = false;
     try {
@@ -536,13 +630,26 @@ const processJobUrlWrapper = async (url, telegramCompany, profile, structuredDat
         };
         
         const rawJob = await saveRawJob(telegramCompany, job);
-        _logWithTime("[Telegram] Raw Job Saved");
+        if (testMode) {
+            _logWithTime("[Telegram Test]\nRaw Job Saved");
+        } else {
+            _logWithTime("[Telegram]\nRaw Job Saved");
+        }
         parsed = true;
         
         if (!rawJob.aiMatched) {
             const aiState = { calls: 0, quotaExceeded: false };
-            _logWithTime("[Telegram] AI Evaluation Started");
+            if (testMode) {
+                _logWithTime("[Telegram Test]\nAI Evaluation Started");
+            } else {
+                _logWithTime("[Telegram]\nAI Started");
+            }
             const aiResult = await analyseWithGemini(job, profile, aiState);
+            if (testMode) {
+                _logWithTime("[Telegram Test]\nAI Evaluation Completed");
+            } else {
+                _logWithTime("[Telegram]\nAI Finished");
+            }
             if (!aiResult.skipped) {
                 if (aiResult.analysis) {
                     saveTrainingSample(job, telegramCompany, aiResult.analysis, "TelegramListener", "Telegram").catch(err => {
@@ -551,10 +658,20 @@ const processJobUrlWrapper = async (url, telegramCompany, profile, structuredDat
                 }
                 const matchedJobResult = await saveMatchedJob(rawJob, telegramCompany, job, aiResult.analysis);
                 if (matchedJobResult) {
-                    _logWithTime("[Telegram] Matched Job Created");
+                    if (testMode) {
+                        _logWithTime("[Telegram Test]\nMatched Job Created");
+                        _logWithTime("[Telegram Test]\nEmail Sent / Skipped");
+                    } else {
+                        _logWithTime("[Telegram]\nMatched Job Saved");
+                        _logWithTime("[Telegram]\nEmail Sent");
+                    }
                     matched = true;
                 }
+            } else if (testMode) {
+                _logWithTime(`[Telegram Test]\nAI Evaluation Skipped. Reason: ${aiResult.reason}`);
             }
+        } else if (testMode) {
+            _logWithTime("[Telegram Test]\nRaw Job Already AI Matched");
         }
         console.log = _logWithTime;
         return { parsed, matched };
