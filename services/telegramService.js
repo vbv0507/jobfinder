@@ -270,8 +270,10 @@ const processJobUrl = async (url, telegramCompany, profile, structuredData, sour
 };
 
 const handleIncomingMessage = async (event) => {
+    let chatUsername = "";
     try {
         const message = event.message;
+        console.log("[Telegram] New Message Received");
         if (!message?.message) return;
 
         const text = message.message;
@@ -329,11 +331,20 @@ const handleIncomingMessage = async (event) => {
             return; // Skip remaining pipeline regardless of authorization
         }
 
-        const chatUsername = event._chat?.username || "";
+        try {
+            const chat = await message.getChat();
+            chatUsername = chat?.username || "";
+        } catch (e) {
+            console.log(`[Telegram] Failed to get chat for message: ${e.message}`);
+        }
+        
+        console.log(`[Telegram] Channel Identified: ${chatUsername}`);
         
         if (!chatUsername || !allowedChannels.has(chatUsername.toLowerCase())) {
             return;
         }
+        
+        console.log("[Telegram] Channel Allowed");
         
         console.log(`[Telegram] Channel Message from @${chatUsername}`);
         
@@ -368,6 +379,7 @@ const handleIncomingMessage = async (event) => {
         console.log("[Telegram] Message Received");
         console.log(`[Telegram] Channel: @${chatUsername} | Message Id: ${message.id}`);
 
+        console.log("[Telegram] Parsing Started");
         const structuredData = parseStructuredPost(text);
         let urls = extractUrls(text);
         urls.push(...inlineUrls);
@@ -402,7 +414,7 @@ const handleIncomingMessage = async (event) => {
     } catch (handlerError) {
         console.log(`[Telegram] Unhandled Error in message handler: ${handlerError.message}`);
         TelegramChannel.findOneAndUpdate(
-            { username: { $regex: new RegExp(`^${event._chat?.username || ''}$`, 'i') } },
+            { username: { $regex: new RegExp(`^${chatUsername || ''}$`, 'i') } },
             { $inc: { errorCount: 1 }, $set: { lastError: handlerError.message, status: "Error" } }
         ).catch(() => {});
     }
@@ -524,10 +536,12 @@ const processJobUrlWrapper = async (url, telegramCompany, profile, structuredDat
         };
         
         const rawJob = await saveRawJob(telegramCompany, job);
+        _logWithTime("[Telegram] Raw Job Saved");
         parsed = true;
         
         if (!rawJob.aiMatched) {
             const aiState = { calls: 0, quotaExceeded: false };
+            _logWithTime("[Telegram] AI Evaluation Started");
             const aiResult = await analyseWithGemini(job, profile, aiState);
             if (!aiResult.skipped) {
                 if (aiResult.analysis) {
@@ -536,7 +550,10 @@ const processJobUrlWrapper = async (url, telegramCompany, profile, structuredDat
                     });
                 }
                 const matchedJobResult = await saveMatchedJob(rawJob, telegramCompany, job, aiResult.analysis);
-                if (matchedJobResult) matched = true;
+                if (matchedJobResult) {
+                    _logWithTime("[Telegram] Matched Job Created");
+                    matched = true;
+                }
             }
         }
         console.log = _logWithTime;
