@@ -100,39 +100,65 @@ const getActiveProfile = async () =>
   fallbackProfile;
 
 const saveRawJob = async (company, job) => {
+  const logValidationFailure = (rule, reason) => {
+      let hostname = "Unknown";
+      let protocol = "Unknown";
+      let path = "Unknown";
+      try {
+          if (job.applyLink) {
+              const p = new URL(job.applyLink.toString().trim());
+              hostname = p.hostname;
+              protocol = p.protocol;
+              path = p.pathname;
+          }
+      } catch (e) {}
+
+      // Ensure it prints even if console.log was mutated by the caller
+      const logger = console.log.name !== "" ? console.log : require('console').log; 
+      
+      logger("\n[saveRawJob]\nValidation Failed");
+      logger("Validation Rule:\n" + rule);
+      logger("URL:\n" + (job.applyLink || "Undefined"));
+      logger("Hostname:\n" + hostname);
+      logger("Protocol:\n" + protocol);
+      logger("Path:\n" + path);
+      logger("Reason:\n" + reason);
+      logger("Returning null\n");
+  };
+
   if (!job.applyLink) {
-    console.log(`[Validation Error] Missing applyLink for job: ${job.title}`);
+    logValidationFailure("Missing applyLink", "No applyLink provided for job");
     return null;
   }
   
   if (!job.applyLink.startsWith('https://')) {
-    console.log(`[Validation Error] Invalid protocol for job: ${job.title} - URL: ${job.applyLink}`);
+    logValidationFailure("Invalid protocol", "URL must start with https://");
     return null;
   }
 
   const invalidSubstrings = ['undefined', '//job/', 'samecorp', 'example', 'localhost', 'error=true'];
   if (invalidSubstrings.some(sub => job.applyLink.toLowerCase().includes(sub))) {
-    console.log(`[Validation Error] Malformed or dummy URL for job: ${job.title} - URL: ${job.applyLink}`);
+    logValidationFailure("Malformed URL", "Contains blocked substring");
     return null;
   }
   
   if (job.applyLink.includes('null')) {
-      console.log(`[Validation Error] Null placeholder URL for job: ${job.title} - URL: ${job.applyLink}`);
+      logValidationFailure("Null placeholder", "URL string literally contains 'null'");
       return null;
   }
   
   try {
     const parsedUrl = new URL(job.applyLink);
     if (!parsedUrl.hostname) {
-      console.log(`[Validation Error] Missing hostname for job: ${job.title} - URL: ${job.applyLink}`);
+      logValidationFailure("Missing hostname", "Hostname could not be parsed");
       return null;
     }
     if (parsedUrl.hostname === 'api.smartrecruiters.com') {
-      console.log(`[Validation Error] Backend API URL rejected for job: ${job.title} - URL: ${job.applyLink}`);
+      logValidationFailure("Backend API rejected", "api.smartrecruiters.com is blocked");
       return null;
     }
   } catch (e) {
-    console.log(`[Validation Error] Unparseable URL for job: ${job.title} - URL: ${job.applyLink}`);
+    logValidationFailure("Unparseable URL", "new URL() constructor threw an exception");
     return null;
   }
 

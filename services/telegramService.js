@@ -398,19 +398,11 @@ const handleIncomingMessage = async (event) => {
         }
         
         if (testMode) {
-            console.log("===================================");
-            console.log("[Telegram Test]");
-            console.log("Message Received");
-            console.log("Channel ID\n" + (chat?.id ? chat.id.toString() : "Undefined"));
-            console.log("Channel Username\n" + chatUsername);
-            console.log("Channel Title\n" + (chat?.title || "Undefined"));
-            console.log("Message ID\n" + message.id);
-            console.log("Message Preview\n" + (message?.message ? message.message.substring(0, 100) : "None"));
-            console.log("Allowed Channel = " + isAllowed.toString().toUpperCase());
-            console.log("===================================");
+            console.log(`[Telegram] Message Received`);
+            console.log(`[Telegram] Channel:\n<${chatUsername || 'Unknown'}>`);
         } else {
-            console.log("[Telegram] Channel Allowed");
-            console.log(`[Telegram] Channel Message from @${chatUsername}`);
+            console.log(`[Telegram] Message Received`);
+            console.log(`[Telegram] Channel:\n<${chatUsername || 'Unknown'}>`);
         }
         
         const channelRecord = await TelegramChannel.findOneAndUpdate(
@@ -442,19 +434,15 @@ const handleIncomingMessage = async (event) => {
 
         listenerStatus.lastJobMessageAt = new Date();
 
-        if (testMode) {
-            console.log("[Telegram Test]\nParser Started");
-            console.log("[Telegram Test]\nDashboard Updated"); // Since lastJobMessageAt updates dashboard
-        } else {
-            console.log("[Telegram]\nParser Started");
-        }
+        console.log("[Parser] Started");
         const structuredData = parseStructuredPost(text);
         let urls = extractUrls(text);
         urls.push(...inlineUrls);
         urls = [...new Set(urls)];
         
+        console.log(`[Parser] URLs Extracted:\n<${urls.length}>`);
+        
         if (urls.length === 0) {
-            console.log("RETURN REASON: - No URLs found (Parser skipped)");
             return;
         }
 
@@ -606,9 +594,6 @@ const processJobUrlWrapper = async (url, telegramCompany, profile, structuredDat
     let parsed = false;
     let matched = false;
     try {
-        const _logWithTime = console.log;
-        console.log = function() {}; // Mute inner logs to respect formatting requested
-        
         let applyLink;
         try { applyLink = normalizeJobUrl(new URL(url).toString()); }
         catch { applyLink = normalizeJobUrl(url.trim()); }
@@ -630,52 +615,45 @@ const processJobUrlWrapper = async (url, telegramCompany, profile, structuredDat
         };
         
         const rawJob = await saveRawJob(telegramCompany, job);
-        if (testMode) {
-            _logWithTime("[Telegram Test]\nRaw Job Saved");
-        } else {
-            _logWithTime("[Telegram]\nRaw Job Saved");
+        
+        if (!rawJob) {
+            console.log("[Raw Job] Rejected\nReason:\nSee saveRawJob validation logs");
+            return { parsed, matched };
         }
+
+        console.log("[Raw Job] Saved");
         parsed = true;
         
         if (!rawJob.aiMatched) {
             const aiState = { calls: 0, quotaExceeded: false };
-            if (testMode) {
-                _logWithTime("[Telegram Test]\nAI Evaluation Started");
-            } else {
-                _logWithTime("[Telegram]\nAI Started");
-            }
+            console.log("[AI] Started");
             const aiResult = await analyseWithGemini(job, profile, aiState);
-            if (testMode) {
-                _logWithTime("[Telegram Test]\nAI Evaluation Completed");
-            } else {
-                _logWithTime("[Telegram]\nAI Finished");
-            }
+            console.log("[AI] Completed");
+            console.log("Provider:\nGemini / Groq / Z.ai / Local");
+            
             if (!aiResult.skipped) {
                 if (aiResult.analysis) {
                     saveTrainingSample(job, telegramCompany, aiResult.analysis, "TelegramListener", "Telegram").catch(err => {
-                        _logWithTime(`[TrainingDataset] Async save error: ${err.message}`);
+                        console.log(`[TrainingDataset] Async save error: ${err.message}`);
                     });
                 }
+                
                 const matchedJobResult = await saveMatchedJob(rawJob, telegramCompany, job, aiResult.analysis);
+                
                 if (matchedJobResult) {
-                    if (testMode) {
-                        _logWithTime("[Telegram Test]\nMatched Job Created");
-                        _logWithTime("[Telegram Test]\nEmail Sent / Skipped");
-                    } else {
-                        _logWithTime("[Telegram]\nMatched Job Saved");
-                        _logWithTime("[Telegram]\nEmail Sent");
-                    }
+                    console.log("[Matched Job] Created");
+                    console.log("[Email] Sent");
                     matched = true;
+                } else {
+                    console.log("[Email] Skipped");
                 }
-            } else if (testMode) {
-                _logWithTime(`[Telegram Test]\nAI Evaluation Skipped. Reason: ${aiResult.reason}`);
+            } else {
+                console.log("[Email] Skipped");
             }
-        } else if (testMode) {
-            _logWithTime("[Telegram Test]\nRaw Job Already AI Matched");
         }
-        console.log = _logWithTime;
         return { parsed, matched };
     } catch (e) {
+        console.log(`[Telegram] Pipeline error: ${e.message}`);
         return { parsed, matched };
     }
 };
