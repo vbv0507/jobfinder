@@ -1,5 +1,8 @@
 const express = require('express');
+const { requireAdmin } = require('../middleware/auth');
 const router = express.Router();
+
+router.use(requireAdmin);
 
 router.get('/timeline', (req, res) => {
     res.render('admin/timeline', { title: "Pipeline Timeline" });

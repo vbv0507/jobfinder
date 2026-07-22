@@ -35,17 +35,11 @@ const logWithTime = (msg) => {
     console.log(`[${time}] ${msg}`);
 };
 
-const listenerStatus = {
-    connected: false,
-    lastJobMessageAt: null,
-    lastHealthCheckAt: null,
-    lastDiagnosticsUser: null
-};
-
 let telegramClient = null;
-let messagesReceivedSinceStartup = 0;
-let reconnectDelay = 5000;
+let listenerStatus = { status: "Not Started", lastJobMessageAt: null, lastHealthCheckAt: null, layer: "Unknown", dc: "Unknown", uptimeStart: null, monitoredChannels: [], reconnects: 0 };
 let isReconnecting = false;
+let isStarting = false;
+let reconnectDelay = 5000;
 let allowedChannels = new Set();
 
 const loadChannels = async () => {
@@ -525,9 +519,13 @@ const handleDisconnect = () => {
 };
 
 const startTelegramListener = async () => {
+    if (isStarting) return;
+    isStarting = true;
+
     if (!API_ID || !API_HASH) {
         console.log("[Telegram] Credentials missing — listener not started");
         listenerStatus.status = "Error";
+        isStarting = false;
         return;
     }
     
@@ -602,9 +600,10 @@ const startTelegramListener = async () => {
         console.log("Environment:\n" + (process.env.NODE_ENV === "production" ? "Production" : "Development"));
         console.log("========================================");
         
-
+        isStarting = false;
 
     } catch (error) {
+        isStarting = false;
         isReconnecting = false; // Reset to allow handleDisconnect to run
         if (error.message && error.message.includes('AUTH_KEY_DUPLICATED')) {
             console.log(`[Telegram] AUTH_KEY_DUPLICATED. The session string is invalidated.`);
@@ -629,4 +628,12 @@ const reconnectTelegram = async () => {
     return listenerStatus;
 };
 
-module.exports = { startTelegramListener, parseStructuredPost, processJobUrl, isJobMessage, getListenerStatus, reloadChannels, reconnectTelegram };
+const stopTelegramListener = () => {
+    if (client) {
+        console.log('[Telegram] Disconnecting client...');
+        client.disconnect();
+        listenerStatus.status = "Disconnected (Manual)";
+    }
+};
+
+module.exports = { startTelegramListener, stopTelegramListener, parseStructuredPost, processJobUrl, isJobMessage, getListenerStatus, reloadChannels, reconnectTelegram };

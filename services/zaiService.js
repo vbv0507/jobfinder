@@ -28,7 +28,7 @@ const evaluateJobWithZai = async (job, profile) => {
                 Authorization: `Bearer ${process.env.ZAI_API_KEY}`,
                 "Content-Type": "application/json",
             },
-            timeout: 30000,
+            timeout: 15000,
         },
     );
 

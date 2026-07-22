@@ -535,7 +535,7 @@ const runSearch = async (triggerSource = "Unknown") => {
   pipelineState.lastRunTime = startedAt;
   pipelineState.message = "Pipeline is currently running...";
   pipelineState.currentStage = "Initializing";
-  pipelineState.currentCompany = null;
+  pipelineState.activeCompanies = [];
   pipelineState.progress = "0 / 0 companies";
   pipelineState.elapsedTime = 0;
   pipelineState.estimatedRemainingTime = 0;
@@ -560,7 +560,7 @@ const runSearch = async (triggerSource = "Unknown") => {
     let completedCompanies = 0;
 
     await Promise.allSettled(companies.map((company) => limit(async () => {
-      pipelineState.currentCompany = company.name;
+      pipelineState.activeCompanies.push(company.name);
       pipelineState.currentStage = "Fetching Jobs";
       pipelineState.progress = `${completedCompanies} / ${stats.companiesScanned} companies`;
       pipelineState.elapsedTime = Date.now() - startedAt;
@@ -653,11 +653,13 @@ const runSearch = async (triggerSource = "Unknown") => {
 
             pipelineState.currentStage = "Saving Results";
             
-            // ML Dataset Collection (Asynchronous, Non-Blocking)
+            // ML Dataset Collection (Awaited to prevent async data loss on shutdown)
             if (result.analysis) {
-               saveTrainingSample(job, company, result.analysis, pipelineId, triggerSource).catch(err => {
-                  console.log(`[TrainingDataset] Async save error: ${err.message}`);
-               });
+               try {
+                   await saveTrainingSample(job, company, result.analysis, pipelineId, triggerSource);
+               } catch (err) {
+                   console.log(`[TrainingDataset] Async save error: ${err.message}`);
+               }
             }
 
             const { matched, isDuplicate } = await saveMatchedJob(
@@ -677,7 +679,7 @@ const runSearch = async (triggerSource = "Unknown") => {
               stats.aiProviderUsed = providerStr;
               
               const providerChainStr = result.analysis.providerChain ? result.analysis.providerChain.join(' -> ') : providerStr;
-              console.log(`[Production Log] Pipeline ID: ${pipelineId} | Runner: ${runnerName} | Trigger: ${runnerName} | Company: ${company.name} | Job: ${job.title} | Provider: ${providerStr} | Provider Chain: ${providerChainStr} | Duration: ${result.analysis.evaluationTimeMs || 0}ms | Success: true | Failure: false | Reason: Matched (${result.analysis.score}) | Email Status: ${isDuplicate ? 'Skipped' : 'Sent'} | Training Dataset Status: ${result.analysis ? 'Saved' : 'N/A'}`);
+              console.log(`Matched (Score: ${result.analysis.score}) | Email: ${isDuplicate ? 'Skipped' : 'Sent'} | Dataset: ${result.analysis ? 'Saved' : 'N/A'}`);
               
               if (!isDuplicate) {
                 try {
@@ -760,7 +762,7 @@ const runSearch = async (triggerSource = "Unknown") => {
 
       completedCompanies++;
       pipelineState.progress = `${completedCompanies} / ${stats.companiesScanned} companies`;
-      pipelineState.elapsedTime = Date.now() - startedAt;
+      pipelineState.activeCompanies = pipelineState.activeCompanies.filter(c => c !== company.name);
 
       company.jobsFound = companyJobsFound;
       company.matchedJobs = companyJobsMatched;

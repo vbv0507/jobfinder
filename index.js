@@ -16,7 +16,8 @@ const MatchedJob = require("./models/MatchedJob");
 const runSearch = require("./cron/jobSearchCron");
 const { seedCompanies } = require("./services/companyService");
 const { generateMatchedCompanyReport } = require("./services/reportService");
-const { startTelegramListener } = require("./services/telegramService");
+const { startTelegramListener, stopTelegramListener } = require("./services/telegramService");
+const mongoose = require("mongoose");
 const { validateConfig } = require("./utils/configValidator");
 
 const app = express();
@@ -123,11 +124,26 @@ const startServer = async () => {
         await runSearch();
     }
 
-    app.listen(PORT, () => {
+    const server = app.listen(PORT, () => {
         console.log(`Server running on port ${PORT}`);
     });
 
     
     await startTelegramListener();
+
+    const shutdown = async (signal) => {
+        console.log(`\n[Shutdown] Received ${signal}. Shutting down gracefully...`);
+        server.close(console.log('[Shutdown] Express server closed.'));
+        if (stopTelegramListener) stopTelegramListener();
+        if (mongoose.connection.readyState === 1) {
+            await mongoose.connection.close();
+            console.log('[Shutdown] MongoDB connection closed.');
+        }
+        console.log('[Shutdown] Graceful shutdown complete.');
+        process.exit(0);
+    };
+
+    process.on('SIGTERM', () => shutdown('SIGTERM'));
+    process.on('SIGINT', () => shutdown('SIGINT'));
 };
 startServer();

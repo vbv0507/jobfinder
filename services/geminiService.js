@@ -4,6 +4,7 @@ const { classifyDomain } = require("../utils/domains");
 const { evaluateJobWithZai } = require("./zaiService");
 const { buildEvaluationPrompt, parseJsonResponse, analyzeError } = require("./aiHelpers");
 const { withLogContext } = require("../utils/logger");
+const { withRetry } = require("../utils/retry");
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
@@ -133,7 +134,7 @@ const evaluateJobWithGroq = async (job, profile) => {
                 Authorization: `Bearer ${process.env.GROQ_API_KEY}`,
                 "Content-Type": "application/json",
             },
-            timeout: 30000,
+            timeout: 15000,
         },
     );
 
@@ -163,7 +164,10 @@ const evaluateJob = async (job, profile, aiState = { gemini: { available: true }
         aiState.gemini.requests = (aiState.gemini.requests || 0) + 1;
         try {
             return await withLogContext({ provider: "Gemini" }, async () => {
-            const result = await model.generateContent(buildEvaluationPrompt(job, profile));
+            const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error("Gemini timeout exceeded")), 15000));
+            const generatePromise = model.generateContent(buildEvaluationPrompt(job, profile));
+            const result = await Promise.race([generatePromise, timeoutPromise]);
+            
             let parsedResult = parseJsonResponse(result.response.text());
             
             if (typeof parsedResult.score !== "number") parsedResult.score = parseInt(parsedResult.score) || 0;
@@ -219,7 +223,7 @@ const evaluateJob = async (job, profile, aiState = { gemini: { available: true }
         try {
             console.log("[AI] Trying Groq");
             return await withLogContext({ provider: "Groq" }, async () => {
-            const groqAnalysis = await evaluateJobWithGroq(job, profile);
+            const groqAnalysis = await withRetry(() => evaluateJobWithGroq(job, profile), { maxRetries: 3 });
 
             if (groqAnalysis) {
                 aiState.groq.success = (aiState.groq.success || 0) + 1;
@@ -267,7 +271,7 @@ const evaluateJob = async (job, profile, aiState = { gemini: { available: true }
         try {
             console.log("[AI] Trying Z.ai");
             return await withLogContext({ provider: "Z.ai" }, async () => {
-            const zaiAnalysis = await evaluateJobWithZai(job, profile);
+            const zaiAnalysis = await withRetry(() => evaluateJobWithZai(job, profile), { maxRetries: 3 });
 
             if (zaiAnalysis) {
                 aiState.zai.success = (aiState.zai.success || 0) + 1;

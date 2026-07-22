@@ -3,6 +3,7 @@ const pipelineState = {
     pipelineId: null,
     currentStage: null,
     currentCompany: null,
+    activeCompanies: [],
     progress: "",
     elapsedTime: 0,
     estimatedRemainingTime: 0,

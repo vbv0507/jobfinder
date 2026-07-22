@@ -4,6 +4,7 @@ const { getListenerStatus } = require('../services/telegramService');
 const pipelineState = require('../services/pipelineState');
 const SearchLog = require('../models/SearchLog');
 const { getAnalyticsData } = require('../services/analyticsService');
+const { requireAdmin } = require('../middleware/auth');
 
 const router = express.Router();
 
@@ -43,18 +44,25 @@ router.get('/health', async (req, res) => {
             zai: pipelineState.zaiStatus || "Unknown",
             local: pipelineState.localStatus || "Ready"
         },
-        pipeline: {
+        cron: {
             running: pipelineState.status === "Running",
             lastRun: pipelineState.lastRunTime || null,
             currentStage: pipelineState.currentStage || "Idle",
-            queueDepth: pipelineState.estimatedRemainingTime > 0 ? 1 : 0
+            queueDepth: pipelineState.estimatedRemainingTime > 0 ? 1 : 0,
+            nextRunTime: pipelineState.nextRunTime || null
+        },
+        memory: {
+            rss: process.memoryUsage().rss,
+            heapTotal: process.memoryUsage().heapTotal,
+            heapUsed: process.memoryUsage().heapUsed,
+            external: process.memoryUsage().external
         }
     };
 
     res.json(health);
 });
 
-router.get('/metrics', async (req, res) => {
+router.get('/metrics', requireAdmin, async (req, res) => {
     try {
         const analytics = await getAnalyticsData();
         const metrics = {
@@ -78,7 +86,7 @@ router.get('/metrics', async (req, res) => {
     }
 });
 
-router.get('/timeline', async (req, res) => {
+router.get('/timeline', requireAdmin, async (req, res) => {
     try {
         const logs = await SearchLog.find().sort({ createdAt: -1 }).limit(50);
         res.json(logs);

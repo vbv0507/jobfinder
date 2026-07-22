@@ -102,25 +102,12 @@ const extractWithPuppeteer = async (url) => {
   if (!puppeteer) return [];
   let browser;
   try {
-    // Attempt to use system edge/chrome if downloaded failed
-    const executablePaths = [
-      'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',
-      'C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe',
-      'C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe'
-    ];
-    let executablePath = undefined;
-    const fs = require('fs');
-    for (const p of executablePaths) {
-      if (fs.existsSync(p)) {
-        executablePath = p;
-        break;
-      }
-    }
+    let executablePath = process.env.PUPPETEER_EXECUTABLE_PATH || undefined;
 
     browser = await puppeteer.launch({ 
       headless: "new",
       executablePath, 
-      args: ['--no-sandbox'] 
+      args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage'] 
     });
     
     const page = await browser.newPage();
