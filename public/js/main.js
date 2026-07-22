@@ -8,7 +8,7 @@ function showAlert(message, type = 'success') {
     alertDiv.className = `alert alert-${type}`;
     alertDiv.textContent = message;
     
-    const container = document.querySelector('.container');
+    const container = document.querySelector('.container') || document.querySelector('main') || document.body;
     container.insertBefore(alertDiv, container.firstChild);
     
     setTimeout(() => alertDiv.remove(), 5000);
@@ -34,13 +34,13 @@ async function apiCall(endpoint, method = 'GET', data = null) {
         }
         
         const response = await fetch(`${API_BASE}${endpoint}`, options);
-        const data = await response.json().catch(() => null);
+        const responseData = await response.json().catch(() => null);
         
         if (!response.ok) {
-            throw new Error(data && data.message ? data.message : `API Error: ${response.statusText}`);
+            throw new Error(responseData && responseData.message ? responseData.message : `API Error: ${response.statusText}`);
         }
         
-        return data;
+        return responseData;
     } catch (error) {
         console.error('API Error:', error);
         showAlert(error.message, 'error');
