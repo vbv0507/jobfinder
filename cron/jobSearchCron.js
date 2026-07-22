@@ -624,7 +624,7 @@ const runSearch = async (triggerSource = "Unknown") => {
               stats.totalMetadataRefreshTimeMs += (Date.now() - startRefresh);
               stats.jobsRefreshed++;
               stats.duplicatePreventionCount++;
-              continue;
+              return;
             }
 
             pipelineState.currentStage = "AI Evaluation";
@@ -648,7 +648,7 @@ const runSearch = async (triggerSource = "Unknown") => {
               console.log(
                 `Skipped Gemini analysis for ${job.title}: ${result.reason}`,
               );
-              continue;
+              return;
             }
 
             pipelineState.currentStage = "Saving Results";
