@@ -1,8 +1,8 @@
-const { ClerkExpressWithAuth } = require('@clerk/clerk-sdk-node');
+const { clerkMiddleware: createClerkMiddleware, getAuth } = require('@clerk/express');
 const crypto = require('crypto');
 const { syncUser } = require('../services/userService');
 
-const clerkMiddleware = ClerkExpressWithAuth();
+const clerkMiddleware = createClerkMiddleware();
 
 // Shared logic to verify system tokens
 const isSystemRequest = (req) => {
@@ -24,7 +24,8 @@ const requireAuth = async (req, res, next) => {
         return next();
     }
 
-    if (!req.auth || !req.auth.userId) {
+    const auth = getAuth(req);
+    if (!auth || !auth.userId) {
         if (req.originalUrl.startsWith('/api')) {
             return res.status(401).json({ success: false, message: 'SESSION_EXPIRED' });
         }
@@ -32,7 +33,7 @@ const requireAuth = async (req, res, next) => {
     }
 
     try {
-        const user = await syncUser(req.auth.userId);
+        const user = await syncUser(auth.userId);
         if (!user.isActive) {
             if (req.originalUrl.startsWith('/api')) {
                 return res.status(403).json({ success: false, message: 'Account deactivated' });

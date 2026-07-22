@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const { clerkClient } = require('@clerk/clerk-sdk-node');
+const { clerkClient } = require('@clerk/express');
 const User = require('../models/User');
 const AuditLog = require('../models/AuditLog');
 
