@@ -152,12 +152,15 @@ const scrapeGenericJobPage = async (url) => {
 };
 
 const processJobUrl = async (url, telegramCompany, profile, structuredData, sourceChannel, telegramMessageId) => {
+    return await withLogContext({ pipelineId: "Telegram", jobUrl: url, company: telegramCompany?.name || "Unknown" }, async () => {
+    let parsed = false;
+    let matched = false;
     try {
         const strategy = getUrlStrategy(url);
 
         if (!strategy) {
             logWithTime(`Skipped non-job URL: ${url}`);
-            return;
+            return { parsed, matched };
         }
 
         logWithTime(`Processing URL [${strategy}] from ${sourceChannel}: ${url}`);
@@ -189,7 +192,7 @@ const processJobUrl = async (url, telegramCompany, profile, structuredData, sour
         
         if (!job) {
             logWithTime(`Scraper returned null for URL: ${url}. Skipping.`);
-            return;
+            return { parsed, matched };
         }
 
         
@@ -211,7 +214,7 @@ const processJobUrl = async (url, telegramCompany, profile, structuredData, sour
 
         if (!job) {
             logWithTime(`Could not extract job from: ${url}`);
-            return;
+            return { parsed, matched };
         }
 
         if (structuredData.role) job.title = structuredData.role;
@@ -222,19 +225,31 @@ const processJobUrl = async (url, telegramCompany, profile, structuredData, sour
         job.sourceName = sourceChannel;
 
         const rawJob = await saveRawJob(telegramCompany, job);
+        
+        if (!rawJob) {
+            console.log("[Raw Job] Rejected\nReason:\nSee saveRawJob validation logs");
+            return { parsed, matched };
+        }
+
+        console.log("[Raw Job] Saved");
+        parsed = true;
         logWithTime(`Job Parsed Successfully: ${job.title}`);
 
         if (rawJob.aiMatched) {
             logWithTime(`Already matched: ${job.title}`);
-            return;
+            return { parsed, matched };
         }
 
         const aiState = { calls: 0, quotaExceeded: false };
+        console.log("[AI] Started");
         const result = await analyseWithGemini(job, profile, aiState);
+        console.log("[AI] Completed");
+        console.log("Provider:\nGemini / Groq / Z.ai / Local");
 
         if (result.skipped) {
             logWithTime(`Skipped Gemini for ${job.title}: ${result.reason}`);
-            return;
+            console.log("[Email] Skipped");
+            return { parsed, matched };
         }
         
         logWithTime(`Gemini Score: ${result.analysis.score}`);
@@ -245,24 +260,34 @@ const processJobUrl = async (url, telegramCompany, profile, structuredData, sour
             });
         }
 
-        const matched = await saveMatchedJob(rawJob, telegramCompany, job, result.analysis);
+        const matchedJobResult = await saveMatchedJob(rawJob, telegramCompany, job, result.analysis);
 
-        if (matched) {
+        if (matchedJobResult) {
+            console.log("[Matched Job] Created");
             logWithTime(`Matched Job: ${job.title} | Email Sent`);
+            matched = true;
             try {
                 await sendMatchedJobEmail({
                     company: telegramCompany,
                     job,
                     analysis: result.analysis,
                 });
+                console.log("[Email] Sent");
             } catch (emailError) {
                 logWithTime(`Email failed: ${emailError.message}`);
+                console.log("[Email] Skipped");
             }
+        } else {
+            console.log("[Email] Skipped");
         }
 
+        return { parsed, matched };
     } catch (error) {
         logWithTime(`Error processing URL ${url}: ${error.message}`);
+        console.log(`[Telegram] Pipeline error: ${error.message}`);
+        return { parsed, matched };
     }
+    }); // End withLogContext
 };
 
 const handleIncomingMessage = async (event) => {
@@ -459,7 +484,7 @@ const handleIncomingMessage = async (event) => {
         let jobCount = 0;
         let matchCount = 0;
         for (const url of urls) {
-            const result = await processJobUrlWrapper(url, telegramCompany, profile, structuredData, chatUsername, telegramMessageId, testMode);
+            const result = await processJobUrl(url, telegramCompany, profile, structuredData, chatUsername, telegramMessageId);
             if (result && result.parsed) jobCount++;
             if (result && result.matched) matchCount++;
         }
@@ -591,75 +616,6 @@ const startTelegramListener = async () => {
     }
 };
 
-const processJobUrl = async (url, telegramCompany, telegramMessageId = null, sourceChannel = null, profile) => {
-    return await withLogContext({ pipelineId: "Telegram", jobUrl: url, company: telegramCompany.name }, async () => {
-    let parsed = false;
-    let matched = false;
-    try {
-        let applyLink;
-        try { applyLink = normalizeJobUrl(new URL(url).toString()); }
-        catch { applyLink = normalizeJobUrl(url.trim()); }
-        
-        const jobId = applyLink.split("/").filter(Boolean).pop();
-        
-        const job = {
-            title: structuredData.role || "Job Opening",
-            location: structuredData.location || "India",
-            description: structuredData.role || "Software Engineer role",
-            experience: structuredData.experience || null,
-            salary: structuredData.salary || null,
-            applyLink,
-            jobId,
-            employmentType: /intern/i.test(structuredData.role || structuredData.type || "") ? "Internship" : "Full-Time",
-            sourceChannel: chatUsername,
-            telegramMessageId,
-            sourceName: chatUsername
-        };
-        
-        const rawJob = await saveRawJob(telegramCompany, job);
-        
-        if (!rawJob) {
-            console.log("[Raw Job] Rejected\nReason:\nSee saveRawJob validation logs");
-            return { parsed, matched };
-        }
-
-        console.log("[Raw Job] Saved");
-        parsed = true;
-        
-        if (!rawJob.aiMatched) {
-            const aiState = { calls: 0, quotaExceeded: false };
-            console.log("[AI] Started");
-            const aiResult = await analyseWithGemini(job, profile, aiState);
-            console.log("[AI] Completed");
-            console.log("Provider:\nGemini / Groq / Z.ai / Local");
-            
-            if (!aiResult.skipped) {
-                if (aiResult.analysis) {
-                    saveTrainingSample(job, telegramCompany, aiResult.analysis, "TelegramListener", "Telegram").catch(err => {
-                        console.log(`[TrainingDataset] Async save error: ${err.message}`);
-                    });
-                }
-                
-                const matchedJobResult = await saveMatchedJob(rawJob, telegramCompany, job, aiResult.analysis);
-                
-                if (matchedJobResult) {
-                    console.log("[Matched Job] Created");
-                    console.log("[Email] Sent");
-                    matched = true;
-                } else {
-                    console.log("[Email] Skipped");
-                }
-            } else {
-                console.log("[Email] Skipped");
-            }
-        }
-        return { parsed, matched };
-    } catch (e) {
-        console.log(`[Telegram] Pipeline error: ${e.message}`);
-        return { parsed, matched };
-    }
-    }); // End withLogContext
-};
 
 const getListenerStatus = () => listenerStatus;
 
