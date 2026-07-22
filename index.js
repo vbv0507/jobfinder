@@ -1,3 +1,4 @@
+require("./utils/logger"); // Initialize structured logging globally
 require("dotenv").config();
 
 const express = require("express");
@@ -8,12 +9,15 @@ const companyRoutes = require("./routes/companyRoutes");
 const jobRoutes = require("./routes/jobRoutes");
 const profileRoutes = require("./routes/profileRoutes");
 const telegramRoutes = require("./routes/telegramRoutes");
+const systemRoutes = require("./routes/systemRoutes");
+const adminRoutes = require("./routes/adminRoutes");
 const MatchedJob = require("./models/MatchedJob");
 
 const runSearch = require("./cron/jobSearchCron");
 const { seedCompanies } = require("./services/companyService");
 const { generateMatchedCompanyReport } = require("./services/reportService");
 const { startTelegramListener } = require("./services/telegramService");
+const { validateConfig } = require("./utils/configValidator");
 
 const app = express();
 
@@ -101,10 +105,14 @@ app.use("/api/companies", companyRoutes);
 app.use("/api/jobs", jobRoutes);
 app.use("/api/profile", profileRoutes);
 app.use("/api/telegram", telegramRoutes);
+app.use("/api/system", systemRoutes);
+app.use("/admin", adminRoutes);
 
 const PORT = process.env.PORT || 5000;
 
 const startServer = async () => {
+    validateConfig();
+
     await connectDB();
 
     if (process.env.SEED_COMPANIES_ON_START !== "false") {

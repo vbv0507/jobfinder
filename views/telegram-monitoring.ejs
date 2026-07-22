@@ -78,6 +78,11 @@
         </div>
     </div>
 
+    <!-- System Telemetry from Health API -->
+    <div class="row mb-4" id="telemetryCards">
+        <!-- Populated via JS -->
+    </div>
+
     <!-- Channels Table -->
     <div class="card p-3">
         <h5 class="mb-3">Active Channels Matrix</h5>
@@ -118,6 +123,20 @@
 
             updateStatus(statusData.status);
             updateStats(statsData.statistics);
+            
+            // Fetch new telemetry
+            const healthRes = await fetch('/api/system/health');
+            const metricsRes = await fetch('/api/system/metrics');
+            if(healthRes.ok && metricsRes.ok) {
+                const h = await healthRes.json();
+                const m = await metricsRes.json();
+                document.getElementById('telemetryCards').innerHTML = `
+                    <div class="col-md-3"><div class="card stat-card"><div class="stat-label">Listener Registered</div><div class="stat-value text-primary">${h.telegram.listenerRegistered ? 'Yes' : 'No'}</div></div></div>
+                    <div class="col-md-3"><div class="card stat-card"><div class="stat-label">Last Message</div><div class="stat-value text-primary" style="font-size:1.2rem">${h.telegram.lastMessageAt ? new Date(h.telegram.lastMessageAt).toLocaleTimeString() : 'N/A'}</div></div></div>
+                    <div class="col-md-3"><div class="card stat-card"><div class="stat-label">Last Health Check</div><div class="stat-value text-primary" style="font-size:1.2rem">${h.telegram.lastHealthCheck ? new Date(h.telegram.lastHealthCheck).toLocaleTimeString() : 'N/A'}</div></div></div>
+                    <div class="col-md-3"><div class="card stat-card"><div class="stat-label">Validation Failures</div><div class="stat-value text-danger">${m['Validation Failures'] || 0}</div></div></div>
+                `;
+            }
             updateChannels(channelsData.channels);
         } catch (e) {
             console.error("Failed to fetch monitoring data", e);

@@ -1,0 +1,69 @@
+<%- include('../partials/header', { title: 'AI Providers Dashboard' }) %>
+
+<div class="mb-6">
+    <h2 class="text-2xl font-bold text-gray-900">AI Providers Dashboard</h2>
+    <p class="text-gray-500 text-sm mt-1">Status and performance of AI evaluation engines.</p>
+</div>
+
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6" id="aiCards">
+    <!-- Populated via JS -->
+</div>
+
+<script>
+    async function loadAI() {
+        try {
+            const res = await fetch('/api/system/health');
+            const data = await res.json();
+            
+            const metricsRes = await fetch('/api/system/metrics');
+            const metrics = await metricsRes.json();
+            
+            const providers = [
+                { id: 'gemini', name: 'Gemini', status: data.ai.gemini },
+                { id: 'groq', name: 'Groq', status: data.ai.groq },
+                { id: 'zai', name: 'Z.ai', status: data.ai.zai },
+                { id: 'local', name: 'Local Heuristic', status: data.ai.local }
+            ];
+
+            const container = document.getElementById('aiCards');
+            container.innerHTML = providers.map(p => {
+                const stat = metrics["Provider Usage"]?.find(s => s._id === p.id) || { count: 0, avgTime: 0, fallbacks: 0 };
+                
+                let color = 'gray';
+                if (p.status === 'Ready' || p.status === 'Working') color = 'green';
+                if (p.status === 'Rate Limited') color = 'yellow';
+                if (p.status === 'Unavailable' || p.status === 'Down') color = 'red';
+
+                return `
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-lg font-bold text-gray-900">${p.name}</h3>
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-${color}-100 text-${color}-800">
+                            ${p.status}
+                        </span>
+                    </div>
+                    <dl class="space-y-2">
+                        <div class="flex justify-between">
+                            <dt class="text-sm text-gray-500">Evaluations</dt>
+                            <dd class="text-sm font-medium text-gray-900">${stat.count}</dd>
+                        </div>
+                        <div class="flex justify-between">
+                            <dt class="text-sm text-gray-500">Avg Latency (ms)</dt>
+                            <dd class="text-sm font-medium text-gray-900">${Math.round(stat.avgTime)}</dd>
+                        </div>
+                        <div class="flex justify-between">
+                            <dt class="text-sm text-gray-500">Failures / Fallbacks</dt>
+                            <dd class="text-sm font-medium text-gray-900">${stat.fallbacks}</dd>
+                        </div>
+                    </dl>
+                </div>
+                `;
+            }).join('');
+        } catch (e) {
+            console.error(e);
+        }
+    }
+    loadAI();
+    setInterval(loadAI, 30000);
+</script>
+<%- include('../partials/footer') %>

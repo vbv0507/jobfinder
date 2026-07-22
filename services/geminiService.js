@@ -3,6 +3,7 @@ const axios = require("axios");
 const { classifyDomain } = require("../utils/domains");
 const { evaluateJobWithZai } = require("./zaiService");
 const { buildEvaluationPrompt, parseJsonResponse, analyzeError } = require("./aiHelpers");
+const { withLogContext } = require("../utils/logger");
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
@@ -161,6 +162,7 @@ const evaluateJob = async (job, profile, aiState = { gemini: { available: true }
         providerChain.push("Gemini");
         aiState.gemini.requests = (aiState.gemini.requests || 0) + 1;
         try {
+            return await withLogContext({ provider: "Gemini" }, async () => {
             const result = await model.generateContent(buildEvaluationPrompt(job, profile));
             let parsedResult = parseJsonResponse(result.response.text());
             
@@ -185,6 +187,7 @@ const evaluateJob = async (job, profile, aiState = { gemini: { available: true }
             parsedResult.providerChain = providerChain;
 
             return parsedResult;
+            }); // End withLogContext
         } catch (error) {
             aiState.gemini.failed = (aiState.gemini.failed || 0) + 1;
             const errorAnalysis = analyzeError(error);
@@ -215,6 +218,7 @@ const evaluateJob = async (job, profile, aiState = { gemini: { available: true }
         aiState.groq.requests = (aiState.groq.requests || 0) + 1;
         try {
             console.log("[AI] Trying Groq");
+            return await withLogContext({ provider: "Groq" }, async () => {
             const groqAnalysis = await evaluateJobWithGroq(job, profile);
 
             if (groqAnalysis) {
@@ -231,6 +235,7 @@ const evaluateJob = async (job, profile, aiState = { gemini: { available: true }
                 groqAnalysis.providerChain = providerChain;
                 return groqAnalysis;
             }
+            }); // End withLogContext
         } catch (groqError) {
             aiState.groq.failed = (aiState.groq.failed || 0) + 1;
             const errorAnalysis = analyzeError(groqError);
@@ -261,6 +266,7 @@ const evaluateJob = async (job, profile, aiState = { gemini: { available: true }
         aiState.zai.requests = (aiState.zai.requests || 0) + 1;
         try {
             console.log("[AI] Trying Z.ai");
+            return await withLogContext({ provider: "Z.ai" }, async () => {
             const zaiAnalysis = await evaluateJobWithZai(job, profile);
 
             if (zaiAnalysis) {
@@ -278,6 +284,7 @@ const evaluateJob = async (job, profile, aiState = { gemini: { available: true }
                 zaiAnalysis.providerChain = providerChain;
                 return zaiAnalysis;
             }
+            }); // End withLogContext
         } catch (zaiError) {
             aiState.zai.failed = (aiState.zai.failed || 0) + 1;
             const errorAnalysis = analyzeError(zaiError);
@@ -310,6 +317,7 @@ const evaluateJob = async (job, profile, aiState = { gemini: { available: true }
         aiState.local.success = (aiState.local.success || 0) + 1;
         fallbackCount++;
         console.log("[AI] Using Local Heuristic");
+        return await withLogContext({ provider: "Local Heuristic" }, async () => {
         const localResult = evaluateJobLocally(
             job,
             profile,
@@ -322,6 +330,7 @@ const evaluateJob = async (job, profile, aiState = { gemini: { available: true }
         localResult.fallbackReason = failureReason || "AI evaluation failed";
         localResult.providerChain = providerChain;
         return localResult;
+        }); // End withLogContext
     }
 
     return {

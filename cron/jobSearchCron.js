@@ -1,4 +1,5 @@
 const cron = require("node-cron");
+const { withLogContext } = require("../utils/logger");
 
 const Company = require("../models/Company");
 const RawJob = require("../models/RawJob");
@@ -223,6 +224,7 @@ const saveMatchedJob = async (rawJob, company, job, analysis) => {
 
   
   rawJob.aiEvaluatedAt = evaluatedAt;
+  rawJob.aiEvaluated = true;
 
   if (analysis.suitable !== true || score < MATCH_THRESHOLD) {
     
@@ -567,6 +569,7 @@ const runSearch = async (triggerSource = "Unknown") => {
       }
 
       console.log(`Searching ${company.name}...`);
+      await withLogContext({ pipelineId, company: company.name, stage: "Fetching Jobs" }, async () => {
       let companyJobsFound = 0;
       let companyJobsMatched = 0;
       let companyStatus = "success";
@@ -596,6 +599,7 @@ const runSearch = async (triggerSource = "Unknown") => {
         const jobsToProcess = scrapedJobs.slice(0, MAX_JOBS_PER_COMPANY);
 
         for (const job of jobsToProcess) {
+          await withLogContext({ jobUrl: job.applyLink }, async () => {
           const rawJob = await saveRawJob(company, job);
           console.log(`Saved Job: ${job.title} (${company.name})`);
 
@@ -625,7 +629,10 @@ const runSearch = async (triggerSource = "Unknown") => {
 
             pipelineState.currentStage = "AI Evaluation";
             const evalStart = Date.now();
-            const result = await analyseWithGemini(job, profile, aiState);
+            let providerContext = "Gemini";
+            const result = await withLogContext({ stage: "AI Evaluation", provider: "AI_Engine" }, async () => {
+                return await analyseWithGemini(job, profile, aiState);
+            });
             if (result.analysis && result.analysis.evaluationTimeMs) {
                 stats.totalEvaluationTimeMs += result.analysis.evaluationTimeMs;
             }
@@ -701,6 +708,7 @@ const runSearch = async (triggerSource = "Unknown") => {
             });
             console.error(`[Production Log] Pipeline ID: ${pipelineId} | Runner: ${runnerName} | Trigger: ${runnerName} | Company: ${company.name} | Job: ${job.title} | Provider: N/A | Provider Chain: N/A | Duration: 0ms | Success: false | Failure: true | Reason: ${error.message} | Email Status: Skipped | Training Dataset Status: Failed`);
           }
+          }); // End of job withLogContext
         }
 
         if (companyErrors > 0) {
@@ -748,6 +756,7 @@ const runSearch = async (triggerSource = "Unknown") => {
         });
         console.error(`Scrape Error for ${company.name}:`, error.message);
       }
+      }); // End of company withLogContext
 
       completedCompanies++;
       pipelineState.progress = `${completedCompanies} / ${stats.companiesScanned} companies`;

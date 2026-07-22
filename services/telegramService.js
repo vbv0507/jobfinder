@@ -5,6 +5,7 @@ const input = require("input");
 const axios = require("axios");
 const { HttpsProxyAgent } = require("https-proxy-agent");
 const { normalizeJobUrl } = require("../utils/urlNormalizer");
+const { withLogContext } = require("../utils/logger");
 
 const Company = require("../models/Company");
 const CandidateProfile = require("../models/CandidateProfile");
@@ -590,7 +591,8 @@ const startTelegramListener = async () => {
     }
 };
 
-const processJobUrlWrapper = async (url, telegramCompany, profile, structuredData, chatUsername, telegramMessageId, testMode = false) => {
+const processJobUrl = async (url, telegramCompany, telegramMessageId = null, sourceChannel = null, profile) => {
+    return await withLogContext({ pipelineId: "Telegram", jobUrl: url, company: telegramCompany.name }, async () => {
     let parsed = false;
     let matched = false;
     try {
@@ -656,6 +658,7 @@ const processJobUrlWrapper = async (url, telegramCompany, profile, structuredDat
         console.log(`[Telegram] Pipeline error: ${e.message}`);
         return { parsed, matched };
     }
+    }); // End withLogContext
 };
 
 const getListenerStatus = () => listenerStatus;
