@@ -14,8 +14,8 @@
 <script>
     async function loadConfig() {
         try {
-            const res = await fetch('/api/system/health');
-            const data = await res.json();
+            const res = await apiCall('/api/system/health');
+            const data = res;
             
             const list = document.getElementById('configList');
             list.innerHTML = `

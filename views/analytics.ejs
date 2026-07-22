@@ -69,8 +69,8 @@
 <script>
     async function loadAnalytics() {
         try {
-            const res = await fetch("/api/jobs/analytics");
-            const data = await res.json();
+            const res = await apiCall("/api/jobs/analytics");
+            const data = res;
             
             if(data.success && data.charts) {
                 // Common options

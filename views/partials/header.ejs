@@ -30,6 +30,29 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Clerk Authentication -->
+    <script>
+      window.clerkPublishableKey = "<%= CLERK_PUBLISHABLE_KEY %>";
+    </script>
+    <script
+      async
+      crossorigin="anonymous"
+      data-clerk-publishable-key="<%= CLERK_PUBLISHABLE_KEY %>"
+      src="https://cdn.jsdelivr.net/npm/@clerk/clerk-js@latest/dist/clerk.browser.js"
+      type="text/javascript"
+    ></script>
+    <script>
+      window.addEventListener('load', async function () {
+        await Clerk.load();
+        if (Clerk.user) {
+          const userButtonDiv = document.getElementById('user-button');
+          if (userButtonDiv) Clerk.mountUserButton(userButtonDiv);
+          
+          
+        }
+      });
+    </script>
     
     <style>
         :root {
@@ -107,9 +130,7 @@
                 <button class="text-textMuted hover:text-text p-2 rounded-full hover:bg-secondary transition min-h-[44px] min-w-[44px] flex items-center justify-center" aria-label="Notifications">
                     <i class="fas fa-bell"></i>
                 </button>
-                <div class="h-9 w-9 rounded-full bg-primary text-white flex items-center justify-center font-bold shadow-sm cursor-pointer hover:bg-primaryHover transition">
-                    RN
-                </div>
+                <div id="user-button"></div>
             </div>
         </header>
         

@@ -27,8 +27,8 @@
 <script>
     async function loadTimeline() {
         try {
-            const res = await fetch('/api/system/timeline');
-            const logs = await res.json();
+            const res = await apiCall('/api/system/timeline');
+            const logs = res;
             const tbody = document.getElementById('timelineBody');
             tbody.innerHTML = logs.map(log => `
                 <tr>

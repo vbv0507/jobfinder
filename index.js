@@ -2,7 +2,10 @@ require("./utils/logger"); // Initialize structured logging globally
 require("dotenv").config();
 
 const express = require("express");
-
+const helmet = require("helmet");
+const compression = require("compression");
+const cookieParser = require("cookie-parser");
+const { clerkMiddleware, requireAuth } = require("./middleware/authMiddleware");
 const connectDB = require("./config/db");
 
 const companyRoutes = require("./routes/companyRoutes");
@@ -25,18 +28,36 @@ const app = express();
 const companyBranding = require("./utils/companyBranding");
 Object.assign(app.locals, companyBranding);
 
+app.use(helmet({
+    contentSecurityPolicy: false // Disabled to allow Tailwind CDN, Clerk JS, and inline scripts
+}));
+app.use(compression());
+app.use(cookieParser());
 app.use(express.json());
 app.use(express.static("public"));
+
+app.use(clerkMiddleware);
+
+// Inject publishable key into all views
+app.use((req, res, next) => {
+    res.locals.CLERK_PUBLISHABLE_KEY = process.env.CLERK_PUBLISHABLE_KEY;
+    next();
+});
 
 app.set("view engine", "ejs");
 app.set("views", "./views");
 
 
-app.get("/", (req, res) => {
+app.get("/login", (req, res) => {
+    if (req.auth && req.auth.userId) return res.redirect("/");
+    res.render("login", { title: "Login" });
+});
+
+app.get("/", requireAuth, (req, res) => {
     res.render("index");
 });
 
-app.get("/jobs", async (req, res) => {
+app.get("/jobs", requireAuth, async (req, res) => {
     try {
         const jobs = await MatchedJob.find({ status: "new" }).populate("company", "name").sort({ score: -1 });
         res.render("jobs", { jobs, title: "Matched Jobs" });
@@ -45,7 +66,7 @@ app.get("/jobs", async (req, res) => {
     }
 });
 
-app.get("/saved", async (req, res) => {
+app.get("/saved", requireAuth, async (req, res) => {
     try {
         const jobs = await MatchedJob.find({ status: "saved" }).populate("company", "name").sort({ score: -1 });
         res.render("jobs", { jobs, title: "Saved Jobs" });
@@ -54,7 +75,7 @@ app.get("/saved", async (req, res) => {
     }
 });
 
-app.get("/applied", async (req, res) => {
+app.get("/applied", requireAuth, async (req, res) => {
     try {
         const jobs = await MatchedJob.find({ status: "applied" }).populate("company", "name").sort({ appliedAt: -1 });
         res.render("jobs", { jobs, title: "Applied Jobs" });
@@ -63,7 +84,7 @@ app.get("/applied", async (req, res) => {
     }
 });
 
-app.get("/rejected", async (req, res) => {
+app.get("/rejected", requireAuth, async (req, res) => {
     try {
         const jobs = await MatchedJob.find({ status: "rejected" }).populate("company", "name").sort({ updatedAt: -1 });
         res.render("jobs", { jobs, title: "Rejected Jobs" });
@@ -72,15 +93,15 @@ app.get("/rejected", async (req, res) => {
     }
 });
 
-app.get("/telegram", (req, res) => {
+app.get("/telegram", requireAuth, (req, res) => {
     res.render("telegram-channels", { title: "Telegram Channels" });
 });
 
-app.get("/telegram-monitoring", (req, res) => {
+app.get("/telegram-monitoring", requireAuth, (req, res) => {
     res.render("telegram-monitoring", { title: "Telegram Monitoring" });
 });
 
-app.get("/job/:id", async (req, res) => {
+app.get("/job/:id", requireAuth, async (req, res) => {
     try {
         const job = await MatchedJob.findById(req.params.id).populate("company", "name");
         res.render("job-details", { job });
@@ -89,15 +110,15 @@ app.get("/job/:id", async (req, res) => {
     }
 });
 
-app.get("/companies", (req, res) => {
+app.get("/companies", requireAuth, (req, res) => {
     res.render("companies");
 });
 
-app.get("/analytics", (req, res) => {
+app.get("/analytics", requireAuth, (req, res) => {
     res.render("analytics");
 });
 
-app.get("/profile", (req, res) => {
+app.get("/profile", requireAuth, (req, res) => {
     res.render("profile");
 });
 
@@ -108,6 +129,12 @@ app.use("/api/profile", profileRoutes);
 app.use("/api/telegram", telegramRoutes);
 app.use("/api/system", systemRoutes);
 app.use("/admin", adminRoutes);
+
+// Error Handler
+app.use((err, req, res, next) => {
+    console.error(err.stack);
+    res.status(500).json({ success: false, message: 'Internal Server Error' });
+});
 
 const PORT = process.env.PORT || 5000;
 

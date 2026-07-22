@@ -4,11 +4,19 @@ const { getListenerStatus } = require('../services/telegramService');
 const pipelineState = require('../services/pipelineState');
 const SearchLog = require('../models/SearchLog');
 const { getAnalyticsData } = require('../services/analyticsService');
-const { requireAdmin } = require('../middleware/auth');
+const { requireAdmin, requireViewer } = require("../middleware/authMiddleware");
 
 const router = express.Router();
 
-router.get('/health', async (req, res) => {
+router.get('/health', (req, res) => {
+    res.json({ status: 'ok' });
+});
+
+router.get('/ready', (req, res) => {
+    res.json({ status: 'ok' });
+});
+
+router.get('/detailed-health', requireAdmin, async (req, res) => {
     let mongoLatency = 0;
     const mongoStart = Date.now();
     try {

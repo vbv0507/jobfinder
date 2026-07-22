@@ -34,8 +34,8 @@
 
     async function fetchCompanies() {
         try {
-            const res = await fetch("/api/companies");
-            const data = await res.json();
+            const res = await apiCall("/api/companies");
+            const data = res;
             const container = document.getElementById("companies-grid");
             
             if(data.success && data.companies.length > 0) {

@@ -10,6 +10,7 @@ const {
 } = require("../services/reportService");
 const { getAnalyticsData } = require("../services/analyticsService");
 const pipelineState = require("../services/pipelineState");
+const { logAuditAction } = require("../services/auditService");
 
 const sendError = (res, error) =>
     res.status(500).json({
@@ -122,11 +123,14 @@ const runJobSearch = async (req, res) => {
         const result = await runSearch("Manual");
         
         if (result && result.skipped) {
+            await logAuditAction(req, 'Pipeline Trigger', 'Skipped - Already running');
             return res.status(409).json({
                 success: false,
                 message: "Pipeline is already running."
             });
         }
+        
+        await logAuditAction(req, 'Pipeline Trigger', 'Success');
         
         res.status(200).json({
             success: true,
@@ -173,6 +177,7 @@ const updateJobStatus = async (req, res) => {
 const deleteRawJobs = async (req, res) => {
     try {
         const result = await RawJob.deleteMany({});
+        await logAuditAction(req, 'Raw DB Delete', `Success - Deleted ${result.deletedCount}`);
         res.status(200).json({
             success: true,
             message: "All raw jobs deleted",

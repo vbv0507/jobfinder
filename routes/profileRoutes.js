@@ -8,9 +8,13 @@ const {
 const router = express.Router();
 
 
-router.get("/", getActiveProfile);
+const { requireAdmin, requireViewer } = require("../middleware/authMiddleware");
 
 
-router.post("/", upsertProfile);
+
+router.get("/", requireViewer, getActiveProfile);
+
+
+router.post("/", requireAdmin, upsertProfile);
 
 module.exports = router;

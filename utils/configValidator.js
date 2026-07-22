@@ -1,5 +1,10 @@
 const validateConfig = () => {
-    const requiredKeys = ['MONGO_URI'];
+    const requiredKeys = [
+        'MONGO_URI',
+        'CLERK_PUBLISHABLE_KEY',
+        'CLERK_SECRET_KEY',
+        'SYSTEM_INTERNAL_SECRET'
+    ];
     const optionalKeys = [
         'TELEGRAM_SESSION',
         'TELEGRAM_API_ID',
@@ -8,7 +13,6 @@ const validateConfig = () => {
         'GROQ_API_KEY',
         'ZAI_API_KEY',
         'CRON_ENABLED',
-        'ADMIN_API_KEY',
         'EMAIL_USER',
         'EMAIL_PASS',
         'EMAIL_TO'

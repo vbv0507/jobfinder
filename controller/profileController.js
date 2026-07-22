@@ -1,4 +1,5 @@
 const CandidateProfile = require("../models/CandidateProfile");
+const { logAuditAction } = require("../services/auditService");
 
 const getActiveProfile = async (req, res) => {
     try {
@@ -25,6 +26,8 @@ const upsertProfile = async (req, res) => {
             ...req.body,
             active: true,
         });
+
+        await logAuditAction(req, 'Candidate Edit', `Upserted profile ${profile._id}`);
 
         res.status(201).json({
             success: true,

@@ -12,11 +12,11 @@
 <script>
     async function loadAI() {
         try {
-            const res = await fetch('/api/system/health');
-            const data = await res.json();
+            const res = await apiCall('/api/system/health');
+            const data = res;
             
-            const metricsRes = await fetch('/api/system/metrics');
-            const metrics = await metricsRes.json();
+            const metricsRes = await apiCall('/api/system/metrics');
+            const metrics = metricsRes;
             
             const providers = [
                 { id: 'gemini', name: 'Gemini', status: data.ai.gemini },

@@ -1,6 +1,6 @@
 
 
-const API_BASE = '/api';
+const API_BASE = '';
 
 
 function showAlert(message, type = 'success') {
@@ -24,20 +24,26 @@ async function apiCall(endpoint, method = 'GET', data = null) {
             }
         };
         
+        if (window.Clerk && window.Clerk.session) {
+            const token = await window.Clerk.session.getToken();
+            options.headers['Authorization'] = `Bearer ${token}`;
+        }
+        
         if (data) {
             options.body = JSON.stringify(data);
         }
         
         const response = await fetch(`${API_BASE}${endpoint}`, options);
+        const data = await response.json().catch(() => null);
         
         if (!response.ok) {
-            throw new Error(`API Error: ${response.statusText}`);
+            throw new Error(data && data.message ? data.message : `API Error: ${response.statusText}`);
         }
         
-        return await response.json();
+        return data;
     } catch (error) {
         console.error('API Error:', error);
-        showAlert(`Error: ${error.message}`, 'error');
+        showAlert(error.message, 'error');
         throw error;
     }
 }

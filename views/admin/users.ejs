@@ -1,0 +1,124 @@
+<%- include('../partials/header') %>
+
+<div class="mb-6 flex justify-between items-center">
+    <div>
+        <h2 class="text-2xl font-bold text-gray-900 dark:text-white">User Management</h2>
+        <p class="text-sm text-gray-500 mt-1">Manage administrators and viewers across RoleNova.</p>
+    </div>
+</div>
+
+<div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
+    <div class="overflow-x-auto">
+        <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
+            <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-300">
+                <tr>
+                    <th scope="col" class="px-6 py-4">User</th>
+                    <th scope="col" class="px-6 py-4">Role</th>
+                    <th scope="col" class="px-6 py-4">Status</th>
+                    <th scope="col" class="px-6 py-4">Last Login</th>
+                    <th scope="col" class="px-6 py-4 text-right">Actions</th>
+                </tr>
+            </thead>
+            <tbody id="usersTableBody">
+                <!-- Data populated by JS -->
+                <tr>
+                    <td colspan="5" class="px-6 py-8 text-center text-gray-500">Loading users...</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    async function loadUsers() {
+        try {
+            const users = await apiCall('/admin/api/users');
+            const tbody = document.getElementById('usersTableBody');
+            
+            if (users.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" class="px-6 py-8 text-center text-gray-500">No users found.</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = users.map(user => `
+                <tr class="border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                    <td class="px-6 py-4">
+                        <div class="flex items-center gap-3">
+                            <img src="${user.imageUrl || '/default-avatar.png'}" class="w-10 h-10 rounded-full bg-gray-200">
+                            <div>
+                                <div class="font-medium text-gray-900 dark:text-white">${user.fullName}</div>
+                                <div class="text-xs text-gray-500">${user.email}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4">
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                            user.role === 'admin' 
+                            ? 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300' 
+                            : 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300'
+                        }">
+                            ${user.role.toUpperCase()}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4">
+                        <span class="inline-flex items-center gap-1.5">
+                            <span class="w-2 h-2 rounded-full ${user.isActive ? 'bg-green-500' : 'bg-red-500'}"></span>
+                            ${user.isActive ? 'Active' : 'Deactivated'}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 text-xs">
+                        ${user.lastLoginAt ? new Date(user.lastLoginAt).toLocaleString() : 'Never'}
+                    </td>
+                    <td class="px-6 py-4 text-right">
+                        <div class="flex items-center justify-end gap-2">
+                            ${user.role === 'admin' ? `
+                                <button onclick="changeRole('${user._id}', 'demote')" class="px-3 py-1.5 text-xs font-medium text-amber-700 bg-amber-50 hover:bg-amber-100 rounded-lg transition-colors border border-amber-200">
+                                    Demote
+                                </button>
+                            ` : `
+                                <button onclick="changeRole('${user._id}', 'promote')" class="px-3 py-1.5 text-xs font-medium text-purple-700 bg-purple-50 hover:bg-purple-100 rounded-lg transition-colors border border-purple-200">
+                                    Promote
+                                </button>
+                            `}
+                            
+                            <button onclick="toggleStatus('${user._id}')" class="px-3 py-1.5 text-xs font-medium ${
+                                user.isActive 
+                                ? 'text-red-700 bg-red-50 hover:bg-red-100 border-red-200' 
+                                : 'text-green-700 bg-green-50 hover:bg-green-100 border-green-200'
+                            } rounded-lg transition-colors border">
+                                ${user.isActive ? 'Deactivate' : 'Reactivate'}
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        } catch (error) {
+            console.error('Failed to load users:', error);
+            alert('Error loading users. Check console.');
+        }
+    }
+
+    async function changeRole(userId, action) {
+        if (!confirm(`Are you sure you want to ${action} this user?`)) return;
+        try {
+            await apiCall(`/admin/api/users/${userId}/${action}`, { method: 'POST' });
+            loadUsers();
+        } catch (error) {
+            alert(error.message || 'Failed to change role');
+        }
+    }
+
+    async function toggleStatus(userId) {
+        if (!confirm('Are you sure you want to change this user\\'s status?')) return;
+        try {
+            await apiCall(`/admin/api/users/${userId}/toggle`, { method: 'POST' });
+            loadUsers();
+        } catch (error) {
+            alert(error.message || 'Failed to toggle status');
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', loadUsers);
+</script>
+
+<%- include('../partials/footer') %>

@@ -1,10 +1,12 @@
 const Company = require("../models/Company");
 const { seedCompanies } = require("../services/companyService");
+const { logAuditAction } = require("../services/auditService");
 
 
 const addCompany = async (req, res) => {
     try {
         const company = await Company.create(req.body);
+        await logAuditAction(req, 'Company Edit', `Added ${company.name}`);
 
         res.status(201).json({
             success: true,
@@ -47,6 +49,7 @@ const seedCompanyList = async (req, res) => {
     try {
         await seedCompanies();
         const companies = await Company.find();
+        await logAuditAction(req, 'Company Edit', `Seeded ${companies.length} companies`);
 
         res.status(200).json({
             success: true,

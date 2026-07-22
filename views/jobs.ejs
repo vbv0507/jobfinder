@@ -123,12 +123,12 @@
 
     async function updateStatus(id, status) {
         try {
-            const res = await fetch(`/api/jobs/${id}/status`, {
+            const res = await apiCall(`/api/jobs/${id}/status`, {
                 method: "PATCH",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ status })
             });
-            const data = await res.json();
+            const data = res;
             if (data.success) {
                 // simple reload to refresh list based on current active tab
                 window.location.reload();

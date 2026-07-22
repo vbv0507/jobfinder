@@ -20,6 +20,7 @@
         
         .table th { background-color: #f1f3f5; font-weight: 600; }
     </style>
+    <script src="/js/main.js"></script>
 </head>
 <body>
 
@@ -112,24 +113,24 @@
     async function fetchData() {
         try {
             const [statusRes, statsRes, channelsRes] = await Promise.all([
-                fetch('/api/telegram/status'),
-                fetch('/api/telegram/statistics'),
-                fetch('/api/telegram/channels')
+                apiCall('/api/telegram/status'),
+                apiCall('/api/telegram/statistics'),
+                apiCall('/api/telegram/channels')
             ]);
             
-            const statusData = await statusRes.json();
-            const statsData = await statsRes.json();
-            const channelsData = await channelsRes.json();
+            const statusData = statusRes;
+            const statsData = statsRes;
+            const channelsData = channelsRes;
 
             updateStatus(statusData.status);
             updateStats(statsData.statistics);
             
             // Fetch new telemetry
-            const healthRes = await fetch('/api/system/health');
-            const metricsRes = await fetch('/api/system/metrics');
-            if(healthRes.ok && metricsRes.ok) {
-                const h = await healthRes.json();
-                const m = await metricsRes.json();
+            const healthRes = await apiCall('/api/system/health');
+            const metricsRes = await apiCall('/api/system/metrics');
+            if(healthRes && metricsRes) {
+                const h = healthRes;
+                const m = metricsRes;
                 document.getElementById('telemetryCards').innerHTML = `
                     <div class="col-md-3"><div class="card stat-card"><div class="stat-label">Listener Registered</div><div class="stat-value text-primary">${h.telegram.listenerRegistered ? 'Yes' : 'No'}</div></div></div>
                     <div class="col-md-3"><div class="card stat-card"><div class="stat-label">Last Message</div><div class="stat-value text-primary" style="font-size:1.2rem">${h.telegram.lastMessageAt ? new Date(h.telegram.lastMessageAt).toLocaleTimeString() : 'N/A'}</div></div></div>
@@ -209,7 +210,7 @@
 
     async function reloadChannels() {
         if(!confirm("Reload active channels from database?")) return;
-        await fetch('/api/telegram/reload', { method: 'POST' });
+        await apiCall('/api/telegram/reload', { method: 'POST' });
         fetchData();
     }
 
@@ -217,7 +218,7 @@
         if(!confirm("Force disconnect and reconnect Telegram client? This will reset uptime.")) return;
         document.getElementById('connStatusBadge').innerText = "Reconnecting...";
         document.getElementById('connStatusBadge').className = "status-badge status-connecting d-inline-block";
-        await fetch('/api/telegram/reconnect', { method: 'POST' });
+        await apiCall('/api/telegram/reconnect', { method: 'POST' });
         setTimeout(fetchData, 2000);
     }
 

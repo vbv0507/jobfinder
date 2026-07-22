@@ -218,11 +218,7 @@ async function deleteRawJobs(event) {
         btn.disabled = true;
         btn.textContent = "Deleting...";
 
-        const response = await fetch("/api/jobs/raw", {
-            method: "DELETE",
-            headers: { "Content-Type": "application/json" },
-        });
-        const data = await response.json();
+        const data = await apiCall("/jobs/raw", "DELETE");
 
         if (!data.success) {
             throw new Error(data.message || "Failed to delete jobs");

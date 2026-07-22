@@ -72,8 +72,8 @@
 <script>
     async function loadChannels() {
         try {
-            const res = await fetch("/api/telegram/channels");
-            const data = await res.json();
+            const res = await apiCall("/api/telegram/channels");
+            const data = res;
             const tbody = document.getElementById('channelsTableBody');
             
             if (data.success) {
@@ -128,7 +128,7 @@
 
     async function toggleChannel(id, enabled) {
         try {
-            await fetch(`/api/telegram/channels/${id}/toggle`, {
+            await apiCall(`/api/telegram/channels/${id}/toggle`, {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ enabled })
@@ -142,8 +142,8 @@
     async function deleteChannel(id) {
         if (!confirm('Are you sure you want to delete this channel?')) return;
         try {
-            const res = await fetch(`/api/telegram/channels/${id}`, { method: 'DELETE' });
-            if (res.ok) loadChannels();
+            const res = await apiCall(`/api/telegram/channels/${id}`, { method: 'DELETE' });
+            if (res && res.success) loadChannels();
         } catch(e) {
             alert('Failed to delete channel');
         }
@@ -157,12 +157,12 @@
             category: document.getElementById('chCategory').value
         };
         try {
-            const res = await fetch('/api/telegram/channels', {
+            const res = await apiCall('/api/telegram/channels', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)
             });
-            const data = await res.json();
+            const data = res;
             if (data.success) {
                 document.getElementById('addChannelModal').classList.add('hidden');
                 e.target.reset();

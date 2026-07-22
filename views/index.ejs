@@ -167,8 +167,8 @@
 
     async function fetchLogs() {
         try {
-            const res = await fetch("/api/jobs/logs");
-            const data = await res.json();
+            const res = await apiCall("/api/jobs/logs");
+            const data = res;
             if(data.success && data.logs) {
                 allLogs = data.logs;
                 renderLogs();
@@ -426,8 +426,8 @@
 
     async function loadDashboard() {
         try {
-            const res = await fetch("/api/jobs/analytics");
-            const data = await res.json();
+            const res = await apiCall("/api/jobs/analytics");
+            const data = res;
             
             if(data.success) {
                 const s = data.stats;
@@ -505,8 +505,8 @@
     
     async function fetchPipelineStatus() {
         try {
-            const res = await fetch("/api/jobs/status");
-            const data = await res.json();
+            const res = await apiCall("/api/jobs/status");
+            const data = res;
             if(data.success) {
                 const s = data.state;
                 const widget = document.getElementById('pipeline-widget');
@@ -684,8 +684,8 @@
 
     async function fetchTelegramStatus() {
         try {
-            const res = await fetch("/api/telegram/status");
-            const data = await res.json();
+            const res = await apiCall("/api/telegram/status");
+            const data = res;
             if(data.success && data.status) {
                 const status = data.status;
                 const statusEl = document.getElementById('tg-health-status');
@@ -758,8 +758,8 @@
     async function clearRawJobs() {
         if(!confirm("Are you sure you want to delete all raw job data?")) return;
         try {
-            const res = await fetch("/api/jobs/raw", { method: "DELETE" });
-            const data = await res.json();
+            const res = await apiCall("/api/jobs/raw", { method: "DELETE" });
+            const data = res;
             if(data.success) alert(data.message);
         } catch(e) {
             alert("Error clearing raw jobs");

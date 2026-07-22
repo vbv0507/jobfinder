@@ -2,6 +2,7 @@ const TelegramChannel = require('../models/TelegramChannel');
 const { getListenerStatus, reconnectTelegram, reloadChannels } = require('../services/telegramService');
 const RawJob = require('../models/RawJob');
 const MatchedJob = require('../models/MatchedJob');
+const { logAuditAction } = require("../services/auditService");
 
 
 exports.getChannels = async (req, res) => {
@@ -29,6 +30,8 @@ exports.toggleChannel = async (req, res) => {
             return res.status(404).json({ success: false, message: 'Channel not found' });
         }
         
+        await logAuditAction(req, 'Telegram Edit', `Toggled channel ${channel.username} to ${enabled}`);
+        
         res.status(200).json({ success: true, channel });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
@@ -52,6 +55,8 @@ exports.addChannel = async (req, res) => {
             category
         });
         
+        await logAuditAction(req, 'Telegram Edit', `Added channel ${username}`);
+        
         res.status(201).json({ success: true, channel });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
@@ -62,7 +67,10 @@ exports.addChannel = async (req, res) => {
 exports.deleteChannel = async (req, res) => {
     try {
         const { id } = req.params;
-        await TelegramChannel.findByIdAndDelete(id);
+        const channel = await TelegramChannel.findByIdAndDelete(id);
+        if (channel) {
+            await logAuditAction(req, 'Telegram Edit', `Deleted channel ${channel.username}`);
+        }
         res.status(200).json({ success: true, message: 'Channel deleted' });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });

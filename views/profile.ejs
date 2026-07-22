@@ -88,8 +88,8 @@
 <script>
     async function loadProfile() {
         try {
-            const res = await fetch("/api/profile");
-            const data = await res.json();
+            const res = await apiCall("/api/profile");
+            const data = res;
             if(data.success && data.profile) {
                 const p = data.profile;
                 document.getElementById('name').value = p.name || '';
@@ -133,12 +133,12 @@
         };
 
         try {
-            const res = await fetch("/api/profile", {
+            const res = await apiCall("/api/profile", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(profile)
             });
-            const data = await res.json();
+            const data = res;
             if(data.success) {
                 alert("Profile successfully updated. Next AI evaluation will use these settings.");
             } else {

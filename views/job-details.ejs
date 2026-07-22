@@ -241,12 +241,12 @@
 <script>
     async function updateStatus(id, status) {
         try {
-            const res = await fetch(`/api/jobs/${id}/status`, {
+            const res = await apiCall(`/api/jobs/${id}/status`, {
                 method: "PATCH",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ status })
             });
-            const data = await res.json();
+            const data = res;
             if (data.success) {
                 window.location.reload();
             }
@@ -258,12 +258,12 @@
     async function saveNotes(id) {
         const notes = document.getElementById('jobNotes').value;
         try {
-            const res = await fetch(`/api/jobs/${id}/status`, {
+            const res = await apiCall(`/api/jobs/${id}/status`, {
                 method: "PATCH",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ notes })
             });
-            const data = await res.json();
+            const data = res;
             if (data.success) {
                 alert("Notes saved successfully!");
             }
