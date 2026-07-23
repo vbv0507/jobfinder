@@ -1,6 +1,7 @@
 const RawJob = require("../models/RawJob");
 const MatchedJob = require("../models/MatchedJob");
 const SearchLog = require("../models/SearchLog");
+const PipelineLock = require("../models/PipelineLock");
 
 const runSearch = require("../cron/jobSearchCron");
 const {
@@ -84,9 +85,21 @@ const getSearchLogs = async (req, res) => {
 
 const getPipelineStatus = async (req, res) => {
     try {
+        const lock = await PipelineLock.findOne({ lockId: "global_pipeline_lock" });
+        
+        let mergedState = { ...pipelineState };
+        if (lock && lock.status === "Running" && lock.expiresAt > new Date()) {
+            mergedState.status = "Running";
+            mergedState.runner = lock.runner;
+            mergedState.lockStartedAt = lock.startedAt;
+            mergedState.lockExpiresAt = lock.expiresAt;
+        } else if (lock && lock.status === "Idle") {
+            mergedState.status = "Idle";
+        }
+        
         res.status(200).json({
             success: true,
-            state: pipelineState
+            state: mergedState
         });
     } catch (error) {
         sendError(res, error);

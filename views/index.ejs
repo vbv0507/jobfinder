@@ -624,6 +624,14 @@
                         extraInfo = `
                             <div class="mt-3 text-xs border-t border-gray-100 pt-2 space-y-1">
                                 <div class="flex justify-between">
+                                    <span class="text-gray-500">Runner:</span>
+                                    <span class="font-medium text-gray-800">${s.runner || '-'}</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-500">Started At:</span>
+                                    <span class="font-medium text-gray-800">${s.lockStartedAt ? new Date(s.lockStartedAt).toLocaleTimeString() : '-'}</span>
+                                </div>
+                                <div class="flex justify-between">
                                     <span class="text-gray-500">Stage:</span>
                                     <span class="font-medium text-gray-800">${s.currentStage || '-'}</span>
                                 </div>
@@ -638,6 +646,10 @@
                                 <div class="flex justify-between">
                                     <span class="text-gray-500">ETA:</span>
                                     <span class="font-medium text-gray-800">${s.estimatedRemainingTime ? Math.round(s.estimatedRemainingTime/1000) + 's' : '-'}</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-500">Expected Unlock:</span>
+                                    <span class="font-medium text-gray-800">${s.lockExpiresAt ? new Date(s.lockExpiresAt).toLocaleTimeString() : '-'}</span>
                                 </div>
                                 <div class="flex justify-between">
                                     <span class="text-gray-500">AI Engine:</span>
@@ -677,6 +689,29 @@
                             <p class="text-gray-500 text-xs mt-1 leading-none" title="${s.message}">${s.message.length > 30 ? s.message.substring(0,30) + '...' : s.message}</p>
                         </div>
                     `;
+                }
+                
+                // Sync sidebar button if it exists
+                const btn = document.getElementById("runPipelineBtn");
+                const icon = document.getElementById("runPipelineIcon");
+                const text = document.getElementById("runPipelineText");
+                const statusInd = document.getElementById("pipelineStatusIndicator");
+                if (btn && icon && text && statusInd) {
+                    if (s.status === 'Running') {
+                        btn.disabled = true;
+                        btn.classList.add("opacity-75", "cursor-not-allowed");
+                        text.innerText = "Running...";
+                        icon.className = "fas fa-spinner fa-spin";
+                        statusInd.innerHTML = "<span>🟡</span> Running";
+                        statusInd.className = "text-xs flex items-center gap-1 font-medium text-yellow-400";
+                    } else {
+                        btn.disabled = false;
+                        btn.classList.remove("opacity-75", "cursor-not-allowed");
+                        text.innerText = "Run Pipeline";
+                        icon.className = "fas fa-sync-alt";
+                        statusInd.innerHTML = "<span>🟢</span> Idle";
+                        statusInd.className = "text-xs flex items-center gap-1 font-medium text-green-400";
+                    }
                 }
             }
         } catch (e) {}
