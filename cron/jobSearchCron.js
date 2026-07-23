@@ -437,7 +437,7 @@ const runSearch = async (triggerSource = "Unknown") => {
         status: "Running",
         startedAt: startedAt,
         runner: runnerName,
-        expiresAt: new Date(startedAt.getTime() + 2 * 60 * 60 * 1000)
+        expiresAt: new Date(startedAt.getTime() + 30 * 60 * 1000)
       }
     },
     { returnDocument: "after" }
@@ -447,7 +447,8 @@ const runSearch = async (triggerSource = "Unknown") => {
 
   if (!lock) {
     const currentLock = await PipelineLock.findOne({ lockId: "global_pipeline_lock" });
-    console.log(`[Pipeline] Another execution is already running. Skipping.`);
+    const owner = currentLock ? currentLock.runner : "Unknown";
+    console.log(`[Pipeline] Another execution is already running. Skipping. Owner: ${owner}`);
     await SearchLog.create({
       pipelineId,
       triggerSource: runnerName,
@@ -462,12 +463,15 @@ const runSearch = async (triggerSource = "Unknown") => {
     return { skipped: true, reason: "Already running" };
   }
 
-  const pipelineLog = await SearchLog.create({
-    pipelineId,
-    triggerSource: runnerName,
-    status: "Running",
-    startedAt: startedAt
-  });
+  console.log(`[Pipeline] Lock Acquired. Owner: ${runnerName}. Expires: ${lock.expiresAt.toISOString()}`);
+
+  try {
+    const pipelineLog = await SearchLog.create({
+      pipelineId,
+      triggerSource: runnerName,
+      status: "Running",
+      startedAt: startedAt
+    });
 
   console.log(`[Pipeline] ID: ${pipelineId} | Trigger source: ${runnerName}. Start time: ${startedAt.toISOString()}`);
 
@@ -547,7 +551,6 @@ const runSearch = async (triggerSource = "Unknown") => {
 
   const errors = [];
 
-  try {
     const companies = await Company.find({ active: true });
     const profile = await getActiveProfile();
 
@@ -838,6 +841,7 @@ const runSearch = async (triggerSource = "Unknown") => {
       { lockId: "global_pipeline_lock" },
       { $set: { status: "Idle", runner: "none" } }
     );
+    console.log(`[Pipeline] Lock Released. Owner: ${runnerName}.`);
   }
 };
 

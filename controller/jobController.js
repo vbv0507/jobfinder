@@ -123,6 +123,7 @@ const runJobSearch = async (req, res) => {
         const result = await runSearch("Manual");
         
         if (result && result.skipped) {
+            console.log(`[Controller] 409 Conflict: Pipeline is already running. Trigger blocked.`);
             await logAuditAction(req, 'Pipeline Trigger', 'Skipped - Already running');
             return res.status(409).json({
                 success: false,
