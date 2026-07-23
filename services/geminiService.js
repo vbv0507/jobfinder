@@ -23,79 +23,132 @@ const countMatches = (text, values = []) =>
 
 const evaluateJobLocally = (job, profile, reasonPrefix = "Gemini unavailable") => {
     const text = getText(job);
-    let score = 35;
+    let score = 50;
     const missingSkills = [];
+    const matchedSkills = [];
+    const reasonsFor = [];
+    const reasonsAgainst = [];
+    
     let domainMismatch = false;
     let experienceMismatch = false;
-    const primaryReasons = [];
 
-    const roleMatches = countMatches(text, profile.preferredRoles || []);
-    const skillMatches = countMatches(text, profile.skills || []);
+    // 1. Mandatory Skills Extraction & Match
+    const profileSkills = (profile.skills || []).map(s => s.toLowerCase());
+    const commonTechs = ["node.js", "express", "mongodb", "react", "python", "java", "aws", "kubernetes", "docker", "sql", "linux", "jenkins", "argocd", "slurm"];
+    const requiredSkills = commonTechs.filter(tech => text.includes(tech));
+    
+    let skillMatches = 0;
+    for (const reqSkill of requiredSkills) {
+        const found = profileSkills.some(ps => ps.includes(reqSkill) || reqSkill.includes(ps));
+        if (found) {
+            skillMatches++;
+            matchedSkills.push(reqSkill);
+        } else {
+            missingSkills.push(reqSkill);
+        }
+    }
+    
+    const skillOverlapPercentage = requiredSkills.length > 0 ? Math.round((skillMatches / requiredSkills.length) * 100) : 100;
+    
+    if (skillOverlapPercentage < 40 && requiredSkills.length > 0) {
+        score -= 30;
+        reasonsAgainst.push(`Low skill overlap (${skillOverlapPercentage}%). Missing: ${missingSkills.join(", ")}`);
+    } else if (skillMatches > 0) {
+        score += 20;
+        reasonsFor.push(`Strong skill match (${skillOverlapPercentage}% overlap)`);
+    }
 
+    // 2. Domain Classification
     const jobDomain = classifyDomain(text);
     const excludedDomains = (profile.excludedDomains || []).map(d => d.toUpperCase());
     
     if (excludedDomains.includes(jobDomain)) {
         domainMismatch = true;
         score -= 50;
-        primaryReasons.push(`Domain mismatch: Role classified as ${jobDomain}, which is excluded by the candidate.`);
+        reasonsAgainst.push(`Domain mismatch: Role classified as ${jobDomain}, which is excluded by the candidate.`);
+    } else {
+        reasonsFor.push(`Domain (${jobDomain}) is acceptable.`);
     }
 
-    if (roleMatches > 0) score += 22;
-    if (/\b(software development engineer|software engineer|sde|backend|api developer|node\.?js developer)\b/i.test(text)) {
-        score += 18;
+    // 3. Experience Extraction & Penalty
+    const candExp = parseFloat(profile.yearsOfExperience) || 0;
+    let reqExp = 0;
+    
+    // Extract req exp
+    const expMatch = text.match(/\b(\d+)\s*\+?\s*(?:years?|yrs?)\b/i);
+    if (expMatch) {
+        reqExp = parseInt(expMatch[1]);
     }
-    if (/\b(intern|internship|fresher|new grad|entry level|junior|associate)\b|0\s*-\s*1|0\s*to\s*1/i.test(text)) {
-        score += 14;
-    }
-    if (/\b(india|bengaluru|bangalore|noida|hyderabad|pune|remote)\b/i.test(text)) {
-        score += 10;
-    }
-    if (skillMatches > 0) {
-        score += Math.min(skillMatches * 3, 15);
-    }
-
-    if (/\b(senior|sr\.?|staff|principal|manager|director|architect|lead)\b/i.test(text)) {
-        score -= 50;
+    
+    // Senior titles
+    const isSenior = /\b(senior|sr\.?|staff|principal|manager|director|architect|lead|production engineer|site reliability engineer|platform engineer|infrastructure engineer)\b/i.test(text);
+    
+    if (isSenior && candExp < 3) {
+        score -= 60;
         experienceMismatch = true;
-        primaryReasons.push("Seniority mismatch: Role is for senior/lead, candidate is a fresher.");
+        reasonsAgainst.push("Seniority mismatch: Role is for senior/lead, candidate lacks sufficient experience.");
     }
-    const hasMandatoryExperience = /\b(minimum|mandatory|requires|required)\s*\d+\s*(?:years?|yrs?)\b/i.test(text);
-    if (/\b(2|3|4|5|6|7|8|9|10)\s*\+?\s*(?:years?|yrs?)\b|1\s*(?:-|to)\s*3\s*(?:years?|yrs?)/i.test(text) || hasMandatoryExperience) {
+    
+    const expGap = reqExp - candExp;
+    if (expGap >= 6) {
+        score -= 60;
+        experienceMismatch = true;
+        reasonsAgainst.push(`Experience mismatch: Requires ${reqExp}+ years, candidate has ${candExp} (Gap: ${expGap}).`);
+    } else if (expGap >= 4) {
+        score -= 40;
+        experienceMismatch = true;
+        reasonsAgainst.push(`Experience mismatch: Requires ${reqExp}+ years, candidate has ${candExp} (Gap: ${expGap}).`);
+    } else if (expGap >= 2) {
         score -= 20;
+        reasonsAgainst.push(`Experience gap: Requires ${reqExp}+ years, candidate has ${candExp}.`);
+    } else {
+        reasonsFor.push(`Experience level aligns with role requirements.`);
+    }
+    
+    // Hard constraint check: Fresher applying for 5+ years
+    if (candExp === 0 && reqExp >= 5) {
+        score = Math.min(score, 35);
         experienceMismatch = true;
-        primaryReasons.push("Experience mismatch: Requires more experience than candidate possesses.");
+        reasonsAgainst.push("HARD CONSTRAINT: Fresher applied to a role requiring 5+ years experience.");
     }
 
-    if (!/\bnode\.?js|express|mongodb|javascript|rest api|api|backend\b/i.test(text) && !domainMismatch) {
-        missingSkills.push("Direct Node.js/Express/MongoDB mention not found in job post");
-    }
-
+    // Bounds
     if (score < 0) score = 0;
     if (score > 100) score = 100;
+    
+    let recommendationLevel = "Weak Match";
+    if (score >= 90) recommendationLevel = "Excellent Match";
+    else if (score >= 80) recommendationLevel = "Strong Match";
+    else if (score >= 60) recommendationLevel = "Moderate Match";
+    else if (score <= 39) recommendationLevel = "Reject";
+    
+    const suitable = score >= 60 && !domainMismatch && !experienceMismatch;
 
     return {
         score,
         confidence: "Low",
-        suitable: score >= 50 && !domainMismatch && !experienceMismatch,
+        suitable,
+        recommendationLevel,
         reason: `${reasonPrefix}; local scoring yielded ${score}.`,
-        primaryReasons: primaryReasons.length > 0 ? primaryReasons : ["Local keyword analysis"],
+        primaryReasons: [...reasonsFor, ...reasonsAgainst],
+        reasonsFor,
+        reasonsAgainst,
+        matchedSkills,
         missingSkills,
+        skillOverlapPercentage,
         domainMismatch,
         jobDomain,
-        evaluatedBy: "Local",
         domainExplanation: `Domain classified locally as ${jobDomain}.`,
         experienceMismatch,
         scoringBreakdown: {
-            roleMatch: roleMatches * 10,
-            skillsMatch: skillMatches * 10,
+            roleMatch: skillMatches * 10,
+            skillsMatch: skillOverlapPercentage,
             experienceMatch: experienceMismatch ? 0 : 80,
             domainMatch: domainMismatch ? 0 : 80,
             locationMatch: 100
         },
-        roleMatch: roleMatches > 0 ? "Strong" : "Weak",
-        experienceMatch: experienceMismatch ? "Mismatch" : "Match",
-        recommendation: score >= 50 ? "Consider applying" : "Not recommended",
+        roleMatch: recommendationLevel,
+        recommendation: suitable ? "Consider applying" : "Reject",
         evaluatedBy: "Local",
         provider: "local",
         model: "heuristic",

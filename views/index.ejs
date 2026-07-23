@@ -758,7 +758,7 @@
     async function clearRawJobs() {
         if(!confirm("Are you sure you want to delete all raw job data?")) return;
         try {
-            const res = await apiCall("/api/jobs/raw", { method: "DELETE" });
+            const res = await apiCall("/api/jobs/raw", "DELETE");
             const data = res;
             if(data.success) alert(data.message);
         } catch(e) {

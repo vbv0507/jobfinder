@@ -133,11 +133,7 @@
         };
 
         try {
-            const res = await apiCall("/api/profile", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(profile)
-            });
+            const res = await apiCall("/api/profile", "POST", profile);
             const data = res;
             if(data.success) {
                 alert("Profile successfully updated. Next AI evaluation will use these settings.");

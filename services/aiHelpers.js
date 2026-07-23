@@ -1,80 +1,86 @@
 const buildEvaluationPrompt = (job, profile) => `
-You are an expert Technical Recruiter, ATS Analyzer, and Hiring Manager.
-
-Your task is to critically evaluate whether this candidate is a strong match for the job. Do not be overly optimistic.
+You are an expert Technical Recruiter and ATS Analyzer. Your task is to critically evaluate whether this candidate is a strong match for the job. Do not be overly optimistic.
 
 ========================
 CANDIDATE PROFILE
 ========================
 
-Career Stage: ${profile.careerStage || "Not specified"}
-Years of Experience: ${profile.yearsOfExperience || 0}
-Preferred Domains: ${(profile.preferredDomains || []).join(", ")}
-Excluded Domains: ${(profile.excludedDomains || []).join(", ")}
-Preferred Employment Levels: ${(profile.preferredEmploymentLevels || []).join(", ")}
-Preferred Job Types: ${(profile.preferredJobTypes || []).join(", ")}
+Career Stage: \${profile.careerStage || "Not specified"}
+Years of Experience: \${profile.yearsOfExperience || 0}
+Preferred Domains: \${(profile.preferredDomains || []).join(", ")}
+Excluded Domains: \${(profile.excludedDomains || []).join(", ")}
 
 Graduation Year:
-${profile.graduationYear}
+\${profile.graduationYear}
 
-Skills:
-${profile.skills.join(", ")}
-
-Preferred Roles:
-${profile.preferredRoles.join(", ")}
-
-Preferred Locations:
-${profile.preferredLocations.join(", ")}
+Candidate Skills:
+\${profile.skills.join(", ")}
 
 ========================
 JOB DETAILS
 ========================
 
-Title:
-${job.title}
-
-Location:
-${job.location}
+Title: \${job.title}
+Location: \${job.location}
 
 Description:
-${job.description}
+\${job.description}
+
+========================
+MANDATORY REQUIREMENT EXTRACTION (DO THIS FIRST)
+========================
+Before scoring, extract the following from the Job Details:
+1. Required Years of Experience (e.g., "5+ years", "0-2 years")
+2. Mandatory Skills/Technologies (e.g., "Kubernetes, Linux, Python")
+3. Required Domains
+4. Keywords like "Must Have", "Required", "Minimum Qualifications"
 
 ========================
 EVALUATION RULES (MULTI-STAGE)
 ========================
 
-STAGE 1: EXPERIENCE LEVEL & GRADUATION MISMATCH
-- The candidate graduates in ${profile.graduationYear} (Years of Exp: ${profile.yearsOfExperience}).
-- Check if the job aligns with Preferred Employment Levels.
-- HEAVILY PENALIZE (score < 40) if the job requires mandatory experience exceeding the candidate's years of experience or if it demands a Senior/Manager/Lead title.
+STAGE 1: EXPERIENCE MISMATCH (HARD CONSTRAINT)
+- Experience must be treated as a HARD CONSTRAINT.
+- Candidate Years of Experience: \${profile.yearsOfExperience || 0}.
+- If the candidate is a Fresher (0 years) AND the Job requires 5+ years: The final score MUST NOT exceed 40. Reject immediately.
+- Recognize senior titles (Senior, Staff, Lead, Principal, Architect, Manager, Director, Production Engineer, Site Reliability Engineer, Platform Engineer, Infrastructure Engineer). If the role implies seniority and the candidate is junior/fresher, apply SEVERE penalties (score < 40).
+- Experience Gap Penalty:
+  - Gap <= 1 year: 0 penalty
+  - Gap 2-3 years: -20 penalty
+  - Gap 4-5 years: -40 penalty
+  - Gap >= 6 years: -60 penalty or Reject
 
-STAGE 2: DOMAIN MATCHING
-- CLASSIFY the job into a primary engineering domain (e.g., Backend, Frontend, Mobile, AI/ML, DevOps, Data Engineering).
-- Compare against the candidate's Preferred Domains and Excluded Domains.
-- HEAVILY PENALIZE (domainMatch < 40) if the job's primary domain is in the Excluded Domains list.
+STAGE 2: MANDATORY SKILL MATCHING
+- Compare Candidate Skills vs Extracted Mandatory Skills.
+- Treat Keywords ("Required", "Must Have") as hard constraints.
+- Calculate skill overlap percentage. Example: If Candidate has 2 out of 10 required skills, overlap is 20%.
+- If skill overlap is < 40% for mandatory tech stacks, apply strong penalty.
 
-STAGE 3: SKILL MATCHING
-- Identify MUST-HAVE vs BONUS skills.
-- If a MUST-HAVE tech stack is entirely missing from the candidate, apply a strong penalty.
-- If the candidate has strong Backend (Node.js/Express) and the role requires Java/Python/Go for Backend, treat it as a learnable gap, but still reduce the score slightly compared to an exact match.
+STAGE 3: DOMAIN CLASSIFICATION
+- Classify the job into a primary domain (Backend, Frontend, Full Stack, Data Engineering, ML, AI, DevOps, Cloud, Platform Engineering, SRE, Cyber Security, etc.).
+- If Candidate Domain differs significantly from Job Domain (e.g., Backend candidate vs Production Engineering role), apply penalty.
 
-STAGE 4: SCORING
-90-100 = Excellent Match (Exact tech stack, entry-level/intern, perfect domain)
-80-89 = Strong Match (Backend domain, learnable tech stack gap, entry-level)
-70-79 = Good Match (Acceptable domain, some skill overlap)
-40-69 = Weak Match (Some domain or experience mismatch, missing core required skills)
-0-39 = Reject (Clear domain mismatch like AI/Mobile, or requires Senior/3+ years experience)
+STAGE 4: SCORING & RECOMMENDATION
+Calculate the final score based on penalties.
+Determine Recommendation Level:
+- Excellent Match (90-100)
+- Strong Match (80-89)
+- Moderate Match (60-79)
+- Weak Match (40-59)
+- Reject (0-39)
+
+Never ignore experience. Never ignore mandatory skills. Never inflate score because the company is famous.
 
 ========================
 RESPONSE FORMAT
 ========================
-
 Return ONLY valid JSON using this exact schema. DO NOT return markdown, explanations, or code blocks.
 
 {
   "score": 0,
   "confidence": "High|Medium|Low",
   "suitable": true|false,
+  "recommendationLevel": "Excellent Match|Strong Match|Moderate Match|Weak Match|Reject",
   "scoringBreakdown": {
     "roleMatch": 0,
     "skillsMatch": 0,
@@ -83,14 +89,18 @@ Return ONLY valid JSON using this exact schema. DO NOT return markdown, explanat
     "locationMatch": 0
   },
   "domainMismatch": true|false,
-  "domainExplanation": "Explain why this domain matches or mismatches the profile",
-  "jobDomain": "What is the primary domain of this job? (e.g. BACKEND, FRONTEND, DATA ENGINEERING)",
-  "experienceMismatch": boolean,
-  "roleMatch": "Strong, Moderate, or Weak",
-  "missingSkills": ["List only critical missing REQUIRED skills"],
-  "primaryReasons": ["Point 1 explaining exactly why the score was given", "Point 2"],
+  "domainExplanation": "Explain domain alignment or penalty",
+  "jobDomain": "Primary Domain",
+  "experienceMismatch": true|false,
+  "roleMatch": "Strong|Moderate|Weak|Reject",
+  "skillOverlapPercentage": 0,
+  "matchedSkills": ["Skill 1", "Skill 2"],
+  "missingSkills": ["Missing Skill 1", "Missing Skill 2"],
+  "reasonsFor": ["Reason 1 FOR candidate", "Reason 2 FOR candidate"],
+  "reasonsAgainst": ["Reason 1 AGAINST candidate", "Reason 2 AGAINST candidate"],
+  "primaryReasons": ["Combined reasoning point 1", "Combined reasoning point 2"],
   "reason": "One sentence summary of the decision",
-  "recommendation": "Short recruiter recommendation"
+  "recommendation": "Final Recommendation (e.g. Reject)"
 }
 `;
 
@@ -161,6 +171,17 @@ const validateAiResponse = (parsed, providerName) => {
         throw new Error(`Reasoning is missing or empty from ${providerName}`);
     }
     parsed.score = parseInt(parsed.score);
+    
+    // Ensure new fields have defaults
+    parsed.matchedSkills = Array.isArray(parsed.matchedSkills) ? parsed.matchedSkills : [];
+    parsed.missingSkills = Array.isArray(parsed.missingSkills) ? parsed.missingSkills : [];
+    parsed.reasonsFor = Array.isArray(parsed.reasonsFor) ? parsed.reasonsFor : [];
+    parsed.reasonsAgainst = Array.isArray(parsed.reasonsAgainst) ? parsed.reasonsAgainst : [];
+    parsed.primaryReasons = Array.isArray(parsed.primaryReasons) ? parsed.primaryReasons : [];
+    parsed.skillOverlapPercentage = typeof parsed.skillOverlapPercentage === "number" ? parsed.skillOverlapPercentage : 0;
+    parsed.recommendationLevel = parsed.recommendationLevel || "Moderate Match";
+    parsed.roleMatch = parsed.roleMatch || parsed.recommendationLevel || "Moderate";
+    
     return parsed;
 };
 

@@ -210,7 +210,7 @@
 
     async function reloadChannels() {
         if(!confirm("Reload active channels from database?")) return;
-        await apiCall('/api/telegram/reload', { method: 'POST' });
+        await apiCall('/api/telegram/reload', 'POST');
         fetchData();
     }
 
@@ -218,7 +218,7 @@
         if(!confirm("Force disconnect and reconnect Telegram client? This will reset uptime.")) return;
         document.getElementById('connStatusBadge').innerText = "Reconnecting...";
         document.getElementById('connStatusBadge').className = "status-badge status-connecting d-inline-block";
-        await apiCall('/api/telegram/reconnect', { method: 'POST' });
+        await apiCall('/api/telegram/reconnect', 'POST');
         setTimeout(fetchData, 2000);
     }
 

@@ -128,11 +128,7 @@
 
     async function toggleChannel(id, enabled) {
         try {
-            await apiCall(`/api/telegram/channels/${id}/toggle`, {
-                method: 'PATCH',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ enabled })
-            });
+            await apiCall(`/api/telegram/channels/${id}/toggle`, 'PATCH', { enabled });
         } catch(e) {
             alert('Failed to toggle channel status');
             loadChannels();
@@ -142,7 +138,7 @@
     async function deleteChannel(id) {
         if (!confirm('Are you sure you want to delete this channel?')) return;
         try {
-            const res = await apiCall(`/api/telegram/channels/${id}`, { method: 'DELETE' });
+            const res = await apiCall(`/api/telegram/channels/${id}`, 'DELETE');
             if (res && res.success) loadChannels();
         } catch(e) {
             alert('Failed to delete channel');
@@ -157,11 +153,7 @@
             category: document.getElementById('chCategory').value
         };
         try {
-            const res = await apiCall('/api/telegram/channels', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            });
+            const res = await apiCall('/api/telegram/channels', 'POST', payload);
             const data = res;
             if (data.success) {
                 document.getElementById('addChannelModal').classList.add('hidden');
