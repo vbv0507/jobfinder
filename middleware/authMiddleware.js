@@ -43,14 +43,15 @@ const requireAuth = async (req, res, next) => {
         req.user = user;
         // Inject user into locals for EJS
         res.locals.user = user;
-        next();
     } catch (error) {
         console.error('[AuthMiddleware] Error syncing user:', error);
         if (req.originalUrl.startsWith('/api')) {
             return res.status(500).json({ success: false, message: 'Internal Server Error during auth' });
         }
-        res.status(500).send('Authentication failed.');
+        return res.status(500).send('Authentication failed.');
     }
+    
+    next();
 };
 
 const requireAdmin = async (req, res, next) => {

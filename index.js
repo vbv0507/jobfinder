@@ -53,8 +53,19 @@ app.get("/login", (req, res) => {
     res.render("login", { title: "Login" });
 });
 
-app.get("/", requireAuth, (req, res) => {
-    res.render("index");
+const CandidateProfile = require("./models/CandidateProfile");
+
+app.get("/", requireAuth, async (req, res, next) => {
+    try {
+        const hasProfile = await CandidateProfile.exists({ user: req.user._id });
+        
+        console.log(`[Root Route] UserId: ${req.user._id} | SessionId: ${req.auth?.sessionId || 'N/A'} | Email: ${req.user.email} | DBUserExists: true | CandidateProfileExists: ${!!hasProfile} | RenderPath: index`);
+        
+        res.render("index");
+    } catch (error) {
+        console.error(`[Root Route] Exception in GET /:`, error.stack);
+        next(error);
+    }
 });
 
 app.get("/jobs", requireAuth, async (req, res) => {

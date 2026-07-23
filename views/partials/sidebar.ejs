@@ -13,7 +13,7 @@
     <div class="px-6 py-4 border-b border-gray-800">
         <p class="text-xs text-gray-400">Logged in as</p>
         <p id="sidebar-user-name" class="text-sm font-semibold text-white truncate"><%= locals.user ? (locals.user.fullName || locals.user.email) : '' %></p>
-        <span id="user-role-badge" class="inline-flex items-center mt-1 px-2 py-0.5 rounded text-xs font-medium <%= locals.user && locals.user.role === 'admin' ? 'bg-purple-900/30 text-purple-300' : 'bg-blue-900/30 text-blue-300' %>"><%= locals.user ? locals.user.role.toUpperCase() : '' %></span>
+        <span id="user-role-badge" class="inline-flex items-center mt-1 px-2 py-0.5 rounded text-xs font-medium <%= locals.user && (locals.user.role || 'viewer') === 'admin' ? 'bg-purple-900/30 text-purple-300' : 'bg-blue-900/30 text-blue-300' %>"><%= locals.user ? (locals.user.role || 'viewer').toUpperCase() : '' %></span>
     </div>
 
     <div class="flex-1 overflow-y-auto py-4">
