@@ -87,20 +87,31 @@
 </div>
 
 <script>
+    let pipelineTriggerInProgress = false;
+    
     async function triggerJobSearch() {
+        if (pipelineTriggerInProgress) return;
         if (!confirm("Trigger a fresh job scrape pipeline? This may take several minutes.")) return;
+        
+        pipelineTriggerInProgress = true;
+        
+        const allTriggerBtns = document.querySelectorAll("button[onclick^='triggerJobSearch']");
+        allTriggerBtns.forEach(b => {
+            b.disabled = true;
+            b.classList.add("opacity-75", "cursor-not-allowed");
+        });
         
         const btn = document.getElementById("runPipelineBtn");
         const icon = document.getElementById("runPipelineIcon");
         const text = document.getElementById("runPipelineText");
         const statusInd = document.getElementById("pipelineStatusIndicator");
         
-        btn.disabled = true;
-        btn.classList.add("opacity-75", "cursor-not-allowed");
-        text.innerText = "Running...";
-        icon.className = "fas fa-spinner fa-spin";
-        statusInd.innerHTML = "<span>🟡</span> Running";
-        statusInd.className = "text-xs flex items-center gap-1 font-medium text-yellow-400";
+        if (text) text.innerText = "Running...";
+        if (icon) icon.className = "fas fa-spinner fa-spin";
+        if (statusInd) {
+            statusInd.innerHTML = "<span>🟡</span> Running";
+            statusInd.className = "text-xs flex items-center gap-1 font-medium text-yellow-400";
+        }
         
         try {
             const data = await apiCall("/api/jobs/run", "POST");
@@ -112,6 +123,7 @@
         } catch (err) {
             console.error(err);
         } finally {
+            pipelineTriggerInProgress = false;
             if (typeof fetchPipelineStatus === 'function') {
                 fetchPipelineStatus();
             } else {

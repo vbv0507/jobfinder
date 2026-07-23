@@ -449,18 +449,28 @@ const runSearch = async (triggerSource = "Unknown") => {
     const currentLock = await PipelineLock.findOne({ lockId: "global_pipeline_lock" });
     const owner = currentLock ? currentLock.runner : "Unknown";
     console.log(`[Pipeline] Another execution is already running. Skipping. Owner: ${owner}`);
-    await SearchLog.create({
-      pipelineId,
-      triggerSource: runnerName,
-      status: "Skipped",
-      skipReason: "Distributed lock already active",
-      currentRunner: currentLock ? currentLock.runner : "Unknown",
-      expectedUnlock: currentLock ? currentLock.expiresAt : null,
-      startedAt: startedAt,
-      completedAt: new Date(),
-      durationMs: new Date() - startedAt
-    });
-    return { skipped: true, reason: "Already running" };
+    
+    if (runnerName !== "Manual") {
+      await SearchLog.create({
+        pipelineId,
+        triggerSource: runnerName,
+        status: "Skipped",
+        skipReason: "Distributed lock already active",
+        currentRunner: owner,
+        expectedUnlock: currentLock ? currentLock.expiresAt : null,
+        startedAt: startedAt,
+        completedAt: new Date(),
+        durationMs: new Date() - startedAt
+      });
+    }
+    
+    return { 
+      skipped: true, 
+      reason: "Already running",
+      runner: owner,
+      startedAt: currentLock ? currentLock.startedAt : null,
+      expiresAt: currentLock ? currentLock.expiresAt : null
+    };
   }
 
   console.log(`[Pipeline] Lock Acquired. Owner: ${runnerName}. Expires: ${lock.expiresAt.toISOString()}`);

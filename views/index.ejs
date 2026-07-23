@@ -692,23 +692,31 @@
                 }
                 
                 // Sync sidebar button if it exists
-                const btn = document.getElementById("runPipelineBtn");
+                const allTriggerBtns = document.querySelectorAll("button[onclick^='triggerJobSearch']");
+                
                 const icon = document.getElementById("runPipelineIcon");
                 const text = document.getElementById("runPipelineText");
                 const statusInd = document.getElementById("pipelineStatusIndicator");
-                if (btn && icon && text && statusInd) {
-                    if (s.status === 'Running') {
-                        btn.disabled = true;
-                        btn.classList.add("opacity-75", "cursor-not-allowed");
-                        text.innerText = "Running...";
-                        icon.className = "fas fa-spinner fa-spin";
+                
+                if (s.status === 'Running') {
+                    allTriggerBtns.forEach(b => {
+                        b.disabled = true;
+                        b.classList.add("opacity-75", "cursor-not-allowed");
+                    });
+                    if (text) text.innerText = "Running...";
+                    if (icon) icon.className = "fas fa-spinner fa-spin";
+                    if (statusInd) {
                         statusInd.innerHTML = "<span>🟡</span> Running";
                         statusInd.className = "text-xs flex items-center gap-1 font-medium text-yellow-400";
-                    } else {
-                        btn.disabled = false;
-                        btn.classList.remove("opacity-75", "cursor-not-allowed");
-                        text.innerText = "Run Pipeline";
-                        icon.className = "fas fa-sync-alt";
+                    }
+                } else {
+                    allTriggerBtns.forEach(b => {
+                        b.disabled = false;
+                        b.classList.remove("opacity-75", "cursor-not-allowed");
+                    });
+                    if (text) text.innerText = "Run Pipeline";
+                    if (icon) icon.className = "fas fa-sync-alt";
+                    if (statusInd) {
                         statusInd.innerHTML = "<span>🟢</span> Idle";
                         statusInd.className = "text-xs flex items-center gap-1 font-medium text-green-400";
                     }

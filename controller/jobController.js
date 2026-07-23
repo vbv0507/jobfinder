@@ -140,7 +140,11 @@ const runJobSearch = async (req, res) => {
             await logAuditAction(req, 'Pipeline Trigger', 'Skipped - Already running');
             return res.status(409).json({
                 success: false,
-                message: "Pipeline is already running."
+                message: "Pipeline is already running.",
+                runner: result.runner,
+                startedAt: result.startedAt,
+                expiresAt: result.expiresAt,
+                remainingSeconds: result.expiresAt ? Math.round((new Date(result.expiresAt) - new Date()) / 1000) : 0
             });
         }
         
