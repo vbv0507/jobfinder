@@ -150,8 +150,23 @@ const analyzeError = (error) => {
     return { permanent: false, reason: "Unhandled Temporary Error" };
 };
 
+const validateAiResponse = (parsed, providerName) => {
+    if (!parsed || typeof parsed !== "object" || parsed.error) {
+        throw new Error(`Invalid JSON response from ${providerName}`);
+    }
+    if (parsed.score === undefined || parsed.score === null || isNaN(parseInt(parsed.score))) {
+        throw new Error(`Score is missing or invalid from ${providerName}`);
+    }
+    if (!parsed.reason || typeof parsed.reason !== "string" || parsed.reason.trim() === "") {
+        throw new Error(`Reasoning is missing or empty from ${providerName}`);
+    }
+    parsed.score = parseInt(parsed.score);
+    return parsed;
+};
+
 module.exports = {
     buildEvaluationPrompt,
     parseJsonResponse,
-    analyzeError
+    analyzeError,
+    validateAiResponse
 };

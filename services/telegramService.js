@@ -629,9 +629,9 @@ const reconnectTelegram = async () => {
 };
 
 const stopTelegramListener = () => {
-    if (client) {
+    if (telegramClient) {
         console.log('[Telegram] Disconnecting client...');
-        client.disconnect();
+        telegramClient.disconnect();
         listenerStatus.status = "Disconnected (Manual)";
     }
 };

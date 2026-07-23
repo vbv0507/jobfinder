@@ -1,5 +1,5 @@
 const axios = require("axios");
-const { buildEvaluationPrompt, parseJsonResponse } = require("./aiHelpers");
+const { buildEvaluationPrompt, parseJsonResponse, validateAiResponse } = require("./aiHelpers");
 
 const evaluateJobWithZai = async (job, profile) => {
 
@@ -35,13 +35,7 @@ const evaluateJobWithZai = async (job, profile) => {
     const content = response.data.choices?.[0]?.message?.content || "";
     let parsed = parseJsonResponse(content);
 
-    if (!parsed || typeof parsed !== "object" || parsed.error) {
-        throw new Error("Invalid JSON response from Z.ai");
-    }
-
-    if (typeof parsed.score !== "number") {
-        parsed.score = parseInt(parsed.score) || 0;
-    }
+    parsed = validateAiResponse(parsed, "Z.ai");
     
     parsed.evaluatedBy = "Z.ai";
     return parsed;

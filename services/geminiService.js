@@ -2,7 +2,7 @@ const { GoogleGenerativeAI } = require("@google/generative-ai");
 const axios = require("axios");
 const { classifyDomain } = require("../utils/domains");
 const { evaluateJobWithZai } = require("./zaiService");
-const { buildEvaluationPrompt, parseJsonResponse, analyzeError } = require("./aiHelpers");
+const { buildEvaluationPrompt, parseJsonResponse, analyzeError, validateAiResponse } = require("./aiHelpers");
 const { withLogContext } = require("../utils/logger");
 const { withRetry } = require("../utils/retry");
 
@@ -140,7 +140,7 @@ const evaluateJobWithGroq = async (job, profile) => {
 
     const content = response.data.choices?.[0]?.message?.content || "";
     let parsed = parseJsonResponse(content);
-    if (typeof parsed.score !== "number") parsed.score = parseInt(parsed.score) || 0;
+    parsed = validateAiResponse(parsed, "Groq");
     parsed.evaluatedBy = "Groq";
     parsed.provider = "groq";
     parsed.model = process.env.GROQ_MODEL || "llama-3.3-70b-versatile";
@@ -158,7 +158,7 @@ const evaluateJob = async (job, profile, aiState = { gemini: { available: true }
     let providerChain = [];
 
     // 1. Gemini
-    if (aiState.gemini.available) {
+    if (aiState.gemini.available && process.env.GEMINI_API_KEY) {
         console.log("[AI] Trying Gemini");
         providerChain.push("Gemini");
         aiState.gemini.requests = (aiState.gemini.requests || 0) + 1;
@@ -170,7 +170,8 @@ const evaluateJob = async (job, profile, aiState = { gemini: { available: true }
             
             let parsedResult = parseJsonResponse(result.response.text());
             
-            if (typeof parsedResult.score !== "number") parsedResult.score = parseInt(parsedResult.score) || 0;
+            parsedResult = validateAiResponse(parsedResult, "Gemini");
+            
             parsedResult.evaluatedBy = "Gemini";
             parsedResult.jobDomain = parsedResult.jobDomain || classifyDomain(getText(job));
             
@@ -225,20 +226,20 @@ const evaluateJob = async (job, profile, aiState = { gemini: { available: true }
             return await withLogContext({ provider: "Groq" }, async () => {
             const groqAnalysis = await withRetry(() => evaluateJobWithGroq(job, profile), { maxRetries: 3 });
 
-            if (groqAnalysis) {
-                aiState.groq.success = (aiState.groq.success || 0) + 1;
-                groqAnalysis.evaluationMetrics = {
-                    provider: "Groq",
-                    durationMs: Date.now() - startTime,
-                    fallbackCount,
-                    failureReason
-                };
-                groqAnalysis.evaluationTimeMs = Date.now() - startTime;
-                groqAnalysis.fallbackCount = fallbackCount;
-                groqAnalysis.fallbackReason = failureReason;
-                groqAnalysis.providerChain = providerChain;
-                return groqAnalysis;
-            }
+            if (!groqAnalysis) throw new Error("Groq returned empty response");
+
+            aiState.groq.success = (aiState.groq.success || 0) + 1;
+            groqAnalysis.evaluationMetrics = {
+                provider: "Groq",
+                durationMs: Date.now() - startTime,
+                fallbackCount,
+                failureReason
+            };
+            groqAnalysis.evaluationTimeMs = Date.now() - startTime;
+            groqAnalysis.fallbackCount = fallbackCount;
+            groqAnalysis.fallbackReason = failureReason;
+            groqAnalysis.providerChain = providerChain;
+            return groqAnalysis;
             }); // End withLogContext
         } catch (groqError) {
             aiState.groq.failed = (aiState.groq.failed || 0) + 1;
@@ -273,21 +274,21 @@ const evaluateJob = async (job, profile, aiState = { gemini: { available: true }
             return await withLogContext({ provider: "Z.ai" }, async () => {
             const zaiAnalysis = await withRetry(() => evaluateJobWithZai(job, profile), { maxRetries: 3 });
 
-            if (zaiAnalysis) {
-                aiState.zai.success = (aiState.zai.success || 0) + 1;
-                zaiAnalysis.evaluationMetrics = {
-                    provider: "Z.ai",
-                    durationMs: Date.now() - startTime,
-                    fallbackCount,
-                    failureReason
-                };
-                zaiAnalysis.evaluationTimeMs = Date.now() - startTime;
-                zaiAnalysis.fallbackCount = fallbackCount;
-                zaiAnalysis.fallbackReason = failureReason;
-                zaiAnalysis.provider = "zai";
-                zaiAnalysis.providerChain = providerChain;
-                return zaiAnalysis;
-            }
+            if (!zaiAnalysis) throw new Error("Z.ai returned empty response");
+
+            aiState.zai.success = (aiState.zai.success || 0) + 1;
+            zaiAnalysis.evaluationMetrics = {
+                provider: "Z.ai",
+                durationMs: Date.now() - startTime,
+                fallbackCount,
+                failureReason
+            };
+            zaiAnalysis.evaluationTimeMs = Date.now() - startTime;
+            zaiAnalysis.fallbackCount = fallbackCount;
+            zaiAnalysis.fallbackReason = failureReason;
+            zaiAnalysis.provider = "zai";
+            zaiAnalysis.providerChain = providerChain;
+            return zaiAnalysis;
             }); // End withLogContext
         } catch (zaiError) {
             aiState.zai.failed = (aiState.zai.failed || 0) + 1;
