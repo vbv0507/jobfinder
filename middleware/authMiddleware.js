@@ -44,11 +44,29 @@ const requireAuth = async (req, res, next) => {
         // Inject user into locals for EJS
         res.locals.user = user;
     } catch (error) {
-        console.error('[AuthMiddleware] Error syncing user:', error);
+        const CandidateProfile = require('../models/CandidateProfile');
+        let profile = null;
+        try {
+            if (req.user && req.user._id) {
+                profile = await CandidateProfile.findOne({ user: req.user._id });
+            }
+        } catch (e) {}
+
+        console.error('--- AUTHENTICATION FAILURE DEBUG ---');
+        console.error('Error Name:', error.name);
+        console.error('Error Message:', error.message);
+        console.error('Stack Trace:', error.stack);
+        console.error('Authenticated Clerk userId:', auth.userId);
+        console.error('SessionId:', auth.sessionId);
+        console.error('Mongo User Document:', req.user || 'Not fetched');
+        console.error('CandidateProfile Document:', profile || 'Not fetched/None');
+        console.error('res.locals:', res.locals);
+        console.error('------------------------------------');
+
         if (req.originalUrl.startsWith('/api')) {
-            return res.status(500).json({ success: false, message: 'Internal Server Error during auth' });
+            return res.status(500).json({ success: false, message: 'Internal Server Error during auth', error: error.message });
         }
-        return res.status(500).send('Authentication failed.');
+        return res.status(500).send(`Authentication failed: ${error.message}`);
     }
     
     next();
