@@ -21,7 +21,7 @@ function toCommaString(value) {
 
 async function loadProfile() {
     try {
-        const response = await apiCall('/profile');
+        const response = await apiCall('/api/profile');
         
         const profile = response.profile;
 
@@ -99,7 +99,7 @@ document.addEventListener('DOMContentLoaded', () => {
             };
 
             try {
-                await apiCall('/profile', 'POST', profileData);
+                await apiCall('/api/profile', 'POST', profileData);
                 showAlert('Profile saved successfully!', 'success');
 
                 

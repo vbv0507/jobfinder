@@ -46,7 +46,7 @@ function renderScrapingHighlight(companies) {
 
 async function loadCompanies() {
     try {
-        const response = await apiCall("/companies");
+        const response = await apiCall("/api/companies");
         const companies = response.companies || [];
         const companiesContent = document.getElementById("companies-content");
 

@@ -103,7 +103,7 @@
         statusInd.className = "text-xs flex items-center gap-1 font-medium text-yellow-400";
         
         try {
-            const data = await apiCall("/jobs/run", "POST");
+            const data = await apiCall("/api/jobs/run", "POST");
             
             if (!data.success) {
                 alert(data.message || "Error triggering pipeline.");

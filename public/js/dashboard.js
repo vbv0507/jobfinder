@@ -66,7 +66,7 @@ function renderScrapingHighlight(companies) {
 
 async function loadStats() {
     try {
-        const matchedResponse = await apiCall("/jobs/matched");
+        const matchedResponse = await apiCall("/api/jobs/matched");
         const matchedJobs = Number(matchedResponse.count || 0);
 
         document.getElementById("stats-content").innerHTML = `
@@ -84,7 +84,7 @@ async function loadStats() {
 
 async function loadLogs() {
     try {
-        const response = await apiCall("/jobs/logs");
+        const response = await apiCall("/api/jobs/logs");
         const logs = response.logs || [];
         const logsContent = document.getElementById("logs-content");
 
@@ -134,7 +134,7 @@ function renderJobCard(job, applied = false) {
 async function toggleAppliedJob(jobId, applied) {
     try {
         
-        await apiCall(`/jobs/matched/${jobId}/applied`, "PATCH", { applied });
+        await apiCall(`/api/jobs/${jobId}/status`, "PATCH", { status: applied ? "applied" : "new" });
         loadStats();
         loadCompanyJobs();
     } catch (error) {
@@ -144,7 +144,7 @@ async function toggleAppliedJob(jobId, applied) {
 
 async function loadCompanyJobs() {
     try {
-        const response = await apiCall("/jobs/complete");
+        const response = await apiCall("/api/jobs/complete");
         const jobs = response.jobs || {};
         const container = document.getElementById("company-jobs-content");
         const companyNames = Object.keys(jobs);
@@ -193,7 +193,7 @@ async function runJobSearch(event) {
         btn.disabled = true;
         btn.textContent = "Searching...";
 
-        await apiCall("/jobs/run", "POST");
+        await apiCall("/api/jobs/run", "POST");
         showAlert("Job search completed. Latest jobs are loading.", "success");
 
         setTimeout(() => {
@@ -218,7 +218,7 @@ async function deleteRawJobs(event) {
         btn.disabled = true;
         btn.textContent = "Deleting...";
 
-        const data = await apiCall("/jobs/raw", "DELETE");
+        const data = await apiCall("/api/jobs/raw", "DELETE");
 
         if (!data.success) {
             throw new Error(data.message || "Failed to delete jobs");
@@ -239,7 +239,7 @@ async function deleteRawJobs(event) {
 
 document.addEventListener("DOMContentLoaded", async () => {
     try {
-        const companiesResponse = await apiCall("/companies");
+        const companiesResponse = await apiCall("/api/companies");
         renderScrapingHighlight(companiesResponse.companies || []);
     } catch (e) {
         
