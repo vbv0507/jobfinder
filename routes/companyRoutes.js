@@ -4,7 +4,7 @@ const {
     addCompany,
     getCompanies,
     seedCompanyList,
-} = require("../controller/companyController");
+} = require("../controllers/companyController");
 
 const router = express.Router();
 

@@ -18,7 +18,7 @@
 
     <div class="flex-1 overflow-y-auto py-4">
         <nav class="space-y-1 px-3">
-            <p class="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Platform</p>
+            <p class="px-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">Platform</p>
             
             <a href="/" class="flex items-center px-3 py-2 text-sm font-medium rounded-md hover:bg-gray-800 hover:text-white group min-h-[44px]">
                 <i class="fas fa-home w-6 text-gray-400 group-hover:text-white"></i> Dashboard
@@ -37,7 +37,7 @@
             </a>
 
             <div class="mt-8"></div>
-            <p class="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Job Tracking</p>
+            <p class="px-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">Job Tracking</p>
 
             <a href="/jobs" class="flex items-center px-3 py-2 text-sm font-medium rounded-md hover:bg-gray-800 hover:text-white group min-h-[44px]">
                 <i class="fas fa-briefcase w-6 text-gray-400 group-hover:text-white"></i> Matched Jobs
@@ -56,14 +56,14 @@
             </a>
 
             <div class="mt-8"></div>
-            <p class="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Settings</p>
+            <p class="px-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">Settings</p>
             
             <a href="/profile" class="flex items-center px-3 py-2 text-sm font-medium rounded-md hover:bg-gray-800 hover:text-white group min-h-[44px]">
                 <i class="fas fa-user-circle w-6 text-gray-400 group-hover:text-white"></i> Candidate Profile
             </a>
                     <% if (locals.user && locals.user.role === 'admin') { %>
             <div class="mt-8"></div>
-            <p class="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Admin</p>
+            <p class="px-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">Admin</p>
             <a href="/admin/users" class="flex items-center px-3 py-2 text-sm font-medium rounded-md hover:bg-gray-800 hover:text-white group min-h-[44px]">
                 <i class="fas fa-users w-6 text-gray-400 group-hover:text-white"></i> User Management
             </a>
@@ -78,6 +78,12 @@
             <span id="pipelineStatusIndicator" class="text-xs flex items-center gap-1 font-medium text-green-400">
                 <span>🟢</span> Idle
             </span>
+        </div>
+        <div class="flex items-center justify-between mb-2 px-1">
+            <label class="flex items-center gap-2 text-xs font-medium text-gray-300 cursor-pointer">
+                <input type="checkbox" id="forceRefreshCheckbox" class="rounded border-gray-600 bg-gray-700 text-primary focus:ring-primary focus:ring-offset-gray-900">
+                Force Refresh
+            </label>
         </div>
         <button id="runPipelineBtn" onclick="triggerJobSearch()" class="w-full flex items-center justify-center gap-2 bg-primary hover:bg-primaryHover text-white py-2 px-4 rounded-md text-sm font-medium transition-colors min-h-[44px]">
             <i id="runPipelineIcon" class="fas fa-sync-alt"></i> <span id="runPipelineText">Run Pipeline</span>
@@ -113,8 +119,10 @@
             statusInd.className = "text-xs flex items-center gap-1 font-medium text-yellow-400";
         }
         
+        const forceRefresh = document.getElementById("forceRefreshCheckbox")?.checked || false;
+        
         try {
-            const data = await apiCall("/api/jobs/run", "POST");
+            const data = await apiCall(`/api/jobs/run?force=${forceRefresh}`, "POST");
             if (!data.success) {
                 alert(data.message || "Error triggering pipeline.");
             } else {
@@ -122,6 +130,7 @@
             }
         } catch (err) {
             console.error(err);
+            alert("Pipeline Error: " + err.message);
         } finally {
             pipelineTriggerInProgress = false;
             if (typeof fetchPipelineStatus === 'function') {

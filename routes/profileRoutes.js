@@ -3,7 +3,7 @@ const express = require("express");
 const {
     getActiveProfile,
     upsertProfile,
-} = require("../controller/profileController");
+} = require("../controllers/profileController");
 
 const router = express.Router();
 

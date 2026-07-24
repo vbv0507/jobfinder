@@ -1,0 +1,55 @@
+<%- include('../layouts/header') %>
+
+<div class="mb-8">
+    <h1 class="text-2xl font-bold tracking-tight text-textMain mb-2">Telegram Monitoring</h1>
+    <p class="text-textMuted text-sm">Live monitoring of connected channels and parsed job broadcasts.</p>
+</div>
+
+<div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+    <div class="bg-surface border border-border rounded-xl p-5 shadow-sm">
+        <h3 class="text-sm font-medium text-textMuted mb-2">Connection State</h3>
+        <p class="text-3xl font-bold text-success">Online</p>
+        <p class="text-xs text-textMuted mt-1">Polling active</p>
+    </div>
+    <div class="bg-surface border border-border rounded-xl p-5 shadow-sm">
+        <h3 class="text-sm font-medium text-textMuted mb-2">Messages Broadcasted</h3>
+        <p class="text-3xl font-bold text-primary">113</p>
+        <p class="text-xs text-textMuted mt-1">Today</p>
+    </div>
+    <div class="bg-surface border border-border rounded-xl p-5 shadow-sm">
+        <h3 class="text-sm font-medium text-textMuted mb-2">Active Channels</h3>
+        <p class="text-3xl font-bold text-textMain">1</p>
+        <p class="text-xs text-textMuted mt-1">Connected</p>
+    </div>
+    <div class="bg-surface border border-border rounded-xl p-5 shadow-sm">
+        <h3 class="text-sm font-medium text-textMuted mb-2">Delivery Errors</h3>
+        <p class="text-3xl font-bold text-textMain">0</p>
+        <p class="text-xs text-textMuted mt-1">Rate limits or auth drops</p>
+    </div>
+</div>
+
+<!-- Live Feed -->
+<div class="bg-surface border border-border rounded-xl shadow-sm overflow-hidden flex flex-col h-[500px]">
+    <div class="p-4 border-b border-border">
+        <h2 class="font-semibold text-textMain">Live Broadcast Feed</h2>
+    </div>
+    <div class="flex-1 overflow-y-auto p-4 custom-scrollbar space-y-4">
+        
+        <div class="flex items-start gap-4">
+            <div class="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center text-primary shrink-0">
+                <i class="fa-brands fa-telegram-plane"></i>
+            </div>
+            <div class="bg-background border border-border rounded-2xl rounded-tl-none p-4 max-w-2xl">
+                <p class="text-xs text-textMuted mb-2">15:32:05 UTC • Sent to @RoleNovaJobs</p>
+                <div class="text-sm text-textMain space-y-2">
+                    <p class="font-bold">🚀 Netflix - Software Engineer, Infrastructure</p>
+                    <p class="text-success font-mono bg-success/10 px-2 py-0.5 rounded text-xs inline-block">Score: 85</p>
+                    <p class="text-textMuted text-xs line-clamp-2 mt-2">Netflix is looking for a senior software engineer to build scalable infrastructure...</p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<%- include('../layouts/footer') %>

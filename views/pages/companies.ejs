@@ -1,0 +1,157 @@
+<%- include('../layouts/header', { title: 'Companies Monitored' }) %>
+
+<div class="mb-8">
+    <h1 class="text-2xl font-bold tracking-tight text-textMain mb-2">Active Companies</h1>
+    <p class="text-textMuted text-sm">Companies currently monitored by the job pipeline.</p>
+</div>
+
+<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6" id="companies-grid">
+    <div class="col-span-full py-16 text-center text-textMuted flex flex-col items-center">
+        <i class="fa-solid fa-spinner fa-spin text-3xl mb-4 text-primary"></i>
+        <p class="text-sm">Loading companies from engine...</p>
+    </div>
+</div>
+
+<script>
+    const timeAgo = (dateStr) => {
+        if (!dateStr) return 'Never';
+        const date = new Date(dateStr);
+        const seconds = Math.floor((new Date() - date) / 1000);
+        let interval = seconds / 31536000;
+        if (interval > 1) return Math.floor(interval) + " years ago";
+        interval = seconds / 2592000;
+        if (interval > 1) return Math.floor(interval) + " months ago";
+        interval = seconds / 86400;
+        if (interval > 1) return Math.floor(interval) + " days ago";
+        interval = seconds / 3600;
+        if (interval > 1) return Math.floor(interval) + " hours ago";
+        interval = seconds / 60;
+        if (interval > 1) return Math.floor(interval) + " minutes ago";
+        if (seconds < 0) return "Just now";
+        return Math.floor(seconds) + " seconds ago";
+    };
+
+    async function fetchCompanies() {
+        try {
+            const [compRes, liveRes] = await Promise.all([
+                fetch("/api/companies"),
+                fetch("/api/system/live").catch(() => null)
+            ]);
+            
+            const data = await compRes.json();
+            const live = (liveRes && liveRes.ok) ? await liveRes.json() : null;
+            const state = live ? live.pipeline : null;
+            
+            const container = document.getElementById("companies-grid");
+            
+            if(data.success && data.companies.length > 0) {
+                container.innerHTML = data.companies.map(c => {
+                    let runBadge = '';
+                    let dotColor = c.lastRunStatus === 'failed' ? 'bg-error' : 'bg-success';
+                    let dotPing = false;
+                    
+                    if (state && state.running) {
+                        const isRunning = state.activeCompanies && state.activeCompanies.includes(c.name);
+                        const isSkipped = c.lastScrapedAt && new Date(c.lastScrapedAt) > new Date(state.startTime);
+                        
+                        if (isRunning) {
+                            runBadge = '<span class="text-[10px] font-bold px-2 py-0.5 rounded bg-warning/10 text-warning uppercase border border-warning/20">Running</span>';
+                            dotColor = 'bg-warning';
+                            dotPing = true;
+                        } else if (isSkipped) {
+                            runBadge = '<span class="text-[10px] font-bold px-2 py-0.5 rounded bg-success/10 text-success uppercase border border-success/20">Completed</span>';
+                        } else {
+                            runBadge = '<span class="text-[10px] font-bold px-2 py-0.5 rounded bg-textMuted/10 text-textMuted uppercase border border-border">Queued</span>';
+                            dotColor = 'bg-textMuted';
+                        }
+                    } else {
+                        // Not running
+                        if (c.lastRunStatus === 'failed') {
+                            runBadge = '<span class="text-[10px] font-bold px-2 py-0.5 rounded bg-error/10 text-error uppercase border border-error/20">Failed</span>';
+                        } else {
+                            runBadge = '<span class="text-[10px] font-bold px-2 py-0.5 rounded bg-success/10 text-success uppercase border border-success/20">Idle</span>';
+                        }
+                    }
+                    
+                    return `
+                    <div class="bg-surface border border-border rounded-xl p-5 hover:border-border/80 transition-colors shadow-sm flex flex-col">
+                        <div class="flex justify-between items-start mb-4">
+                            <div class="flex items-center gap-4">
+                                <div class="w-12 h-12 rounded-lg bg-background border border-border flex items-center justify-center shrink-0 overflow-hidden">
+                                    <img src="${c.logoUrl}" class="w-8 h-8 object-contain" alt="Logo" loading="lazy">
+                                </div>
+                                <div>
+                                    <h3 class="font-bold text-textMain text-lg truncate" title="${c.name}">${c.name}</h3>
+                                    <div class="flex gap-2 mt-1">
+                                      <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-primary/10 text-primary uppercase">${c.ats || 'Auto-Detect'}</span>
+                                      ${runBadge}
+                                    </div>
+                                </div>
+                            </div>
+                            <span class="flex h-3 w-3 relative shrink-0">
+                              ${dotPing ? `<span class="animate-ping absolute inline-flex h-full w-full rounded-full ${dotColor} opacity-50"></span>` : ''}
+                              <span class="relative inline-flex rounded-full h-3 w-3 ${dotColor}"></span>
+                            </span>
+                        </div>
+                        
+                        <div class="mt-auto pt-4 border-t border-border">
+                            <div class="flex justify-between text-sm text-textMuted mb-2">
+                                <span>Jobs Found</span>
+                                <span class="font-bold text-textMain">${c.jobsFound !== undefined ? c.jobsFound : 0}</span>
+                            </div>
+                            <div class="flex justify-between text-sm text-textMuted mb-2">
+                                <span>Matched Jobs</span>
+                                <span class="font-bold text-textMain">${c.matchedJobs !== undefined ? c.matchedJobs : 0}</span>
+                            </div>
+                            <div class="flex justify-between text-sm text-textMuted mb-4">
+                                <span>Last Scan</span>
+                                <span class="font-medium text-textMain">${timeAgo(c.lastScan)}</span>
+                            </div>
+                            <div class="grid grid-cols-2 gap-3 mt-2 mb-3">
+                              <a href="${c.careerUrl}" target="_blank" class="w-full flex items-center justify-center bg-surfaceHover hover:bg-border text-textMain font-medium py-2 rounded-md transition-colors text-xs border border-border">
+                                  Careers <i class="fa-solid fa-arrow-up-right-from-square ml-2 text-[10px]"></i>
+                              </a>
+                              <a href="/jobs?company=${c.name}" class="w-full flex items-center justify-center bg-primary/10 hover:bg-primary text-primary hover:text-white font-medium py-2 rounded-md transition-colors text-xs">
+                                  View Jobs <i class="fa-solid fa-search ml-2 text-[10px]"></i>
+                              </a>
+                            </div>
+
+                            <details class="mt-4 text-xs group">
+                                <summary class="cursor-pointer text-textMuted hover:text-textMain font-medium select-none focus:outline-none transition-colors">
+                                    <i class="fa-solid fa-chevron-right text-[10px] mr-1 transition-transform group-open:rotate-90"></i> Pipeline Logs
+                                </summary>
+                                <div class="mt-3 space-y-2 border-l border-border pl-3 ml-1 max-h-48 overflow-y-auto custom-scrollbar">
+                                    ${c.latestExecutionTimeline && c.latestExecutionTimeline.length > 0 
+                                      ? c.latestExecutionTimeline.map(t => {
+                                          const color = t.severity === 'ERROR' ? 'text-error' : (t.severity === 'WARN' ? 'text-warning' : (t.severity === 'SUCCESS' ? 'text-success' : 'text-textMuted'));
+                                          const time = new Date(t.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+                                          return \`<div class="relative">
+                                              <div class="absolute -left-[17px] top-1.5 h-1.5 w-1.5 rounded-full bg-border ring-2 ring-surface"></div>
+                                              <div class="flex flex-col">
+                                                  <span class="font-mono text-[10px] text-textMuted">\${time} &middot; \${t.stage}</span>
+                                                  <span class="\${color} break-words leading-relaxed mt-0.5">\${t.message}</span>
+                                              </div>
+                                          </div>\`;
+                                      }).join('') 
+                                      : '<p class="text-textMuted">No recent logs.</p>'}
+                                </div>
+                            </details>
+                        </div>
+                    </div>`;
+                }).join('');
+            } else {
+                container.innerHTML = '<div class="col-span-full p-12 text-center text-textMuted">No companies monitored yet.</div>';
+            }
+        } catch(e) {
+            console.error(e);
+            document.getElementById("companies-grid").innerHTML = '<div class="col-span-full p-12 text-center text-error">Failed to load companies.</div>';
+        }
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+        fetchCompanies();
+        setInterval(fetchCompanies, 5000);
+    });
+</script>
+
+<%- include('../layouts/footer') %>

@@ -137,7 +137,15 @@ const getAnalyticsData = async () => {
                     avgMetadataRefreshTime: { $avg: "$averageMetadataRefreshTimeMs" },
                     avgRuntime: { $avg: "$durationMs" },
                     avgJobsFound: { $avg: "$jobsFound" },
-                    avgMatches: { $avg: "$jobsMatched" }
+                    avgMatches: { $avg: "$jobsMatched" },
+                    totalParserOutdated: { $sum: "$parserOutdated" },
+                    totalAtsChanged: { $sum: "$atsChanged" },
+                    totalHttpFailed: { $sum: "$httpFailed" },
+                    totalBlocked: { $sum: "$blocked" },
+                    totalRetriedSuccessfully: { $sum: "$retriedSuccessfully" },
+                    totalJobsScraped: { $sum: "$jobsScraped" },
+                    totalDuplicates: { $sum: "$duplicates" },
+                    totalValidationDrops: { $sum: "$validationDrops" }
                 }
             }
         ]);

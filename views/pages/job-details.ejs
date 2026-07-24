@@ -1,0 +1,134 @@
+<%- include('../layouts/header') %>
+
+<div class="mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
+    <a href="javascript:history.back()" class="text-textMuted hover:text-textMain transition-colors flex items-center gap-2 text-sm font-medium">
+        <i class="fa-solid fa-arrow-left"></i> Back to list
+    </a>
+    <div class="flex items-center gap-3">
+        <% if(job.status !== 'applied') { %>
+            <button onclick="updateStatus('<%= job._id %>', 'applied')" class="bg-primary/10 text-primary hover:bg-primary hover:text-white px-4 py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2">
+                <i class="fa-solid fa-paper-plane"></i> Mark Applied
+            </button>
+        <% } %>
+        <% if(job.applyLink) { %>
+            <a href="<%= job.applyLink %>" target="_blank" rel="noopener noreferrer" class="bg-surface hover:bg-surfaceHover border border-border text-textMain px-4 py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2">
+                <i class="fa-solid fa-arrow-up-right-from-square"></i> Apply Externally
+            </a>
+        <% } else { %>
+            <button disabled class="bg-surface/50 border border-border text-textMuted px-4 py-2 rounded-md text-sm font-medium cursor-not-allowed flex items-center gap-2">
+                <i class="fa-solid fa-link-slash"></i> Application link unavailable
+            </button>
+        <% } %>
+    </div>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+    <div class="lg:col-span-2 space-y-6">
+        <div class="bg-surface border border-border rounded-xl shadow-sm p-6">
+            <div class="flex items-start justify-between border-b border-border pb-4 mb-4">
+                <div class="flex items-center gap-4">
+                    <div class="w-14 h-14 bg-background border border-border rounded-lg flex items-center justify-center shrink-0">
+                        <img src="<%= getCompanyLogo(job.company && job.company.name ? job.company.name : 'Unknown') %>" class="w-8 h-8 object-contain" alt="Logo">
+                    </div>
+                    <div>
+                        <h1 class="text-2xl font-bold text-textMain tracking-tight"><%= job.role %></h1>
+                        <p class="text-textMuted mt-1 flex items-center gap-2">
+                            <i class="fa-regular fa-building"></i> <%= (job.company && job.company.name) ? job.company.name : 'Unknown Company' %>
+                        </p>
+                    </div>
+                </div>
+                <div class="text-right">
+                    <span class="inline-block bg-primary/20 text-primary border border-primary/30 text-2xl font-bold px-4 py-2 rounded-lg shadow-sm"><%= job.score %></span>
+                    <p class="text-[10px] text-textMuted mt-1 uppercase tracking-widest font-semibold">Match Score</p>
+                </div>
+            </div>
+
+            <div class="flex flex-wrap gap-3 text-sm text-textMuted mb-6">
+                <div class="flex items-center gap-2 bg-background border border-border px-3 py-1.5 rounded-md">
+                    <i class="fa-solid fa-location-dot"></i> <%= job.location || 'Remote' %>
+                </div>
+                <div class="flex items-center gap-2 bg-background border border-border px-3 py-1.5 rounded-md">
+                    <i class="fa-regular fa-clock"></i> <%= new Date(job.postedAt || job.createdAt).toLocaleDateString() %>
+                </div>
+                <div class="flex items-center gap-2 bg-background border border-border px-3 py-1.5 rounded-md">
+                    <i class="fa-solid fa-briefcase"></i> <%= job.employmentType || 'Full-time' %>
+                </div>
+                <div class="flex items-center gap-2 bg-[#8b5cf6]/10 border border-[#8b5cf6]/20 text-[#8b5cf6] px-3 py-1.5 rounded-md font-medium">
+                    <i class="fa-solid fa-microchip"></i> Evaluated by <%= job.evaluatedBy || 'AI' %>
+                </div>
+            </div>
+
+            <h3 class="text-lg font-semibold text-textMain mb-3">AI Evaluation Breakdown</h3>
+            
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                <div class="bg-background border border-border p-4 rounded-lg text-center">
+                    <p class="text-[10px] text-textMuted uppercase tracking-widest font-semibold">Confidence</p>
+                    <p class="text-lg font-bold text-textMain mt-1"><%= job.confidence || 'Medium' %></p>
+                </div>
+                <div class="bg-background border border-border p-4 rounded-lg text-center">
+                    <p class="text-[10px] text-textMuted uppercase tracking-widest font-semibold">Domain</p>
+                    <p class="text-lg font-bold <%= job.domainMismatch ? 'text-error' : 'text-success' %> mt-1"><%= job.jobDomain || 'Unknown' %></p>
+                </div>
+                <div class="bg-background border border-border p-4 rounded-lg text-center">
+                    <p class="text-[10px] text-textMuted uppercase tracking-widest font-semibold">Role Match</p>
+                    <p class="text-lg font-bold text-textMain mt-1"><%= job.roleMatch || 'Moderate' %></p>
+                </div>
+                <div class="bg-background border border-border p-4 rounded-lg text-center">
+                    <p class="text-[10px] text-textMuted uppercase tracking-widest font-semibold">Experience</p>
+                    <p class="text-lg font-bold <%= job.experienceMismatch ? 'text-error' : 'text-success' %> mt-1"><%= job.experienceMatch || 'Match' %></p>
+                </div>
+            </div>
+
+            <div class="bg-background rounded-lg p-5 border border-border space-y-5">
+                <div>
+                    <h4 class="text-xs font-semibold text-textMuted uppercase tracking-wider mb-2 flex items-center gap-2"><i class="fa-solid fa-align-left"></i> Domain Alignment</h4>
+                    <p class="text-textMain text-sm leading-relaxed"><%= job.domainExplanation || 'No domain explanation provided.' %></p>
+                </div>
+                <div>
+                    <h4 class="text-xs font-semibold text-textMuted uppercase tracking-wider mb-2 flex items-center gap-2"><i class="fa-solid fa-list-ul"></i> Primary Reasons</h4>
+                    <ul class="list-disc list-inside text-textMain space-y-1 text-sm">
+                        <% if(job.primaryReasons && job.primaryReasons.length > 0) { %>
+                            <% job.primaryReasons.forEach(function(r) { %>
+                                <li><%= r %></li>
+                            <% }) %>
+                        <% } else { %>
+                            <li><%= job.reason %></li>
+                        <% } %>
+                    </ul>
+                </div>
+                <% if(job.missingSkills && job.missingSkills.length > 0) { %>
+                    <div>
+                        <h4 class="text-xs font-semibold text-warning uppercase tracking-wider mb-2 flex items-center gap-2"><i class="fa-solid fa-triangle-exclamation"></i> Missing Skills</h4>
+                        <div class="flex flex-wrap gap-2">
+                            <% job.missingSkills.forEach(function(s) { %>
+                                <span class="bg-warning/10 text-warning border border-warning/20 px-2 py-1 rounded text-xs"><%= s %></span>
+                            <% }) %>
+                        </div>
+                    </div>
+                <% } %>
+            </div>
+            
+            <div class="mt-8">
+                <h3 class="text-lg font-semibold text-textMain mb-4">Original Job Description</h3>
+                <div class="bg-background rounded-lg p-6 border border-border text-sm text-textMain leading-relaxed whitespace-pre-wrap"><%= job.description %></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+async function updateStatus(id, status) {
+    try {
+        const res = await fetch(`/api/jobs/${id}/status`, {
+            method: 'PATCH',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ status })
+        });
+        if(res.ok) window.location.reload();
+    } catch (e) {
+        console.error(e);
+    }
+}
+</script>
+
+<%- include('../layouts/footer') %>

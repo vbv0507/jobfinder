@@ -5,26 +5,26 @@ You are an expert Technical Recruiter and ATS Analyzer. Your task is to critical
 CANDIDATE PROFILE
 ========================
 
-Career Stage: \${profile.careerStage || "Not specified"}
-Years of Experience: \${profile.yearsOfExperience || 0}
-Preferred Domains: \${(profile.preferredDomains || []).join(", ")}
-Excluded Domains: \${(profile.excludedDomains || []).join(", ")}
+Career Stage: ${profile.careerStage || "Not specified"}
+Years of Experience: ${profile.yearsOfExperience || 0}
+Preferred Domains: ${(profile.preferredDomains || []).join(", ")}
+Excluded Domains: ${(profile.excludedDomains || []).join(", ")}
 
 Graduation Year:
-\${profile.graduationYear}
+${profile.graduationYear}
 
 Candidate Skills:
-\${profile.skills.join(", ")}
+${profile.skills.join(", ")}
 
 ========================
 JOB DETAILS
 ========================
 
-Title: \${job.title}
-Location: \${job.location}
+Title: ${job.title}
+Location: ${job.location}
 
 Description:
-\${job.description}
+${job.description}
 
 ========================
 MANDATORY REQUIREMENT EXTRACTION (DO THIS FIRST)
@@ -41,7 +41,7 @@ EVALUATION RULES (MULTI-STAGE)
 
 STAGE 1: EXPERIENCE MISMATCH (HARD CONSTRAINT)
 - Experience must be treated as a HARD CONSTRAINT.
-- Candidate Years of Experience: \${profile.yearsOfExperience || 0}.
+- Candidate Years of Experience: ${profile.yearsOfExperience || 0}.
 - If the candidate is a Fresher (0 years) AND the Job requires 5+ years: The final score MUST NOT exceed 40. Reject immediately.
 - Recognize senior titles (Senior, Staff, Lead, Principal, Architect, Manager, Director, Production Engineer, Site Reliability Engineer, Platform Engineer, Infrastructure Engineer). If the role implies seniority and the candidate is junior/fresher, apply SEVERE penalties (score < 40).
 - Experience Gap Penalty:

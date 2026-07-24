@@ -9,7 +9,7 @@ const {
     getStatistics,
     reconnect,
     reload
-} = require('../controller/telegramController');
+} = require('../controllers/telegramController');
 
 const { requireAdmin, requireViewer } = require("../middleware/authMiddleware");
 

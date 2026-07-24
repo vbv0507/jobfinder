@@ -1,0 +1,69 @@
+<%- include('../layouts/header') %>
+
+<div class="mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div>
+        <h1 class="text-2xl font-bold tracking-tight text-textMain mb-2">Evidence Viewer</h1>
+        <p class="text-textMuted text-sm">Inspect structured JSON payloads from the pipeline run.</p>
+    </div>
+    
+    <div class="flex items-center gap-2">
+        <button class="bg-surface hover:bg-surfaceHover border border-border text-textMain px-3 py-1.5 rounded-md text-sm font-medium transition-colors">
+            <i class="fa-solid fa-download mr-1.5"></i> Export Evidence
+        </button>
+    </div>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-4 gap-6 h-[700px]">
+    
+    <!-- Sidebar / File List -->
+    <div class="bg-surface border border-border rounded-xl shadow-sm flex flex-col overflow-hidden">
+        <div class="p-4 border-b border-border bg-surface/50">
+            <h3 class="font-semibold text-textMain text-sm">Evidence Artifacts</h3>
+        </div>
+        <div class="flex-1 overflow-y-auto p-2">
+            <ul class="space-y-1">
+                <li>
+                    <button class="w-full flex items-center gap-3 px-3 py-2 rounded-md bg-primary/10 text-primary text-sm font-medium text-left">
+                        <i class="fa-solid fa-file-code"></i> pipeline_summary.json
+                    </button>
+                </li>
+                <li>
+                    <button class="w-full flex items-center gap-3 px-3 py-2 rounded-md hover:bg-surfaceHover text-textMuted hover:text-textMain text-sm font-medium text-left transition-colors">
+                        <i class="fa-solid fa-file-code"></i> header_sanitization.json
+                    </button>
+                </li>
+                <li>
+                    <button class="w-full flex items-center gap-3 px-3 py-2 rounded-md hover:bg-surfaceHover text-textMuted hover:text-textMain text-sm font-medium text-left transition-colors">
+                        <i class="fa-solid fa-file-code"></i> intercepted_xhr.json
+                    </button>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- JSON Viewer -->
+    <div class="lg:col-span-3 bg-[#0c0c0c] border border-border rounded-xl shadow-sm flex flex-col overflow-hidden">
+        <div class="px-4 py-2 bg-surface border-b border-border flex items-center justify-between text-xs text-textMuted">
+            <div class="flex items-center gap-2 font-mono">
+                pipeline_summary.json
+            </div>
+            <button class="hover:text-textMain transition-colors"><i class="fa-regular fa-copy"></i></button>
+        </div>
+        <div class="flex-1 overflow-auto p-4 custom-scrollbar">
+            <pre class="font-mono text-sm text-[#d4d4d8]"><code>{
+  <span class="text-[#818cf8]">"timestamp"</span>: <span class="text-[#34d399]">"2026-07-24T15:32:05.868Z"</span>,
+  <span class="text-[#818cf8]">"status"</span>: <span class="text-[#34d399]">"SUCCESS"</span>,
+  <span class="text-[#818cf8]">"metrics"</span>: {
+    <span class="text-[#818cf8]">"totalCompanies"</span>: <span class="text-[#fbbf24]">96</span>,
+    <span class="text-[#818cf8]">"cachedSkipped"</span>: <span class="text-[#fbbf24]">0</span>,
+    <span class="text-[#818cf8]">"actuallyScraped"</span>: <span class="text-[#fbbf24]">96</span>,
+    <span class="text-[#818cf8]">"healthy"</span>: <span class="text-[#fbbf24]">67</span>,
+    <span class="text-[#818cf8]">"failed"</span>: <span class="text-[#fbbf24]">29</span>
+  }
+}</code></pre>
+        </div>
+    </div>
+
+</div>
+
+<%- include('../layouts/footer') %>

@@ -14,7 +14,6 @@ const rawJobSchema=new mongoose.Schema({
     postedAt:Date,
     employmentType:{
     type:String,
-    enum:["Internship", "Full-Time", "Contract"],
     default:"Full-Time",
 },
     scrapedAt: {

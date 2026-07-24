@@ -1,0 +1,52 @@
+const GreenhouseAdapter = require('./providers/Priority1/GreenhouseAdapter');
+const LeverAdapter = require('./providers/Priority1/LeverAdapter');
+const WorkdayAdapter = require('./providers/Priority1/WorkdayAdapter');
+const SmartRecruitersAdapter = require('./providers/Priority1/SmartRecruitersAdapter');
+const OfficialApiAdapter = require('./providers/Fallback/OfficialApiAdapter');
+const LightweightHtmlAdapter = require('./providers/Fallback/LightweightHtmlAdapter');
+
+class AdapterFactory {
+  /**
+   * Evaluates company ATS configuration and returns the appropriate adapter instance.
+   * Priority: Official ATS -> Official API -> HTML Fallback
+   */
+  static getAdapter(company) {
+    const ats = (company.ats || 'custom').toLowerCase();
+    
+    // Allow explicit override
+    if (company.adapter) {
+      if (company.adapter === 'OfficialApiAdapter') return new OfficialApiAdapter(company);
+      if (company.adapter === 'LightweightHtmlAdapter') return new LightweightHtmlAdapter(company);
+      // Can add more explicit overrides as needed
+    }
+
+    switch (ats) {
+      case 'greenhouse':
+        return new GreenhouseAdapter(company);
+      case 'lever':
+        return new LeverAdapter(company);
+      case 'workday':
+        return new WorkdayAdapter(company);
+      case 'smartrecruiters':
+        return new SmartRecruitersAdapter(company);
+      case 'api':
+      case 'officialapi':
+        return new OfficialApiAdapter(company);
+      case 'custom':
+      default:
+        // Use the fallback chain entry point (starting with HTML for custom logic)
+        return new LightweightHtmlAdapter(company);
+    }
+  }
+
+  static getNetworkSignatures() {
+    return [
+      ...GreenhouseAdapter.NetworkSignatures,
+      ...LeverAdapter.NetworkSignatures,
+      ...WorkdayAdapter.NetworkSignatures,
+      ...SmartRecruitersAdapter.NetworkSignatures
+    ];
+  }
+}
+
+module.exports = AdapterFactory;

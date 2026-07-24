@@ -1,0 +1,110 @@
+<!-- Sidebar -->
+<aside id="sidebar" class="fixed inset-y-0 left-0 z-50 w-[260px] bg-background border-r border-border transform -translate-x-full lg:translate-x-0 lg:static transition-transform duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] flex flex-col h-screen">
+    
+    <!-- Logo Area -->
+    <div class="h-14 flex items-center px-5 border-b border-border shrink-0">
+        <div class="flex items-center gap-3 text-textMain font-bold text-lg tracking-tight">
+            <div class="w-7 h-7 rounded-md bg-gradient-to-br from-primary to-primaryHover flex items-center justify-center shadow-lg shadow-primary/20">
+                <i class="fa-solid fa-bolt text-white text-[10px]"></i>
+            </div>
+            RoleNova
+        </div>
+    </div>
+    
+    <!-- User / Workspace Info -->
+    <div class="px-5 py-4 border-b border-border bg-surface/30 shrink-0">
+        <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded-full bg-surface border border-border flex items-center justify-center text-primary text-xs font-bold">
+                <%= locals.user ? (locals.user.fullName?.[0] || locals.user.email?.[0] || 'U').toUpperCase() : 'U' %>
+            </div>
+            <div class="flex-1 min-w-0">
+                <p class="text-sm font-medium text-textMain truncate"><%= locals.user ? (locals.user.fullName || locals.user.email) : 'User' %></p>
+                <p class="text-[10px] text-textMuted uppercase font-semibold tracking-wider flex items-center gap-1.5 mt-0.5">
+                    <span class="w-1.5 h-1.5 rounded-full bg-success"></span>
+                    <%= (locals.user && locals.user.role) || 'VIEWER' %>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation Area -->
+    <div class="flex-1 overflow-y-auto py-4 custom-scrollbar">
+        <nav class="space-y-6 px-3">
+            
+            <!-- Platform Section -->
+            <div>
+                <p class="px-3 mb-2 text-[10px] font-semibold text-textMuted uppercase tracking-widest">Platform</p>
+                <div class="space-y-0.5">
+                    <a href="/" class="nav-link flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium text-textMuted hover:text-textMain hover:bg-surface transition-colors">
+                        <i class="fa-solid fa-chart-line w-4 text-center"></i>
+                        Dashboard
+                    </a>
+                    <a href="/pipeline" class="nav-link flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium text-textMuted hover:text-textMain hover:bg-surface transition-colors">
+                        <i class="fa-solid fa-route w-4 text-center"></i>
+                        Pipeline
+                    </a>
+                    <a href="/analytics" class="nav-link flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium text-textMuted hover:text-textMain hover:bg-surface transition-colors">
+                        <i class="fa-solid fa-chart-pie w-4 text-center"></i>
+                        Analytics
+                    </a>
+                </div>
+            </div>
+
+            <!-- Entities Section -->
+            <div>
+                <p class="px-3 mb-2 text-[10px] font-semibold text-textMuted uppercase tracking-widest">Entities</p>
+                <div class="space-y-0.5">
+                    <a href="/companies" class="nav-link flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium text-textMuted hover:text-textMain hover:bg-surface transition-colors">
+                        <i class="fa-regular fa-building w-4 text-center"></i>
+                        Companies
+                    </a>
+                    <a href="/jobs" class="nav-link flex items-center justify-between px-3 py-2 rounded-md text-sm font-medium text-textMuted hover:text-textMain hover:bg-surface transition-colors">
+                        <div class="flex items-center gap-3">
+                            <i class="fa-solid fa-briefcase w-4 text-center"></i>
+                            Matched Jobs
+                        </div>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Diagnostics Section -->
+            <div>
+                <p class="px-3 mb-2 text-[10px] font-semibold text-textMuted uppercase tracking-widest">Diagnostics</p>
+                <div class="space-y-0.5">
+                    <a href="/discovery" class="nav-link flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium text-textMuted hover:text-textMain hover:bg-surface transition-colors">
+                        <i class="fa-solid fa-network-wired w-4 text-center"></i>
+                        ATS Discovery
+                    </a>
+                    <a href="/ai-dashboard" class="nav-link flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium text-textMuted hover:text-textMain hover:bg-surface transition-colors">
+                        <i class="fa-solid fa-brain w-4 text-center"></i>
+                        AI Evaluation
+                    </a>
+                    <a href="/cache" class="nav-link flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium text-textMuted hover:text-textMain hover:bg-surface transition-colors">
+                        <i class="fa-solid fa-memory w-4 text-center"></i>
+                        Cache Layer
+                    </a>
+                    <a href="/logs" class="nav-link flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium text-textMuted hover:text-textMain hover:bg-surface transition-colors">
+                        <i class="fa-solid fa-terminal w-4 text-center"></i>
+                        Runtime Logs
+                    </a>
+                    <a href="/telegram-dashboard" class="nav-link flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium text-textMuted hover:text-textMain hover:bg-surface transition-colors">
+                        <i class="fa-brands fa-telegram w-4 text-center"></i>
+                        Telegram
+                    </a>
+                </div>
+            </div>
+
+            <!-- Configuration Section -->
+            <div>
+                <p class="px-3 mb-2 text-[10px] font-semibold text-textMuted uppercase tracking-widest">Configuration</p>
+                <div class="space-y-0.5">
+                    <a href="/profile" class="nav-link flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium text-textMuted hover:text-textMain hover:bg-surface transition-colors">
+                        <i class="fa-regular fa-user w-4 text-center"></i>
+                        Candidate Profile
+                    </a>
+                </div>
+            </div>
+
+        </nav>
+    </div>
+</aside>

@@ -1,0 +1,102 @@
+<%- include('../layouts/header') %>
+
+<div class="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
+    <div>
+        <h1 class="text-2xl font-bold tracking-tight text-textMain mb-2">Smart Cache Layer</h1>
+        <p class="text-textMuted text-sm">Monitor TTL efficiency, cache hit ratios, and manually control execution bypasses.</p>
+    </div>
+    
+    <!-- Force Refresh Toggle -->
+    <div class="bg-surface border border-warning/30 rounded-xl p-4 flex items-center gap-4">
+        <div>
+            <p class="text-sm font-semibold text-warning">Force Refresh</p>
+            <p class="text-xs text-textMuted mt-0.5">Bypass 12-hour TTL cache bounds.</p>
+        </div>
+        <label class="relative inline-flex items-center cursor-pointer">
+            <input type="checkbox" id="forceRefreshToggle" class="sr-only peer">
+            <div class="w-11 h-6 bg-surfaceHover border border-border peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-warning"></div>
+        </label>
+    </div>
+    
+    <!-- Cache Actions -->
+    <div class="flex gap-3 mt-2 sm:mt-0">
+        <button id="btnClearCache" class="px-4 py-2 bg-error/10 hover:bg-error/20 border border-error/20 text-error rounded-md text-sm font-medium transition-colors">
+            <i class="fa-solid fa-trash mr-2"></i> Clear Global Cache
+        </button>
+    </div>
+</div>
+
+<div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+    <div class="bg-surface border border-border rounded-xl p-5 shadow-sm">
+        <h3 class="text-sm font-medium text-textMuted mb-2">Cache Hit Ratio</h3>
+        <p id="cache-hit" class="text-3xl font-bold text-success">--%</p>
+        <p class="text-xs text-textMuted mt-1">Based on global cache bounds</p>
+    </div>
+    <div class="bg-surface border border-border rounded-xl p-5 shadow-sm">
+        <h3 class="text-sm font-medium text-textMuted mb-2">Global TTL</h3>
+        <p id="cache-ttl" class="text-3xl font-bold text-textMain">12 Hrs</p>
+        <p class="text-xs text-textMuted mt-1">Expiration window</p>
+    </div>
+    <div class="bg-surface border border-border rounded-xl p-5 shadow-sm">
+        <h3 class="text-sm font-medium text-textMuted mb-2">Companies Cached</h3>
+        <p id="cache-companies" class="text-3xl font-bold text-primary">--</p>
+        <p class="text-xs text-textMuted mt-1">Total out of <span id="total-companies">--</span></p>
+    </div>
+    <div class="bg-surface border border-border rounded-xl p-5 shadow-sm">
+        <h3 class="text-sm font-medium text-textMuted mb-2">Time Saved</h3>
+        <p id="cache-savings" class="text-3xl font-bold text-success">--</p>
+        <p class="text-xs text-textMuted mt-1">Estimated compute saved</p>
+    </div>
+</div>
+
+<script>
+    document.getElementById('forceRefreshToggle')?.addEventListener('change', function(e) {
+        if (this.checked) {
+            alert('Force Refresh Enabled: Use the Run Pipeline button to bypass cache.');
+        }
+    });
+
+    document.getElementById('btnClearCache').addEventListener('click', async () => {
+        if (confirm("Are you sure you want to clear the global pipeline cache? This will force all companies to be scraped on the next run.")) {
+            try {
+                const btn = document.getElementById('btnClearCache');
+                btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i> Clearing...';
+                await fetch('/api/system/cache/clear', { method: 'POST' });
+                fetchCacheMetrics();
+                btn.innerHTML = '<i class="fa-solid fa-trash mr-2"></i> Clear Global Cache';
+            } catch (e) {
+                alert("Failed to clear cache.");
+            }
+        }
+    });
+
+    async function fetchCacheMetrics() {
+        try {
+            const res = await fetch('/api/system/live');
+            const data = await res.json();
+            
+            if (data && data.metrics) {
+                const metrics = data.metrics;
+                const cached = metrics["Cached Companies"] || 0;
+                const scraped = metrics["Actually Scraped"] || 0;
+                const hitRate = (cached + scraped > 0) ? Math.round((cached / (cached + scraped)) * 100) : 0;
+                
+                document.getElementById('cache-hit').innerText = hitRate + '%';
+                document.getElementById('cache-ttl').innerText = '--'; // Missing from unified API
+                document.getElementById('cache-companies').innerText = cached;
+                document.getElementById('total-companies').innerText = (data.pipeline && data.pipeline.totalCompanies) ? data.pipeline.totalCompanies : (cached + scraped);
+                
+                document.getElementById('cache-savings').innerText = '--'; // Missing from unified API
+            }
+        } catch (e) {
+            console.error("Failed to load cache metrics", e);
+        }
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+        fetchCacheMetrics();
+        setInterval(fetchCacheMetrics, 5000);
+    });
+</script>
+
+<%- include('../layouts/footer') %>

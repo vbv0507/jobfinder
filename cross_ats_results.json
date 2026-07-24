@@ -1,0 +1,38 @@
+[
+  {
+    "name": "CommerceIQ",
+    "ats": "greenhouse",
+    "url": "",
+    "discovery": false,
+    "axios": false,
+    "fallback": false,
+    "jobs": 0
+  },
+  {
+    "name": "Paytm",
+    "ats": "lever",
+    "url": "",
+    "discovery": false,
+    "axios": false,
+    "fallback": true,
+    "jobs": 0
+  },
+  {
+    "name": "Nagarro",
+    "ats": "smartrecruiters",
+    "url": "",
+    "discovery": false,
+    "axios": false,
+    "fallback": true,
+    "jobs": 0
+  },
+  {
+    "name": "Mastercard",
+    "ats": "workday",
+    "url": "https://mastercard.wd1.myworkdayjobs.com/wday/cxs/mastercard/CorporateCareers/jobs",
+    "discovery": true,
+    "axios": true,
+    "fallback": false,
+    "jobs": 200
+  }
+]

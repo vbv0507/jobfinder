@@ -1,0 +1,101 @@
+<%- include('../layouts/header') %>
+
+<div class="mb-8">
+    <h1 class="text-2xl font-bold tracking-tight text-textMain mb-2">Candidate Profile Configuration</h1>
+    <p class="text-textMuted text-sm">Configure your AI recruiting agent. The matching engine uses these parameters to evaluate incoming jobs.</p>
+</div>
+
+<div class="bg-surface border border-border rounded-xl shadow-sm p-8 max-w-4xl">
+    <form id="profileForm" onsubmit="saveProfile(event)" class="space-y-8">
+        
+        <!-- Basic Info -->
+        <div>
+            <h3 class="text-lg font-semibold text-textMain border-b border-border pb-2 mb-4">Basic Information</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label class="block text-xs font-medium text-textMuted uppercase tracking-wider mb-2">Name</label>
+                    <input type="text" id="name" class="w-full bg-background border border-border rounded-md px-3 py-2 text-sm text-textMain focus:outline-none focus:border-primary">
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-textMuted uppercase tracking-wider mb-2">Graduation Year</label>
+                    <input type="number" id="graduationYear" class="w-full bg-background border border-border rounded-md px-3 py-2 text-sm text-textMain focus:outline-none focus:border-primary">
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-textMuted uppercase tracking-wider mb-2">Career Stage</label>
+                    <input type="text" id="careerStage" placeholder="e.g. Entry Level" class="w-full bg-background border border-border rounded-md px-3 py-2 text-sm text-textMain focus:outline-none focus:border-primary">
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-textMuted uppercase tracking-wider mb-2">Years of Experience</label>
+                    <input type="number" id="yearsOfExperience" class="w-full bg-background border border-border rounded-md px-3 py-2 text-sm text-textMain focus:outline-none focus:border-primary">
+                </div>
+            </div>
+        </div>
+
+        <!-- Domains -->
+        <div>
+            <h3 class="text-lg font-semibold text-textMain border-b border-border pb-2 mb-4">Domain Preferences</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label class="block text-xs font-medium text-textMuted uppercase tracking-wider mb-2">Preferred Domains</label>
+                    <textarea id="preferredDomains" rows="3" placeholder="e.g. BACKEND, PLATFORM" class="w-full bg-background border border-border rounded-md px-3 py-2 text-sm text-textMain focus:outline-none focus:border-primary"></textarea>
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-textMuted uppercase tracking-wider mb-2">Excluded Domains</label>
+                    <textarea id="excludedDomains" rows="3" placeholder="e.g. FRONTEND, DATA" class="w-full bg-background border border-border rounded-md px-3 py-2 text-sm text-textMain focus:outline-none focus:border-error"></textarea>
+                </div>
+            </div>
+        </div>
+        
+        <div class="flex justify-end pt-6 border-t border-border">
+            <button type="submit" class="bg-primary hover:bg-primaryHover text-white px-6 py-2 rounded-md text-sm font-medium transition-colors shadow-sm">
+                Save Configuration
+            </button>
+        </div>
+    </form>
+</div>
+
+<script>
+    async function loadProfile() {
+        try {
+            const res = await fetch("/api/profile");
+            const data = await res.json();
+            if(data.success && data.profile) {
+                const p = data.profile;
+                document.getElementById('name').value = p.name || '';
+                document.getElementById('graduationYear').value = p.graduationYear || '';
+                document.getElementById('careerStage').value = p.careerStage || '';
+                document.getElementById('yearsOfExperience').value = p.yearsOfExperience || 0;
+                document.getElementById('preferredDomains').value = (p.preferredDomains || []).join(', ');
+                document.getElementById('excludedDomains').value = (p.excludedDomains || []).join(', ');
+            }
+        } catch(e) {
+            console.error("Failed to load profile", e);
+        }
+    }
+
+    async function saveProfile(e) {
+        e.preventDefault();
+        const profile = {
+            name: document.getElementById('name').value,
+            graduationYear: parseInt(document.getElementById('graduationYear').value) || null,
+            careerStage: document.getElementById('careerStage').value,
+            yearsOfExperience: parseInt(document.getElementById('yearsOfExperience').value) || 0,
+            preferredDomains: document.getElementById('preferredDomains').value.split(',').map(s=>s.trim()).filter(Boolean),
+            excludedDomains: document.getElementById('excludedDomains').value.split(',').map(s=>s.trim()).filter(Boolean)
+        };
+        try {
+            const res = await fetch('/api/profile', {
+                method: 'PUT',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(profile)
+            });
+            if(res.ok) alert("Profile saved.");
+        } catch(err) {
+            console.error(err);
+        }
+    }
+
+    document.addEventListener("DOMContentLoaded", loadProfile);
+</script>
+
+<%- include('../layouts/footer') %>

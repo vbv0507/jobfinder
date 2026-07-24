@@ -1,11 +1,11 @@
 <%- include('../partials/header', { title: 'Configuration Dashboard' }) %>
 
 <div class="mb-6">
-    <h2 class="text-2xl font-bold text-gray-900">System Configuration</h2>
-    <p class="text-gray-500 text-sm mt-1">Environment and runtime variables.</p>
+    <h2 class="text-2xl font-bold text-gray-900 dark:text-gray-100">System Configuration</h2>
+    <p class="text-gray-500 dark:text-gray-400 text-sm mt-1">Environment and runtime variables.</p>
 </div>
 
-<div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+<div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
     <dl class="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-6" id="configList">
         <!-- Populated via JS -->
     </dl>
@@ -20,28 +20,28 @@
             const list = document.getElementById('configList');
             list.innerHTML = `
                 <div>
-                    <dt class="text-sm font-medium text-gray-500">Environment</dt>
-                    <dd class="mt-1 text-sm text-gray-900">${data.environment}</dd>
+                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Environment</dt>
+                    <dd class="mt-1 text-sm text-gray-900 dark:text-gray-100">${data.environment}</dd>
                 </div>
                 <div>
-                    <dt class="text-sm font-medium text-gray-500">Version</dt>
-                    <dd class="mt-1 text-sm text-gray-900">${data.version}</dd>
+                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Version</dt>
+                    <dd class="mt-1 text-sm text-gray-900 dark:text-gray-100">${data.version}</dd>
                 </div>
                 <div>
-                    <dt class="text-sm font-medium text-gray-500">Cron Enabled</dt>
-                    <dd class="mt-1 text-sm text-gray-900">Unknown (Check .env)</dd>
+                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Cron Enabled</dt>
+                    <dd class="mt-1 text-sm text-gray-900 dark:text-gray-100">Unknown (Check .env)</dd>
                 </div>
                 <div>
-                    <dt class="text-sm font-medium text-gray-500">Node Version</dt>
-                    <dd class="mt-1 text-sm text-gray-900">${navigator.userAgent}</dd>
+                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Node Version</dt>
+                    <dd class="mt-1 text-sm text-gray-900 dark:text-gray-100">${navigator.userAgent}</dd>
                 </div>
                 <div>
-                    <dt class="text-sm font-medium text-gray-500">Configured AI Providers</dt>
-                    <dd class="mt-1 text-sm text-gray-900">Gemini: ${data.ai.gemini}, Groq: ${data.ai.groq}, Z.ai: ${data.ai.zai}, Local: ${data.ai.local}</dd>
+                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Configured AI Providers</dt>
+                    <dd class="mt-1 text-sm text-gray-900 dark:text-gray-100">Gemini: ${data.ai.gemini}, Groq: ${data.ai.groq}, Z.ai: ${data.ai.zai}, Local: ${data.ai.local}</dd>
                 </div>
                 <div>
-                    <dt class="text-sm font-medium text-gray-500">Monitored Telegram Channels</dt>
-                    <dd class="mt-1 text-sm text-gray-900">${data.telegram.monitoredChannels.length} Channels</dd>
+                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Monitored Telegram Channels</dt>
+                    <dd class="mt-1 text-sm text-gray-900 dark:text-gray-100">${data.telegram.monitoredChannels.length} Channels</dd>
                 </div>
             `;
         } catch (e) {

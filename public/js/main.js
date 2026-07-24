@@ -65,3 +65,27 @@ function formatDescription(text, maxLength = 150) {
     if (!text) return 'No description';
     return text.length > maxLength ? text.substring(0, maxLength) + '...' : text;
 }
+
+window.toggleSidebar = function() {
+    const sidebar = document.getElementById('sidebar');
+    const backdrop = document.getElementById('sidebar-backdrop');
+    if (sidebar) {
+        sidebar.classList.toggle('-translate-x-full');
+    }
+    if (backdrop) {
+        backdrop.classList.toggle('hidden');
+        setTimeout(() => {
+            backdrop.classList.toggle('opacity-0');
+            backdrop.classList.toggle('opacity-100');
+        }, 10);
+    }
+};
+
+document.addEventListener('DOMContentLoaded', () => {
+    const backdrop = document.getElementById('sidebar-backdrop');
+    if (backdrop) {
+        backdrop.addEventListener('click', () => {
+            toggleSidebar();
+        });
+    }
+});

@@ -1,0 +1,44 @@
+<%- include('../layouts/header') %>
+
+<div class="mb-8">
+    <h1 class="text-2xl font-bold tracking-tight text-textMain mb-2">Telegram Integration</h1>
+    <p class="text-textMuted text-sm">Configure channels where RoleNova broadcasts matched job listings.</p>
+</div>
+
+<div class="bg-surface border border-border rounded-xl shadow-sm p-6 mb-8 max-w-4xl">
+    <h2 class="text-lg font-semibold text-textMain mb-4">Linked Channels</h2>
+    <div id="channelsList" class="space-y-4">
+        <div class="animate-pulse h-12 bg-background rounded"></div>
+    </div>
+</div>
+
+<script>
+    async function loadChannels() {
+        try {
+            const res = await fetch('/api/telegram/channels');
+            const data = await res.json();
+            const list = document.getElementById('channelsList');
+            if (data.success && data.channels.length > 0) {
+                list.innerHTML = data.channels.map(c => `
+                    <div class="flex items-center justify-between p-4 bg-background border border-border rounded-lg">
+                        <div class="flex items-center gap-3">
+                            <i class="fa-brands fa-telegram text-primary text-xl"></i>
+                            <div>
+                                <p class="font-medium text-textMain">${c.channelName || c.chatId}</p>
+                                <p class="text-xs text-textMuted">Chat ID: ${c.chatId}</p>
+                            </div>
+                        </div>
+                        <span class="bg-success/10 text-success text-xs font-bold px-2 py-1 rounded-full uppercase">Active</span>
+                    </div>
+                `).join('');
+            } else {
+                list.innerHTML = `<p class="text-textMuted text-sm">No channels connected.</p>`;
+            }
+        } catch (e) {
+            console.error(e);
+        }
+    }
+    document.addEventListener("DOMContentLoaded", loadChannels);
+</script>
+
+<%- include('../layouts/footer') %>

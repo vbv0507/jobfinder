@@ -1,8 +1,8 @@
 <%- include('../partials/header', { title: 'AI Providers Dashboard' }) %>
 
 <div class="mb-6">
-    <h2 class="text-2xl font-bold text-gray-900">AI Providers Dashboard</h2>
-    <p class="text-gray-500 text-sm mt-1">Status and performance of AI evaluation engines.</p>
+    <h2 class="text-2xl font-bold text-gray-900 dark:text-gray-100">AI Providers Dashboard</h2>
+    <p class="text-gray-500 dark:text-gray-400 text-sm mt-1">Status and performance of AI evaluation engines.</p>
 </div>
 
 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6" id="aiCards">
@@ -35,25 +35,25 @@
                 if (p.status === 'Unavailable' || p.status === 'Down') color = 'red';
 
                 return `
-                <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
                     <div class="flex items-center justify-between mb-4">
-                        <h3 class="text-lg font-bold text-gray-900">${p.name}</h3>
+                        <h3 class="text-lg font-bold text-gray-900 dark:text-gray-100">${p.name}</h3>
                         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-${color}-100 text-${color}-800">
                             ${p.status}
                         </span>
                     </div>
                     <dl class="space-y-2">
                         <div class="flex justify-between">
-                            <dt class="text-sm text-gray-500">Evaluations</dt>
-                            <dd class="text-sm font-medium text-gray-900">${stat.count}</dd>
+                            <dt class="text-sm text-gray-500 dark:text-gray-400">Evaluations</dt>
+                            <dd class="text-sm font-medium text-gray-900 dark:text-gray-100">${stat.count}</dd>
                         </div>
                         <div class="flex justify-between">
-                            <dt class="text-sm text-gray-500">Avg Latency (ms)</dt>
-                            <dd class="text-sm font-medium text-gray-900">${Math.round(stat.avgTime)}</dd>
+                            <dt class="text-sm text-gray-500 dark:text-gray-400">Avg Latency (ms)</dt>
+                            <dd class="text-sm font-medium text-gray-900 dark:text-gray-100">${Math.round(stat.avgTime)}</dd>
                         </div>
                         <div class="flex justify-between">
-                            <dt class="text-sm text-gray-500">Failures / Fallbacks</dt>
-                            <dd class="text-sm font-medium text-gray-900">${stat.fallbacks}</dd>
+                            <dt class="text-sm text-gray-500 dark:text-gray-400">Failures / Fallbacks</dt>
+                            <dd class="text-sm font-medium text-gray-900 dark:text-gray-100">${stat.fallbacks}</dd>
                         </div>
                     </dl>
                 </div>

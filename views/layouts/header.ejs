@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title><%= typeof title !== 'undefined' ? title + ' - RoleNova' : 'RoleNova Dashboard' %></title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                    colors: {
+                        background: '#09090b',
+                        surface: '#18181b',
+                        surfaceHover: '#27272a',
+                        border: '#27272a',
+                        primary: '#3b82f6',
+                        primaryHover: '#2563eb',
+                        textMain: '#fafafa',
+                        textMuted: '#a1a1aa',
+                        success: '#22c55e',
+                        error: '#ef4444',
+                        warning: '#f59e0b'
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Custom Global Styles -->
+    <link rel="stylesheet" href="/css/components/main.css">
+
+    <!-- Clerk Authentication -->
+    <script>
+      window.clerkPublishableKey = "<%= typeof CLERK_PUBLISHABLE_KEY !== 'undefined' ? CLERK_PUBLISHABLE_KEY : '' %>";
+    </script>
+    <% if (typeof CLERK_PUBLISHABLE_KEY !== 'undefined' && CLERK_PUBLISHABLE_KEY) { %>
+    <script
+      async
+      crossorigin="anonymous"
+      data-clerk-publishable-key="<%= CLERK_PUBLISHABLE_KEY %>"
+      src="https://cdn.jsdelivr.net/npm/@clerk/clerk-js@5/dist/clerk.browser.js"
+      type="text/javascript"
+    ></script>
+    <script type="module">
+      import { initClerk } from '/js/modules/auth.js';
+      initClerk();
+    </script>
+    <% } %>
+</head>
+<body class="bg-background text-textMain font-sans antialiased h-screen flex overflow-hidden selection:bg-primary/30">
+
+    <!-- Mobile Sidebar Backdrop -->
+    <div id="sidebar-backdrop" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 hidden lg:hidden opacity-0 transition-opacity duration-300"></div>
+
+    <!-- Sidebar Component -->
+    <%- include('../components/sidebar') %>
+
+    <!-- Main Application Area -->
+    <div class="flex-1 flex flex-col min-w-0 h-screen relative">
+        
+        <!-- Topbar -->
+        <header class="h-14 border-b border-border bg-background/80 backdrop-blur-md flex items-center justify-between px-4 lg:px-6 sticky top-0 z-30 shrink-0">
+            <div class="flex items-center gap-3">
+                <button id="mobile-menu-btn" onclick="toggleSidebar()" class="lg:hidden text-textMuted hover:text-textMain p-1.5 rounded-md hover:bg-surface transition-colors">
+                    <i class="fa-solid fa-bars text-lg"></i>
+                </button>
+                
+                <!-- Breadcrumb -->
+                <div class="hidden sm:flex items-center gap-2 text-sm font-medium">
+                    <span class="text-textMuted hover:text-textMain cursor-pointer transition-colors">RoleNova</span>
+                    <span class="text-textMuted">/</span>
+                    <span class="text-textMain"><%= typeof title !== 'undefined' ? title : 'Dashboard' %></span>
+                </div>
+                
+                <!-- Mobile Title -->
+                <span class="sm:hidden text-sm font-semibold text-textMain tracking-wide"><%= typeof title !== 'undefined' ? title : 'Dashboard' %></span>
+            </div>
+
+            <div class="flex items-center gap-3">
+                <div class="hidden md:flex items-center gap-2 px-3 py-1.5 bg-surface border border-border rounded-md text-xs text-textMuted">
+                    <div class="w-2 h-2 rounded-full bg-success animate-pulse shadow-[0_0_8px_rgba(34,197,94,0.6)]"></div>
+                    Engine Online
+                </div>
+                <button class="text-textMuted hover:text-textMain p-1.5 rounded-full hover:bg-surface transition-colors" aria-label="Notifications">
+                    <i class="fa-regular fa-bell"></i>
+                </button>
+                <div id="user-button" class="w-7 h-7 rounded-full bg-surface border border-border flex items-center justify-center shrink-0">
+                    <i class="fa-solid fa-user text-xs text-textMuted"></i>
+                </div>
+            </div>
+        </header>
+
+        <!-- Page Content Scroll Area -->
+        <main class="flex-1 overflow-y-auto p-4 md:p-6 scroll-smooth">
+            <div class="max-w-7xl mx-auto space-y-6 animate-fade-in-up pb-12">

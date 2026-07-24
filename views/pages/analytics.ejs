@@ -1,0 +1,62 @@
+<%- include('../layouts/header') %>
+
+<div class="mb-8">
+    <h1 class="text-2xl font-bold tracking-tight text-textMain mb-2">Platform Analytics</h1>
+    <p class="text-textMuted text-sm">Visualize job matching metrics and pipeline performance over time.</p>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+    <div class="bg-surface border border-border rounded-xl shadow-sm p-6 lg:col-span-2">
+        <h3 class="text-lg font-semibold text-textMain mb-4">Daily Pipeline Activity (Last 7 Days)</h3>
+        <div class="relative w-full h-72">
+            <canvas id="trendChart"></canvas>
+        </div>
+    </div>
+
+    <div class="bg-surface border border-border rounded-xl shadow-sm p-6">
+        <h3 class="text-lg font-semibold text-textMain mb-4">Jobs by Company</h3>
+        <div class="relative w-full h-64">
+            <canvas id="companyChart"></canvas>
+        </div>
+    </div>
+    
+    <div class="bg-surface border border-border rounded-xl shadow-sm p-6 lg:col-span-2">
+        <h3 class="text-lg font-semibold text-textMain mb-4 flex items-center gap-2"><i class="fa-solid fa-microchip text-primary"></i> AI Provider Statistics</h3>
+        <div class="grid grid-cols-2 md:grid-cols-5 gap-4" id="aiStatsContainer">
+            <div class="animate-pulse h-16 bg-background rounded"></div>
+        </div>
+    </div>
+    
+    <div class="bg-surface border border-border rounded-xl shadow-sm p-6">
+        <h3 class="text-lg font-semibold text-textMain mb-4">Match Score Distribution</h3>
+        <div class="relative w-full flex justify-center h-64">
+            <canvas id="scoreChart"></canvas>
+        </div>
+    </div>
+    
+    <div class="bg-surface border border-border rounded-xl shadow-sm p-6">
+        <h3 class="text-lg font-semibold text-textMain mb-4">Jobs by Domain</h3>
+        <div class="relative w-full h-64">
+            <canvas id="domainChart"></canvas>
+        </div>
+    </div>
+</div>
+
+<script>
+    async function loadAnalytics() {
+        try {
+            const res = await fetch("/api/system/live");
+            const data = await res.json();
+            
+            if(data.success) {
+                console.warn("dailyTrend is missing from unified API. Charts cannot be rendered.");
+                // Charts logic removed because dailyTrend is no longer available in the unified API
+            }
+        } catch(e) {
+            console.error("Failed to load analytics", e);
+        }
+    }
+    document.addEventListener("DOMContentLoaded", loadAnalytics);
+</script>
+
+<%- include('../layouts/footer') %>

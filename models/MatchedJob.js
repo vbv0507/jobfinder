@@ -41,7 +41,6 @@ const matchedJobSchema = new mongoose.Schema({
     
     evaluatedBy: {
         type: String,
-        enum: ["Gemini", "Groq", "Local", "AI"], 
         default: "Gemini"
     },
     

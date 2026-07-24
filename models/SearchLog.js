@@ -38,6 +38,38 @@ const searchLogSchema = new mongoose.Schema({
     totalJobs: Number,
     newJobs: Number,
     aiEvaluations: Number,
+
+    // Phase 10: Execution Timelines
+    companyTimelines: {
+        type: Map,
+        of: [{
+            timestamp: Date,
+            stage: String,
+            severity: { type: String, enum: ["INFO", "WARN", "ERROR", "SUCCESS"] },
+            message: String,
+            httpCode: Number,
+            durationMs: Number,
+            retryCount: Number
+        }],
+        default: {}
+    },
+
+    // Phase 11: Pipeline Summary Metrics
+    companiesWithJobs: { type: Number, default: 0 },
+    companiesWithoutJobs: { type: Number, default: 0 },
+    parserOutdated: { type: Number, default: 0 },
+    atsChanged: { type: Number, default: 0 },
+    httpFailed: { type: Number, default: 0 },
+    blocked: { type: Number, default: 0 },
+    retriedSuccessfully: { type: Number, default: 0 },
+    jobsScraped: { type: Number, default: 0 },
+    jobsSaved: { type: Number, default: 0 },
+    jobsEvaluated: { type: Number, default: 0 },
+    validationDrops: { type: Number, default: 0 },
+    validationDropsByReason: { type: mongoose.Schema.Types.Mixed, default: {} },
+    matchedJobs: { type: Number, default: 0 },
+    duplicates: { type: Number, default: 0 },
+
     geminiCount: { type: Number, default: 0 },
     geminiSuccess: { type: Number, default: 0 },
     geminiFailed: { type: Number, default: 0 },
@@ -53,6 +85,7 @@ const searchLogSchema = new mongoose.Schema({
     localCount: { type: Number, default: 0 },
     localSuccess: { type: Number, default: 0 },
     averageCompanyTime: Number,
+    averageAiTime: Number,
 
     errorType: String,
     companyBeingProcessed: String,

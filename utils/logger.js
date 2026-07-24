@@ -18,7 +18,10 @@ const formatLog = (level, args) => {
     const prefix = `[${timestamp}] [${pipelineId}] [${provider}] [${company}] [${jobUrl}] [${stage}] [${duration}] [${level}]`;
     
     // We join the arguments so that objects are printed correctly
-    const message = args.map(arg => typeof arg === 'object' ? JSON.stringify(arg) : arg).join(' ');
+    const message = args.map(arg => {
+        if (arg instanceof Error) return arg.stack || arg.message;
+        return typeof arg === 'object' ? JSON.stringify(arg) : arg;
+    }).join(' ');
     
     return `${prefix} ${message}`;
 };

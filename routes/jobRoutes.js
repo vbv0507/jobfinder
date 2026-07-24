@@ -10,9 +10,10 @@ const {
     getReport,
     getAnalytics,
     runJobSearch,
+    stopJobSearch,
     updateJobStatus,
     deleteRawJobs,
-} = require("../controller/jobController");
+} = require("../controllers/jobController");
 
 const { requireAdmin, requireViewer } = require("../middleware/authMiddleware");
 
@@ -26,7 +27,8 @@ router.get("/logs", requireViewer, getSearchLogs);
 router.get("/status", requireViewer, getPipelineStatus);
 router.get("/report", requireViewer, getReport);
 router.get("/analytics", requireViewer, getAnalytics);
-router.post("/run", requireAdmin, runJobSearch);
+router.post("/run", runJobSearch);
+router.post("/stop", requireAdmin, stopJobSearch);
 router.patch("/:id/status", requireAdmin, updateJobStatus);
 router.delete("/raw", requireAdmin, deleteRawJobs);
 

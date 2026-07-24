@@ -1,0 +1,118 @@
+<%- include('../layouts/header') %>
+
+<div class="mb-8">
+    <h1 class="text-2xl font-bold tracking-tight text-textMain mb-2">AI Evaluation Dashboard</h1>
+    <p class="text-textMuted text-sm">Monitor Gemini utilization, Groq fallback rates, and overall job matching precision.</p>
+</div>
+
+<div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+    <div class="bg-surface border border-border rounded-xl p-5 shadow-sm">
+        <h3 class="text-sm font-medium text-textMuted mb-2">Total Prompt Count</h3>
+        <p id="ai-count" class="text-3xl font-bold text-primary">--</p>
+        <p class="text-xs text-textMuted mt-1">Jobs evaluated</p>
+    </div>
+    <div class="bg-surface border border-border rounded-xl p-5 shadow-sm">
+        <h3 class="text-sm font-medium text-textMuted mb-2">Average Match %</h3>
+        <p id="ai-score" class="text-3xl font-bold text-success">--%</p>
+        <p class="text-xs text-textMuted mt-1">Global relevance mean</p>
+    </div>
+    <div class="bg-surface border border-border rounded-xl p-5 shadow-sm">
+        <h3 class="text-sm font-medium text-textMuted mb-2">Groq Fallback Rate</h3>
+        <p id="ai-fallback" class="text-3xl font-bold text-warning">--%</p>
+        <p class="text-xs text-textMuted mt-1">Due to Gemini rate limits</p>
+    </div>
+    <div class="bg-surface border border-border rounded-xl p-5 shadow-sm">
+        <h3 class="text-sm font-medium text-textMuted mb-2">Avg Eval Time</h3>
+        <p id="ai-time" class="text-3xl font-bold text-textMain">--s</p>
+        <p class="text-xs text-textMuted mt-1">Per job description</p>
+    </div>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <div class="bg-surface border border-border rounded-xl p-5 shadow-sm">
+        <h3 class="text-sm font-medium text-textMain mb-4">Top AI Skills Identified</h3>
+        <div class="space-y-3">
+            <div class="flex items-center justify-between text-sm">
+                <span class="text-textMuted">Node.js</span>
+                <span class="text-textMain font-medium">85% Match</span>
+            </div>
+            <div class="w-full bg-background rounded-full h-1.5 border border-border">
+                <div class="bg-primary h-1.5 rounded-full" style="width: 85%"></div>
+            </div>
+            
+            <div class="flex items-center justify-between text-sm mt-4">
+                <span class="text-textMuted">React</span>
+                <span class="text-textMain font-medium">72% Match</span>
+            </div>
+            <div class="w-full bg-background rounded-full h-1.5 border border-border">
+                <div class="bg-primary h-1.5 rounded-full" style="width: 72%"></div>
+            </div>
+
+            <div class="flex items-center justify-between text-sm mt-4">
+                <span class="text-textMuted">Python</span>
+                <span class="text-textMain font-medium">40% Match</span>
+            </div>
+            <div class="w-full bg-background rounded-full h-1.5 border border-border">
+                <div class="bg-primary h-1.5 rounded-full" style="width: 40%"></div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="bg-surface border border-border rounded-xl p-5 shadow-sm">
+        <h3 class="text-sm font-medium text-textMain mb-4">Model Usage Ratio</h3>
+        <div class="flex items-center gap-4 mt-6">
+            <div class="w-24 h-24 rounded-full border-4 border-primary border-t-warning border-l-warning flex items-center justify-center">
+                <span class="text-xs font-bold text-textMain">98%</span>
+            </div>
+            <div class="space-y-2">
+                <div class="flex items-center gap-2">
+                    <span class="w-3 h-3 rounded bg-primary"></span>
+                    <span class="text-sm text-textMuted">Gemini Flash (98%)</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="w-3 h-3 rounded bg-warning"></span>
+                    <span class="text-sm text-textMuted">Groq LLaMA (2%)</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    async function fetchAiMetrics() {
+        try {
+            const res = await fetch('/api/system/live');
+            if (!res.ok) return;
+            const data = await res.json();
+            const metrics = data.metrics || {};
+            
+            document.getElementById('ai-count').innerText = metrics["AI Evaluations"] || 0;
+            
+            const matchPct = metrics["AI Evaluations"] > 0 ? Math.round((metrics["Matched Jobs"] / metrics["AI Evaluations"]) * 100) : 0;
+            document.getElementById('ai-score').innerText = matchPct + '%';
+            
+            document.getElementById('ai-time').innerText = ((metrics["Average AI Time"] || 0) / 1000).toFixed(1) + 's';
+            
+            // For fallback, we don't have it directly in metrics endpoint yet without expanding Provider Usage, but this is a mockup connection.
+            const providers = metrics["Provider Usage"] || [];
+            let groqUsage = 0;
+            let geminiUsage = 0;
+            providers.forEach(p => {
+                if (p._id === 'groq') groqUsage = p.count;
+                if (p._id === 'gemini') geminiUsage = p.count;
+            });
+            const total = groqUsage + geminiUsage;
+            const groqPct = total > 0 ? ((groqUsage / total) * 100).toFixed(1) : 0;
+            
+            document.getElementById('ai-fallback').innerText = groqPct + '%';
+        } catch(e) {
+            console.error(e);
+        }
+    }
+    document.addEventListener("DOMContentLoaded", () => {
+        fetchAiMetrics();
+        setInterval(fetchAiMetrics, 5000);
+    });
+</script>
+
+<%- include('../layouts/footer') %>

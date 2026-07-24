@@ -1,0 +1,190 @@
+<%- include('../partials/header', { title: 'Scraper Diagnostics' }) %>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<div class="mb-6 flex justify-between items-center">
+    <div>
+        <h2 class="text-2xl font-bold text-gray-900 dark:text-gray-100">Scraper Diagnostics</h2>
+        <p class="text-gray-500 dark:text-gray-400 text-sm mt-1">Detailed metrics on pipeline health and drop-offs.</p>
+    </div>
+    <div class="space-x-2">
+        <a href="/admin/api/scraper/export/json" target="_blank" class="px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200">Export JSON</a>
+        <a href="/admin/api/scraper/export/csv" class="px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200">Export CSV</a>
+    </div>
+</div>
+
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+    <div class="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700">
+        <h3 class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Health Score Distribution</h3>
+        <canvas id="healthChart" height="200"></canvas>
+    </div>
+    <div class="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700">
+        <h3 class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Jobs Over Time</h3>
+        <canvas id="jobsChart" height="200"></canvas>
+    </div>
+    <div class="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700">
+        <h3 class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Top Failing Companies</h3>
+        <canvas id="failingChart" height="200"></canvas>
+    </div>
+    <div class="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-y-auto max-h-[250px]">
+        <h3 class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Validation Drops Breakdown</h3>
+        <ul id="validationDropsList" class="space-y-2 text-sm text-gray-600 dark:text-gray-400">
+            <!-- Populated via JS -->
+        </ul>
+    </div>
+</div>
+
+<div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden mb-8">
+    <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-900">
+        <h3 class="font-semibold text-gray-800 dark:text-gray-200">Company Scraper Health</h3>
+    </div>
+    <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-50 dark:bg-gray-900">
+            <tr>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Company</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Health Score</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">ATS / Parser Version</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Success %</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Actions</th>
+            </tr>
+        </thead>
+        <tbody id="companiesBody" class="bg-white dark:bg-gray-800 divide-y divide-gray-200">
+            <!-- Populated via JS -->
+        </tbody>
+    </table>
+</div>
+
+<!-- Test Modal -->
+<div id="testModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden flex items-center justify-center z-50">
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-3/4 max-h-[90vh] flex flex-col">
+        <div class="px-6 py-4 border-b flex justify-between items-center">
+            <h3 class="text-lg font-bold" id="modalTitle">Testing Scraper...</h3>
+            <button onclick="closeModal()" class="text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:text-gray-200">&times;</button>
+        </div>
+        <div class="p-6 overflow-y-auto flex-1 bg-gray-50 dark:bg-gray-900">
+            <div id="testLoading" class="text-center py-10">
+                <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-indigo-600 mx-auto"></div>
+                <p class="mt-4 text-gray-600 dark:text-gray-400">Running manual test...</p>
+            </div>
+            <pre id="testResults" class="hidden whitespace-pre-wrap text-sm text-gray-800 dark:text-gray-200 bg-white dark:bg-gray-800 p-4 border rounded overflow-x-auto"></pre>
+        </div>
+    </div>
+</div>
+
+<script>
+    async function initDashboard() {
+        try {
+            // Load Chart Data
+            const chartRes = await fetch('/admin/api/scraper/chart-data').then(r => r.json());
+            
+            new Chart(document.getElementById('healthChart'), {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(chartRes.healthDistribution),
+                    datasets: [{
+                        data: Object.values(chartRes.healthDistribution),
+                        backgroundColor: ['#10B981', '#34D399', '#FBBF24', '#F87171', '#DC2626']
+                    }]
+                }
+            });
+
+            const logs = chartRes.logs;
+            new Chart(document.getElementById('jobsChart'), {
+                type: 'line',
+                data: {
+                    labels: logs.map(l => new Date(l.createdAt).toLocaleDateString()),
+                    datasets: [
+                        { label: 'Scraped', data: logs.map(l => l.jobsScraped), borderColor: '#3B82F6' },
+                        { label: 'Saved', data: logs.map(l => l.jobsSaved), borderColor: '#10B981' }
+                    ]
+                }
+            });
+
+            const failing = chartRes.failingCompanies;
+            new Chart(document.getElementById('failingChart'), {
+                type: 'bar',
+                data: {
+                    labels: failing.map(c => c.name),
+                    datasets: [{
+                        label: 'Health Score',
+                        data: failing.map(c => c.healthScore),
+                        backgroundColor: '#EF4444'
+                    }]
+                }
+            });
+
+            // Validation Drops
+            const dropsList = document.getElementById('validationDropsList');
+            const dropsData = chartRes.validationDropsByReason || {};
+            dropsList.innerHTML = Object.keys(dropsData).length ? Object.entries(dropsData)
+                .sort((a,b) => b[1] - a[1])
+                .map(([reason, count]) => `<li class="flex justify-between border-b pb-1"><span>${reason}</span> <span class="font-bold">${count}</span></li>`)
+                .join('') : '<li>No validation drops in last run</li>';
+
+            // Load Companies Table
+            const companies = await fetch('/admin/api/scraper/companies').then(r => r.json());
+            const tbody = document.getElementById('companiesBody');
+            
+            tbody.innerHTML = companies.map(c => {
+                let badgeClass = 'bg-green-100 text-green-800';
+                if (c.healthScore < 50) badgeClass = 'bg-red-100 text-red-800';
+                else if (c.healthScore < 80) badgeClass = 'bg-yellow-100 text-yellow-800';
+                
+                const lastHistory = c.runHistory && c.runHistory.length > 0 ? c.runHistory[0] : null;
+                const versionInfo = lastHistory ? lastHistory.parserVersion : 'N/A';
+                
+                return `
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap font-medium text-gray-900 dark:text-gray-100">${c.name}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${badgeClass}">
+                                ${Math.round(c.healthScore)}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                            ${c.scraperConfig?.ats || 'Custom'} <br/>
+                            <span class="text-xs text-gray-400">v${versionInfo}</span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">${c.successPercent ? c.successPercent.toFixed(1) : 0}%</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                            <button onclick="runTest('${c._id}', '${c.name}')" class="text-indigo-600 hover:text-indigo-900 bg-indigo-50 px-3 py-1 rounded">Test</button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        } catch (e) {
+            console.error("Dashboard error:", e);
+        }
+    }
+
+    async function runTest(id, name) {
+        const modal = document.getElementById('testModal');
+        const loading = document.getElementById('testLoading');
+        const results = document.getElementById('testResults');
+        document.getElementById('modalTitle').innerText = `Testing ${name}`;
+        
+        modal.classList.remove('hidden');
+        loading.classList.remove('hidden');
+        results.classList.add('hidden');
+        results.textContent = '';
+        
+        try {
+            const res = await fetch(`/admin/api/scraper/test/${id}`);
+            const data = await res.json();
+            
+            loading.classList.add('hidden');
+            results.classList.remove('hidden');
+            results.textContent = JSON.stringify(data, null, 2);
+        } catch (e) {
+            loading.classList.add('hidden');
+            results.classList.remove('hidden');
+            results.textContent = "Error running test: " + e.message;
+        }
+    }
+
+    function closeModal() {
+        document.getElementById('testModal').classList.add('hidden');
+    }
+
+    initDashboard();
+</script>
+<%- include('../partials/footer') %>
