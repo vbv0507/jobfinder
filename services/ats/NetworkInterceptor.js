@@ -30,6 +30,8 @@ class NetworkInterceptor {
    */
   static async discoverApi(url, signatures) {
     let browser = null;
+    let context = null;
+    let page = null;
     let matchedRequest = null;
     let matchedSignature = null;
     let responseBody = null;
@@ -38,10 +40,10 @@ class NetworkInterceptor {
     try {
       trail.push({ stage: "Network Interception", severity: "INFO", message: `Launching headless browser for ${url}` });
       browser = await chromium.launch({ headless: true, args: ['--no-sandbox', '--disable-setuid-sandbox'] });
-      const context = await browser.newContext({
+      context = await browser.newContext({
          userAgent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36"
       });
-      const page = await context.newPage();
+      page = await context.newPage();
       
       page.on('response', async (response) => {
         if (matchedRequest) return; // already found one
@@ -117,6 +119,8 @@ class NetworkInterceptor {
         trail.push({ stage: "Network Interception", severity: "WARN", message: `No API endpoints matched known signatures` });
     }
 
+    if (page) await page.close().catch(() => {});
+    if (context) await context.close().catch(() => {});
     if (browser) await browser.close().catch(e => trail.push({ stage: "Network Interception", severity: "WARN", message: `Browser close warning: ${e.message}` }));
     
     return result;
