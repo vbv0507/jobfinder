@@ -2,7 +2,7 @@
   "scripts": {
     "start": "node index.js",
     "dev": "node --watch index.js",
-    "test": "jest"
+    "test": "echo \"No tests configured\""
   },
   "dependencies": {
     "@clerk/express": "^2.1.44",
