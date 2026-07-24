@@ -1,4 +1,5 @@
 const BaseAdapter = require('../../BaseAdapter');
+const { normalizeDate } = require('../../../../utils/dateNormalizer');
 
 class LeverAdapter extends BaseAdapter {
   get parserName() { return "Lever API"; }
@@ -39,12 +40,12 @@ class LeverAdapter extends BaseAdapter {
 
       return this.normalizeJob({
         title: item.text,
-        location: item.categories?.location || "Not specified",
+        location: item.categories?.location || "Remote",
         jobId: item.id?.toString(),
         description: [item.descriptionPlain, lists, item.categories?.team, item.categories?.commitment].filter(Boolean).join(" "),
         url: item.hostedUrl || item.applyUrl,
         employmentType: item.categories?.commitment,
-        postedAt: item.createdAt,
+        postedAt: normalizeDate(item.createdAt),
         source: 'lever'
       });
     }).filter(Boolean);

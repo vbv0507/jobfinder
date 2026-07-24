@@ -1,4 +1,5 @@
 const BaseAdapter = require('../../BaseAdapter');
+const { normalizeDate } = require('../../../../utils/dateNormalizer');
 
 class WorkdayAdapter extends BaseAdapter {
   get parserName() { return "Workday GraphQL/API"; }

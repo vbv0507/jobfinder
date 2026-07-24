@@ -1,4 +1,5 @@
 const BaseAdapter = require('../../BaseAdapter');
+const { normalizeDate } = require('../../../../utils/dateNormalizer');
 
 class SmartRecruitersAdapter extends BaseAdapter {
   get parserName() { return "SmartRecruiters API"; }
@@ -55,7 +56,7 @@ class SmartRecruitersAdapter extends BaseAdapter {
         ? `https://jobs.smartrecruiters.com/${item.company.identifier}/${item.id}` 
         : (item.ref || item.url),
       employmentType: item.typeOfEmployment?.label,
-      postedAt: item.releasedDate || item.updatedOn,
+      postedAt: normalizeDate(item.releasedDate || item.updatedOn),
       source: 'smartrecruiters'
     })).filter(Boolean);
   }

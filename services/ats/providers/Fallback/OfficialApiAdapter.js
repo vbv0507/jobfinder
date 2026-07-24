@@ -1,4 +1,5 @@
 const BaseAdapter = require('../../BaseAdapter');
+const { normalizeDate } = require('../../../../utils/dateNormalizer');
 
 class OfficialApiAdapter extends BaseAdapter {
   get parserName() { return "Generic API Parser"; }
@@ -43,7 +44,7 @@ class OfficialApiAdapter extends BaseAdapter {
         ].filter(Boolean).join(" "),
         url,
         employmentType: this.getValue(item, fields.employmentType),
-        postedAt: this.getValue(item, fields.postedAt),
+        postedAt: normalizeDate(this.getValue(item, fields.postedAt)),
         source: 'generic_api'
       });
     }).filter(Boolean);

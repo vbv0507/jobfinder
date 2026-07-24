@@ -3,31 +3,9 @@ const RawJob = require("../../models/RawJob");
 const MatchedJob = require("../../models/MatchedJob");
 const SearchLog = require("../../models/SearchLog");
 const TelegramChannel = require("../../models/TelegramChannel");
+const { normalizeDate } = require("../../../utils/dateNormalizer");
 
 const MATCH_THRESHOLD = Number(process.env.MATCH_THRESHOLD || 70);
-
-const normalizeDate = (dateStr) => {
-  if (!dateStr) return null;
-  const parsed = new Date(dateStr);
-  if (!isNaN(parsed.getTime())) return parsed;
-  
-  const str = String(dateStr).toLowerCase();
-  const now = new Date();
-  
-  if (str.includes("today") || str.includes("hours ago") || str.includes("mins ago") || str.includes("minute")) return now;
-  if (str.includes("yesterday")) { now.setDate(now.getDate() - 1); return now; }
-  
-  const daysMatch = str.match(/(\d+)\+?\s*days?\s*ago/);
-  if (daysMatch) { now.setDate(now.getDate() - parseInt(daysMatch[1])); return now; }
-  
-  const weeksMatch = str.match(/(\d+)\+?\s*weeks?\s*ago/);
-  if (weeksMatch) { now.setDate(now.getDate() - (parseInt(weeksMatch[1]) * 7)); return now; }
-  
-  const monthsMatch = str.match(/(\d+)\+?\s*months?\s*ago/);
-  if (monthsMatch) { now.setMonth(now.getMonth() - parseInt(monthsMatch[1])); return now; }
-  
-  return null;
-};
 
 const saveRawJob = async (company, job, stats = null) => {
   const saveStartTime = performance.now();

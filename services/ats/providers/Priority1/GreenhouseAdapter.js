@@ -1,4 +1,5 @@
-const BaseAdapter = require('../../BaseAdapter');
+const BaseAdapter = require('../BaseAdapter');
+const { normalizeDate } = require('../../../../utils/dateNormalizer');
 
 class GreenhouseAdapter extends BaseAdapter {
   get parserName() { return "Greenhouse API"; }
@@ -52,8 +53,9 @@ class GreenhouseAdapter extends BaseAdapter {
         location: [item.location?.name, postingLocation, officeNames].filter(Boolean).join(", "),
         jobId: item.id?.toString(),
         description: [item.content, departmentNames, officeNames, postingLocation].filter(Boolean).join(" "),
+        employmentType: item.metadata?.find(m => m.name === 'Employment Type')?.value || null,
         url: item.absolute_url,
-        postedAt: item.first_published || item.updated_at,
+        postedAt: normalizeDate(item.first_published || item.updated_at),
         source: 'greenhouse'
       });
     }).filter(Boolean);
