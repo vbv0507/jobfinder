@@ -72,7 +72,9 @@ class PipelineStateManager {
         this.addLog("SUCCESS", "Pipeline Finished");
         socketService.emitPipeline("finished", this.snapshot());
         this.emitUpdate();
-        socketService.emitDashboardSnapshot().catch(error => console.error("[Socket] Failed to refresh dashboard after finish:", error.message));
+        setTimeout(() => {
+            socketService.emitDashboardSnapshot().catch(error => console.error("[Socket] Failed to refresh dashboard after finish:", error.message));
+        }, 1500);
     }
 
     fail(errorMsg) {
@@ -87,7 +89,9 @@ class PipelineStateManager {
         this.addLog("ERROR", `Pipeline Failed: ${errorMsg}`);
         socketService.emitPipeline("error", { message: errorMsg, pipeline: this.snapshot() });
         this.emitUpdate();
-        socketService.emitDashboardSnapshot().catch(error => console.error("[Socket] Failed to refresh dashboard after failure:", error.message));
+        setTimeout(() => {
+            socketService.emitDashboardSnapshot().catch(error => console.error("[Socket] Failed to refresh dashboard after failure:", error.message));
+        }, 1500);
     }
 
     cancel() {
@@ -110,7 +114,9 @@ class PipelineStateManager {
         this.addLog("WARNING", "Pipeline Cancelled");
         socketService.emitPipeline("stopped", this.snapshot());
         this.emitUpdate();
-        socketService.emitDashboardSnapshot().catch(error => console.error("[Socket] Failed to refresh dashboard after cancel:", error.message));
+        setTimeout(() => {
+            socketService.emitDashboardSnapshot().catch(error => console.error("[Socket] Failed to refresh dashboard after cancel:", error.message));
+        }, 1500);
     }
 
     addLog(level, message) {

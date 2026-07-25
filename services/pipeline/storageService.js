@@ -304,8 +304,7 @@ const saveSearchLog = async (logId, startedAt, stats, errors) => {
     aiProviderUsed: stats.aiProviderUsed || "None",
   });
 
-  const socketService = require("../socketService");
-  socketService.emitDashboardSnapshot().catch(error => console.error("[Socket] Failed to emit analytics update:", error.message));
+  return logId;
 };
 
 module.exports = { saveRawJob, saveMatchedJob, hasExistingMatch, saveSearchLog };
