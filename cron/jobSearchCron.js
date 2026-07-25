@@ -19,6 +19,7 @@ const crypto = require("crypto");
 const { saveRawJob, saveMatchedJob, hasExistingMatch, saveSearchLog } = require("../services/pipeline/storageService");
 const { getActiveProfile, analyseWithGemini } = require("../services/pipeline/aiEvaluationService");
 const { discoverEndpoint } = require('../services/ats/discoveryService');
+const socketService = require("../services/socketService");
 
 const MAX_JOBS_PER_COMPANY = Number(process.env.MAX_JOBS_PER_COMPANY || 10);
 
@@ -668,6 +669,13 @@ const runSearch = async (triggerSource = "Unknown", forceRefresh = false) => {
 
       try {
           await company.save();
+          const updatedCompany = company.toObject();
+          const { getCompanyLogo } = require("../utils/companyBranding");
+          socketService.broadcast("company:update", {
+              ...updatedCompany,
+              logoUrl: updatedCompany.logo || getCompanyLogo(updatedCompany.name)
+          });
+          socketService.emitCompanySnapshot().catch(err => console.error("[Socket] Failed to emit companies:update:", err.message));
       } catch (saveError) {
           console.error(chalk.bgRed.white(`[Database Error] Failed to save company ${company.name}: ${saveError.message}`));
           logEvent("Finalization", "ERROR", `Database Save Failed: ${saveError.message}`);

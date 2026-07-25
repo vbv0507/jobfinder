@@ -144,6 +144,7 @@ const getAnalyticsData = async () => {
                     totalBlocked: { $sum: "$blocked" },
                     totalRetriedSuccessfully: { $sum: "$retriedSuccessfully" },
                     totalJobsScraped: { $sum: "$jobsScraped" },
+                    totalJobsEvaluated: { $sum: "$jobsEvaluated" },
                     totalDuplicates: { $sum: "$duplicates" },
                     totalValidationDrops: { $sum: "$validationDrops" }
                 }
@@ -185,7 +186,7 @@ const getAnalyticsData = async () => {
                 "Recovered Nodes": systemMetrics.totalRetriedSuccessfully || 0,
                 "Raw Jobs": rawJobsCount || 0,
                 "Matched Jobs": matchedJobsCount || 0,
-                "AI Evaluations": systemMetrics.jobsEvaluated || 0,
+                "AI Evaluations": systemMetrics.totalJobsEvaluated || aiEvaluatedCount || 0,
                 "Parser Failures": systemMetrics.totalParserOutdated || 0,
                 "Validation Failures": systemMetrics.totalValidationDrops || 0,
                 "ATS Changed": systemMetrics.totalAtsChanged || 0,

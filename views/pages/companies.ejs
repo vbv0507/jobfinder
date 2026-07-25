@@ -31,22 +31,7 @@
         return Math.floor(seconds) + " seconds ago";
     };
 
-    let isFetching = false;
-    async function fetchCompanies() {
-        if (isFetching) return;
-        isFetching = true;
-        try {
-            const [compRes, liveRes] = await Promise.all([
-                fetch("/api/companies").catch(() => null),
-                fetch("/api/system/live").catch(() => null)
-            ]);
-            
-            if (!compRes || !compRes.ok) throw new Error("Failed to load");
-            
-            const data = await compRes.json();
-            const live = (liveRes && liveRes.ok) ? await liveRes.json() : null;
-            const state = live ? live.pipeline : null;
-            
+    function renderCompanies(data, state = null) {
             const container = document.getElementById("companies-grid");
             
             if(data.success && data.companies.length > 0) {
@@ -147,17 +132,46 @@
             } else {
                 container.innerHTML = '<div class="col-span-full p-12 text-center text-textMuted">No companies monitored yet.</div>';
             }
+    }
+
+    async function initCompaniesSocket() {
+        try {
+            const { createSocket } = await import('/js/modules/socketClient.js');
+            const socket = await createSocket();
+            let latestCompanies = null;
+            let latestPipeline = null;
+
+            socket.on('dashboard:init', (payload) => {
+                latestPipeline = payload.pipeline || latestPipeline;
+                if (payload.companies) {
+                    latestCompanies = payload.companies;
+                    renderCompanies(latestCompanies, latestPipeline);
+                }
+            });
+
+            socket.on('companies:update', (payload) => {
+                latestCompanies = payload;
+                renderCompanies(latestCompanies, latestPipeline);
+            });
+
+            socket.on('company:update', (company) => {
+                if (!latestCompanies || !Array.isArray(latestCompanies.companies)) return;
+                latestCompanies.companies = latestCompanies.companies.map((item) => item._id === company._id ? company : item);
+                renderCompanies(latestCompanies, latestPipeline);
+            });
+
+            socket.on('telemetry:update', (payload) => {
+                latestPipeline = payload.pipeline || latestPipeline;
+                if (latestCompanies) renderCompanies(latestCompanies, latestPipeline);
+            });
         } catch(e) {
             console.error(e);
             document.getElementById("companies-grid").innerHTML = '<div class="col-span-full p-12 text-center text-error">Failed to load companies.</div>';
-        } finally {
-            isFetching = false;
         }
     }
 
     document.addEventListener("DOMContentLoaded", () => {
-        fetchCompanies();
-        setInterval(fetchCompanies, 5000);
+        initCompaniesSocket();
     });
 </script>
 

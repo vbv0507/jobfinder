@@ -7,6 +7,8 @@ const addCompany = async (req, res) => {
     try {
         const company = await Company.create(req.body);
         await logAuditAction(req, 'Company Edit', `Added ${company.name}`);
+        const socketService = require("../services/socketService");
+        socketService.emitCompanySnapshot().catch(error => console.error("[Socket] Failed to emit companies:update:", error.message));
 
         res.status(201).json({
             success: true,
@@ -50,6 +52,8 @@ const seedCompanyList = async (req, res) => {
         await seedCompanies();
         const companies = await Company.find();
         await logAuditAction(req, 'Company Edit', `Seeded ${companies.length} companies`);
+        const socketService = require("../services/socketService");
+        socketService.emitCompanySnapshot().catch(error => console.error("[Socket] Failed to emit companies:update:", error.message));
 
         res.status(200).json({
             success: true,

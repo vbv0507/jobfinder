@@ -49,7 +49,11 @@
     </div>
 </div>
 
-<script>
+<script type="module">
+    import { createSocket } from '/js/modules/socketClient.js';
+
+    let socket = null;
+
     document.getElementById('forceRefreshToggle')?.addEventListener('change', function(e) {
         if (this.checked) {
             alert('Force Refresh Enabled: Use the Run Pipeline button to bypass cache.');
@@ -62,7 +66,6 @@
                 const btn = document.getElementById('btnClearCache');
                 btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i> Clearing...';
                 await fetch('/api/system/cache/clear', { method: 'POST' });
-                fetchCacheMetrics();
                 btn.innerHTML = '<i class="fa-solid fa-trash mr-2"></i> Clear Global Cache';
             } catch (e) {
                 alert("Failed to clear cache.");
@@ -70,32 +73,19 @@
         }
     });
 
-    async function fetchCacheMetrics() {
-        try {
-            const res = await fetch('/api/system/live');
-            const data = await res.json();
-            
-            if (data && data.metrics) {
-                const metrics = data.metrics;
-                const cached = metrics["Cached Companies"] || 0;
-                const scraped = metrics["Actually Scraped"] || 0;
-                const hitRate = (cached + scraped > 0) ? Math.round((cached / (cached + scraped)) * 100) : 0;
-                
-                document.getElementById('cache-hit').innerText = hitRate + '%';
-                document.getElementById('cache-ttl').innerText = '--'; // Missing from unified API
-                document.getElementById('cache-companies').innerText = cached;
-                document.getElementById('total-companies').innerText = (data.pipeline && data.pipeline.totalCompanies) ? data.pipeline.totalCompanies : (cached + scraped);
-                
-                document.getElementById('cache-savings').innerText = '--'; // Missing from unified API
-            }
-        } catch (e) {
-            console.error("Failed to load cache metrics", e);
-        }
+    function renderCacheMetrics(cache) {
+        if (!cache) return;
+        document.getElementById('cache-hit').innerText = (cache.hitRate || 0) + '%';
+        document.getElementById('cache-ttl').innerText = cache.ttl || '12 Hours';
+        document.getElementById('cache-companies').innerText = cache.cachedCompanies || 0;
+        document.getElementById('total-companies').innerText = cache.totalCompanies || 0;
+        document.getElementById('cache-savings').innerText = ((cache.cacheSavings || 0) / 1000).toFixed(1) + 's';
     }
 
-    document.addEventListener("DOMContentLoaded", () => {
-        fetchCacheMetrics();
-        setInterval(fetchCacheMetrics, 5000);
+    document.addEventListener("DOMContentLoaded", async () => {
+        socket = await createSocket();
+        socket.on('dashboard:init', (payload) => renderCacheMetrics(payload.cache));
+        socket.on('cache:update', renderCacheMetrics);
     });
 </script>
 

@@ -30,88 +30,66 @@
 
 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
     <div class="bg-surface border border-border rounded-xl p-5 shadow-sm">
-        <h3 class="text-sm font-medium text-textMain mb-4">Top AI Skills Identified</h3>
-        <div class="space-y-3">
-            <div class="flex items-center justify-between text-sm">
-                <span class="text-textMuted">Node.js</span>
-                <span class="text-textMain font-medium">85% Match</span>
-            </div>
-            <div class="w-full bg-background rounded-full h-1.5 border border-border">
-                <div class="bg-primary h-1.5 rounded-full" style="width: 85%"></div>
-            </div>
-            
-            <div class="flex items-center justify-between text-sm mt-4">
-                <span class="text-textMuted">React</span>
-                <span class="text-textMain font-medium">72% Match</span>
-            </div>
-            <div class="w-full bg-background rounded-full h-1.5 border border-border">
-                <div class="bg-primary h-1.5 rounded-full" style="width: 72%"></div>
-            </div>
-
-            <div class="flex items-center justify-between text-sm mt-4">
-                <span class="text-textMuted">Python</span>
-                <span class="text-textMain font-medium">40% Match</span>
-            </div>
-            <div class="w-full bg-background rounded-full h-1.5 border border-border">
-                <div class="bg-primary h-1.5 rounded-full" style="width: 40%"></div>
-            </div>
+        <h3 class="text-sm font-medium text-textMain mb-4">Provider Usage</h3>
+        <div id="ai-provider-usage" class="space-y-3">
+            <p class="text-textMuted text-sm">Waiting for analytics stream...</p>
         </div>
     </div>
-    
+
     <div class="bg-surface border border-border rounded-xl p-5 shadow-sm">
         <h3 class="text-sm font-medium text-textMain mb-4">Model Usage Ratio</h3>
-        <div class="flex items-center gap-4 mt-6">
-            <div class="w-24 h-24 rounded-full border-4 border-primary border-t-warning border-l-warning flex items-center justify-center">
-                <span class="text-xs font-bold text-textMain">98%</span>
-            </div>
-            <div class="space-y-2">
-                <div class="flex items-center gap-2">
-                    <span class="w-3 h-3 rounded bg-primary"></span>
-                    <span class="text-sm text-textMuted">Gemini Flash (98%)</span>
-                </div>
-                <div class="flex items-center gap-2">
-                    <span class="w-3 h-3 rounded bg-warning"></span>
-                    <span class="text-sm text-textMuted">Groq LLaMA (2%)</span>
-                </div>
-            </div>
+        <div id="ai-model-ratio" class="flex items-center gap-4 mt-6">
+            <p class="text-textMuted text-sm">Waiting for analytics stream...</p>
         </div>
     </div>
 </div>
 
-<script>
-    async function fetchAiMetrics() {
-        try {
-            const res = await fetch('/api/system/live');
-            if (!res.ok) return;
-            const data = await res.json();
-            const metrics = data.metrics || {};
-            
-            document.getElementById('ai-count').innerText = metrics["AI Evaluations"] || 0;
-            
-            const matchPct = metrics["AI Evaluations"] > 0 ? Math.round((metrics["Matched Jobs"] / metrics["AI Evaluations"]) * 100) : 0;
-            document.getElementById('ai-score').innerText = matchPct + '%';
-            
-            document.getElementById('ai-time').innerText = ((metrics["Average AI Time"] || 0) / 1000).toFixed(1) + 's';
-            
-            // For fallback, we don't have it directly in metrics endpoint yet without expanding Provider Usage, but this is a mockup connection.
-            const providers = metrics["Provider Usage"] || [];
-            let groqUsage = 0;
-            let geminiUsage = 0;
-            providers.forEach(p => {
-                if (p._id === 'groq') groqUsage = p.count;
-                if (p._id === 'gemini') geminiUsage = p.count;
-            });
-            const total = groqUsage + geminiUsage;
-            const groqPct = total > 0 ? ((groqUsage / total) * 100).toFixed(1) : 0;
-            
-            document.getElementById('ai-fallback').innerText = groqPct + '%';
-        } catch(e) {
-            console.error(e);
-        }
+<script type="module">
+    import { createSocket } from '/js/modules/socketClient.js';
+
+    function renderAiMetrics(data) {
+        const metrics = data.metrics || {};
+        const aiMetrics = data.aiMetrics || {};
+        const providers = aiMetrics.providerStats || [];
+        const totalProviders = providers.reduce((sum, provider) => sum + (provider.count || 0), 0);
+
+        document.getElementById('ai-count').innerText = metrics["AI Evaluations"] || totalProviders || 0;
+
+        const matchPct = metrics["AI Evaluations"] > 0 ? Math.round((metrics["Matched Jobs"] / metrics["AI Evaluations"]) * 100) : 0;
+        document.getElementById('ai-score').innerText = matchPct + '%';
+        document.getElementById('ai-time').innerText = ((aiMetrics.averageEvaluationTimeMs || metrics["Average AI Time"] || 0) / 1000).toFixed(1) + 's';
+        document.getElementById('ai-fallback').innerText = (aiMetrics.fallbackPercentage || 0) + '%';
+
+        document.getElementById('ai-provider-usage').innerHTML = providers.length
+            ? providers.map((provider) => {
+                const pct = totalProviders > 0 ? Math.round(((provider.count || 0) / totalProviders) * 100) : 0;
+                return `
+                    <div>
+                        <div class="flex items-center justify-between text-sm">
+                            <span class="text-textMuted">${provider._id || 'unknown'}</span>
+                            <span class="text-textMain font-medium">${pct}% (${provider.count || 0})</span>
+                        </div>
+                        <div class="w-full bg-background rounded-full h-1.5 border border-border mt-2">
+                            <div class="bg-primary h-1.5 rounded-full" style="width: ${pct}%"></div>
+                        </div>
+                    </div>`;
+            }).join('')
+            : '<p class="text-textMuted text-sm">No AI provider data yet.</p>';
+
+        document.getElementById('ai-model-ratio').innerHTML = providers.length
+            ? providers.map((provider) => `
+                <div class="flex items-center gap-2">
+                    <span class="w-3 h-3 rounded bg-primary"></span>
+                    <span class="text-sm text-textMuted">${provider._id || 'unknown'} (${provider.count || 0})</span>
+                </div>
+            `).join('')
+            : '<p class="text-textMuted text-sm">No model usage yet.</p>';
     }
-    document.addEventListener("DOMContentLoaded", () => {
-        fetchAiMetrics();
-        setInterval(fetchAiMetrics, 5000);
+
+    document.addEventListener("DOMContentLoaded", async () => {
+        const socket = await createSocket();
+        socket.on('dashboard:init', (payload) => renderAiMetrics(payload.analytics || payload));
+        socket.on('analytics:update', renderAiMetrics);
     });
 </script>
 

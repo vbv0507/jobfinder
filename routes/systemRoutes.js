@@ -113,6 +113,16 @@ router.get('/timeline', requireAdmin, async (req, res) => {
     }
 });
 
+router.get('/live', requireViewer, async (req, res) => {
+    try {
+        const socketService = require('../services/socketService');
+        const payload = await socketService.buildDashboardPayload();
+        res.json({ success: true, ...payload });
+    } catch (e) {
+        res.status(500).json({ success: false, error: e.message });
+    }
+});
+
 // New Endpoints
 router.post('/pipeline/stop', requireAdmin, async (req, res) => {
     try {
@@ -163,6 +173,10 @@ router.post('/cache/clear', requireAdmin, async (req, res) => {
     try {
         const Company = require('../models/Company');
         await Company.updateMany({}, { $set: { lastScrapedAt: null } });
+        const socketService = require('../services/socketService');
+        const cache = await socketService.buildCachePayload();
+        socketService.broadcast("cache:update", cache);
+        socketService.emitDashboardSnapshot().catch(error => console.error("[Socket] Failed to refresh dashboard after cache clear:", error.message));
         res.json({ success: true, message: "Global cache cleared successfully." });
     } catch (e) {
         res.status(500).json({ success: false, error: e.message });

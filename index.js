@@ -2,6 +2,7 @@ require("./utils/logger"); // Initialize structured logging globally
 require("dotenv").config();
 
 const express = require("express");
+const http = require("http");
 const helmet = require("helmet");
 const compression = require("compression");
 const cookieParser = require("cookie-parser");
@@ -208,11 +209,12 @@ const startServer = async () => {
         runSearch("Startup").catch(e => console.error("Startup search failed:", e));
     }
 
-    const server = app.listen(PORT, () => {
+    const server = http.createServer(app);
+    socketService.init(server);
+
+    server.listen(PORT, () => {
         console.log(`Server running on port ${PORT}`);
     });
-
-    socketService.init(server);
 
     
     await startTelegramListener();

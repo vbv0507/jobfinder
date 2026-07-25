@@ -12,33 +12,35 @@
     </div>
 </div>
 
-<script>
-    async function loadChannels() {
-        try {
-            const res = await fetch('/api/telegram/channels');
-            const data = await res.json();
-            const list = document.getElementById('channelsList');
-            if (data.success && data.channels.length > 0) {
-                list.innerHTML = data.channels.map(c => `
-                    <div class="flex items-center justify-between p-4 bg-background border border-border rounded-lg">
-                        <div class="flex items-center gap-3">
-                            <i class="fa-brands fa-telegram text-primary text-xl"></i>
-                            <div>
-                                <p class="font-medium text-textMain">${c.channelName || c.chatId}</p>
-                                <p class="text-xs text-textMuted">Chat ID: ${c.chatId}</p>
-                            </div>
+<script type="module">
+    import { createSocket } from '/js/modules/socketClient.js';
+
+    function renderChannels(data) {
+        const list = document.getElementById('channelsList');
+        const channels = data.channels || [];
+        if (channels.length > 0) {
+            list.innerHTML = channels.map(c => `
+                <div class="flex items-center justify-between p-4 bg-background border border-border rounded-lg">
+                    <div class="flex items-center gap-3">
+                        <i class="fa-brands fa-telegram text-primary text-xl"></i>
+                        <div>
+                            <p class="font-medium text-textMain">${c.name || c.channelName || c.username}</p>
+                            <p class="text-xs text-textMuted">Channel: ${c.username || c.chatId}</p>
                         </div>
-                        <span class="bg-success/10 text-success text-xs font-bold px-2 py-1 rounded-full uppercase">Active</span>
                     </div>
-                `).join('');
-            } else {
-                list.innerHTML = `<p class="text-textMuted text-sm">No channels connected.</p>`;
-            }
-        } catch (e) {
-            console.error(e);
+                    <span class="bg-success/10 text-success text-xs font-bold px-2 py-1 rounded-full uppercase">${c.status || 'Active'}</span>
+                </div>
+            `).join('');
+        } else {
+            list.innerHTML = `<p class="text-textMuted text-sm">No channels connected.</p>`;
         }
     }
-    document.addEventListener("DOMContentLoaded", loadChannels);
+
+    document.addEventListener("DOMContentLoaded", async () => {
+        const socket = await createSocket();
+        socket.on('dashboard:init', (payload) => renderChannels(payload.telegram || {}));
+        socket.on('telegram:update', renderChannels);
+    });
 </script>
 
 <%- include('../layouts/footer') %>

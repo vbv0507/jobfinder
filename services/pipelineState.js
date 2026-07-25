@@ -43,7 +43,7 @@ class PipelineStateManager {
         this.currentStage = "STARTING";
         this.statusText = "Pipeline Started";
         this.addLog("INFO", "Pipeline Started");
-        socketService.broadcast("pipeline:started");
+        socketService.broadcast("pipeline:started", { runId });
         this.emitUpdate();
     }
 
@@ -66,8 +66,9 @@ class PipelineStateManager {
         this.statusText = "Pipeline Finished";
         this.progress = "100%";
         this.addLog("SUCCESS", "Pipeline Finished");
-        socketService.broadcast("pipeline:finished");
+        socketService.broadcast("pipeline:finished", { runId: this.runId, elapsedTime: this.elapsedTime });
         this.emitUpdate();
+        socketService.emitDashboardSnapshot().catch(error => console.error("[Socket] Failed to refresh dashboard after finish:", error.message));
     }
 
     fail(errorMsg) {
@@ -88,7 +89,7 @@ class PipelineStateManager {
         this.cancelRequested = true;
         this.statusText = "Cancellation Requested...";
         this.addLog("WARNING", "Cancellation Requested");
-        socketService.broadcast("pipeline:stopped");
+        socketService.broadcast("pipeline:stopped", { runId: this.runId });
         this.emitUpdate();
     }
 
@@ -102,8 +103,9 @@ class PipelineStateManager {
         this.currentStage = "CANCELLED";
         this.statusText = "Pipeline Cancelled";
         this.addLog("WARNING", "Pipeline Cancelled");
-        socketService.broadcast("pipeline:stopped");
+        socketService.broadcast("pipeline:stopped", { runId: this.runId, elapsedTime: this.elapsedTime });
         this.emitUpdate();
+        socketService.emitDashboardSnapshot().catch(error => console.error("[Socket] Failed to refresh dashboard after cancel:", error.message));
     }
 
     addLog(level, message) {
@@ -141,7 +143,36 @@ class PipelineStateManager {
     
     emitUpdate() {
         socketService.broadcast("telemetry:update", {
-            pipeline: this,
+            pipeline: {
+                running: this.running,
+                cancelRequested: this.cancelRequested,
+                runId: this.runId,
+                startTime: this.startTime,
+                endTime: this.endTime,
+                elapsedTime: this.elapsedTime,
+                currentStage: this.currentStage,
+                currentCompany: this.currentCompany,
+                activeCompanies: this.activeCompanies,
+                companyIndex: this.companyIndex,
+                totalCompanies: this.totalCompanies,
+                jobsFound: this.jobsFound || this.jobsScraped || 0,
+                jobsSaved: this.jobsSaved,
+                matchedJobs: this.matchedJobs || this.jobsMatched || 0,
+                aiEvaluated: this.aiEvaluated || this.jobsEvaluated || 0,
+                currentATS: this.currentATS,
+                currentURL: this.currentURL,
+                currentModel: this.currentModel,
+                retryCount: this.retryCount,
+                parserErrors: this.parserErrors,
+                cloudflareBlocks: this.cloudflareBlocks,
+                cacheHits: this.cacheHits,
+                cacheMisses: this.cacheMisses,
+                progress: this.progress,
+                statusText: this.statusText,
+                logs: this.logs,
+                timeline: this.timeline,
+                nextRunTime: this.nextRunTime
+            },
             activeBrowserCount: this.activeCompanies ? this.activeCompanies.length : 0,
             queueSize: this.totalCompanies - (this.companyIndex || 0),
             jobsFound: this.jobsFound,
