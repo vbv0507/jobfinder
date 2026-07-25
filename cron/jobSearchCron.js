@@ -224,6 +224,7 @@ const runSearch = async (triggerSource = "Unknown", forceRefresh = false) => {
     });
 
     stats.companiesScanned = companiesToScrape.length;
+    pipelineState.cachedCompanies = stats.cachedCompanies;
 
     // Use p-limit for concurrent scraping (max 8 companies at a time)
     const { default: pLimit } = await import('p-limit');

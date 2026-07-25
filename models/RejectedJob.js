@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 
-const matchedJobSchema = new mongoose.Schema({
+const rejectedJobSchema = new mongoose.Schema({
     rawJob: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "RawJob"
@@ -119,11 +119,11 @@ const matchedJobSchema = new mongoose.Schema({
 
 }, { timestamps: true });
 
-matchedJobSchema.index({ rawJob: 1 }, { unique: true });
-matchedJobSchema.index({ score: -1 });
-matchedJobSchema.index({ applied: 1, appliedAt: -1 });
+rejectedJobSchema.index({ rawJob: 1 }, { unique: true });
+rejectedJobSchema.index({ score: -1 });
+rejectedJobSchema.index({ applied: 1, appliedAt: -1 });
 
 module.exports = mongoose.model(
-    "MatchedJob",
-    matchedJobSchema
+    "RejectedJob",
+    rejectedJobSchema
 );

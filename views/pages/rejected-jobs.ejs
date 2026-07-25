@@ -28,8 +28,8 @@
                     <tr>
                         <th class="px-6 py-4 text-xs font-semibold text-textMuted uppercase tracking-wider">Role & Company</th>
                         <th class="px-6 py-4 text-xs font-semibold text-textMuted uppercase tracking-wider">Score</th>
-                        <th class="px-6 py-4 text-xs font-semibold text-textMuted uppercase tracking-wider">Location</th>
-                        <th class="px-6 py-4 text-xs font-semibold text-textMuted uppercase tracking-wider text-right">Actions</th>
+                        <th class="px-6 py-4 text-xs font-semibold text-textMuted uppercase tracking-wider">Missing Skills</th>
+                        <th class="px-6 py-4 text-xs font-semibold text-textMuted uppercase tracking-wider text-right">Reason</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-border text-sm" id="jobsTableBody">
@@ -69,70 +69,24 @@
                                     </span>
                                 </div>
                             </td>
-                            <td class="md:px-6 md:py-4 text-textMuted flex items-center justify-between md:table-cell mb-4 md:mb-0">
-                                <span class="md:hidden text-xs font-medium uppercase">Location</span>
-                                <span><%= job.location || 'Remote' %></span>
-                            </td>
-                            <td class="md:px-6 md:py-4 text-right flex justify-end gap-2 md:table-cell">
-                                <div class="flex justify-end gap-2">
-                                    <button onclick="toggleRow('row-<%= job._id %>')" class="bg-surface hover:bg-surfaceHover text-textMuted border border-border px-3 py-1.5 rounded-md transition-colors" title="Quick View">
-                                        <i class="fa-solid fa-chevron-down text-xs"></i>
-                                    </button>
-                                    <a href="/job/<%= job._id %>" class="bg-primary/10 text-primary hover:bg-primary hover:text-white px-3 py-1.5 rounded-md text-sm font-medium transition-colors">Details</a>
-                                    
-                                    <% if(job.status !== 'saved') { %>
-                                        <button onclick="updateStatus('<%= job._id %>', 'saved')" class="bg-surface hover:bg-primary/20 hover:text-primary text-textMuted border border-border px-3 py-1.5 rounded-md transition-colors" title="Save for later">
-                                            <i class="fa-regular fa-bookmark"></i>
-                                        </button>
-                                    <% } %>
-                                    
-                                    <% if(job.status !== 'applied') { %>
-                                        <button onclick="updateStatus('<%= job._id %>', 'applied')" class="bg-surface hover:bg-success/20 hover:text-success text-textMuted border border-border px-3 py-1.5 rounded-md transition-colors" title="Mark as applied">
-                                            <i class="fa-solid fa-check"></i>
-                                        </button>
-                                    <% } %>
-                                    
-                                    <% if(job.status !== 'rejected') { %>
-                                        <button onclick="updateStatus('<%= job._id %>', 'rejected')" class="bg-surface hover:bg-error/20 hover:text-error text-textMuted border border-border px-3 py-1.5 rounded-md transition-colors" title="Reject">
-                                            <i class="fa-solid fa-times"></i>
-                                        </button>
+                            <td class="md:px-6 md:py-4 text-textMuted flex flex-col md:table-cell mb-4 md:mb-0">
+                                <span class="md:hidden text-xs font-medium uppercase mb-1">Missing Skills</span>
+                                <div class="flex flex-wrap gap-1">
+                                    <% if (job.missingSkills && job.missingSkills.length > 0) { %>
+                                        <% job.missingSkills.slice(0, 3).forEach(skill => { %>
+                                            <span class="px-2 py-0.5 bg-error/10 text-error text-[10px] rounded border border-error/20 whitespace-nowrap"><%= skill %></span>
+                                        <% }) %>
+                                        <% if (job.missingSkills.length > 3) { %>
+                                            <span class="px-2 py-0.5 bg-surfaceHover text-textMuted text-[10px] rounded border border-border whitespace-nowrap">+<%= job.missingSkills.length - 3 %></span>
+                                        <% } %>
+                                    <% } else { %>
+                                        <span class="text-xs italic text-textMuted">None specified</span>
                                     <% } %>
                                 </div>
                             </td>
-                        </tr>
-                        <!-- Expanded AI Reasoning Row -->
-                        <tr id="row-<%= job._id %>" class="hidden bg-surfaceHover border-b border-border text-sm">
-                            <td colspan="4" class="p-4">
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div>
-                                        <p class="text-xs font-semibold text-success uppercase mb-2"><i class="fa-solid fa-thumbs-up"></i> Strengths</p>
-                                        <ul class="text-xs text-textMain space-y-1">
-                                            <% if (job.strengths && job.strengths.length > 0) { %>
-                                                <% job.strengths.slice(0, 3).forEach(s => { %>
-                                                    <li>• <%= s %></li>
-                                                <% }) %>
-                                                <% if (job.strengths.length > 3) { %>
-                                                    <li class="text-textMuted italic">...and <%= job.strengths.length - 3 %> more</li>
-                                                <% } %>
-                                            <% } else { %>
-                                                <li class="text-textMuted italic">None specified</li>
-                                            <% } %>
-                                        </ul>
-                                    </div>
-                                    <div>
-                                        <p class="text-xs font-semibold text-warning uppercase mb-2"><i class="fa-solid fa-thumbs-down"></i> Weaknesses / Missing</p>
-                                        <div class="flex flex-wrap gap-1 mb-2">
-                                            <% if (job.missingSkills && job.missingSkills.length > 0) { %>
-                                                <% job.missingSkills.slice(0, 4).forEach(skill => { %>
-                                                    <span class="px-2 py-0.5 bg-warning/10 text-warning text-[10px] rounded border border-warning/20 whitespace-nowrap"><%= skill %></span>
-                                                <% }) %>
-                                            <% } else { %>
-                                                <span class="text-xs italic text-textMuted">None specified</span>
-                                            <% } %>
-                                        </div>
-                                        <p class="text-xs text-textMuted line-clamp-2"><%= job.reason || job.recommendation || 'No detailed reason provided.' %></p>
-                                    </div>
-                                </div>
+                            <td class="md:px-6 md:py-4 text-right flex flex-col md:table-cell md:text-right mb-2 md:mb-0 max-w-xs">
+                                <span class="md:hidden text-xs font-medium uppercase mb-1 text-left">Reason</span>
+                                <span class="text-xs text-textMuted md:truncate block" title="<%= job.reason || 'Not suitable' %>"><%= job.reason || 'Not suitable' %></span>
                             </td>
                         </tr>
                     <% }); %>
@@ -168,16 +122,6 @@ async function updateStatus(id, status) {
         if(res.ok) window.location.reload();
     } catch (e) {
         console.error(e);
-    }
-}
-function toggleRow(rowId) {
-    let row = document.getElementById(rowId);
-    if (row.classList.contains("hidden")) {
-        row.classList.remove("hidden");
-        row.classList.add("table-row"); // or 'block' for flex cards
-    } else {
-        row.classList.add("hidden");
-        row.classList.remove("table-row");
     }
 }
 </script>

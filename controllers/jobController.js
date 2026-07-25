@@ -45,6 +45,25 @@ const getMatchedJobs = async (req, res) => {
     }
 };
 
+const getRejectedJobs = async (req, res) => {
+    try {
+        const RejectedJob = require("../models/RejectedJob");
+        const jobs = await RejectedJob.find()
+            .populate("company", "name logo domain")
+            .populate("rawJob")
+            .sort({ score: -1, lastScrapedAt: -1 })
+            .lean();
+
+        res.status(200).json({
+            success: true,
+            count: jobs.length,
+            jobs,
+        });
+    } catch (error) {
+        sendError(res, error);
+    }
+};
+
 const getGroupedJobs = async (req, res) => {
     try {
         const jobs = await generateGroupedReport();
@@ -176,6 +195,7 @@ module.exports = {
     getGroupedJobs,
     getCompleteJobs,
     getReport,
+    getRejectedJobs,
     runJobSearch,
     stopJobSearch,
     updateJobStatus,

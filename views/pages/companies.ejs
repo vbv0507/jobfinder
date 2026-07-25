@@ -123,13 +123,13 @@
                                       ? c.latestExecutionTimeline.map(t => {
                                           const color = t.severity === 'ERROR' ? 'text-error' : (t.severity === 'WARN' ? 'text-warning' : (t.severity === 'SUCCESS' ? 'text-success' : 'text-textMuted'));
                                           const time = new Date(t.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-                                          return \`<div class="relative">
+                                          return `<div class="relative">
                                               <div class="absolute -left-[17px] top-1.5 h-1.5 w-1.5 rounded-full bg-border ring-2 ring-surface"></div>
                                               <div class="flex flex-col">
-                                                  <span class="font-mono text-[10px] text-textMuted">\${time} &middot; \${t.stage}</span>
-                                                  <span class="\${color} break-words leading-relaxed mt-0.5">\${t.message}</span>
+                                                  <span class="font-mono text-[10px] text-textMuted">${time} &middot; ${t.stage}</span>
+                                                  <span class="${color} break-words leading-relaxed mt-0.5">${t.message}</span>
                                               </div>
-                                          </div>\`;
+                                          </div>`;
                                       }).join('') 
                                       : '<p class="text-textMuted">No recent logs.</p>'}
                                 </div>
@@ -143,11 +143,32 @@
     }
 
     async function initCompaniesSocket() {
+        let latestCompanies = null;
+        let latestPipeline = null;
+        
+        // Start fallback timer immediately, before any awaits
+        const fallbackTimer = setTimeout(async () => {
+            if (!latestCompanies) {
+                try {
+                    console.log("[Companies] Socket/Clerk took too long, falling back to REST /api/companies...");
+                    const response = await fetch('/api/companies');
+                    const data = await response.json();
+                    if (data.success && data.companies && !latestCompanies) { // check again to avoid race condition
+                        latestCompanies = data;
+                        renderCompanies(latestCompanies, latestPipeline);
+                    }
+                } catch(e) {
+                    console.error('REST fallback failed:', e);
+                    if (!latestCompanies) {
+                        document.getElementById("companies-grid").innerHTML = '<div class="col-span-full p-12 text-center text-error">Failed to load companies.</div>';
+                    }
+                }
+            }
+        }, 2000);
+
         try {
             const { createSocket } = await import('/js/modules/socketClient.js');
             const socket = await createSocket();
-            let latestCompanies = null;
-            let latestPipeline = null;
 
             socket.on('dashboard:init', (payload) => {
                 latestPipeline = payload.pipeline || latestPipeline;
@@ -180,26 +201,9 @@
 
             // Force a refresh immediately after binding listeners
             socket.emit('dashboard:refresh');
-
-            setTimeout(async () => {
-                if (!latestCompanies) {
-                    try {
-                        console.log("[Companies] Socket took too long, falling back to REST /api/companies...");
-                        const response = await fetch('/api/companies');
-                        const data = await response.json();
-                        if (data.success && data.companies) {
-                            latestCompanies = { companies: data.companies };
-                            renderCompanies(latestCompanies, latestPipeline);
-                        }
-                    } catch(e) {
-                        console.error('REST fallback failed:', e);
-                        document.getElementById("companies-grid").innerHTML = '<div class="col-span-full p-12 text-center text-error">Failed to load companies.</div>';
-                    }
-                }
-            }, 3000);
         } catch(e) {
-            console.error(e);
-            document.getElementById("companies-grid").innerHTML = '<div class="col-span-full p-12 text-center text-error">Failed to load companies.</div>';
+            console.error("Socket initialization error:", e);
+            // The REST fallback timer is already running and will handle data loading
         }
     }
 

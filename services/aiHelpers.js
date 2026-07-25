@@ -96,6 +96,10 @@ Return ONLY valid JSON using this exact schema. DO NOT return markdown, explanat
   "skillOverlapPercentage": 0,
   "matchedSkills": ["Skill 1", "Skill 2"],
   "missingSkills": ["Missing Skill 1", "Missing Skill 2"],
+  "strengths": ["Strong domain knowledge", "Meets experience requirements"],
+  "weaknesses": ["Lacks cloud experience", "No mention of Redis"],
+  "mandatoryRequirements": ["Must have 5+ years experience", "Must know Kubernetes"],
+  "optionalRequirements": ["Nice to have AWS", "Nice to have React"],
   "reasonsFor": ["Reason 1 FOR candidate", "Reason 2 FOR candidate"],
   "reasonsAgainst": ["Reason 1 AGAINST candidate", "Reason 2 AGAINST candidate"],
   "primaryReasons": ["Combined reasoning point 1", "Combined reasoning point 2"],
@@ -175,6 +179,10 @@ const validateAiResponse = (parsed, providerName) => {
     // Ensure new fields have defaults
     parsed.matchedSkills = Array.isArray(parsed.matchedSkills) ? parsed.matchedSkills : [];
     parsed.missingSkills = Array.isArray(parsed.missingSkills) ? parsed.missingSkills : [];
+    parsed.strengths = Array.isArray(parsed.strengths) ? parsed.strengths : [];
+    parsed.weaknesses = Array.isArray(parsed.weaknesses) ? parsed.weaknesses : [];
+    parsed.mandatoryRequirements = Array.isArray(parsed.mandatoryRequirements) ? parsed.mandatoryRequirements : [];
+    parsed.optionalRequirements = Array.isArray(parsed.optionalRequirements) ? parsed.optionalRequirements : [];
     parsed.reasonsFor = Array.isArray(parsed.reasonsFor) ? parsed.reasonsFor : [];
     parsed.reasonsAgainst = Array.isArray(parsed.reasonsAgainst) ? parsed.reasonsAgainst : [];
     parsed.primaryReasons = Array.isArray(parsed.primaryReasons) ? parsed.primaryReasons : [];

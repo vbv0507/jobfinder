@@ -4,6 +4,7 @@ const {
     getRawJobs,
     getMatchedJobs,
     getGroupedJobs,
+    getRejectedJobs,
     getCompleteJobs,
     getReport,
     runJobSearch,
@@ -18,6 +19,7 @@ const router = express.Router();
 
 router.get("/raw", requireViewer, getRawJobs);
 router.get("/matched", requireViewer, getMatchedJobs);
+router.get("/rejected", requireViewer, getRejectedJobs);
 router.get("/grouped", requireViewer, getGroupedJobs);
 router.get("/complete", requireViewer, getCompleteJobs);
 router.get("/report", requireViewer, getReport);

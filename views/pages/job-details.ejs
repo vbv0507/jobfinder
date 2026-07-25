@@ -79,33 +79,102 @@
                 </div>
             </div>
 
-            <div class="bg-background rounded-lg p-5 border border-border space-y-5">
-                <div>
-                    <h4 class="text-xs font-semibold text-textMuted uppercase tracking-wider mb-2 flex items-center gap-2"><i class="fa-solid fa-align-left"></i> Domain Alignment</h4>
-                    <p class="text-textMain text-sm leading-relaxed"><%= job.domainExplanation || 'No domain explanation provided.' %></p>
-                </div>
-                <div>
-                    <h4 class="text-xs font-semibold text-textMuted uppercase tracking-wider mb-2 flex items-center gap-2"><i class="fa-solid fa-list-ul"></i> Primary Reasons</h4>
-                    <ul class="list-disc list-inside text-textMain space-y-1 text-sm">
-                        <% if(job.primaryReasons && job.primaryReasons.length > 0) { %>
-                            <% job.primaryReasons.forEach(function(r) { %>
-                                <li><%= r %></li>
-                            <% }) %>
-                        <% } else { %>
-                            <li><%= job.reason %></li>
-                        <% } %>
-                    </ul>
-                </div>
-                <% if(job.missingSkills && job.missingSkills.length > 0) { %>
+            <div class="bg-background rounded-lg p-5 border border-border space-y-6">
+                <!-- Strengths & Weaknesses -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
-                        <h4 class="text-xs font-semibold text-warning uppercase tracking-wider mb-2 flex items-center gap-2"><i class="fa-solid fa-triangle-exclamation"></i> Missing Skills</h4>
+                        <h4 class="text-xs font-semibold text-success uppercase tracking-wider mb-3 flex items-center gap-2"><i class="fa-solid fa-thumbs-up"></i> Profile Strengths</h4>
+                        <ul class="space-y-2">
+                            <% if(job.strengths && job.strengths.length > 0) { %>
+                                <% job.strengths.forEach(function(s) { %>
+                                    <li class="text-sm text-textMain flex items-start gap-2"><i class="fa-solid fa-check text-success mt-1 text-xs"></i> <span><%= s %></span></li>
+                                <% }) %>
+                            <% } else { %>
+                                <li class="text-sm text-textMuted italic">No specific strengths identified.</li>
+                            <% } %>
+                        </ul>
+                    </div>
+                    <div>
+                        <h4 class="text-xs font-semibold text-warning uppercase tracking-wider mb-3 flex items-center gap-2"><i class="fa-solid fa-thumbs-down"></i> Profile Weaknesses</h4>
+                        <ul class="space-y-2">
+                            <% if(job.weaknesses && job.weaknesses.length > 0) { %>
+                                <% job.weaknesses.forEach(function(w) { %>
+                                    <li class="text-sm text-textMain flex items-start gap-2"><i class="fa-solid fa-xmark text-warning mt-1 text-xs"></i> <span><%= w %></span></li>
+                                <% }) %>
+                            <% } else { %>
+                                <li class="text-sm text-textMuted italic">No specific weaknesses identified.</li>
+                            <% } %>
+                        </ul>
+                    </div>
+                </div>
+
+                <hr class="border-border border-dashed">
+
+                <!-- Skills Analysis -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <h4 class="text-xs font-semibold text-textMuted uppercase tracking-wider mb-3 flex items-center gap-2"><i class="fa-solid fa-bullseye"></i> Matched Skills</h4>
                         <div class="flex flex-wrap gap-2">
-                            <% job.missingSkills.forEach(function(s) { %>
-                                <span class="bg-warning/10 text-warning border border-warning/20 px-2 py-1 rounded text-xs"><%= s %></span>
-                            <% }) %>
+                            <% if(job.matchedSkills && job.matchedSkills.length > 0) { %>
+                                <% job.matchedSkills.forEach(function(s) { %>
+                                    <span class="bg-success/10 text-success border border-success/20 px-2 py-1 rounded-md text-xs font-medium"><%= s %></span>
+                                <% }) %>
+                            <% } else { %>
+                                <span class="text-sm text-textMuted italic">None found</span>
+                            <% } %>
                         </div>
                     </div>
-                <% } %>
+                    <div>
+                        <h4 class="text-xs font-semibold text-textMuted uppercase tracking-wider mb-3 flex items-center gap-2"><i class="fa-solid fa-triangle-exclamation"></i> Missing Skills</h4>
+                        <div class="flex flex-wrap gap-2">
+                            <% if(job.missingSkills && job.missingSkills.length > 0) { %>
+                                <% job.missingSkills.forEach(function(s) { %>
+                                    <span class="bg-error/10 text-error border border-error/20 px-2 py-1 rounded-md text-xs font-medium"><%= s %></span>
+                                <% }) %>
+                            <% } else { %>
+                                <span class="text-sm text-textMuted italic">None specified</span>
+                            <% } %>
+                        </div>
+                    </div>
+                </div>
+
+                <hr class="border-border border-dashed">
+
+                <!-- Requirements Mapping -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <h4 class="text-xs font-semibold text-textMuted uppercase tracking-wider mb-3 flex items-center gap-2"><i class="fa-solid fa-clipboard-list"></i> Mandatory Requirements</h4>
+                        <ul class="list-disc list-inside text-textMain space-y-1 text-sm">
+                            <% if(job.mandatoryRequirements && job.mandatoryRequirements.length > 0) { %>
+                                <% job.mandatoryRequirements.forEach(function(r) { %>
+                                    <li class="text-textMain"><%= r %></li>
+                                <% }) %>
+                            <% } else { %>
+                                <li class="text-textMuted italic">None extracted.</li>
+                            <% } %>
+                        </ul>
+                    </div>
+                    <div>
+                        <h4 class="text-xs font-semibold text-textMuted uppercase tracking-wider mb-3 flex items-center gap-2"><i class="fa-regular fa-clipboard"></i> Optional Requirements</h4>
+                        <ul class="list-disc list-inside text-textMain space-y-1 text-sm">
+                            <% if(job.optionalRequirements && job.optionalRequirements.length > 0) { %>
+                                <% job.optionalRequirements.forEach(function(r) { %>
+                                    <li class="text-textMuted"><%= r %></li>
+                                <% }) %>
+                            <% } else { %>
+                                <li class="text-textMuted italic">None extracted.</li>
+                            <% } %>
+                        </ul>
+                    </div>
+                </div>
+
+                <hr class="border-border border-dashed">
+
+                <!-- Deep Dive Reasoning -->
+                <div>
+                    <h4 class="text-xs font-semibold text-textMuted uppercase tracking-wider mb-2 flex items-center gap-2"><i class="fa-solid fa-align-left"></i> Detailed Recommendation</h4>
+                    <p class="text-textMain text-sm leading-relaxed"><%= job.recommendation || job.domainExplanation || job.reason || 'No detailed recommendation provided.' %></p>
+                </div>
             </div>
             
             <div class="mt-8">

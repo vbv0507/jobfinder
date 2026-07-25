@@ -1,6 +1,7 @@
 const crypto = require("crypto");
 const RawJob = require("../../models/RawJob");
 const MatchedJob = require("../../models/MatchedJob");
+const RejectedJob = require("../../models/RejectedJob");
 const SearchLog = require("../../models/SearchLog");
 const TelegramChannel = require("../../models/TelegramChannel");
 const { normalizeDate } = require("../../utils/dateNormalizer");
@@ -153,7 +154,50 @@ const saveMatchedJob = async (rawJob, company, job, analysis) => {
   rawJob.aiEvaluated = true;
 
   if (analysis.suitable !== true || score < MATCH_THRESHOLD) {
-    
+    await RejectedJob.findOneAndUpdate(
+      { rawJob: rawJob._id },
+      {
+        $set: {
+          rawJob: rawJob._id,
+          company: company._id,
+          role: job.title,
+          location: job.location,
+          score,
+          scoringBreakdown: analysis.scoringBreakdown || {},
+          confidence: analysis.confidence,
+          suitable: false,
+          reason: analysis.reason,
+          primaryReasons: analysis.primaryReasons || [],
+          matchedSkills: analysis.matchedSkills || [],
+          missingSkills: analysis.missingSkills || [],
+          strengths: analysis.strengths || [],
+          weaknesses: analysis.weaknesses || [],
+          mandatoryRequirements: analysis.mandatoryRequirements || [],
+          optionalRequirements: analysis.optionalRequirements || [],
+          domainMismatch: analysis.domainMismatch,
+          domainExplanation: analysis.domainExplanation || "",
+          experienceMismatch: analysis.experienceMismatch,
+          roleMatch: analysis.roleMatch,
+          experienceMatch: analysis.experienceMatch,
+          recommendation: analysis.recommendation,
+          applyLink: job.applyLink,
+          postedAt: job.postedAt,
+          evaluatedBy: analysis.evaluatedBy || "Gemini",
+          provider: analysis.provider || "gemini",
+          model: analysis.model || "unknown",
+          evaluationTimeMs: analysis.evaluationTimeMs || 0,
+          fallbackCount: analysis.fallbackCount || 0,
+          fallbackReason: analysis.fallbackReason || null,
+          lastScrapedAt: new Date(),
+          lastMetadataUpdate: new Date(),
+          lastAIEvaluation: new Date(),
+          isActive: true,
+          jobStatus: "Open",
+          providerChain: analysis.providerChain || []
+        }
+      },
+      { upsert: true }
+    );
     rawJob.aiMatched = false;
     await rawJob.save();
     return { matched: false, isDuplicate: false };
@@ -182,7 +226,12 @@ const saveMatchedJob = async (rawJob, company, job, analysis) => {
         suitable: true,
         reason: analysis.reason,
         primaryReasons: analysis.primaryReasons || [],
+        matchedSkills: analysis.matchedSkills || [],
         missingSkills: analysis.missingSkills || [],
+        strengths: analysis.strengths || [],
+        weaknesses: analysis.weaknesses || [],
+        mandatoryRequirements: analysis.mandatoryRequirements || [],
+        optionalRequirements: analysis.optionalRequirements || [],
         domainMismatch: analysis.domainMismatch,
         domainExplanation: analysis.domainExplanation || "",
         experienceMismatch: analysis.experienceMismatch,
