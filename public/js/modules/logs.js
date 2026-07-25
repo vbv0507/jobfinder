@@ -1,36 +1,41 @@
+// logs.js
+let socket = null;
+let allLogs = [];
+
 document.addEventListener('DOMContentLoaded', () => {
-    fetchLogs();
-    setInterval(fetchLogs, 1000);
+    initSocket();
 });
 
-let isFetching = false;
-async function fetchLogs() {
-    if (isFetching) return;
-    isFetching = true;
-    try {
-        const res = await fetch('/api/system/live');
-        if (!res.ok) return;
-        const data = await res.json();
-        
-        const logs = data.pipeline ? data.pipeline.timeline : [];
-        if (!logs || logs.length === 0) return;
-        
-        renderLogs(logs);
-    } catch (e) {
-        console.error("Failed to fetch logs:", e);
-    } finally {
-        isFetching = false;
+function initSocket() {
+    if (!window.io) {
+        console.error("Socket.IO not loaded!");
+        return;
     }
+
+    socket = io();
+
+    socket.on('dashboard:init', (payload) => {
+        if (payload.pipeline && payload.pipeline.logs) {
+            allLogs = [...payload.pipeline.logs];
+            renderLogs(allLogs);
+        }
+    });
+
+    socket.on('logs:new', (logEntry) => {
+        allLogs.unshift(logEntry);
+        if (allLogs.length > 500) allLogs.pop();
+        renderLogs(allLogs);
+    });
 }
 
 function renderLogs(logs) {
     const container = document.getElementById('logs-container');
+    if (!container) return;
     
     let html = '';
     
     // Reverse logs so oldest is at the top, or keep them as is depending on how UI expects it
     // The pipelineState prepends logs, so index 0 is newest.
-    // Usually log viewers show oldest at top and auto-scroll to bottom.
     const displayLogs = [...logs].reverse();
     
     displayLogs.forEach(log => {

@@ -27,6 +27,7 @@
     "puppeteer": "^25.3.0",
     "puppeteer-extra": "^3.3.6",
     "puppeteer-extra-plugin-stealth": "^2.11.2",
+    "socket.io": "^4.8.3",
     "telegram": "^2.26.22"
   },
   "devDependencies": {

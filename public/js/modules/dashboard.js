@@ -1,37 +1,78 @@
 // dashboard.js
 let isRunning = false;
-let pollingInterval = null;
 let charts = {};
+let currentMetrics = {};
+let socket = null;
 
 document.addEventListener('DOMContentLoaded', () => {
+    initSocket();
     initButtons();
     initCharts();
-    fetchMetrics();
-    // Poll every 1 seconds for live telemetry
-    pollingInterval = setInterval(fetchMetrics, 1000);
 });
 
-let isFetching = false;
-async function fetchMetrics() {
-    if (isFetching) return;
-    isFetching = true;
-    try {
-        const res = await fetch('/api/system/live').catch(() => null);
-        if (!res || !res.ok) return;
-        const live = await res.json();
-
-        updateDOM(live);
-        updateButtons(live.pipeline.running);
-    } catch (e) {
-        console.error("Failed to fetch dashboard metrics:", e);
-    } finally {
-        isFetching = false;
+function initSocket() {
+    if (!window.io) {
+        console.error("Socket.IO not loaded!");
+        return;
     }
+
+    socket = io();
+
+    // Connection Status handling
+    socket.on('connect', () => {
+        updateConnectionStatus("🟢 Connected");
+    });
+    
+    socket.on('disconnect', () => {
+        updateConnectionStatus("🔴 Disconnected");
+    });
+    
+    socket.on('connect_error', () => {
+        updateConnectionStatus("🟡 Reconnecting");
+    });
+
+    // Event Listeners
+    socket.on('dashboard:init', (payload) => {
+        currentMetrics = payload.metrics || {};
+        updateDOM(payload);
+        updateButtons(payload.pipeline?.running);
+    });
+
+    socket.on('dashboard:update', (payload) => {
+        if (payload.metrics) currentMetrics = payload.metrics;
+        updateDOM(payload);
+    });
+
+    socket.on('telemetry:update', (payload) => {
+        updateDOM(payload);
+        updateButtons(payload.pipeline?.running);
+    });
+
+    socket.on('pipeline:started', () => {
+        isRunning = true;
+        updateButtons(true);
+    });
+
+    socket.on('pipeline:finished', () => {
+        isRunning = false;
+        updateButtons(false);
+    });
+
+    socket.on('pipeline:stopped', () => {
+        isRunning = false;
+        updateButtons(false);
+    });
+}
+
+function updateConnectionStatus(text) {
+    const el = document.getElementById('socket-status');
+    if (el) el.innerText = text;
 }
 
 function updateDOM(data) {
     const pipeline = data.pipeline || {};
-    const metrics = data.metrics || {};
+    const metrics = currentMetrics; // merge from latest metrics
+
     const aiSuccessRate = metrics["AI Evaluations"] > 0 
         ? Math.round((metrics["Matched Jobs"] / metrics["AI Evaluations"]) * 100) 
         : 100;
@@ -75,7 +116,9 @@ function updateDOM(data) {
 
     for (const [id, val] of Object.entries(statsMap)) {
         const el = document.getElementById(id);
-        if (el) el.innerText = val;
+        if (el && el.innerText != val) {
+            el.innerText = val; // Only update DOM if value actually changed
+        }
     }
 }
 
@@ -104,23 +147,21 @@ function initButtons() {
     const btnForce = document.getElementById('btn-force');
     const btnStop = document.getElementById('btn-stop');
     
-    const headers = { 'Content-Type': 'application/json' };
-
     if (btnRun) {
         btnRun.addEventListener('click', () => {
-            fetch('/api/jobs/run', { method: 'POST', headers }).then(() => fetchMetrics());
+            if (socket) socket.emit('pipeline:start', false);
         });
     }
 
     if (btnForce) {
         btnForce.addEventListener('click', () => {
-            fetch('/api/jobs/run?forceRefresh=true', { method: 'POST', headers }).then(() => fetchMetrics());
+            if (socket) socket.emit('pipeline:start', true);
         });
     }
 
     if (btnStop) {
         btnStop.addEventListener('click', () => {
-            fetch('/api/jobs/stop', { method: 'POST', headers }).then(() => fetchMetrics());
+            if (socket) socket.emit('pipeline:stop');
         });
     }
 }

@@ -1,28 +1,25 @@
-let pollingInterval = null;
+// pipeline.js
+let socket = null;
 
 document.addEventListener('DOMContentLoaded', () => {
-    fetchPipelineData();
-    pollingInterval = setInterval(fetchPipelineData, 1000);
+    initSocket();
 });
 
-let isFetching = false;
-async function fetchPipelineData() {
-    if (isFetching) return;
-    isFetching = true;
-    try {
-        const [liveRes] = await Promise.all([
-            fetch('/api/system/live').catch(() => null)
-        ]);
-
-        if (liveRes && liveRes.ok) {
-            const live = await liveRes.json();
-            updatePipelineDOM(live.pipeline);
-        }
-    } catch (e) {
-        console.error("Failed to fetch pipeline data:", e);
-    } finally {
-        isFetching = false;
+function initSocket() {
+    if (!window.io) {
+        console.error("Socket.IO not loaded!");
+        return;
     }
+
+    socket = io();
+
+    socket.on('dashboard:init', (payload) => {
+        if (payload.pipeline) updatePipelineDOM(payload.pipeline);
+    });
+
+    socket.on('telemetry:update', (payload) => {
+        if (payload.pipeline) updatePipelineDOM(payload.pipeline);
+    });
 }
 
 function updatePipelineDOM(state) {
@@ -102,7 +99,7 @@ function updatePipelineDOM(state) {
         currentStage.className = 'text-sm font-semibold text-textMuted truncate';
     }
     
-    updateTimelineDOM(state.timeline);
+    updateTimelineDOM(state.logs || []);
 }
 
 function updateTimelineDOM(logs) {
@@ -130,7 +127,6 @@ function updateTimelineDOM(logs) {
         html += `<div style="color: ${color};" class="mb-1"><span class="text-[#8b949e]">[${timeStr}]</span> [${log.level}] ${log.message}</div>`;
     });
     
-    // Only update if it changed, to allow scrolling without jumping
     if (container.dataset.lastLogTime !== (logs[0] && logs[0].time)) {
         container.innerHTML = html;
         if (logs[0]) container.dataset.lastLogTime = logs[0].time;

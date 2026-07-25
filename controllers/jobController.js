@@ -69,43 +69,6 @@ const getCompleteJobs = async (req, res) => {
         sendError(res, error);
     }
 };
-const getLiveTelemetry = async (req, res) => {
-    try {
-        const lock = await PipelineLock.findOne({ lockId: "global_pipeline_lock" });
-        const data = await getAnalyticsData();
-        
-        let mergedState = { ...pipelineState };
-        if (lock && lock.status === "Running" && lock.expiresAt > new Date()) {
-            if (!mergedState.running) {
-                mergedState.currentStage = "Running (DB Lock)";
-                mergedState.runner = lock.runner;
-                mergedState.lockStartedAt = lock.startedAt;
-                mergedState.lockExpiresAt = lock.expiresAt;
-            }
-        }
-        
-        res.status(200).json({
-            success: true,
-            pipeline: mergedState,
-            metrics: data.metrics || {},
-            timeline: mergedState.timeline,
-            currentCompany: mergedState.currentCompany,
-            currentParser: mergedState.currentModel, // Using currentModel or parser from memory
-            currentATS: mergedState.currentATS,
-            activeBrowserCount: mergedState.activeCompanies ? mergedState.activeCompanies.length : 0,
-            queueSize: mergedState.totalCompanies - (mergedState.companyIndex || 0),
-            jobsFound: mergedState.jobsFound || data.metrics?.["Raw Jobs"] || 0,
-            jobsSaved: mergedState.jobsSaved || 0,
-            aiProvider: "Gemini / Groq",
-            eta: "Calculating...", // or real ETA if available
-            elapsed: mergedState.elapsedTime,
-            status: mergedState.currentStage
-        });
-    } catch (error) {
-        sendError(res, error);
-    }
-};
-
 
 const getReport = async (req, res) => {
     try {
@@ -217,5 +180,4 @@ module.exports = {
     stopJobSearch,
     updateJobStatus,
     deleteRawJobs,
-    getLiveTelemetry,
 };

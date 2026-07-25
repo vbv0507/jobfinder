@@ -1,3 +1,5 @@
+const socketService = require("./socketService");
+
 class PipelineStateManager {
     constructor() {
         this.reset();
@@ -41,6 +43,8 @@ class PipelineStateManager {
         this.currentStage = "STARTING";
         this.statusText = "Pipeline Started";
         this.addLog("INFO", "Pipeline Started");
+        socketService.broadcast("pipeline:started");
+        this.emitUpdate();
     }
 
     transition(stage, message = null) {
@@ -48,6 +52,7 @@ class PipelineStateManager {
         if (message) {
             this.statusText = message;
         }
+        this.emitUpdate();
     }
 
     finish() {
@@ -61,6 +66,8 @@ class PipelineStateManager {
         this.statusText = "Pipeline Finished";
         this.progress = "100%";
         this.addLog("SUCCESS", "Pipeline Finished");
+        socketService.broadcast("pipeline:finished");
+        this.emitUpdate();
     }
 
     fail(errorMsg) {
@@ -73,12 +80,16 @@ class PipelineStateManager {
         this.currentStage = "FAILED";
         this.statusText = `Failed: ${errorMsg}`;
         this.addLog("ERROR", `Pipeline Failed: ${errorMsg}`);
+        socketService.broadcast("pipeline:error", errorMsg);
+        this.emitUpdate();
     }
 
     cancel() {
         this.cancelRequested = true;
         this.statusText = "Cancellation Requested...";
         this.addLog("WARNING", "Cancellation Requested");
+        socketService.broadcast("pipeline:stopped");
+        this.emitUpdate();
     }
 
     markCancelled() {
@@ -91,34 +102,56 @@ class PipelineStateManager {
         this.currentStage = "CANCELLED";
         this.statusText = "Pipeline Cancelled";
         this.addLog("WARNING", "Pipeline Cancelled");
+        socketService.broadcast("pipeline:stopped");
+        this.emitUpdate();
     }
 
     addLog(level, message) {
         const timestamp = Date.now();
-        this.logs.unshift({ time: timestamp, level, message });
+        const logEntry = { time: timestamp, level, message };
+        this.logs.unshift(logEntry);
         if (this.logs.length > 500) {
             this.logs.pop(); // Keep last 500 logs
         }
+        socketService.broadcast("logs:new", logEntry);
     }
 
     addTimeline(stage, company, message, status, duration = null) {
-        this.timeline.unshift({
+        const entry = {
             timestamp: Date.now(),
             stage,
             company,
             message,
             status,
             duration
-        });
+        };
+        this.timeline.unshift(entry);
         if (this.timeline.length > 200) {
             this.timeline.pop(); // Keep last 200 timeline entries
         }
+        socketService.broadcast("pipeline:progress", entry);
+        this.emitUpdate(); // also push the full state update for the UI counts if needed
     }
 
     updateElapsed() {
         if (this.running && this.startTime) {
             this.elapsedTime = Date.now() - this.startTime;
         }
+    }
+    
+    emitUpdate() {
+        socketService.broadcast("telemetry:update", {
+            pipeline: this,
+            activeBrowserCount: this.activeCompanies ? this.activeCompanies.length : 0,
+            queueSize: this.totalCompanies - (this.companyIndex || 0),
+            jobsFound: this.jobsFound,
+            jobsSaved: this.jobsSaved,
+            elapsed: this.elapsedTime,
+            status: this.currentStage,
+            currentCompany: this.currentCompany,
+            currentATS: this.currentATS,
+            currentParser: this.currentModel
+        });
     }
 }
 

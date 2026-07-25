@@ -5,15 +5,12 @@ const pipelineState = require('../services/pipelineState');
 const SearchLog = require('../models/SearchLog');
 const { getAnalyticsData } = require('../services/analyticsService');
 const { requireAdmin, requireViewer } = require("../middleware/authMiddleware");
-const { getLiveTelemetry } = require('../controllers/jobController');
 
 const router = express.Router();
 
 router.get('/health', (req, res) => {
     res.json({ status: 'ok' });
 });
-
-router.get('/live', requireViewer, getLiveTelemetry);
 
 router.get('/ready', (req, res) => {
     res.json({ status: 'ok' });

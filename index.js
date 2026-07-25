@@ -25,6 +25,7 @@ const { generateMatchedCompanyReport } = require("./services/reportService");
 const { startTelegramListener, stopTelegramListener } = require("./services/telegramService");
 const mongoose = require("mongoose");
 const { validateConfig } = require("./utils/configValidator");
+const socketService = require("./services/socketService");
 
 const app = express();
 
@@ -210,6 +211,8 @@ const startServer = async () => {
     const server = app.listen(PORT, () => {
         console.log(`Server running on port ${PORT}`);
     });
+
+    socketService.init(server);
 
     
     await startTelegramListener();
