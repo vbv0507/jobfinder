@@ -46,8 +46,8 @@ class PipelineStateManager {
         this.currentStage = "STARTING";
         this.statusText = "Pipeline Started";
         this.addLog("INFO", "Pipeline Started");
-        socketService.broadcast("pipeline:started", this.snapshot());
-        socketService.broadcast("pipeline:progress", this.progressPayload());
+        socketService.emitPipeline("started", this.snapshot());
+        socketService.emitPipeline("progress", this.progressPayload());
         this.emitUpdate();
     }
 
@@ -70,7 +70,7 @@ class PipelineStateManager {
         this.statusText = "Pipeline Finished";
         this.progress = "100%";
         this.addLog("SUCCESS", "Pipeline Finished");
-        socketService.broadcast("pipeline:finished", this.snapshot());
+        socketService.emitPipeline("finished", this.snapshot());
         this.emitUpdate();
         socketService.emitDashboardSnapshot().catch(error => console.error("[Socket] Failed to refresh dashboard after finish:", error.message));
     }
@@ -85,7 +85,7 @@ class PipelineStateManager {
         this.currentStage = "FAILED";
         this.statusText = `Failed: ${errorMsg}`;
         this.addLog("ERROR", `Pipeline Failed: ${errorMsg}`);
-        socketService.broadcast("pipeline:error", { message: errorMsg, pipeline: this.snapshot() });
+        socketService.emitPipeline("error", { message: errorMsg, pipeline: this.snapshot() });
         this.emitUpdate();
         socketService.emitDashboardSnapshot().catch(error => console.error("[Socket] Failed to refresh dashboard after failure:", error.message));
     }
@@ -94,7 +94,7 @@ class PipelineStateManager {
         this.cancelRequested = true;
         this.statusText = "Cancellation Requested...";
         this.addLog("WARNING", "Cancellation Requested");
-        socketService.broadcast("pipeline:stopped", this.snapshot());
+        socketService.emitPipeline("stopped", this.snapshot());
         this.emitUpdate();
     }
 
@@ -108,7 +108,7 @@ class PipelineStateManager {
         this.currentStage = "CANCELLED";
         this.statusText = "Pipeline Cancelled";
         this.addLog("WARNING", "Pipeline Cancelled");
-        socketService.broadcast("pipeline:stopped", this.snapshot());
+        socketService.emitPipeline("stopped", this.snapshot());
         this.emitUpdate();
         socketService.emitDashboardSnapshot().catch(error => console.error("[Socket] Failed to refresh dashboard after cancel:", error.message));
     }
@@ -120,7 +120,7 @@ class PipelineStateManager {
         if (this.logs.length > 500) {
             this.logs.pop(); // Keep last 500 logs
         }
-        socketService.broadcast("logs:new", logEntry);
+        socketService.emitLogs(logEntry);
     }
 
     addTimeline(stage, company, message, status, duration = null) {
@@ -136,7 +136,7 @@ class PipelineStateManager {
         if (this.timeline.length > 200) {
             this.timeline.pop(); // Keep last 200 timeline entries
         }
-        socketService.broadcast("pipeline:progress", this.progressPayload(entry));
+        socketService.emitPipeline("progress", this.progressPayload(entry));
         this.emitUpdate(); // also push the full state update for the UI counts if needed
     }
 
@@ -205,7 +205,7 @@ class PipelineStateManager {
     }
     
     emitUpdate() {
-        socketService.broadcast("telemetry:update", {
+        socketService.emitPipeline("update", {
             pipeline: this.snapshot(),
             activeBrowserCount: this.activeCompanies ? this.activeCompanies.length : 0,
             queueSize: this.totalCompanies - (this.companyIndex || 0),

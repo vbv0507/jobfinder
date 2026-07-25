@@ -74,6 +74,13 @@
             if (!String(log.message || '').toLowerCase().includes('telegram')) return;
             appendTelegramMessage({ receivedAt: log.time, channel: 'Log', text: log.message });
         });
+        socket.on('logs:init', (logs) => {
+            if (!logs) return;
+            const telegramLogs = [...logs].reverse().filter(log => String(log.message || '').toLowerCase().includes('telegram'));
+            telegramLogs.forEach(log => {
+                appendTelegramMessage({ receivedAt: log.time, channel: 'Log', text: log.message });
+            });
+        });
         socket.emit('dashboard:refresh');
     });
 </script>

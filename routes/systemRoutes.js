@@ -165,7 +165,7 @@ router.post('/cache/clear', requireAdmin, async (req, res) => {
         await Company.updateMany({}, { $set: { lastScrapedAt: null } });
         const socketService = require('../services/socketService');
         const cache = await socketService.buildCachePayload();
-        socketService.broadcast("cache:update", cache);
+        socketService.emitCache(cache);
         socketService.emitDashboardSnapshot().catch(error => console.error("[Socket] Failed to refresh dashboard after cache clear:", error.message));
         res.json({ success: true, message: "Global cache cleared successfully." });
     } catch (e) {

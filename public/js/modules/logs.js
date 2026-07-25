@@ -33,12 +33,7 @@ async function initSocket() {
         renderLogs(allLogs);
     });
 
-    socket.on('logs:init', (logs) => {
-        if (logs) {
-            allLogs = [...logs];
-            renderLogs(allLogs);
-        }
-    });
+
 
     // Request refresh immediately after listeners are attached
     socket.emit('dashboard:refresh');

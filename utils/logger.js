@@ -29,7 +29,7 @@ const formatLog = (level, args) => {
 const broadcastLog = (level, message) => {
     try {
         const socketService = require('../services/socketService');
-        socketService.broadcast('logs:new', {
+        socketService.emitLogs({
             time: Date.now(),
             level,
             message

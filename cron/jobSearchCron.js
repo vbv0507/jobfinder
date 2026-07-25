@@ -667,7 +667,7 @@ const runSearch = async (triggerSource = "Unknown", forceRefresh = false) => {
           await company.save();
           const updatedCompany = company.toObject();
           const { getCompanyLogo } = require("../utils/companyBranding");
-          socketService.broadcast("company:update", {
+          socketService.emitCompany({
               ...updatedCompany,
               logoUrl: updatedCompany.logo || getCompanyLogo(updatedCompany.name)
           });

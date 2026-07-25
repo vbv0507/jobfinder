@@ -19,14 +19,12 @@ async function initSocket() {
         if (payload.pipeline) updatePipelineDOM(payload.pipeline);
     });
 
-    });
-
     socket.on('pipeline:stopped', (pipeline) => {
         updatePipelineDOM(pipeline);
     });
 
-    socket.on('telemetry:update', (payload) => {
-        if (payload.pipeline) updatePipelineDOM(payload.pipeline);
+    socket.on('pipeline:update', (payload) => {
+        updatePipelineDOM(payload.pipeline || payload);
     });
 
     socket.on('logs:new', (logEntry) => {
@@ -55,6 +53,12 @@ async function initSocket() {
         });
         updateTimelineDOM(allLogs);
     });
+
+    socket.on('connect', () => {
+        socket.emit('dashboard:refresh');
+    });
+
+    socket.emit('dashboard:refresh');
 }
 
 function updatePipelineDOM(state) {

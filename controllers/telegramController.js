@@ -7,7 +7,7 @@ const { logAuditAction } = require("../services/auditService");
 const emitTelegramUpdate = async () => {
     const socketService = require('../services/socketService');
     const payload = await socketService.buildDashboardPayload();
-    socketService.broadcast("telegram:update", payload.telegram);
+    socketService.emitTelegram(payload.telegram);
 };
 
 exports.getChannels = async (req, res) => {

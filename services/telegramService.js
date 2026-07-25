@@ -46,7 +46,7 @@ const emitTelegramSnapshot = async (lastMessage = null) => {
     try {
         const socketService = require("./socketService");
         const channels = await TelegramChannel.find({ enabled: true }).sort({ priority: 1, name: 1 }).lean();
-        socketService.broadcast("telegram:update", {
+        socketService.emitTelegram({
             connected: listenerStatus.status === "Connected",
             monitoredChannels: listenerStatus.monitoredChannels || channels.map((channel) => channel.username),
             channels,

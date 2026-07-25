@@ -42,7 +42,7 @@ async function initSocket() {
         updateCharts(payload.charts || {});
     });
 
-    socket.on('telemetry:update', (payload) => {
+    socket.on('pipeline:update', (payload) => {
         updateDOM(payload);
         updateButtons(payload.pipeline?.running);
     });

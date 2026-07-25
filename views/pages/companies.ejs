@@ -173,13 +173,30 @@
                 renderCompanies(latestCompanies, latestPipeline);
             });
 
-            socket.on('telemetry:update', (payload) => {
+            socket.on('pipeline:update', (payload) => {
                 latestPipeline = payload.pipeline || latestPipeline;
                 if (latestCompanies) renderCompanies(latestCompanies, latestPipeline);
             });
 
             // Force a refresh immediately after binding listeners
             socket.emit('dashboard:refresh');
+
+            setTimeout(async () => {
+                if (!latestCompanies) {
+                    try {
+                        console.log("[Companies] Socket took too long, falling back to REST /api/companies...");
+                        const response = await fetch('/api/companies');
+                        const data = await response.json();
+                        if (data.success && data.companies) {
+                            latestCompanies = { companies: data.companies };
+                            renderCompanies(latestCompanies, latestPipeline);
+                        }
+                    } catch(e) {
+                        console.error('REST fallback failed:', e);
+                        document.getElementById("companies-grid").innerHTML = '<div class="col-span-full p-12 text-center text-error">Failed to load companies.</div>';
+                    }
+                }
+            }, 3000);
         } catch(e) {
             console.error(e);
             document.getElementById("companies-grid").innerHTML = '<div class="col-span-full p-12 text-center text-error">Failed to load companies.</div>';
