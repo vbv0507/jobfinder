@@ -331,34 +331,50 @@ const runSearch = async (triggerSource = "Unknown", forceRefresh = false) => {
                       console.log(chalk.green(`[Self-Healing] Successfully discovered new endpoint for ${company.name}. Retrying...`));
                       continue; // Retry with new config
                   } else {
-                      console.log(chalk.red(`[Self-Healing] Auto-discovery failed for ${company.name}. Falling back to Universal Parser.`));
-                      company.adapter = 'LightweightHtmlAdapter';
-                      continue;
+                      const atsName = (company.ats || 'custom').toLowerCase();
+                      const hasDedicatedParser = ['greenhouse', 'workday', 'lever', 'smartrecruiters', 'ashby', 'oracle', 'icims'].includes(atsName);
+                      
+                      if (hasDedicatedParser) {
+                          console.log(chalk.red(`[Self-Healing] Auto-discovery failed for ${company.name}. Dedicated parser required. No fallback allowed.`));
+                          error.type = 'INVALID_ENDPOINT';
+                          error.discoveryReason = discovery.reason;
+                          attempt = maxAttempts; // Force exit
+                          continue;
+                      } else {
+                          console.log(chalk.red(`[Self-Healing] Auto-discovery failed for ${company.name}. Falling back to Universal Parser.`));
+                          error.discoveryReason = discovery.reason;
+                          company.adapter = 'LightweightHtmlAdapter';
+                          continue;
+                      }
                   }
               }
               
-              if (attempt >= maxAttempts) {
+              if (attempt >= maxAttempts && !['INVALID_ENDPOINT'].includes(error.type)) {
                   error.type = 'DISCOVERY_FAILED';
+                  if (error.discoveryReason) {
+                      error.message = `Auto-Discovery Error: ${error.discoveryReason} | Fallback Error: ${error.message}`;
+                  }
               }
               
               // Strict Failure Classification
               let finalErrorType = error.type || 'UNKNOWN';
-              const errStr = error.message.toLowerCase();
-              if (finalErrorType === 'UNKNOWN' || finalErrorType === 'Error') {
+              const errStr = error.message ? error.message.toLowerCase() : "";
+              if (finalErrorType === 'UNKNOWN' || finalErrorType === 'Error' || finalErrorType === 'DISCOVERY_FAILED') {
                  if (errStr.includes('header') || errStr.includes('token')) finalErrorType = 'INVALID_HEADERS';
-                 else if (errStr.includes('parser') || errStr.includes('parsing')) finalErrorType = 'PARSER_ERROR';
+                 else if (errStr.includes('parser') || errStr.includes('parsing') || errStr.includes('json') || errStr.includes('cannot read properties')) finalErrorType = 'PARSER_ERROR';
                  else if (errStr.includes('payload')) finalErrorType = 'INVALID_PAYLOAD';
-                 else if (errStr.includes('login') || errStr.includes('unauthorized') || errStr.includes('401')) finalErrorType = 'LOGIN_REQUIRED';
+                 else if (errStr.includes('login') || errStr.includes('unauthorized') || errStr.includes('401') || errStr.includes('auth')) finalErrorType = 'AUTH_REQUIRED';
                  else if (errStr.includes('cookie')) finalErrorType = 'COOKIE_REQUIRED';
                  else if (errStr.includes('csrf')) finalErrorType = 'CSRF_REQUIRED';
                  else if (errStr.includes('429') || errStr.includes('rate limit')) finalErrorType = 'RATE_LIMITED';
-                 else if (errStr.includes('cloudflare')) finalErrorType = 'CLOUDFLARE';
-                 else if (errStr.includes('network') || errStr.includes('timeout') || errStr.includes('econn')) finalErrorType = 'NETWORK_ERROR';
+                 else if (errStr.includes('cloudflare') || errStr.includes('incapsula') || errStr.includes('captcha')) finalErrorType = 'CLOUDFLARE';
+                 else if (errStr.includes('network') || errStr.includes('timeout') || errStr.includes('econn') || errStr.includes('socket')) finalErrorType = 'NETWORK_ERROR';
                  else if (errStr.includes('validation')) finalErrorType = 'VALIDATION_ERROR';
+                 else if (errStr.includes('empty')) finalErrorType = 'EMPTY_RESPONSE';
+                 else if (errStr.includes('404') || errStr.includes('not found')) finalErrorType = 'INVALID_ENDPOINT';
               }
               
-              if (finalErrorType === '404' || finalErrorType === '410' || finalErrorType === 'INVALID_ENDPOINT') finalErrorType = 'OUTDATED_ENDPOINT';
-              if (finalErrorType === 'PARSER_OUTDATED') finalErrorType = 'OUTDATED_ENDPOINT';
+              if (finalErrorType === '404' || finalErrorType === '410' || finalErrorType === 'PARSER_OUTDATED') finalErrorType = 'INVALID_ENDPOINT';
               
               companyStatus = "failed";
               companyErrorMsg = finalErrorType;

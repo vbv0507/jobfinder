@@ -5,10 +5,7 @@ const {
     getMatchedJobs,
     getGroupedJobs,
     getCompleteJobs,
-    getSearchLogs,
-    getPipelineStatus,
     getReport,
-    getAnalytics,
     runJobSearch,
     stopJobSearch,
     updateJobStatus,
@@ -23,10 +20,7 @@ router.get("/raw", requireViewer, getRawJobs);
 router.get("/matched", requireViewer, getMatchedJobs);
 router.get("/grouped", requireViewer, getGroupedJobs);
 router.get("/complete", requireViewer, getCompleteJobs);
-router.get("/logs", requireViewer, getSearchLogs);
-router.get("/status", requireViewer, getPipelineStatus);
 router.get("/report", requireViewer, getReport);
-router.get("/analytics", requireViewer, getAnalytics);
 router.post("/run", runJobSearch);
 router.post("/stop", requireAdmin, stopJobSearch);
 router.patch("/:id/status", requireAdmin, updateJobStatus);

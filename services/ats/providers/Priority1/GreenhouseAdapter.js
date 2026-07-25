@@ -1,4 +1,4 @@
-const BaseAdapter = require('../BaseAdapter');
+const BaseAdapter = require('../../BaseAdapter');
 const { normalizeDate } = require('../../../../utils/dateNormalizer');
 
 class GreenhouseAdapter extends BaseAdapter {

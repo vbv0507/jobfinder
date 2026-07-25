@@ -31,12 +31,17 @@
         return Math.floor(seconds) + " seconds ago";
     };
 
+    let isFetching = false;
     async function fetchCompanies() {
+        if (isFetching) return;
+        isFetching = true;
         try {
             const [compRes, liveRes] = await Promise.all([
-                fetch("/api/companies"),
+                fetch("/api/companies").catch(() => null),
                 fetch("/api/system/live").catch(() => null)
             ]);
+            
+            if (!compRes || !compRes.ok) throw new Error("Failed to load");
             
             const data = await compRes.json();
             const live = (liveRes && liveRes.ok) ? await liveRes.json() : null;
@@ -145,6 +150,8 @@
         } catch(e) {
             console.error(e);
             document.getElementById("companies-grid").innerHTML = '<div class="col-span-full p-12 text-center text-error">Failed to load companies.</div>';
+        } finally {
+            isFetching = false;
         }
     }
 

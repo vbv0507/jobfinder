@@ -69,20 +69,6 @@ const getCompleteJobs = async (req, res) => {
         sendError(res, error);
     }
 };
-
-const getSearchLogs = async (req, res) => {
-    try {
-        const logs = await SearchLog.find().sort({ createdAt: -1 }).limit(50);
-        res.status(200).json({
-            success: true,
-            count: logs.length,
-            logs,
-        });
-    } catch (error) {
-        sendError(res, error);
-    }
-};
-
 const getLiveTelemetry = async (req, res) => {
     try {
         const lock = await PipelineLock.findOne({ lockId: "global_pipeline_lock" });
@@ -120,28 +106,6 @@ const getLiveTelemetry = async (req, res) => {
     }
 };
 
-const getPipelineStatus = async (req, res) => {
-    try {
-        const lock = await PipelineLock.findOne({ lockId: "global_pipeline_lock" });
-        
-        let mergedState = { ...pipelineState };
-        if (lock && lock.status === "Running" && lock.expiresAt > new Date()) {
-            if (!mergedState.running) {
-                mergedState.currentStage = "Running (DB Lock)";
-                mergedState.runner = lock.runner;
-                mergedState.lockStartedAt = lock.startedAt;
-                mergedState.lockExpiresAt = lock.expiresAt;
-            }
-        }
-        
-        res.status(200).json({
-            success: true,
-            state: mergedState
-        });
-    } catch (error) {
-        sendError(res, error);
-    }
-};
 
 const getReport = async (req, res) => {
     try {
@@ -150,18 +114,6 @@ const getReport = async (req, res) => {
             success: true,
             count: jobs.length,
             jobs,
-        });
-    } catch (error) {
-        sendError(res, error);
-    }
-};
-
-const getAnalytics = async (req, res) => {
-    try {
-        const data = await getAnalyticsData();
-        res.status(200).json({
-            success: true,
-            ...data
         });
     } catch (error) {
         sendError(res, error);
@@ -260,10 +212,7 @@ module.exports = {
     getMatchedJobs,
     getGroupedJobs,
     getCompleteJobs,
-    getSearchLogs,
-    getPipelineStatus,
     getReport,
-    getAnalytics,
     runJobSearch,
     stopJobSearch,
     updateJobStatus,

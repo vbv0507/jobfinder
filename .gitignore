@@ -1,2 +1,16 @@
-node_modules
+node_modules/
 .env
+.env.*
+logs/
+coverage/
+.cache/
+tmp/
+temp/
+dist/
+build/
+playwright-report/
+test-results/
+*.dump
+screenshots/
+videos/
+.DS_Store

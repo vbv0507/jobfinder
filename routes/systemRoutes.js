@@ -172,30 +172,4 @@ router.post('/cache/clear', requireAdmin, async (req, res) => {
     }
 });
 
-router.get('/live-status', requireAdmin, (req, res) => {
-    res.json({ success: true, state: pipelineState });
-});
-
-router.get('/live-logs', requireAdmin, (req, res) => {
-    res.json({ success: true, logs: pipelineState.logs || [] });
-});
-
-router.get('/live-timeline', requireAdmin, (req, res) => {
-    res.json({ success: true, timeline: pipelineState.timeline || [] });
-});
-
-router.get('/live-ai', requireAdmin, (req, res) => {
-    res.json({
-        success: true,
-        ai: {
-            currentModel: pipelineState.currentAIModel,
-            gemini: { status: pipelineState.geminiStatus, success: pipelineState.geminiSuccess, failed: pipelineState.geminiFailed },
-            groq: { status: pipelineState.groqStatus, success: pipelineState.groqSuccess, failed: pipelineState.groqFailed },
-            zai: { status: pipelineState.zaiStatus, success: pipelineState.zaiSuccess, failed: pipelineState.zaiFailed },
-            local: { status: pipelineState.localStatus, success: pipelineState.localSuccess, failed: pipelineState.localFailed },
-            averageLatency: pipelineState.averageAISpeed
-        }
-    });
-});
-
 module.exports = router;

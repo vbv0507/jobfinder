@@ -3,7 +3,7 @@ const RawJob = require("../../models/RawJob");
 const MatchedJob = require("../../models/MatchedJob");
 const SearchLog = require("../../models/SearchLog");
 const TelegramChannel = require("../../models/TelegramChannel");
-const { normalizeDate } = require("../../../utils/dateNormalizer");
+const { normalizeDate } = require("../../utils/dateNormalizer");
 
 const MATCH_THRESHOLD = Number(process.env.MATCH_THRESHOLD || 70);
 
@@ -266,6 +266,14 @@ const saveSearchLog = async (logId, startedAt, stats, errors) => {
     totalCompanies: stats.companiesScanned,
     successfulCompanies: stats.successfulCompanies,
     failedCompanies: stats.failedCompanies,
+    skippedRuns: stats.cachedCompanies,
+    parserOutdated: stats.parserOutdated,
+    atsChanged: stats.atsChanged,
+    httpFailed: stats.httpFailed,
+    blocked: stats.blocked,
+    retriedSuccessfully: stats.retriedSuccessfully,
+    companiesWithJobs: stats.companiesWithJobs,
+    companiesWithoutJobs: stats.companiesWithoutJobs,
     totalJobs: stats.jobsFound,
     newJobs: stats.newJobs,
     jobsScraped: stats.jobsScraped,

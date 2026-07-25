@@ -3,17 +3,23 @@ document.addEventListener('DOMContentLoaded', () => {
     setInterval(fetchLogs, 1000);
 });
 
+let isFetching = false;
 async function fetchLogs() {
+    if (isFetching) return;
+    isFetching = true;
     try {
-        const res = await fetch('/api/system/live-logs');
+        const res = await fetch('/api/system/live');
         if (!res.ok) return;
         const data = await res.json();
         
-        if (!data.logs || data.logs.length === 0) return;
+        const logs = data.pipeline ? data.pipeline.timeline : [];
+        if (!logs || logs.length === 0) return;
         
-        renderLogs(data.logs);
+        renderLogs(logs);
     } catch (e) {
         console.error("Failed to fetch logs:", e);
+    } finally {
+        isFetching = false;
     }
 }
 

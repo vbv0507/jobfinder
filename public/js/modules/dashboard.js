@@ -11,7 +11,10 @@ document.addEventListener('DOMContentLoaded', () => {
     pollingInterval = setInterval(fetchMetrics, 1000);
 });
 
+let isFetching = false;
 async function fetchMetrics() {
+    if (isFetching) return;
+    isFetching = true;
     try {
         const res = await fetch('/api/system/live').catch(() => null);
         if (!res || !res.ok) return;
@@ -21,18 +24,21 @@ async function fetchMetrics() {
         updateButtons(live.pipeline.running);
     } catch (e) {
         console.error("Failed to fetch dashboard metrics:", e);
+    } finally {
+        isFetching = false;
     }
 }
 
 function updateDOM(data) {
-    const { pipeline, metrics } = data;
+    const pipeline = data.pipeline || {};
+    const metrics = data.metrics || {};
     const aiSuccessRate = metrics["AI Evaluations"] > 0 
         ? Math.round((metrics["Matched Jobs"] / metrics["AI Evaluations"]) * 100) 
         : 100;
         
-    const cacheHitRate = metrics["Actually Scraped"] > 0 
-        ? Math.round((metrics["Cached Companies"] / (metrics["Actually Scraped"] + metrics["Cached Companies"])) * 100) 
-        : 100;
+    const cacheHitRate = metrics["Actually Scraped"] > 0 || metrics["Cached Companies"] > 0
+        ? Math.round((metrics["Cached Companies"] / ((metrics["Actually Scraped"] || 0) + (metrics["Cached Companies"] || 0))) * 100) 
+        : 0;
 
     const statsMap = {
         'stat-health-score': "100%", // Simplified for live view

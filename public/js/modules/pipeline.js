@@ -5,7 +5,10 @@ document.addEventListener('DOMContentLoaded', () => {
     pollingInterval = setInterval(fetchPipelineData, 1000);
 });
 
+let isFetching = false;
 async function fetchPipelineData() {
+    if (isFetching) return;
+    isFetching = true;
     try {
         const [liveRes] = await Promise.all([
             fetch('/api/system/live').catch(() => null)
@@ -17,6 +20,8 @@ async function fetchPipelineData() {
         }
     } catch (e) {
         console.error("Failed to fetch pipeline data:", e);
+    } finally {
+        isFetching = false;
     }
 }
 

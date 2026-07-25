@@ -179,6 +179,20 @@ const getAnalyticsData = async () => {
                 lastSuccessfulRun: lastSuccess ? lastSuccess.createdAt : null,
                 nextScheduledRun: pipelineState.nextRunTime
             },
+            metrics: {
+                "Actually Scraped": systemMetrics.totalRuns || 0,
+                "Cached Companies": systemMetrics.skippedRuns || 0, // Approx
+                "Recovered Nodes": systemMetrics.totalRetriedSuccessfully || 0,
+                "Raw Jobs": rawJobsCount || 0,
+                "Matched Jobs": matchedJobsCount || 0,
+                "AI Evaluations": systemMetrics.jobsEvaluated || 0,
+                "Parser Failures": systemMetrics.totalParserOutdated || 0,
+                "Validation Failures": systemMetrics.totalValidationDrops || 0,
+                "ATS Changed": systemMetrics.totalAtsChanged || 0,
+                "Cloudflare Blocks": systemMetrics.totalBlocked || 0,
+                "Average Runtime": systemMetrics.avgRuntime || 0,
+                "Average Company Time": systemMetrics.avgEvaluationTime || 0
+            },
             charts: {
                 companyDistribution,
                 scoreDistribution,

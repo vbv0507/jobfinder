@@ -79,8 +79,55 @@ const hasAllowedLocation = (job, company) => {
   return { passed: true };
 };
 
+const normalizeTitle = (title) => {
+  if (!title) return "";
+  let clean = title.replace(/<(?:.|\n)*?>/gm, ' ').replace(/&nbsp;/gi, ' ').replace(/\s+/g, ' ').trim();
+  clean = clean.replace(/(\s*-\s*|\s*\|?\s*)(apply(?: now)?|see role|read more|learn more)\s*$/i, '');
+  if (/^(apply(?: now)?|see role|read more|learn more|click here)$/i.test(clean)) return "";
+  return clean;
+};
+
+const normalizeLocation = (loc) => {
+  if (!loc) return "";
+  return loc.replace(/<(?:.|\n)*?>/gm, ' ').replace(/\s+/g, ' ').trim();
+};
+
 const applyJobFilters = (jobs, company, droppedJobs = []) => {
-  return jobs.filter((job) => {
+  const uniqueJobs = new Map();
+  
+  // Normalization and Deduplication
+  jobs.forEach(job => {
+    job.title = normalizeTitle(job.title);
+    job.location = normalizeLocation(job.location);
+    
+    if (!job.title || job.title.length < 3) {
+       droppedJobs.push({ 
+           company: company.companyName || company.name, 
+           jobTitle: job.title || "Unknown", 
+           reason: "Invalid or empty title after normalization", 
+           url: job.url || job.applyLink, 
+           ats: company.ats || 'unknown', 
+           validationStage: 'normalization' 
+       });
+       return;
+    }
+    
+    const dedupKey = `${job.title.toLowerCase()}||${job.location.toLowerCase()}`;
+    if (!uniqueJobs.has(dedupKey)) {
+        uniqueJobs.set(dedupKey, job);
+    } else {
+       droppedJobs.push({ 
+           company: company.companyName || company.name, 
+           jobTitle: job.title, 
+           reason: "Duplicate job within same scrape", 
+           url: job.url || job.applyLink, 
+           ats: company.ats || 'unknown', 
+           validationStage: 'deduplication' 
+       });
+    }
+  });
+
+  return Array.from(uniqueJobs.values()).filter((job) => {
     
     const locationCheck = hasAllowedLocation(job, company);
     if (!locationCheck.passed) {
