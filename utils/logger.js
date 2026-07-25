@@ -26,16 +26,33 @@ const formatLog = (level, args) => {
     return `${prefix} ${message}`;
 };
 
+const broadcastLog = (level, message) => {
+    try {
+        const socketService = require('../services/socketService');
+        socketService.broadcast('logs:new', {
+            time: Date.now(),
+            level,
+            message
+        });
+    } catch (error) {}
+};
+
 console.log = (...args) => {
-    originalConsoleLog(formatLog('INFO', args));
+    const message = formatLog('INFO', args);
+    originalConsoleLog(message);
+    broadcastLog('INFO', message);
 };
 
 console.error = (...args) => {
-    originalConsoleError(formatLog('ERROR', args));
+    const message = formatLog('ERROR', args);
+    originalConsoleError(message);
+    broadcastLog('ERROR', message);
 };
 
 console.warn = (...args) => {
-    originalConsoleWarn(formatLog('WARN', args));
+    const message = formatLog('WARNING', args);
+    originalConsoleWarn(message);
+    broadcastLog('WARNING', message);
 };
 
 const withLogContext = (context, callback) => {

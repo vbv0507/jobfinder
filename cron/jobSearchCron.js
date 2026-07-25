@@ -241,18 +241,17 @@ const runSearch = async (triggerSource = "Unknown", forceRefresh = false) => {
       }
 
       pipelineState.activeCompanies.push(company.name);
-      pipelineState.transition("SCRAPING", `Scraping ${company.name}`);
       pipelineState.currentCompany = company.name;
       pipelineState.currentATS = company.ats;
       pipelineState.currentURL = company.careerPageUrl || company.careersUrl;
-      
-      pipelineState.addTimeline(`Scraping ${company.name}`);
-      pipelineState.addLog("INFO", `Started scraping ${company.name} [${company.ats || 'Unknown ATS'}]`);
-      
       pipelineState.progress = `${Math.floor(((completedCompanies + 1) / stats.companiesScanned) * 100)}%`;
       pipelineState.companyIndex = completedCompanies + 1;
       pipelineState.totalCompanies = stats.companiesScanned;
       pipelineState.updateElapsed();
+      pipelineState.transition("SCRAPING", `Scraping ${company.name}`);
+
+      pipelineState.addTimeline("Scraping", company.name, `Started scraping ${company.name}`, "INFO");
+      pipelineState.addLog("INFO", `Started scraping ${company.name} [${company.ats || 'Unknown ATS'}]`);
 
       let attempt = 0;
       const companyTimeline = [];
@@ -638,6 +637,14 @@ const runSearch = async (triggerSource = "Unknown", forceRefresh = false) => {
       completedCompanies++;
       pipelineState.progress = `${completedCompanies} / ${stats.companiesScanned} companies`;
       pipelineState.activeCompanies = pipelineState.activeCompanies.filter(c => c !== company.name);
+      pipelineState.successfulCompanies = stats.successfulCompanies;
+      pipelineState.failedCompanies = stats.failedCompanies;
+      pipelineState.cachedCompanies = stats.cachedCompanies;
+      pipelineState.jobsFound = stats.jobsFound;
+      pipelineState.jobsSaved = stats.jobsSaved;
+      pipelineState.matchedJobs = stats.jobsMatched;
+      pipelineState.aiEvaluated = stats.aiEvaluations;
+      pipelineState.updateElapsed();
 
       company.jobsFound = companyJobsFound;
       company.matchedJobs = companyJobsMatched;

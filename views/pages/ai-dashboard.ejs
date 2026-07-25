@@ -89,6 +89,7 @@
     document.addEventListener("DOMContentLoaded", async () => {
         const socket = await createSocket();
         socket.on('dashboard:init', (payload) => renderAiMetrics(payload.analytics || payload));
+        socket.on('analytics:init', renderAiMetrics);
         socket.on('analytics:update', renderAiMetrics);
     });
 </script>

@@ -82,7 +82,7 @@ const buildTelegramPayload = async () => {
     const channels = await TelegramChannel.find({ enabled: true }).sort({ priority: 1, name: 1 }).lean();
 
     return {
-        connected: !!listener.connected,
+        connected: !!listener.connected || listener.status === "Connected",
         monitoredChannels: listener.monitoredChannels || channels.map((channel) => channel.username),
         channels,
         messagesProcessed: channels.reduce((sum, channel) => sum + (channel.messagesProcessed || 0), 0),
@@ -139,6 +139,16 @@ const buildDashboardPayload = async () => {
         status: pipeline.currentStage,
         logs: pipeline.logs
     };
+};
+
+const emitInitialState = (socket, initialPayload) => {
+    socket.emit("dashboard:init", initialPayload);
+    socket.emit("pipeline:init", initialPayload.pipeline);
+    socket.emit("logs:init", initialPayload.pipeline.logs || []);
+    socket.emit("companies:init", initialPayload.companies.companies || []);
+    socket.emit("analytics:init", initialPayload.analytics);
+    socket.emit("cache:init", initialPayload.cache);
+    socket.emit("telegram:init", initialPayload.telegram);
 };
 
 const authenticateSocket = async (socket, next) => {
@@ -199,11 +209,7 @@ const init = (server) => {
 
         try {
             const initialPayload = await buildDashboardPayload();
-            socket.emit("dashboard:init", initialPayload);
-            socket.emit("companies:update", initialPayload.companies);
-            socket.emit("analytics:update", initialPayload.analytics);
-            socket.emit("cache:update", initialPayload.cache);
-            socket.emit("telegram:update", initialPayload.telegram);
+            emitInitialState(socket, initialPayload);
         } catch (error) {
             console.error("[Socket] Failed to send initial state:", error.message);
         }
@@ -275,6 +281,18 @@ const emitDashboardSnapshot = async () => {
     broadcast("dashboard:update", payload);
     broadcast("analytics:update", payload.analytics);
     broadcast("cache:update", payload.cache);
+    broadcast("pipeline:progress", {
+        timestamp: Date.now(),
+        pipeline: payload.pipeline,
+        companyIndex: payload.pipeline.companyIndex,
+        totalCompanies: payload.pipeline.totalCompanies,
+        companyName: payload.pipeline.currentCompany,
+        stage: payload.pipeline.currentStage,
+        retryCount: payload.pipeline.retryCount,
+        jobsFound: payload.pipeline.jobsFound,
+        matchedJobs: payload.pipeline.matchedJobs,
+        elapsedTime: payload.pipeline.elapsedTime
+    });
     return payload;
 };
 

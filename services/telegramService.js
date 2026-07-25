@@ -42,9 +42,30 @@ let isStarting = false;
 let reconnectDelay = 5000;
 let allowedChannels = new Set();
 
+const emitTelegramSnapshot = async (lastMessage = null) => {
+    try {
+        const socketService = require("./socketService");
+        const channels = await TelegramChannel.find({ enabled: true }).sort({ priority: 1, name: 1 }).lean();
+        socketService.broadcast("telegram:update", {
+            connected: listenerStatus.status === "Connected",
+            monitoredChannels: listenerStatus.monitoredChannels || channels.map((channel) => channel.username),
+            channels,
+            messagesProcessed: channels.reduce((sum, channel) => sum + (channel.messagesProcessed || 0), 0),
+            jobsFound: channels.reduce((sum, channel) => sum + (channel.jobsFound || 0), 0),
+            matchedJobs: channels.reduce((sum, channel) => sum + (channel.matchedJobs || 0), 0),
+            deliveryErrors: channels.reduce((sum, channel) => sum + (channel.errorCount || 0), 0),
+            lastMessageAt: listenerStatus.lastJobMessageAt,
+            lastMessage
+        });
+    } catch (error) {
+        console.log(`[Telegram] Socket update skipped: ${error.message}`);
+    }
+};
+
 const loadChannels = async () => {
     const channels = await TelegramChannel.find({ enabled: true });
     allowedChannels = new Set(channels.map(c => c.username.toLowerCase()));
+    listenerStatus.monitoredChannels = channels.map(c => c.username);
     await TelegramChannel.updateMany({ enabled: true }, { $set: { status: "Online" } });
 };
 
@@ -433,6 +454,13 @@ const handleIncomingMessage = async (event) => {
             },
             { returnDocument: "after" }
         ).catch(() => null);
+        emitTelegramSnapshot({
+            channel: chatUsername || "Unknown",
+            text: text.substring(0, 240),
+            receivedAt: new Date(),
+            parsed: false,
+            matched: false
+        }).catch(() => {});
 
         let inlineUrls = [];
         if (message.entities) {
@@ -489,6 +517,15 @@ const handleIncomingMessage = async (event) => {
             if (jobCount === 0) channelRecord.parsingFailures += 1;
             await channelRecord.save();
         }
+        emitTelegramSnapshot({
+            channel: chatUsername || "Unknown",
+            text: text.substring(0, 240),
+            receivedAt: new Date(),
+            parsed: jobCount > 0,
+            matched: matchCount > 0,
+            jobsFound: jobCount,
+            matchedJobs: matchCount
+        }).catch(() => {});
 
     } catch (handlerError) {
         console.log(`[Telegram] Unhandled Error in message handler: ${handlerError.message}`);
@@ -496,6 +533,12 @@ const handleIncomingMessage = async (event) => {
             { username: { $regex: new RegExp(`^${chatUsername || ''}$`, 'i') } },
             { $inc: { errorCount: 1 }, $set: { lastError: handlerError.message, status: "Error" } }
         ).catch(() => {});
+        emitTelegramSnapshot({
+            channel: chatUsername || "Unknown",
+            text: handlerError.message,
+            receivedAt: new Date(),
+            error: true
+        }).catch(() => {});
     }
 };
 
@@ -569,10 +612,6 @@ const startTelegramListener = async () => {
         
         console.log("[Telegram] Connected");
         
-        // Polling channels
-        if (global.telegramChannelPoller) clearInterval(global.telegramChannelPoller);
-        global.telegramChannelPoller = setInterval(loadChannels, 60000);
-
         // Bind cleanly
         const filter = new NewMessage({});
         telegramClient.addEventHandler(handleIncomingMessage, filter);

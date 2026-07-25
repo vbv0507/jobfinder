@@ -103,6 +103,7 @@
     document.addEventListener("DOMContentLoaded", async () => {
         const socket = await createSocket();
         socket.on('dashboard:init', (payload) => renderAnalytics(payload.analytics || payload));
+        socket.on('analytics:init', renderAnalytics);
         socket.on('analytics:update', renderAnalytics);
     });
 </script>

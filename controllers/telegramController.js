@@ -36,6 +36,7 @@ exports.toggleChannel = async (req, res) => {
         }
         
         await logAuditAction(req, 'Telegram Edit', `Toggled channel ${channel.username} to ${enabled}`);
+        await reloadChannels();
         emitTelegramUpdate().catch(error => console.error("[Socket] Failed to emit telegram:update:", error.message));
         
         res.status(200).json({ success: true, channel });
@@ -62,6 +63,7 @@ exports.addChannel = async (req, res) => {
         });
         
         await logAuditAction(req, 'Telegram Edit', `Added channel ${username}`);
+        await reloadChannels();
         emitTelegramUpdate().catch(error => console.error("[Socket] Failed to emit telegram:update:", error.message));
         
         res.status(201).json({ success: true, channel });
@@ -78,6 +80,7 @@ exports.deleteChannel = async (req, res) => {
         if (channel) {
             await logAuditAction(req, 'Telegram Edit', `Deleted channel ${channel.username}`);
         }
+        await reloadChannels();
         emitTelegramUpdate().catch(error => console.error("[Socket] Failed to emit telegram:update:", error.message));
         res.status(200).json({ success: true, message: 'Channel deleted' });
     } catch (error) {

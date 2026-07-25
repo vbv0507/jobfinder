@@ -45,26 +45,34 @@
         document.getElementById('telegram-messages').innerText = data.messagesProcessed || 0;
         document.getElementById('telegram-channels').innerText = (data.channels || []).length;
         document.getElementById('telegram-errors').innerText = data.deliveryErrors || 0;
+        if (data.lastMessage) appendTelegramMessage(data.lastMessage);
+    }
+
+    function appendTelegramMessage(message) {
+        const feed = document.getElementById('telegram-feed');
+        feed.querySelector('p')?.remove();
+        feed.insertAdjacentHTML('afterbegin', `
+            <div class="flex items-start gap-4">
+                <div class="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center text-primary shrink-0">
+                    <i class="fa-brands fa-telegram-plane"></i>
+                </div>
+                <div class="bg-background border border-border rounded-2xl rounded-tl-none p-4 max-w-2xl">
+                    <p class="text-xs text-textMuted mb-2">${new Date(message.receivedAt || Date.now()).toLocaleTimeString()} - ${message.channel || 'Telegram'}</p>
+                    <p class="text-sm text-textMain">${message.text || ''}</p>
+                    <p class="text-xs text-textMuted mt-2">Jobs: ${message.jobsFound || 0} - Matches: ${message.matchedJobs || 0}</p>
+                </div>
+            </div>
+        `);
     }
 
     document.addEventListener('DOMContentLoaded', async () => {
         const socket = await createSocket();
         socket.on('dashboard:init', (payload) => renderTelegram(payload.telegram || {}));
+        socket.on('telegram:init', renderTelegram);
         socket.on('telegram:update', renderTelegram);
         socket.on('logs:new', (log) => {
             if (!String(log.message || '').toLowerCase().includes('telegram')) return;
-            const feed = document.getElementById('telegram-feed');
-            feed.insertAdjacentHTML('afterbegin', `
-                <div class="flex items-start gap-4">
-                    <div class="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center text-primary shrink-0">
-                        <i class="fa-brands fa-telegram-plane"></i>
-                    </div>
-                    <div class="bg-background border border-border rounded-2xl rounded-tl-none p-4 max-w-2xl">
-                        <p class="text-xs text-textMuted mb-2">${new Date(log.time).toLocaleTimeString()}</p>
-                        <p class="text-sm text-textMain">${log.message}</p>
-                    </div>
-                </div>
-            `);
+            appendTelegramMessage({ receivedAt: log.time, channel: 'Log', text: log.message });
         });
     });
 </script>

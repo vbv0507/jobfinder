@@ -22,6 +22,11 @@ async function initSocket() {
         }
     });
 
+    socket.on('logs:init', (logs) => {
+        allLogs = [...(logs || [])];
+        renderLogs(allLogs);
+    });
+
     socket.on('logs:new', (logEntry) => {
         allLogs.unshift(logEntry);
         if (allLogs.length > 500) allLogs.pop();

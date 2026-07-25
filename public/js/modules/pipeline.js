@@ -19,6 +19,22 @@ async function initSocket() {
         if (payload.pipeline) updatePipelineDOM(payload.pipeline);
     });
 
+    socket.on('pipeline:init', (pipeline) => {
+        updatePipelineDOM(pipeline);
+    });
+
+    socket.on('pipeline:started', (pipeline) => {
+        updatePipelineDOM(pipeline);
+    });
+
+    socket.on('pipeline:finished', (pipeline) => {
+        updatePipelineDOM(pipeline);
+    });
+
+    socket.on('pipeline:stopped', (pipeline) => {
+        updatePipelineDOM(pipeline);
+    });
+
     socket.on('telemetry:update', (payload) => {
         if (payload.pipeline) updatePipelineDOM(payload.pipeline);
     });
@@ -30,20 +46,22 @@ async function initSocket() {
     });
 
     socket.on('pipeline:progress', (entry) => {
+        if (entry.pipeline) updatePipelineDOM(entry.pipeline);
         allLogs.unshift({
             time: entry.timestamp,
             level: entry.status || 'INFO',
-            message: entry.message || entry.stage
+            message: entry.message || `${entry.stage || 'Progress'}${entry.companyName ? ` - ${entry.companyName}` : ''}`
         });
         if (allLogs.length > 500) allLogs.pop();
         updateTimelineDOM(allLogs);
     });
 
-    socket.on('pipeline:error', (message) => {
+    socket.on('pipeline:error', (payload) => {
+        if (payload?.pipeline) updatePipelineDOM(payload.pipeline);
         allLogs.unshift({
             time: Date.now(),
             level: 'ERROR',
-            message
+            message: payload?.message || payload
         });
         updateTimelineDOM(allLogs);
     });

@@ -39,6 +39,7 @@
     document.addEventListener("DOMContentLoaded", async () => {
         const socket = await createSocket();
         socket.on('dashboard:init', (payload) => renderChannels(payload.telegram || {}));
+        socket.on('telegram:init', renderChannels);
         socket.on('telegram:update', renderChannels);
     });
 </script>

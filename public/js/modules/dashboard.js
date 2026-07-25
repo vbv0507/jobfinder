@@ -42,6 +42,11 @@ async function initSocket() {
         updateButtons(payload.pipeline?.running);
     });
 
+    socket.on('pipeline:init', (pipeline) => {
+        updateDOM({ pipeline });
+        updateButtons(pipeline?.running);
+    });
+
     socket.on('analytics:update', (payload) => {
         currentMetrics = payload.metrics || currentMetrics;
         updateDOM({ metrics: currentMetrics });
@@ -63,8 +68,8 @@ async function initSocket() {
         updateButtons(false);
     });
 
-    socket.on('pipeline:error', (message) => {
-        updateConnectionStatus(message || "Pipeline error");
+    socket.on('pipeline:error', (payload) => {
+        updateConnectionStatus(payload?.message || payload || "Pipeline error");
         isRunning = false;
         updateButtons(false);
     });
@@ -101,8 +106,8 @@ function updateDOM(data) {
         'metric-matched': pipeline.running ? pipeline.matchedJobs : (metrics["Matched Jobs"] || 0),
         'metric-ai-eval': pipeline.running ? pipeline.aiEvaluated : (metrics["AI Evaluations"] || 0),
 
-        'metric-healthy': Math.max(0, (metrics["Actually Scraped"] || 0) - (metrics["Parser Failures"] || 0) - (metrics["Validation Failures"] || 0)),
-        'metric-failed': (metrics["Parser Failures"] || 0) + (metrics["Validation Failures"] || 0),
+        'metric-healthy': pipeline.running ? (pipeline.successfulCompanies || 0) : (metrics["Successful Companies"] || Math.max(0, (metrics["Actually Scraped"] || 0) - (metrics["Failed Companies"] || 0))),
+        'metric-failed': pipeline.running ? (pipeline.failedCompanies || 0) : (metrics["Failed Companies"] || 0),
         'metric-parser-err': metrics["Parser Failures"] || 0,
         'metric-ats-changed': metrics["ATS Changed"] || 0,
 

@@ -154,6 +154,12 @@ const getAnalyticsData = async () => {
         
         
         const lastSuccess = await SearchLog.findOne({ status: "Success" }).sort({ createdAt: -1 });
+        const latestRun = await SearchLog.findOne({ status: { $ne: "Running" } }).sort({ startedAt: -1, createdAt: -1 }).lean();
+        const latest = latestRun || {};
+        const latestCompaniesScanned = latest.companiesScanned || latest.totalCompanies || 0;
+        const latestSuccessfulCompanies = latest.successfulCompanies || 0;
+        const latestFailedCompanies = latest.failedCompanies || 0;
+        const latestCachedCompanies = latest.skippedRuns || 0;
 
         return {
             stats: {
@@ -174,25 +180,27 @@ const getAnalyticsData = async () => {
                 avgRuntimeMs: Math.round(systemMetrics.avgRuntime || 0),
                 avgJobsFound: Math.round(systemMetrics.avgJobsFound || 0),
                 avgMatches: Math.round(systemMetrics.avgMatches || 0),
-                successRate: systemMetrics.totalRuns > 0 ? Math.round((systemMetrics.successRuns / systemMetrics.totalRuns) * 100) : 0,
-                failureRate: systemMetrics.totalRuns > 0 ? Math.round((systemMetrics.failedRuns / systemMetrics.totalRuns) * 100) : 0,
-                skippedRuns: systemMetrics.skippedRuns || 0,
+                successRate: latestCompaniesScanned > 0 ? Math.round((latestSuccessfulCompanies / latestCompaniesScanned) * 100) : 100,
+                failureRate: latestCompaniesScanned > 0 ? Math.round((latestFailedCompanies / latestCompaniesScanned) * 100) : 0,
+                skippedRuns: latestCachedCompanies,
                 lastSuccessfulRun: lastSuccess ? lastSuccess.createdAt : null,
                 nextScheduledRun: pipelineState.nextRunTime
             },
             metrics: {
-                "Actually Scraped": systemMetrics.totalRuns || 0,
-                "Cached Companies": systemMetrics.skippedRuns || 0, // Approx
-                "Recovered Nodes": systemMetrics.totalRetriedSuccessfully || 0,
-                "Raw Jobs": rawJobsCount || 0,
-                "Matched Jobs": matchedJobsCount || 0,
-                "AI Evaluations": systemMetrics.totalJobsEvaluated || aiEvaluatedCount || 0,
-                "Parser Failures": systemMetrics.totalParserOutdated || 0,
-                "Validation Failures": systemMetrics.totalValidationDrops || 0,
-                "ATS Changed": systemMetrics.totalAtsChanged || 0,
-                "Cloudflare Blocks": systemMetrics.totalBlocked || 0,
-                "Average Runtime": systemMetrics.avgRuntime || 0,
-                "Average Company Time": systemMetrics.avgEvaluationTime || 0
+                "Actually Scraped": latestCompaniesScanned,
+                "Cached Companies": latestCachedCompanies,
+                "Successful Companies": latestSuccessfulCompanies,
+                "Failed Companies": latestFailedCompanies,
+                "Recovered Nodes": latest.retriedSuccessfully || 0,
+                "Raw Jobs": latest.jobsFound || latest.totalJobs || 0,
+                "Matched Jobs": latest.jobsMatched || latest.matchedJobs || 0,
+                "AI Evaluations": latest.jobsEvaluated || latest.aiEvaluations || aiEvaluatedCount || 0,
+                "Parser Failures": latest.parserOutdated || 0,
+                "Validation Failures": latest.validationDrops || 0,
+                "ATS Changed": latest.atsChanged || 0,
+                "Cloudflare Blocks": latest.blocked || 0,
+                "Average Runtime": latest.durationMs || 0,
+                "Average Company Time": latest.averageCompanyTime || 0
             },
             charts: {
                 companyDistribution,

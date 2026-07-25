@@ -85,6 +85,7 @@
     document.addEventListener("DOMContentLoaded", async () => {
         socket = await createSocket();
         socket.on('dashboard:init', (payload) => renderCacheMetrics(payload.cache));
+        socket.on('cache:init', renderCacheMetrics);
         socket.on('cache:update', renderCacheMetrics);
     });
 </script>

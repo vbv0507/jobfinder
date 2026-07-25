@@ -113,16 +113,6 @@ router.get('/timeline', requireAdmin, async (req, res) => {
     }
 });
 
-router.get('/live', requireViewer, async (req, res) => {
-    try {
-        const socketService = require('../services/socketService');
-        const payload = await socketService.buildDashboardPayload();
-        res.json({ success: true, ...payload });
-    } catch (e) {
-        res.status(500).json({ success: false, error: e.message });
-    }
-});
-
 // New Endpoints
 router.post('/pipeline/stop', requireAdmin, async (req, res) => {
     try {
