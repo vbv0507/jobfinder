@@ -1,0 +1,1 @@
+const mongoose = require('mongoose'); const SearchLog = require('./models/SearchLog'); require('@dotenvx/dotenvx').config(); mongoose.connect(process.env.MONGODB_URI).then(async () => { const log = await SearchLog.findOne({status: {'$ne': 'Running'}}).sort({startedAt: -1, createdAt: -1}).lean(); console.log(log); process.exit(0); }).catch(console.error);

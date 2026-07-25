@@ -93,14 +93,14 @@ const buildTelegramPayload = async () => {
     };
 };
 
-const buildDashboardPayload = async () => {
+const buildDashboardPayload = async (forceRefresh = false) => {
     const { getAnalyticsData } = require("./analyticsService");
     const pipelineState = require("./pipelineState");
     const PipelineLock = require("../models/PipelineLock");
 
     const [lock, analytics, companies, cache, telegram] = await Promise.all([
         PipelineLock.findOne({ lockId: "global_pipeline_lock" }).lean(),
-        getAnalyticsData(),
+        getAnalyticsData(forceRefresh),
         buildCompanyPayload(),
         buildCachePayload(),
         buildTelegramPayload()
@@ -282,8 +282,8 @@ const emitCompany = (company) => {
     broadcast("company:update", company);
 };
 
-const emitDashboardSnapshot = async () => {
-    const payload = await buildDashboardPayload();
+const emitDashboardSnapshot = async (forceRefresh = false) => {
+    const payload = await buildDashboardPayload(forceRefresh);
     broadcast("dashboard:update", payload);
     broadcast("analytics:update", payload.analytics);
     broadcast("cache:update", payload.cache);

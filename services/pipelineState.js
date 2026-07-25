@@ -71,10 +71,7 @@ class PipelineStateManager {
         this.progress = "100%";
         this.addLog("SUCCESS", "Pipeline Finished");
         socketService.emitPipeline("finished", this.snapshot());
-        this.emitUpdate();
-        setTimeout(() => {
-            socketService.emitDashboardSnapshot().catch(error => console.error("[Socket] Failed to refresh dashboard after finish:", error.message));
-        }, 1500);
+        socketService.emitDashboardSnapshot(true).catch(error => console.error("[Socket] Failed to refresh dashboard after finish:", error.message));
     }
 
     fail(errorMsg) {
