@@ -1,10 +1,54 @@
 const escapeRegExp = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
-const hasExcludedKeyword = (job, excludedKeywords = []) => {
-  const titleText = [job.title, job.experience].filter(Boolean).join(" ").toLowerCase();
-  const fullText = [job.title, job.experience, job.description].filter(Boolean).join(" ").toLowerCase();
+const hasRequiredFields = (job) => {
+  if (!job.title || job.title.length < 3) return { passed: false, reason: "Missing or invalid title" };
+  if (!job.applyLink && !job.url) return { passed: false, reason: "Missing apply link" };
+  return { passed: true };
+};
+
+const hasAllowedLocation = (job, company) => {
+  const allowedLocations = company.targetLocations || [];
+  const validLocations = allowedLocations.filter(loc => loc && typeof loc === 'string' && loc.trim() !== '');
   
-  // Specific drop logic to yield descriptive reasons
+  if (validLocations.length === 0) {
+      return { passed: true }; // No location constraints
+  }
+
+  const rawText = (job.location || "").toLowerCase();
+  if (!rawText || rawText === "not specified") return { passed: true }; 
+  
+  const normalizeLocationString = (locStr) => {
+    let str = locStr.toLowerCase().replace(/[^a-z0-9]/g, ' ');
+    const usStates = ['al','ak','az','ar','ca','co','ct','de','fl','ga','hi','id','il','in','ia','ks','ky','la','me','md','ma','mi','mn','ms','mo','mt','ne','nv','nh','nj','nm','ny','nc','nd','oh','ok','or','pa','ri','sc','sd','tn','tx','ut','vt','va','wa','wv','wi','wy'];
+    const words = str.split(/\s+/).filter(Boolean);
+    if (words.some(w => usStates.includes(w)) && !words.includes('us') && !words.includes('united') && !words.includes('states')) {
+        str += " us";
+    }
+    return str.trim();
+  };
+  
+  const normalizedJobLocation = normalizeLocationString(rawText);
+  
+  const matchedLocation = validLocations.some((location) => {
+      const target = normalizeLocationString(location);
+      return normalizedJobLocation.includes(target);
+  });
+  
+  if (!matchedLocation) {
+      return { passed: false, reason: `Location mismatch: '${job.location}' not in allowed list` };
+  }
+  
+  return { passed: true };
+};
+
+const hasAllowedEmploymentType = (job) => {
+  // Reserved for explicit employment type checks (e.g. Intern, Contract) if company config requires it.
+  return { passed: true }; 
+};
+
+const hasAllowedExperience = (job) => {
+  const titleText = [job.title, job.experience].filter(Boolean).join(" ").toLowerCase();
+  
   const expMatch = [...titleText.matchAll(/(\d+)\s*(?:\+|-|to)\s*(?:\d+)?\s*(?:years?|yrs?)/g)];
   if (expMatch.some((match) => Number(match[1]) >= 2)) {
       const highest = Math.max(...expMatch.map(m => Number(m[1])));
@@ -20,8 +64,16 @@ const hasExcludedKeyword = (job, excludedKeywords = []) => {
   if (midLevelMatch) {
       return { passed: false, reason: `Seniority mismatch: ${midLevelMatch[0]}` };
   }
+  
+  return { passed: true };
+};
 
+const hasExcludedKeyword = (job, excludedKeywords = []) => {
+  const titleText = [job.title, job.experience].filter(Boolean).join(" ").toLowerCase();
+  const fullText = [job.title, job.experience, job.description].filter(Boolean).join(" ").toLowerCase();
+  
   for (const keyword of excludedKeywords) {
+    if (!keyword || typeof keyword !== 'string' || keyword.trim() === '') continue;
     const normalizedKeyword = keyword.toLowerCase().trim();
     const isExperienceRange = /\d+\s*(?:\+|-|to)\s*\d*/.test(normalizedKeyword);
     const text = isExperienceRange ? fullText : titleText;
@@ -43,39 +95,22 @@ const hasExcludedKeyword = (job, excludedKeywords = []) => {
 
 const hasTargetKeyword = (job, company) => {
   const targetKeywords = Array.isArray(company.targetKeywords) ? company.targetKeywords : [];
-  const excludedKeywords = Array.isArray(company.excludedKeywords) ? company.excludedKeywords : [];
   
-  const excludedCheck = hasExcludedKeyword(job, excludedKeywords);
-  if (!excludedCheck.passed) return excludedCheck; // Return {passed: false, reason: "..."}
-  
-  if (targetKeywords.length === 0) return { passed: true };
+  const validTargets = targetKeywords.filter(k => k && typeof k === 'string' && k.trim() !== '');
+  if (validTargets.length === 0) return { passed: true };
   
   const text = [job.title, job.experience].filter(Boolean).join(" ").toLowerCase();
-  const matchedTarget = targetKeywords.some((keyword) => text.includes(keyword.toLowerCase()));
+  const matchedTarget = validTargets.some((keyword) => text.includes(keyword.toLowerCase().trim()));
   
   if (!matchedTarget) {
-      return { passed: false, reason: `Title missing target keywords (e.g. ${targetKeywords[0] || 'none'})` };
+      return { passed: false, reason: `Title missing target keywords (e.g. ${validTargets[0]})` };
   }
   
   return { passed: true };
 };
 
-const hasAllowedLocation = (job, company) => {
-  const allowedLocations = company.targetLocations || [];
-  
-  if (allowedLocations.length === 0) {
-      return { passed: true }; // No location constraints
-  }
-
-  const text = (job.location || "").toLowerCase();
-  if (!text || text === "not specified") return { passed: true }; 
-  
-  const matchedLocation = allowedLocations.some((location) => text.includes(location.toLowerCase()));
-  
-  if (!matchedLocation) {
-      return { passed: false, reason: `Location mismatch: '${job.location}' not in allowed list` };
-  }
-  
+const hasAllowedDomain = (job, company) => {
+  // Reserved for explicit domain checks (e.g. "Fintech", "Healthcare") if required.
   return { passed: true };
 };
 
@@ -95,23 +130,12 @@ const normalizeLocation = (loc) => {
 const applyJobFilters = (jobs, company, droppedJobs = []) => {
   const uniqueJobs = new Map();
   
-  // Normalization and Deduplication
+  // Scraper output normalization
   jobs.forEach(job => {
     job.title = normalizeTitle(job.title);
     job.location = normalizeLocation(job.location);
     
-    if (!job.title || job.title.length < 3) {
-       droppedJobs.push({ 
-           company: company.companyName || company.name, 
-           jobTitle: job.title || "Unknown", 
-           reason: "Invalid or empty title after normalization", 
-           url: job.url || job.applyLink, 
-           ats: company.ats || 'unknown', 
-           validationStage: 'normalization' 
-       });
-       return;
-    }
-    
+    // Deduplication (Phase 4 Sequence: Scraper -> Duplicate)
     const dedupKey = `${job.title.toLowerCase()}||${job.location.toLowerCase()}`;
     if (!uniqueJobs.has(dedupKey)) {
         uniqueJobs.set(dedupKey, job);
@@ -119,39 +143,63 @@ const applyJobFilters = (jobs, company, droppedJobs = []) => {
        droppedJobs.push({ 
            company: company.companyName || company.name, 
            jobTitle: job.title, 
+           location: job.location,
+           applyLink: job.url || job.applyLink,
            reason: "Duplicate job within same scrape", 
-           url: job.url || job.applyLink, 
-           ats: company.ats || 'unknown', 
-           validationStage: 'deduplication' 
+           validator: "duplicate_validator",
+           validationStage: "Duplicate" 
        });
     }
   });
 
   return Array.from(uniqueJobs.values()).filter((job) => {
     
-    const locationCheck = hasAllowedLocation(job, company);
-    if (!locationCheck.passed) {
-      droppedJobs.push({ 
-          company: company.companyName || company.name, 
-          jobTitle: job.title || "Unknown", 
-          reason: locationCheck.reason, 
-          url: job.url || job.applyLink, 
-          ats: company.ats || 'unknown', 
-          validationStage: 'applyJobFilters' 
-      });
+    // 1. Required Fields
+    const reqCheck = hasRequiredFields(job);
+    if (!reqCheck.passed) {
+      droppedJobs.push({ company: company.name, jobTitle: job.title, location: job.location, applyLink: job.url || job.applyLink, validator: "hasRequiredFields", validationStage: "Required Fields", reason: reqCheck.reason });
       return false;
     }
     
-    const keywordCheck = hasTargetKeyword(job, company);
-    if (!keywordCheck.passed) {
-      droppedJobs.push({ 
-          company: company.companyName || company.name, 
-          jobTitle: job.title || "Unknown", 
-          reason: keywordCheck.reason, 
-          url: job.url || job.applyLink, 
-          ats: company.ats || 'unknown', 
-          validationStage: 'applyJobFilters' 
-      });
+    // 2. Location
+    const locCheck = hasAllowedLocation(job, company);
+    if (!locCheck.passed) {
+      droppedJobs.push({ company: company.name, jobTitle: job.title, location: job.location, applyLink: job.url || job.applyLink, validator: "hasAllowedLocation", validationStage: "Location", reason: locCheck.reason });
+      return false;
+    }
+    
+    // 3. Employment
+    const empCheck = hasAllowedEmploymentType(job);
+    if (!empCheck.passed) {
+      droppedJobs.push({ company: company.name, jobTitle: job.title, location: job.location, applyLink: job.url || job.applyLink, validator: "hasAllowedEmploymentType", validationStage: "Employment", reason: empCheck.reason });
+      return false;
+    }
+    
+    // 4. Experience
+    const expCheck = hasAllowedExperience(job);
+    if (!expCheck.passed) {
+      droppedJobs.push({ company: company.name, jobTitle: job.title, location: job.location, applyLink: job.url || job.applyLink, validator: "hasAllowedExperience", validationStage: "Experience", reason: expCheck.reason });
+      return false;
+    }
+    
+    // 5. Keyword (Target)
+    const targetKwCheck = hasTargetKeyword(job, company);
+    if (!targetKwCheck.passed) {
+      droppedJobs.push({ company: company.name, jobTitle: job.title, location: job.location, applyLink: job.url || job.applyLink, validator: "hasTargetKeyword", validationStage: "Keyword", reason: targetKwCheck.reason });
+      return false;
+    }
+    
+    // 6. Keyword (Excluded)
+    const excludedKwCheck = hasExcludedKeyword(job, Array.isArray(company.excludedKeywords) ? company.excludedKeywords : []);
+    if (!excludedKwCheck.passed) {
+      droppedJobs.push({ company: company.name, jobTitle: job.title, location: job.location, applyLink: job.url || job.applyLink, validator: "hasExcludedKeyword", validationStage: "Excluded Keyword", reason: excludedKwCheck.reason });
+      return false;
+    }
+    
+    // 7. Domain
+    const domCheck = hasAllowedDomain(job, company);
+    if (!domCheck.passed) {
+      droppedJobs.push({ company: company.name, jobTitle: job.title, location: job.location, applyLink: job.url || job.applyLink, validator: "hasAllowedDomain", validationStage: "Domain", reason: domCheck.reason });
       return false;
     }
     
@@ -161,7 +209,11 @@ const applyJobFilters = (jobs, company, droppedJobs = []) => {
 
 module.exports = {
   applyJobFilters,
+  hasRequiredFields,
   hasAllowedLocation,
+  hasAllowedEmploymentType,
+  hasAllowedExperience,
   hasTargetKeyword,
-  hasExcludedKeyword
+  hasExcludedKeyword,
+  hasAllowedDomain
 };

@@ -46,7 +46,7 @@ const rawJobSchema=new mongoose.Schema({
     aiEvaluatedAt: Date,
 },{timestamps:true});
 
-rawJobSchema.index({ company: 1, jobId: 1 }, { unique: true });
+rawJobSchema.index({ company: 1, jobId: 1 }, { unique: true, sparse: true });
 rawJobSchema.index({ company: 1, applyLink: 1 });
 
 module.exports=mongoose.model("RawJob",rawJobSchema);

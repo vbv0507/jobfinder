@@ -270,7 +270,23 @@ const runSearch = async (triggerSource = "Unknown", forceRefresh = false) => {
       let companyMetrics = {
           jobsScraped: 0,
           jobsParsed: 0,
-          jobsValidated: 0
+          jobsValidated: 0,
+          funnel: {
+              parsed: 0,
+              duplicate: 0,
+              requiredFields: 0,
+              location: 0,
+              employment: 0,
+              experience: 0,
+              keyword: 0,
+              excludedKeyword: 0,
+              domain: 0,
+              passed: 0,
+              aiEvaluated: 0,
+              aiRejected: 0,
+              matched: 0,
+              saved: 0
+          }
       };
       const companyStartTime = Date.now();
 
@@ -291,7 +307,24 @@ const runSearch = async (triggerSource = "Unknown", forceRefresh = false) => {
             companyMetrics.parserName = adapter.parserName;
             companyMetrics.parserVersion = adapter.parserVersion;
             
-            jobs = await adapter.searchJobs();
+            const searchPromise = adapter.searchJobs();
+            const timeoutPromise = new Promise((_, reject) => {
+                const interval = setInterval(() => {
+                    if (pipelineState.cancelRequested) {
+                        clearInterval(interval);
+                        reject(new Error("Pipeline cancelled by user"));
+                    }
+                }, 1000);
+                
+                setTimeout(() => {
+                    clearInterval(interval);
+                    reject(new Error("Scraper timeout: Exceeded 4 minutes"));
+                }, 4 * 60 * 1000);
+                
+                searchPromise.finally(() => clearInterval(interval)).catch(() => {});
+            });
+            
+            jobs = await Promise.race([searchPromise, timeoutPromise]);
             
             // Append scraper internal trail if present
             if (adapter.trail) {
@@ -408,6 +441,52 @@ const runSearch = async (triggerSource = "Unknown", forceRefresh = false) => {
                const r = drop.reason || 'Unknown';
                stats.validationDropsByReason[r] = (stats.validationDropsByReason[r] || 0) + 1;
              }
+
+             // Bulk Write Rejected Jobs (Phase 2 & 9)
+             if (droppedJobs.length > 0) {
+                 const RejectedJob = require("../models/RejectedJob");
+                 try {
+                     const bulkOps = droppedJobs.map(drop => ({
+                         updateOne: {
+                             filter: { 
+                                 role: drop.jobTitle, 
+                                 company: company._id,
+                                 applyLink: drop.applyLink
+                             },
+                             update: { 
+                                 $set: { 
+                                     role: drop.jobTitle,
+                                     location: drop.location,
+                                     applyLink: drop.applyLink,
+                                     company: company._id,
+                                     reason: drop.reason,
+                                     validationStage: drop.validationStage,
+                                     validator: drop.validator,
+                                     lastScrapedAt: new Date()
+                                 } 
+                             },
+                             upsert: true
+                         }
+                     }));
+                     await RejectedJob.bulkWrite(bulkOps, { ordered: false });
+                 } catch (err) {
+                     console.log(chalk.red(`[RejectedJob] BulkWrite error for ${company.name}: ${err.message}`));
+                 }
+             }
+             
+             // Track exact funnel for this company
+             companyMetrics.funnel.parsed = jobs.length;
+             companyMetrics.funnel.passed = validJobs.length;
+             droppedJobs.forEach(drop => {
+               if (drop.validationStage === 'Duplicate') companyMetrics.funnel.duplicate++;
+               else if (drop.validationStage === 'Required Fields') companyMetrics.funnel.requiredFields++;
+               else if (drop.validationStage === 'Location') companyMetrics.funnel.location++;
+               else if (drop.validationStage === 'Employment') companyMetrics.funnel.employment++;
+               else if (drop.validationStage === 'Experience') companyMetrics.funnel.experience++;
+               else if (drop.validationStage === 'Keyword') companyMetrics.funnel.keyword++;
+               else if (drop.validationStage === 'Excluded Keyword') companyMetrics.funnel.excludedKeyword++;
+               else if (drop.validationStage === 'Domain') companyMetrics.funnel.domain++;
+             });
           }
 
           companyJobsFound = validJobs.length;
@@ -461,6 +540,8 @@ const runSearch = async (triggerSource = "Unknown", forceRefresh = false) => {
               
               companyAiEvaluated++;
               stats.aiEvaluations++;
+              companyMetrics.funnel.aiEvaluated++;
+              
               if (result.analysis && result.analysis.provider) {
                   pipelineState.currentAiProvider = result.analysis.provider.toLowerCase();
               } else if (!result.skipped) {
@@ -499,6 +580,9 @@ const runSearch = async (triggerSource = "Unknown", forceRefresh = false) => {
                 stats.newJobs++;
                 companyJobsMatched++;
                 pipelineState.jobsMatched++;
+                companyMetrics.funnel.matched++;
+                
+                if (!isDuplicate) companyMetrics.funnel.saved++;
                 
                 const providerStr = result.analysis.provider ? result.analysis.provider.charAt(0).toUpperCase() + result.analysis.provider.slice(1) : "Gemini";
                 stats.aiProviderUsed = providerStr;
@@ -517,6 +601,8 @@ const runSearch = async (triggerSource = "Unknown", forceRefresh = false) => {
                     });
                   } catch (emailError) {}
                 }
+              } else {
+                  companyMetrics.funnel.aiRejected++;
               }
             } catch (error) {
               companyErrors++;
@@ -540,6 +626,16 @@ const runSearch = async (triggerSource = "Unknown", forceRefresh = false) => {
             stats.failedCompanies++;
           } else {
             stats.successfulCompanies++;
+          }
+          
+          // Emit Validation Funnel Telemetry
+          try {
+              socketService.emitToAll("validation_funnel_update", {
+                 company: company.name,
+                 funnel: companyMetrics.funnel
+              });
+          } catch (e) {
+              console.error("[Telemetry Error] Failed to emit funnel for " + company.name, e.message);
           }
           
           // Closed Job Detection

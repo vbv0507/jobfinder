@@ -336,6 +336,7 @@ module.exports = {
     getIO,
     emit,
     broadcast,
+    emitToAll: broadcast,
     emitDashboard,
     emitPipeline,
     emitAnalytics,

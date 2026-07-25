@@ -42,4 +42,8 @@ router.get('/evidence', (req, res) => {
     res.render('pages/evidence', { title: 'Evidence Viewer' });
 });
 
+router.get('/ai-explainability', (req, res) => {
+    res.render('pages/ai-explainability', { title: 'AI Explainability' });
+});
+
 module.exports = router;

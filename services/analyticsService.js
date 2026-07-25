@@ -15,20 +15,20 @@ const getAnalyticsData = async () => {
         };
         const startOfDay = getISTStartOfDay();
         
-        const rawJobsToday = await RawJob.countDocuments({ scrapedAt: { $gte: startOfDay } }).read('primary');
-        const rawJobsCount = await RawJob.countDocuments().read('primary');
+        const rawJobsToday = await RawJob.countDocuments({ scrapedAt: { $gte: startOfDay } });
+        const rawJobsCount = await RawJob.countDocuments();
         
-        const matchedJobsCount = await MatchedJob.countDocuments().read('primary');
+        const matchedJobsCount = await MatchedJob.countDocuments();
         
         
-        const aiEvaluatedCount = await MatchedJob.countDocuments({ score: { $exists: true } }).read('primary');
+        const aiEvaluatedCount = await MatchedJob.countDocuments({ score: { $exists: true } });
         
-        const newJobsCount = await MatchedJob.countDocuments({ status: "new" }).read('primary');
-        const savedJobsCount = await MatchedJob.countDocuments({ status: "saved" }).read('primary');
-        const appliedJobsCount = await MatchedJob.countDocuments({ status: "applied" }).read('primary');
-        const rejectedJobsCount = await MatchedJob.countDocuments({ status: "rejected" }).read('primary');
+        const newJobsCount = await MatchedJob.countDocuments({ status: "new" });
+        const savedJobsCount = await MatchedJob.countDocuments({ status: "saved" });
+        const appliedJobsCount = await MatchedJob.countDocuments({ status: "applied" });
+        const rejectedJobsCount = await MatchedJob.countDocuments({ status: "rejected" });
 
-        const companiesMonitored = await Company.countDocuments({ active: true }).read('primary');
+        const companiesMonitored = await Company.countDocuments({ active: true });
 
         
         const companyDistribution = await MatchedJob.aggregate([
@@ -44,7 +44,7 @@ const getAnalyticsData = async () => {
             { $group: { _id: "$companyInfo.name", count: { $sum: 1 } } },
             { $sort: { count: -1 } },
             { $limit: 10 }
-        ]).read('primary');
+        ]);
 
         
         const scoreDistribution = await MatchedJob.aggregate([
@@ -56,17 +56,17 @@ const getAnalyticsData = async () => {
                     output: { count: { $sum: 1 } }
                 }
             }
-        ]).read('primary');
+        ]);
 
         
         const statusDistribution = await MatchedJob.aggregate([
             { $group: { _id: "$status", count: { $sum: 1 } } }
-        ]).read('primary');
+        ]);
 
         
         const evaluationDistribution = await MatchedJob.aggregate([
             { $group: { _id: "$evaluatedBy", count: { $sum: 1 } } }
-        ]).read('primary');
+        ]);
         
         
         const domainDistribution = await MatchedJob.aggregate([
@@ -74,7 +74,7 @@ const getAnalyticsData = async () => {
             { $match: { _id: { $ne: null } } },
             { $sort: { count: -1 } },
             { $limit: 5 }
-        ]).read('primary');
+        ]);
 
         const aiProviderStats = await MatchedJob.aggregate([
             { $match: { provider: { $exists: true } } },
@@ -84,7 +84,7 @@ const getAnalyticsData = async () => {
                 avgTime: { $avg: "$evaluationTimeMs" },
                 fallbacks: { $sum: { $cond: [{ $gt: ["$fallbackCount", 0] }, 1, 0] } }
             }}
-        ]).read('primary');
+        ]);
         
         let totalAiEvaluations = 0;
         let totalAiTime = 0;
@@ -120,7 +120,7 @@ const getAnalyticsData = async () => {
                 }
             },
             { $sort: { _id: 1 } }
-        ]).read('primary');
+        ]);
         
         const globalSearchLogStats = await SearchLog.aggregate([
             {
@@ -149,12 +149,12 @@ const getAnalyticsData = async () => {
                     totalValidationDrops: { $sum: "$validationDrops" }
                 }
             }
-        ]).read('primary');
+        ]);
         const systemMetrics = globalSearchLogStats.length > 0 ? globalSearchLogStats[0] : {};
         
         
-        const lastSuccess = await SearchLog.findOne({ status: "Success" }).sort({ createdAt: -1 }).read('primary');
-        const latestRun = await SearchLog.findOne({ status: { $ne: "Running" } }).sort({ startedAt: -1, createdAt: -1 }).read('primary').lean();
+        const lastSuccess = await SearchLog.findOne({ status: "Success" }).sort({ createdAt: -1 });
+        const latestRun = await SearchLog.findOne({ status: { $ne: "Running" } }).sort({ startedAt: -1, createdAt: -1 }).lean();
         const latest = latestRun || {};
         const latestCompaniesScanned = latest.companiesScanned || latest.totalCompanies || 0;
         const latestSuccessfulCompanies = latest.successfulCompanies || 0;

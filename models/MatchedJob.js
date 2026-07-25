@@ -119,7 +119,7 @@ const matchedJobSchema = new mongoose.Schema({
 
 }, { timestamps: true });
 
-matchedJobSchema.index({ rawJob: 1 }, { unique: true });
+matchedJobSchema.index({ rawJob: 1 }, { unique: true, sparse: true });
 matchedJobSchema.index({ score: -1 });
 matchedJobSchema.index({ applied: 1, appliedAt: -1 });
 

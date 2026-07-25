@@ -57,6 +57,11 @@ async function initSocket() {
         updateDOM({ metrics: currentMetrics });
         updateCharts(payload.charts || {});
     });
+    
+    socket.on('validation_funnel_update', (payload) => {
+        // payload = { company, funnel: { parsed, duplicate, ..., passed, aiEvaluated, aiRejected, matched, saved } }
+        updateFunnelChart(payload.company, payload.funnel);
+    });
 
     socket.on('pipeline:started', () => {
         isRunning = true;
@@ -99,9 +104,13 @@ function updateDOM(data) {
         ? Math.round((metrics["Cached Companies"] / ((metrics["Actually Scraped"] || 0) + (metrics["Cached Companies"] || 0))) * 100)
         : 0;
 
+    const totalScraped = metrics["Actually Scraped"] || 0;
+    const successful = metrics["Successful Companies"] || 0;
+    const healthScore = totalScraped > 0 ? Math.round((successful / totalScraped) * 100) : 100;
+
     const statsMap = {
-        'stat-health-score': "100%", // Simplified for live view
-        'stat-health-trend': 'Online',
+        'stat-health-score': healthScore + "%",
+        'stat-health-trend': healthScore >= 90 ? 'Healthy' : (healthScore >= 70 ? 'Degraded' : 'Critical'),
         'stat-ai-accuracy': aiSuccessRate + '%',
         'stat-cache-hit': (isNaN(cacheHitRate) ? 0 : cacheHitRate) + '%',
         'stat-discovery-success': metrics["Recovered Nodes"] > 0 ? "100%" : "N/A",
@@ -117,7 +126,7 @@ function updateDOM(data) {
         'metric-parser-err': metrics["Parser Failures"] || 0,
         'metric-ats-changed': metrics["ATS Changed"] || 0,
 
-        'metric-cached': metrics["Cached Companies"] || 0,
+        'metric-cached': data.cache ? (data.cache.cachedCompanies || 0) : (metrics["Cached Companies"] || 0),
         'metric-scraped': metrics["Actually Scraped"] || 0,
         'metric-retry': pipeline.running ? pipeline.retryCount : (metrics["Recovered Nodes"] || 0),
         'metric-recovered': metrics["Recovered Nodes"] || 0,
@@ -188,6 +197,7 @@ function initButtons() {
 function initCharts() {
     const ctx1 = document.getElementById('chart-pipeline-runtime');
     const ctx2 = document.getElementById('chart-cache-hit');
+    const ctx3 = document.getElementById('chart-validation-funnel');
 
     if (ctx1 && window.Chart) {
         charts.runtime = new Chart(ctx1, {
@@ -225,6 +235,28 @@ function initCharts() {
             options: { responsive: true, maintainAspectRatio: false, scales: { x: { stacked: true }, y: { stacked: true } } }
         });
     }
+
+    if (ctx3 && window.Chart) {
+        charts.funnel = new Chart(ctx3, {
+            type: 'bar',
+            data: {
+                labels: ['Parsed', 'Passed', 'Matched'],
+                datasets: [{
+                    label: 'Jobs',
+                    data: [0, 0, 0],
+                    backgroundColor: ['#94a3b8', '#3b82f6', '#22c55e']
+                }]
+            },
+            options: { 
+                indexAxis: 'y',
+                responsive: true, 
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                }
+            }
+        });
+    }
 }
 
 function updateCharts(chartData) {
@@ -240,3 +272,34 @@ function updateCharts(chartData) {
         charts.cache.update();
     }
 }
+
+// Global function to update funnel chart
+window.updateFunnelChart = function(companyName, funnelData) {
+    if (!charts.funnel) return;
+    
+    const nameEl = document.getElementById('funnel-company-name');
+    if (nameEl) nameEl.innerText = companyName;
+
+    charts.funnel.data.labels = [
+        'Parsed', 
+        'Valid (Pre-AI)', 
+        'AI Rejected',
+        'AI Matched'
+    ];
+    
+    charts.funnel.data.datasets[0].data = [
+        funnelData.parsed || 0,
+        funnelData.passed || 0,
+        funnelData.aiRejected || 0,
+        funnelData.matched || 0
+    ];
+    
+    charts.funnel.data.datasets[0].backgroundColor = [
+        '#64748b', // Parsed (gray)
+        '#3b82f6', // Valid (blue)
+        '#ef4444', // AI Rejected (red)
+        '#22c55e'  // AI Matched (green)
+    ];
+
+    charts.funnel.update();
+};
