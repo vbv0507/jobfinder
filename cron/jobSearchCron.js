@@ -266,7 +266,11 @@ const runSearch = async (triggerSource = "Unknown", forceRefresh = false) => {
       let companyStatus = "success";
       let companyErrorMsg = null;
       let companyErrors = 0;
-      let companyMetrics = {};
+      let companyMetrics = {
+          jobsScraped: 0,
+          jobsParsed: 0,
+          jobsValidated: 0
+      };
       const companyStartTime = Date.now();
 
       await withLogContext({ pipelineId, company: company.name, stage: "Fetching Jobs" }, async () => {
@@ -338,7 +342,7 @@ const runSearch = async (triggerSource = "Unknown", forceRefresh = false) => {
                           error.type = 'INVALID_ENDPOINT';
                           error.discoveryReason = discovery.reason;
                           attempt = maxAttempts; // Force exit
-                          continue;
+                          break;
                       } else {
                           console.log(chalk.red(`[Self-Healing] Auto-discovery failed for ${company.name}. Falling back to Universal Parser.`));
                           error.discoveryReason = discovery.reason;
@@ -396,8 +400,8 @@ const runSearch = async (triggerSource = "Unknown", forceRefresh = false) => {
 
       if (companyStatus !== 'failed') {
           if (stats) {
-             stats.jobsScraped += companyMetrics.jobsScraped;
-             stats.validationDrops += droppedJobs.length;
+             stats.jobsScraped += (companyMetrics.jobsScraped || 0);
+             stats.validationDrops += (droppedJobs.length || 0);
              
              for (const drop of droppedJobs) {
                const r = drop.reason || 'Unknown';
@@ -569,6 +573,7 @@ const runSearch = async (triggerSource = "Unknown", forceRefresh = false) => {
       company.successRuns = (company.successRuns || 0) + 1;
       company.retryCount = stats.retrySuccess; 
       company.jobsSaved += companyJobsSaved;
+      if (stats) stats.jobsSaved += companyJobsSaved;
       company.jobsEvaluated += companyAiEvaluated;
         
       company.totalRuns = (company.totalRuns || 0) + 1;

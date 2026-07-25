@@ -251,6 +251,20 @@ const saveSearchLog = async (logId, startedAt, stats, errors) => {
   
   const message = `[${status}] Scanned ${stats.companiesScanned} companies, found ${stats.jobsFound} jobs, matched ${stats.jobsMatched} jobs. Duration: ${(durationMs/1000).toFixed(1)}s`;
 
+  // Pre-save validation: ensure no stats are NaN
+  const numericFields = [
+      'companiesScanned', 'jobsFound', 'jobsMatched', 'jobsArchived', 'jobsRefreshed',
+      'duplicatePreventionCount', 'totalCompanies', 'successfulCompanies', 'failedCompanies',
+      'cachedCompanies', 'parserOutdated', 'atsChanged', 'httpFailed', 'blocked',
+      'retriedSuccessfully', 'companiesWithJobs', 'companiesWithoutJobs', 'newJobs',
+      'jobsScraped', 'jobsSaved', 'aiEvaluations', 'workersFailed'
+  ];
+  
+  for (const field of numericFields) {
+      if (stats[field] !== undefined && !Number.isFinite(stats[field])) {
+          throw new Error(`Invalid numeric value for ${field}: ${stats[field]}`);
+      }
+  }
   
   await SearchLog.findByIdAndUpdate(logId, {
     completedAt,
