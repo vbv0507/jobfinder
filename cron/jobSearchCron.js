@@ -48,7 +48,7 @@ const runSearch = async (triggerSource = "Unknown", forceRefresh = false) => {
         status: "Running",
         startedAt: startedAt,
         runner: runnerName,
-        expiresAt: new Date(startedAt.getTime() + 30 * 60 * 1000)
+        expiresAt: new Date(startedAt.getTime() + 180 * 60 * 1000)
       }
     },
     { returnDocument: "after" }
@@ -172,7 +172,6 @@ const runSearch = async (triggerSource = "Unknown", forceRefresh = false) => {
   
   pipelineState.localRequests = 0;
 
-  pipelineState.reset();
   pipelineState.running = true;
   pipelineState.owner = runnerName;
   pipelineState.startedAt = startedAt;
@@ -234,7 +233,7 @@ const runSearch = async (triggerSource = "Unknown", forceRefresh = false) => {
     stats.workersFailed = 0;
 
     const results = await Promise.allSettled(companiesToScrape.map((company) => limit(async () => {
-      
+      try {
       if (pipelineState.cancelRequested) {
         logEvent("Cancellation", "WARN", "Aborted by user before saving");
         return;
@@ -634,17 +633,7 @@ const runSearch = async (triggerSource = "Unknown", forceRefresh = false) => {
 
       }); // End of company withLogContext
 
-      completedCompanies++;
-      pipelineState.progress = `${completedCompanies} / ${stats.companiesScanned} companies`;
-      pipelineState.activeCompanies = pipelineState.activeCompanies.filter(c => c !== company.name);
-      pipelineState.successfulCompanies = stats.successfulCompanies;
-      pipelineState.failedCompanies = stats.failedCompanies;
-      pipelineState.cachedCompanies = stats.cachedCompanies;
-      pipelineState.jobsFound = stats.jobsFound;
-      pipelineState.jobsSaved = stats.jobsSaved;
-      pipelineState.matchedJobs = stats.jobsMatched;
-      pipelineState.aiEvaluated = stats.aiEvaluations;
-      pipelineState.updateElapsed();
+      // State updates moved to finally block
 
       company.jobsFound = companyJobsFound;
       company.matchedJobs = companyJobsMatched;
@@ -691,7 +680,29 @@ const runSearch = async (triggerSource = "Unknown", forceRefresh = false) => {
               stats.failedCompanies++;
               stats.successfulCompanies = Math.max(0, stats.successfulCompanies - 1);
               pipelineSummary.push(chalk.red(`✗ ${company.name} (DB Save Error) - Broken`));
-          }
+      }
+      }
+      } catch (workerError) {
+          console.error(chalk.red(`[Worker Crash] ${company.name} terminated unexpectedly: ${workerError.message}`));
+          stats.failedCompanies++;
+          stats.workersFailed++;
+          errors.push({
+              company: company.name,
+              message: `Worker Crashed: ${workerError.message}`
+          });
+          pipelineSummary.push(chalk.red(`✗ ${company.name} (Worker Crashed) - Broken`));
+      } finally {
+          completedCompanies++;
+          pipelineState.progress = `${completedCompanies} / ${stats.companiesScanned} companies`;
+          pipelineState.activeCompanies = pipelineState.activeCompanies.filter(c => c !== company.name);
+          pipelineState.successfulCompanies = stats.successfulCompanies;
+          pipelineState.failedCompanies = stats.failedCompanies;
+          pipelineState.cachedCompanies = stats.cachedCompanies;
+          pipelineState.jobsFound = stats.jobsFound;
+          pipelineState.jobsSaved = stats.jobsSaved;
+          pipelineState.matchedJobs = stats.jobsMatched;
+          pipelineState.aiEvaluated = stats.aiEvaluations;
+          pipelineState.updateElapsed();
       }
     })));
     
