@@ -32,6 +32,16 @@ async function initSocket() {
         if (allLogs.length > 500) allLogs.pop();
         renderLogs(allLogs);
     });
+
+    socket.on('logs:init', (logs) => {
+        if (logs) {
+            allLogs = [...logs];
+            renderLogs(allLogs);
+        }
+    });
+
+    // Request refresh immediately after listeners are attached
+    socket.emit('dashboard:refresh');
 }
 
 function renderLogs(logs) {

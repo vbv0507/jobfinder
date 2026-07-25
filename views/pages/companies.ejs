@@ -177,6 +177,9 @@
                 latestPipeline = payload.pipeline || latestPipeline;
                 if (latestCompanies) renderCompanies(latestCompanies, latestPipeline);
             });
+
+            // Force a refresh immediately after binding listeners
+            socket.emit('dashboard:refresh');
         } catch(e) {
             console.error(e);
             document.getElementById("companies-grid").innerHTML = '<div class="col-span-full p-12 text-center text-error">Failed to load companies.</div>';

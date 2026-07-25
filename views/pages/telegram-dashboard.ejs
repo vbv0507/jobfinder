@@ -74,6 +74,7 @@
             if (!String(log.message || '').toLowerCase().includes('telegram')) return;
             appendTelegramMessage({ receivedAt: log.time, channel: 'Log', text: log.message });
         });
+        socket.emit('dashboard:refresh');
     });
 </script>
 

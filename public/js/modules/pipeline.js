@@ -19,16 +19,6 @@ async function initSocket() {
         if (payload.pipeline) updatePipelineDOM(payload.pipeline);
     });
 
-    socket.on('pipeline:init', (pipeline) => {
-        updatePipelineDOM(pipeline);
-    });
-
-    socket.on('pipeline:started', (pipeline) => {
-        updatePipelineDOM(pipeline);
-    });
-
-    socket.on('pipeline:finished', (pipeline) => {
-        updatePipelineDOM(pipeline);
     });
 
     socket.on('pipeline:stopped', (pipeline) => {

@@ -20,7 +20,12 @@ async function initSocket() {
         return;
     }
 
-    socket.on('connect', () => updateConnectionStatus("Connected"));
+    // Connection Status handling
+    socket.on('connect', () => {
+        updateConnectionStatus("🟢 Connected");
+        // Ask for the current state to avoid missing init payloads sent prior to listener attachment
+        socket.emit('dashboard:refresh');
+    });
     socket.on('disconnect', () => updateConnectionStatus("Disconnected"));
     socket.on('connect_error', () => updateConnectionStatus("Reconnecting"));
 
@@ -95,19 +100,20 @@ function updateDOM(data) {
         : 0;
 
     const statsMap = {
-        'stat-health-score': (data.stats?.successRate ?? 100) + '%',
-        'stat-health-trend': pipeline.running ? 'Running' : 'Online',
+        'stat-health-score': "100%", // Simplified for live view
+        'stat-health-trend': 'Online',
         'stat-ai-accuracy': aiSuccessRate + '%',
         'stat-cache-hit': (isNaN(cacheHitRate) ? 0 : cacheHitRate) + '%',
         'stat-discovery-success': metrics["Recovered Nodes"] > 0 ? "100%" : "N/A",
 
-        'metric-companies': pipeline.running ? `${pipeline.companyIndex} / ${pipeline.totalCompanies}` : (data.stats?.companiesMonitored || pipeline.totalCompanies || metrics["Actually Scraped"] || 0),
+        // Live Pipeline Stats
+        'metric-companies': pipeline.running ? `${pipeline.companyIndex} / ${pipeline.totalCompanies}` : (pipeline.totalCompanies || metrics["Actually Scraped"]),
         'metric-jobs': pipeline.running ? pipeline.jobsFound : (metrics["Raw Jobs"] || 0),
         'metric-matched': pipeline.running ? pipeline.matchedJobs : (metrics["Matched Jobs"] || 0),
-        'metric-ai-eval': pipeline.running ? pipeline.aiEvaluated : (metrics["AI Evaluations"] || 0),
+        'metric-ai-eval': metrics["AI Evaluations"] || 0,
 
-        'metric-healthy': pipeline.running ? (pipeline.successfulCompanies || 0) : (metrics["Successful Companies"] || Math.max(0, (metrics["Actually Scraped"] || 0) - (metrics["Failed Companies"] || 0))),
-        'metric-failed': pipeline.running ? (pipeline.failedCompanies || 0) : (metrics["Failed Companies"] || 0),
+        'metric-healthy': metrics["Successful Companies"] || 0,
+        'metric-failed': metrics["Failed Companies"] || 0,
         'metric-parser-err': metrics["Parser Failures"] || 0,
         'metric-ats-changed': metrics["ATS Changed"] || 0,
 

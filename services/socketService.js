@@ -216,6 +216,7 @@ const init = (server) => {
 
         socket.on("dashboard:refresh", async () => {
             const payload = await buildDashboardPayload();
+            emitInitialState(socket, payload);
             socket.emit("dashboard:update", payload);
         });
 

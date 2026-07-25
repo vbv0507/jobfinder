@@ -87,6 +87,7 @@
         socket.on('dashboard:init', (payload) => renderCacheMetrics(payload.cache));
         socket.on('cache:init', renderCacheMetrics);
         socket.on('cache:update', renderCacheMetrics);
+        socket.emit('dashboard:refresh');
     });
 </script>
 

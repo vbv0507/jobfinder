@@ -91,6 +91,7 @@
         socket.on('dashboard:init', (payload) => renderAiMetrics(payload.analytics || payload));
         socket.on('analytics:init', renderAiMetrics);
         socket.on('analytics:update', renderAiMetrics);
+        socket.emit('dashboard:refresh');
     });
 </script>
 
