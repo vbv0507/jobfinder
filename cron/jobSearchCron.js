@@ -703,6 +703,8 @@ const runSearch = async (triggerSource = "Unknown", forceRefresh = false) => {
           pipelineState.matchedJobs = stats.jobsMatched;
           pipelineState.aiEvaluated = stats.aiEvaluations;
           pipelineState.updateElapsed();
+          pipelineState.emitUpdate();
+          socketService.emitDashboard().catch(err => console.error("[Socket] Failed to emit dashboard update:", err.message));
       }
     })));
     
