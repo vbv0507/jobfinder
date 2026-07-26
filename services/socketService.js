@@ -137,7 +137,8 @@ const buildDashboardPayload = async (forceRefresh = false) => {
         eta: "Calculating...",
         elapsed: pipeline.elapsedTime,
         status: pipeline.currentStage,
-        logs: pipeline.logs
+        logs: pipeline.logs,
+        scheduler: await require("./schedulerService").getSchedulerStatus()
     };
 };
 

@@ -129,6 +129,7 @@ const startServer = async () => {
 
     const server = http.createServer(app);
     socketService.init(server);
+    require('./services/schedulerService').init();
 
     server.listen(PORT, () => {
         console.log(`Server running on port ${PORT}`);
@@ -145,6 +146,8 @@ const startServer = async () => {
             console.log('[Shutdown] Cancelling active pipeline...');
             pipelineState.cancel();
         }
+        
+        require('./services/schedulerService').shutdown();
 
         server.close(console.log('[Shutdown] Express server closed.'));
         if (stopTelegramListener) stopTelegramListener();

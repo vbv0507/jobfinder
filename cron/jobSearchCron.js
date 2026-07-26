@@ -948,12 +948,27 @@ const runSearch = async (triggerSource = "Unknown", forceRefresh = false) => {
     ).catch(err => console.error("Error releasing pipeline lock:", err.message));
     
     console.log(chalk.blue(`[Pipeline] Lock Released. Owner: ${runnerName}.`));
+
+    try {
+        const SchedulerLog = require("../models/SchedulerLog");
+        await SchedulerLog.create({
+            startedAt,
+            completedAt: endTime,
+            durationMs: duration,
+            triggerSource: runnerName,
+            result: pipelineState.cancelRequested ? "Cancelled" : (errors && errors.length ? "Partial Success" : "Success"),
+            metrics: {
+                companies: stats?.companiesScanned || 0,
+                jobs: stats?.jobsFound || 0,
+                matched: stats?.jobsMatched || 0,
+                rejected: (stats?.jobsFound || 0) - (stats?.jobsMatched || 0)
+            }
+        });
+    } catch (logErr) {
+        console.error("Failed to save SchedulerLog:", logErr.message);
+    }
   }
 };
-
-const schedule = "0 2 * * *";
-const cronTask = cron.schedule(schedule, () => runSearch("Azure Cron"));
-pipelineState.nextRunTime = "Scheduled for 02:00 AM daily";
 
 module.exports = runSearch;
 module.exports.runSearch = runSearch;

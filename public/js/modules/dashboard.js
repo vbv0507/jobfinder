@@ -141,6 +141,16 @@ function updateDOM(data) {
         'metric-avg-comp': metrics["Average Company Time"] ? (metrics["Average Company Time"] / 1000).toFixed(1) + 's' : '0s'
     };
 
+    if (data.scheduler) {
+        const formatTime = (d) => d ? new Date(d).toLocaleString('en-US', { timeZone: 'Asia/Kolkata', year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false }) + ' IST' : 'N/A';
+        statsMap['scheduler-status'] = data.scheduler.status || "Idle";
+        statsMap['scheduler-next'] = formatTime(data.scheduler.nextScheduledRun);
+        statsMap['scheduler-last'] = formatTime(data.scheduler.lastScheduledRun);
+        statsMap['scheduler-success'] = formatTime(data.scheduler.lastSuccessfulRun);
+        statsMap['scheduler-failed'] = formatTime(data.scheduler.lastFailedRun);
+        statsMap['scheduler-trigger'] = data.scheduler.triggerSource || "Scheduler";
+    }
+
     for (const [id, val] of Object.entries(statsMap)) {
         const el = document.getElementById(id);
         if (el && el.innerText !== String(val)) {

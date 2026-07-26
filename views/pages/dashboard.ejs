@@ -18,6 +18,19 @@
     </div>
 </div>
 
+<!-- Scheduler Overview -->
+<div class="mb-8">
+    <h2 class="text-lg font-semibold text-textMain mb-4">Scheduler Status (Azure Native)</h2>
+    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+        <%- include('../components/metric-card', { id: 'scheduler-status', title: 'Status', icon: 'fa-clock', color: 'text-primary' }) %>
+        <%- include('../components/metric-card', { id: 'scheduler-trigger', title: 'Trigger Source', icon: 'fa-bolt', color: 'text-warning' }) %>
+        <%- include('../components/metric-card', { id: 'scheduler-next', title: 'Next Scheduled Run', icon: 'fa-calendar-plus', color: 'text-[#8b5cf6]' }) %>
+        <%- include('../components/metric-card', { id: 'scheduler-last', title: 'Last Scheduled Run', icon: 'fa-calendar-check', color: 'text-success' }) %>
+        <%- include('../components/metric-card', { id: 'scheduler-success', title: 'Last Successful', icon: 'fa-check-circle', color: 'text-success' }) %>
+        <%- include('../components/metric-card', { id: 'scheduler-failed', title: 'Last Failed', icon: 'fa-times-circle', color: 'text-error' }) %>
+    </div>
+</div>
+
 <!-- Primary Stats Overview -->
 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
     
