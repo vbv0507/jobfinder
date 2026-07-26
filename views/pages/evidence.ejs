@@ -2,7 +2,7 @@
 
 <div class="mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
     <div>
-        <h1 class="text-2xl font-bold tracking-tight text-textMain mb-2">Evidence Viewer</h1>
+        <h1 class="text-2xl font-bold tracking-tight text-textMain mb-2">Pipeline Debug Center</h1>
         <p class="text-textMuted text-sm">Inspect structured JSON payloads from the pipeline run.</p>
     </div>
     
@@ -22,21 +22,17 @@
         </div>
         <div class="flex-1 overflow-y-auto p-2">
             <ul class="space-y-1">
-                <li>
-                    <button class="w-full flex items-center gap-3 px-3 py-2 rounded-md bg-primary/10 text-primary text-sm font-medium text-left">
-                        <i class="fa-solid fa-file-code"></i> pipeline_summary.json
-                    </button>
-                </li>
-                <li>
-                    <button class="w-full flex items-center gap-3 px-3 py-2 rounded-md hover:bg-surfaceHover text-textMuted hover:text-textMain text-sm font-medium text-left transition-colors">
-                        <i class="fa-solid fa-file-code"></i> header_sanitization.json
-                    </button>
-                </li>
-                <li>
-                    <button class="w-full flex items-center gap-3 px-3 py-2 rounded-md hover:bg-surfaceHover text-textMuted hover:text-textMain text-sm font-medium text-left transition-colors">
-                        <i class="fa-solid fa-file-code"></i> intercepted_xhr.json
-                    </button>
-                </li>
+                <% if(evidence && Array.isArray(evidence) && evidence.length > 0) { %>
+                    <% evidence.forEach(function(item, idx) { %>
+                        <li>
+                            <button onclick="showEvidence(<%= idx %>)" class="w-full flex items-center gap-3 px-3 py-2 rounded-md hover:bg-surfaceHover text-textMuted hover:text-textMain text-sm font-medium text-left transition-colors" id="btn-evidence-<%= idx %>">
+                                <i class="fa-solid fa-file-code"></i> <%= item.company %>.json
+                            </button>
+                        </li>
+                    <% }) %>
+                <% } else { %>
+                    <li class="px-3 py-2 text-textMuted text-sm">No evidence found.</li>
+                <% } %>
             </ul>
         </div>
     </div>
@@ -44,26 +40,71 @@
     <!-- JSON Viewer -->
     <div class="lg:col-span-3 bg-[#0c0c0c] border border-border rounded-xl shadow-sm flex flex-col overflow-hidden">
         <div class="px-4 py-2 bg-surface border-b border-border flex items-center justify-between text-xs text-textMuted">
-            <div class="flex items-center gap-2 font-mono">
-                pipeline_summary.json
+            <div class="flex items-center gap-2 font-mono" id="viewer-title">
+                Select an artifact
             </div>
-            <button class="hover:text-textMain transition-colors"><i class="fa-regular fa-copy"></i></button>
+            <button class="hover:text-textMain transition-colors" onclick="copyViewerContent()"><i class="fa-regular fa-copy"></i></button>
         </div>
         <div class="flex-1 overflow-auto p-4 custom-scrollbar">
-            <pre class="font-mono text-sm text-[#d4d4d8]"><code>{
-  <span class="text-[#818cf8]">"timestamp"</span>: <span class="text-[#34d399]">"2026-07-24T15:32:05.868Z"</span>,
-  <span class="text-[#818cf8]">"status"</span>: <span class="text-[#34d399]">"SUCCESS"</span>,
-  <span class="text-[#818cf8]">"metrics"</span>: {
-    <span class="text-[#818cf8]">"totalCompanies"</span>: <span class="text-[#fbbf24]">96</span>,
-    <span class="text-[#818cf8]">"cachedSkipped"</span>: <span class="text-[#fbbf24]">0</span>,
-    <span class="text-[#818cf8]">"actuallyScraped"</span>: <span class="text-[#fbbf24]">96</span>,
-    <span class="text-[#818cf8]">"healthy"</span>: <span class="text-[#fbbf24]">67</span>,
-    <span class="text-[#818cf8]">"failed"</span>: <span class="text-[#fbbf24]">29</span>
-  }
-}</code></pre>
+            <pre class="font-mono text-sm text-[#d4d4d8]"><code id="viewer-content"></code></pre>
         </div>
     </div>
 
 </div>
+
+<script>
+    const evidenceData = <%- JSON.stringify(evidence || []) %>;
+    
+    function syntaxHighlight(json) {
+        if (typeof json != 'string') {
+             json = JSON.stringify(json, undefined, 2);
+        }
+        json = json.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        return json.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, function (match) {
+            var cls = 'text-[#fbbf24]'; // number
+            if (/^"/.test(match)) {
+                if (/:$/.test(match)) {
+                    cls = 'text-[#818cf8]'; // key
+                } else {
+                    cls = 'text-[#34d399]'; // string
+                }
+            } else if (/true|false/.test(match)) {
+                cls = 'text-[#f472b6]'; // boolean
+            } else if (/null/.test(match)) {
+                cls = 'text-[#a1a1aa]'; // null
+            }
+            return '<span class="' + cls + '">' + match + '</span>';
+        });
+    }
+
+    function showEvidence(index) {
+        if (!evidenceData[index]) return;
+        document.getElementById('viewer-title').innerText = evidenceData[index].company + '.json';
+        document.getElementById('viewer-content').innerHTML = syntaxHighlight(evidenceData[index]);
+        
+        // Update active class
+        document.querySelectorAll('[id^="btn-evidence-"]').forEach(btn => {
+            btn.classList.remove('bg-primary/10', 'text-primary');
+            btn.classList.add('text-textMuted');
+        });
+        const activeBtn = document.getElementById('btn-evidence-' + index);
+        if (activeBtn) {
+            activeBtn.classList.remove('text-textMuted', 'hover:bg-surfaceHover');
+            activeBtn.classList.add('bg-primary/10', 'text-primary');
+        }
+    }
+    
+    function copyViewerContent() {
+        const text = document.getElementById('viewer-content').innerText;
+        navigator.clipboard.writeText(text).then(() => {
+            alert('Copied to clipboard!');
+        });
+    }
+    
+    // Select first by default
+    if (evidenceData.length > 0) {
+        showEvidence(0);
+    }
+</script>
 
 <%- include('../layouts/footer') %>

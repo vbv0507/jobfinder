@@ -72,92 +72,10 @@ app.use((req, res, next) => {
 app.set("view engine", "ejs");
 app.set("views", "./views");
 
-
 app.get("/login", (req, res) => {
     if (req.auth && req.auth.userId) return res.redirect("/");
     res.render("login", { title: "Login" });
 });
-
-const CandidateProfile = require("./models/CandidateProfile");
-
-app.get("/", requireAuth, async (req, res, next) => {
-    try {
-        const hasProfile = await CandidateProfile.exists({ user: req.user._id });
-        
-        console.log(`[Root Route] UserId: ${req.user._id} | SessionId: ${req.auth?.sessionId || 'N/A'} | Email: ${req.user.email} | DBUserExists: true | CandidateProfileExists: ${!!hasProfile} | RenderPath: index`);
-        
-        res.render("pages/dashboard");
-    } catch (error) {
-        console.error(`[Root Route] Exception in GET /:`, error.stack);
-        next(error);
-    }
-});
-
-app.get("/jobs", requireAuth, async (req, res) => {
-    try {
-        const jobs = await MatchedJob.find({ status: "new" }).populate("company", "name").sort({ score: -1 });
-        res.render("pages/jobs", { jobs, title: "Matched Jobs" });
-    } catch (error) {
-        res.render("pages/jobs", { jobs: [], title: "Matched Jobs" });
-    }
-});
-
-app.get("/saved", requireAuth, async (req, res) => {
-    try {
-        const jobs = await MatchedJob.find({ status: "saved" }).populate("company", "name").sort({ score: -1 });
-        res.render("pages/jobs", { jobs, title: "Saved Jobs" });
-    } catch (error) {
-        res.render("pages/jobs", { jobs: [], title: "Saved Jobs" });
-    }
-});
-
-app.get("/applied", requireAuth, async (req, res) => {
-    try {
-        const jobs = await MatchedJob.find({ status: "applied" }).populate("company", "name").sort({ appliedAt: -1 });
-        res.render("pages/jobs", { jobs, title: "Applied Jobs" });
-    } catch (error) {
-        res.render("pages/jobs", { jobs: [], title: "Applied Jobs" });
-    }
-});
-
-app.get("/rejected", requireAuth, async (req, res) => {
-    try {
-        const jobs = await MatchedJob.find({ status: "rejected" }).populate("company", "name").sort({ updatedAt: -1 });
-        res.render("pages/jobs", { jobs, title: "Rejected Jobs" });
-    } catch (error) {
-        res.render("pages/jobs", { jobs: [], title: "Rejected Jobs" });
-    }
-});
-
-app.get("/telegram", requireAuth, (req, res) => {
-    res.render("pages/telegram-channels", { title: "Telegram Channels" });
-});
-
-app.get("/telegram-monitoring", requireAuth, (req, res) => {
-    res.render("pages/telegram-monitoring", { title: "Telegram Monitoring" });
-});
-
-app.get("/job/:id", requireAuth, async (req, res) => {
-    try {
-        const job = await MatchedJob.findById(req.params.id).populate("company", "name");
-        res.render("pages/job-details", { job });
-    } catch (error) {
-        res.redirect("/jobs");
-    }
-});
-
-app.get("/companies", requireAuth, (req, res) => {
-    res.render("pages/companies");
-});
-
-app.get("/analytics", requireAuth, (req, res) => {
-    res.render("pages/analytics");
-});
-
-app.get("/profile", requireAuth, (req, res) => {
-    res.render("pages/profile");
-});
-
 
 app.use("/api/companies", companyRoutes);
 app.use("/api/jobs", jobRoutes);

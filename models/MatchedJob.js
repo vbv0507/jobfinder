@@ -121,7 +121,7 @@ const matchedJobSchema = new mongoose.Schema({
 
 matchedJobSchema.index({ rawJob: 1 }, { unique: true, sparse: true });
 matchedJobSchema.index({ score: -1 });
-matchedJobSchema.index({ applied: 1, appliedAt: -1 });
+matchedJobSchema.index({ status: 1, appliedAt: -1 });
 
 module.exports = mongoose.model(
     "MatchedJob",

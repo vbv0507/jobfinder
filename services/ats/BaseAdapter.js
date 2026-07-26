@@ -2,6 +2,7 @@ const { ScraperError, ErrorTypes } = require('../../utils/errors');
 const { normalizeJobUrl } = require('../../utils/urlNormalizer');
 const { executeScrapeRequest } = require('../../utils/retryChain');
 const crypto = require('crypto');
+const pipelineState = require('../pipelineState');
 
 class BaseAdapter {
   constructor(company) {
@@ -88,6 +89,16 @@ class BaseAdapter {
     try {
       const result = await executeScrapeRequest(url, config);
       this.lastPayload = result.data;
+      
+      if (result.source && result.source.includes('axios')) {
+          pipelineState.axiosSuccessCount++;
+      } else if (result.source && (result.source.includes('puppeteer') || result.source.includes('playwright'))) {
+          pipelineState.puppeteerFallbackCount++;
+      }
+      if (config.headers) {
+          pipelineState.headerSanitizedCount++;
+      }
+
       if (result.trail) {
         if (!this.trail) this.trail = [];
         this.trail.push(...result.trail);

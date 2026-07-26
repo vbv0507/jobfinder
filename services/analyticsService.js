@@ -200,7 +200,10 @@ const getAnalyticsData = async () => {
                 "ATS Changed": latest.atsChanged || 0,
                 "Cloudflare Blocks": latest.blocked || 0,
                 "Average Runtime": latest.durationMs || 0,
-                "Average Company Time": latest.averageCompanyTime || 0
+                "Average Company Time": latest.averageCompanyTime || 0,
+                "Axios Requests": latest.axiosSuccessCount || 0,
+                "Puppeteer Fallbacks": latest.puppeteerFallbackCount || 0,
+                "Headers Sanitized": latest.headerSanitizedCount || 0
             },
             charts: {
                 companyDistribution,

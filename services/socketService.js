@@ -285,20 +285,6 @@ const emitCompany = (company) => {
 const emitDashboardSnapshot = async (forceRefresh = false) => {
     const payload = await buildDashboardPayload(forceRefresh);
     broadcast("dashboard:update", payload);
-    broadcast("analytics:update", payload.analytics);
-    broadcast("cache:update", payload.cache);
-    broadcast("pipeline:progress", {
-        timestamp: Date.now(),
-        pipeline: payload.pipeline,
-        companyIndex: payload.pipeline.companyIndex,
-        totalCompanies: payload.pipeline.totalCompanies,
-        companyName: payload.pipeline.currentCompany,
-        stage: payload.pipeline.currentStage,
-        retryCount: payload.pipeline.retryCount,
-        jobsFound: payload.pipeline.jobsFound,
-        matchedJobs: payload.pipeline.matchedJobs,
-        elapsedTime: payload.pipeline.elapsedTime
-    });
     return payload;
 };
 const emitDashboard = async () => {

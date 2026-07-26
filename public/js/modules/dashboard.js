@@ -132,9 +132,9 @@ function updateDOM(data) {
         'metric-recovered': metrics["Recovered Nodes"] || 0,
 
         'metric-cf-blocks': metrics["Cloudflare Blocks"] || 0,
-        'metric-headers': 'Live',
-        'metric-axios': 'Live',
-        'metric-puppeteer': pipeline.running ? 'Active' : 'Ready',
+        'metric-headers': pipeline.running ? (pipeline.headerSanitizedCount || 0) : (metrics["Headers Sanitized"] || 0),
+        'metric-axios': pipeline.running ? (pipeline.axiosSuccessCount || 0) : (metrics["Axios Requests"] || 0),
+        'metric-puppeteer': pipeline.running ? (pipeline.puppeteerFallbackCount || 0) : (metrics["Puppeteer Fallbacks"] || 0),
 
         'metric-savings': data.cache ? (data.cache.cacheSavings / 1000).toFixed(1) + 's' : ((metrics["Cached Companies"] || 0) * 4.5).toFixed(1) + 's',
         'metric-avg-run': pipeline.running ? ((pipeline.elapsedTime || 0) / 1000).toFixed(1) + 's' : (metrics["Average Runtime"] ? (metrics["Average Runtime"] / 1000).toFixed(1) + 's' : '0s'),

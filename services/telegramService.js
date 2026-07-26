@@ -41,6 +41,7 @@ let isReconnecting = false;
 let isStarting = false;
 let reconnectDelay = 5000;
 let allowedChannels = new Set();
+let messagesReceivedSinceStartup = 0;
 
 const emitTelegramSnapshot = async (lastMessage = null) => {
     try {

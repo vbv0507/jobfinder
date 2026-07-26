@@ -143,6 +143,9 @@ const runSearch = async (triggerSource = "Unknown", forceRefresh = false) => {
     zaiFallbacks: 0,
     localCount: 0,
     localSuccess: 0,
+    axiosSuccessCount: 0,
+    puppeteerFallbackCount: 0,
+    headerSanitizedCount: 0,
   };
   const aiState = {
     gemini: { available: true, reason: null, disabledAt: null, requests: 0, success: 0, failed: 0 },
@@ -844,6 +847,10 @@ const runSearch = async (triggerSource = "Unknown", forceRefresh = false) => {
     
     stats.localCount = aiState.local.requests || 0;
     stats.localSuccess = aiState.local.success || 0;
+    
+    stats.axiosSuccessCount = pipelineState.axiosSuccessCount || 0;
+    stats.puppeteerFallbackCount = pipelineState.puppeteerFallbackCount || 0;
+    stats.headerSanitizedCount = pipelineState.headerSanitizedCount || 0;
 
     const savedLog = await saveSearchLog(pipelineLog._id, startedAt, stats, errors);
     if (savedLog) {

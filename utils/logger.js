@@ -7,7 +7,13 @@ const asyncLocalStorage = new AsyncLocalStorage();
 
 const formatLog = (level, args) => {
     const store = asyncLocalStorage.getStore() || {};
-    const timestamp = new Date().toISOString();
+    const formatter = new Intl.DateTimeFormat('en-GB', {
+        timeZone: 'Asia/Kolkata',
+        day: '2-digit', month: 'short', year: 'numeric',
+        hour: '2-digit', minute: '2-digit', second: '2-digit',
+        hour12: false
+    });
+    const timestamp = formatter.format(new Date()).replace(',', '') + ' IST';
     const pipelineId = store.pipelineId || "SYSTEM";
     const provider = store.provider || "N/A";
     const company = store.company || "N/A";

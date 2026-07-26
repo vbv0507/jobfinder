@@ -32,6 +32,9 @@ class PipelineStateManager {
         this.cloudflareBlocks = 0;
         this.cacheHits = 0;
         this.cacheMisses = 0;
+        this.axiosSuccessCount = 0;
+        this.puppeteerFallbackCount = 0;
+        this.headerSanitizedCount = 0;
         this.progress = "0%";
         this.statusText = "Awaiting Execution";
         this.logs = [];
@@ -177,6 +180,9 @@ class PipelineStateManager {
             cloudflareBlocks: this.cloudflareBlocks,
             cacheHits: this.cacheHits,
             cacheMisses: this.cacheMisses,
+            axiosSuccessCount: this.axiosSuccessCount,
+            puppeteerFallbackCount: this.puppeteerFallbackCount,
+            headerSanitizedCount: this.headerSanitizedCount,
             progress: this.progress,
             statusText: this.statusText,
             logs: this.logs,
