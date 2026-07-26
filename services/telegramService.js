@@ -14,10 +14,9 @@ const TelegramChannel = require("../models/TelegramChannel");
 const { extractUrls, getUrlStrategy } = require("../utils/urlStrategy");
 const {
     saveRawJob,
-    analyseWithGemini,
-    getActiveProfile,
     saveMatchedJob
-} = require("../cron/jobSearchCron");
+} = require("../services/pipeline/storageService");
+const { analyseWithGemini, getActiveProfile } = require("../services/pipeline/aiEvaluationService");
 const { sendMatchedJobEmail } = require("./emailService");
 const { saveTrainingSample } = require("./trainingDatasetService");
 
@@ -172,9 +171,13 @@ const processJobUrl = async (url, telegramCompany, profile, structuredData, sour
     let parsed = false;
     let matched = false;
     try {
+        // ── STAGE 3: URL Strategy ────────────────────────────────────────────
         const strategy = getUrlStrategy(url);
+        console.log(`\n  ┌─ URL: ${url}`);
+        console.log(`  │  Strategy : ${strategy || "NONE"}`);
 
         if (!strategy) {
+            console.log("  └─ STAGE 3 RESULT: Skipped (not a job URL)");
             logWithTime(`Skipped non-job URL: ${url}`);
             return { parsed, matched };
         }
@@ -186,11 +189,9 @@ const processJobUrl = async (url, telegramCompany, profile, structuredData, sour
         if (strategy === "generic-html") {
             job = await scrapeGenericJobPage(url);
             if (job) {
-                
                 if (structuredData.experience) job.experience = structuredData.experience;
                 if (structuredData.salary) job.salary = structuredData.salary;
                 if (structuredData.type) job.employmentType = /intern/i.test(structuredData.type) ? "Internship" : "Full-Time";
-                
             }
         } else {
             job = {
@@ -205,103 +206,138 @@ const processJobUrl = async (url, telegramCompany, profile, structuredData, sour
             };
         }
 
-        
         if (!job) {
+            console.log("  └─ STAGE 3 RESULT: FAIL — scraper returned null");
             logWithTime(`Scraper returned null for URL: ${url}. Skipping.`);
             return { parsed, matched };
         }
 
-        
+        // company inference
         if (!structuredData.company) {
             try {
                 const urlObj = new URL(url);
                 const hostParts = urlObj.hostname.split('.');
-                
                 if (urlObj.hostname.includes('greenhouse') || urlObj.hostname.includes('lever')) {
                     const pathParts = urlObj.pathname.split('/').filter(Boolean);
                     if (pathParts.length > 0) job.inferredCompany = pathParts[0];
                 } else if (hostParts.length > 2) {
                     job.inferredCompany = hostParts[0] !== 'www' ? hostParts[0] : hostParts[1];
                 }
-            } catch (e) {
-                
-            }
-        }
-
-        if (!job) {
-            logWithTime(`Could not extract job from: ${url}`);
-            return { parsed, matched };
+            } catch (e) {}
         }
 
         if (structuredData.role) job.title = structuredData.role;
         if (structuredData.company) job.description = `${structuredData.company} - ${job.description}`;
-        
+
         job.sourceChannel = sourceChannel;
         job.telegramMessageId = telegramMessageId;
         job.sourceName = sourceChannel;
 
+        // ── STAGE 3 cont.: Normalized Job ────────────────────────────────────
+        console.log(`  │  title          : ${job.title}`);
+        console.log(`  │  location       : ${job.location}`);
+        console.log(`  │  experience     : ${job.experience || "N/A"}`);
+        console.log(`  │  employmentType : ${job.employmentType}`);
+        console.log(`  │  applyLink      : ${job.applyLink}`);
+        console.log(`  │  inferredCompany: ${job.inferredCompany || "(from structured data)"}`);
+
+        // ── STAGE 4: Validation ──────────────────────────────────────────────
+        console.log(`  ├─ STAGE 4: Validation`);
+        const checks = {
+            hasApplyLink    : !!job.applyLink,
+            startsWithHttps : !!job.applyLink?.startsWith('https://'),
+            noUndefined     : !job.applyLink?.includes('undefined'),
+            noNull          : !job.applyLink?.includes('null'),
+            noLocalhost     : !job.applyLink?.toLowerCase().includes('localhost'),
+        };
+        for (const [rule, pass] of Object.entries(checks)) {
+            console.log(`  │  ${pass ? "✅" : "❌"} ${rule}`);
+        }
+
         const rawJob = await saveRawJob(telegramCompany, job);
-        
+
         if (!rawJob) {
-            console.log("[Raw Job] Rejected\nReason:\nSee saveRawJob validation logs");
+            console.log("  └─ STAGE 4 RESULT: ❌ FAIL — saveRawJob rejected (URL failed deep validation)");
+            logWithTime(`[WARNING] Validation Failed: Rejected by saveRawJob`);
             return { parsed, matched };
         }
 
-        console.log("[Raw Job] Saved");
+        console.log(`  │  ✅ PASS — RawJob _id: ${rawJob._id}`);
+        console.log(`  │  aiEvaluated: ${rawJob.aiEvaluated}`);
+
+        logWithTime(`[SUCCESS] Job Extracted and Validation Passed`);
         parsed = true;
-        logWithTime(`Job Parsed Successfully: ${job.title}`);
+        logWithTime(`[INFO] Job Parsed Successfully: ${job.title}`);
 
         if (rawJob.aiMatched) {
-            logWithTime(`Already matched: ${job.title}`);
+            console.log("  │  ℹ️  Already AI-matched — skipping re-evaluation");
+            logWithTime(`[INFO] Already matched: ${job.title}`);
             return { parsed, matched };
         }
 
+        // ── STAGE 5: Gemini AI Evaluation ───────────────────────────────────
+        console.log("  ├─ STAGE 5: AI Evaluation");
         const aiState = { calls: 0, quotaExceeded: false };
-        console.log("[AI] Started");
+        logWithTime(`[INFO] AI Evaluation Started (Gemini / Groq / Z.ai / Local)`);
         const result = await analyseWithGemini(job, profile, aiState);
-        console.log("[AI] Completed");
-        console.log("Provider:\nGemini / Groq / Z.ai / Local");
+        logWithTime(`[INFO] AI Evaluation Completed`);
 
         if (result.skipped) {
-            logWithTime(`Skipped Gemini for ${job.title}: ${result.reason}`);
-            console.log("[Email] Skipped");
+            console.log(`  │  ⚠️  SKIPPED: ${result.reason}`);
+            logWithTime(`[WARNING] Skipped Gemini for ${job.title}: ${result.reason}`);
             return { parsed, matched };
         }
-        
-        logWithTime(`Gemini Score: ${result.analysis.score}`);
-        
-        if (result.analysis) {
-            saveTrainingSample(job, telegramCompany, result.analysis, "TelegramListener", "Telegram").catch(err => {
-                logWithTime(`[TrainingDataset] Async save error: ${err.message}`);
+
+        const analysis = result.analysis;
+        console.log(`  │  Provider       : ${analysis.provider || "gemini"}`);
+        console.log(`  │  Score          : ${analysis.score}`);
+        console.log(`  │  Suitable       : ${analysis.suitable}`);
+        console.log(`  │  Confidence     : ${analysis.confidence}`);
+        console.log(`  │  Reason         : ${analysis.reason}`);
+        console.log(`  │  Matched Skills : ${(analysis.matchedSkills || []).join(", ") || "None"}`);
+        console.log(`  │  Missing Skills : ${(analysis.missingSkills || []).join(", ") || "None"}`);
+        console.log(`  │  Primary Reasons: ${(analysis.primaryReasons || []).join("; ") || "N/A"}`);
+        const decision = analysis.score >= 70 ? "✅ MATCHED" : "❌ REJECTED";
+        console.log(`  │  Decision       : ${decision} (threshold: 70)`);
+
+        logWithTime(`[INFO] Gemini Score: ${analysis.score}`);
+        if (analysis.score >= 70) {
+            logWithTime(`[SUCCESS] AI Accepted`);
+        } else {
+            logWithTime(`[WARNING] AI Rejected`);
+        }
+
+        if (analysis) {
+            saveTrainingSample(job, telegramCompany, analysis, "TelegramListener", "Telegram").catch(err => {
+                logWithTime(`[WARNING] [TrainingDataset] Async save error: ${err.message}`);
             });
         }
 
-        const matchedJobResult = await saveMatchedJob(rawJob, telegramCompany, job, result.analysis);
+        // ── STAGE 6: Storage ─────────────────────────────────────────────────
+        console.log("  ├─ STAGE 6: Storage");
+        const matchedJobResult = await saveMatchedJob(rawJob, telegramCompany, job, analysis);
 
-        if (matchedJobResult) {
-            console.log("[Matched Job] Created");
-            logWithTime(`Matched Job: ${job.title} | Email Sent`);
+        if (matchedJobResult && matchedJobResult.matched !== false) {
+            console.log(`  │  ✅ MatchedJob written  (isDuplicate=${matchedJobResult.isDuplicate})`);
+            logWithTime(`[SUCCESS] Matched Job Created: ${job.title}`);
             matched = true;
             try {
-                await sendMatchedJobEmail({
-                    company: telegramCompany,
-                    job,
-                    analysis: result.analysis,
-                });
-                console.log("[Email] Sent");
+                await sendMatchedJobEmail({ company: telegramCompany, job, analysis });
+                console.log("  │  📧 Email: Sent");
             } catch (emailError) {
                 logWithTime(`Email failed: ${emailError.message}`);
-                console.log("[Email] Skipped");
+                console.log("  │  📧 Email: Skipped");
             }
         } else {
-            console.log("[Email] Skipped");
+            console.log(`  │  ❌ RejectedJob written (score=${analysis.score})`);
         }
+        console.log(`  └─ STAGE 6 RESULT: Storage complete`);
 
-        return { parsed, matched };
+        return { parsed, matched, job, result: analysis };
     } catch (error) {
         logWithTime(`Error processing URL ${url}: ${error.message}`);
         console.log(`[Telegram] Pipeline error: ${error.message}`);
-        return { parsed, matched };
+        return { parsed: false, matched: false };
     }
     }); // End withLogContext
 };
@@ -311,20 +347,16 @@ const handleIncomingMessage = async (event) => {
     let chatUsername = "";
     try {
         const message = event.message;
-        console.log("==================================================");
-        console.log("NEW TELEGRAM EVENT RECEIVED");
-        console.log("==================================================");
-        console.log("Time: " + new Date().toISOString());
-        console.log("Message ID: " + (message?.id || "Unknown"));
-        
-        let peerId = "Unknown";
-        if (message?.peerId) {
-            peerId = message.peerId.channelId || message.peerId.userId || message.peerId.chatId || "Unknown";
-        }
-        console.log("Peer ID: " + peerId);
-        console.log("Class Name: " + (event.className || "Unknown"));
-        console.log("Text Preview: " + (message?.message ? message.message.substring(0, 100) : "None"));
-        console.log("Messages received since startup: " + messagesReceivedSinceStartup);
+        const istTimestamp = new Date().toLocaleString("en-IN", { timeZone: "Asia/Kolkata", hour12: false, year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", second: "2-digit" });
+        console.log("\n╔══════════════════════════════════════════════════╗");
+        console.log("║   STAGE 1: GramJS NewMessage Received            ║");
+        console.log("╚══════════════════════════════════════════════════╝");
+        console.log(`  IST Timestamp : ${istTimestamp}`);
+        console.log(`  Message ID    : ${message?.id || "Unknown"}`);
+        console.log(`  Peer ID       : ${message?.peerId?.channelId || message?.peerId?.userId || message?.peerId?.chatId || "Unknown"}`);
+        console.log(`  Event Class   : ${event.className || "Unknown"}`);
+        console.log(`  Text Preview  : ${(message?.message || "").substring(0, 120)}`);
+        console.log(`  Total Received: ${messagesReceivedSinceStartup}`);
 
         if (!message?.message) {
             console.log("RETURN REASON: - Empty message");
@@ -440,93 +472,12 @@ const handleIncomingMessage = async (event) => {
         }
         
         if (testMode) {
-            console.log(`[Telegram] Message Received`);
-            console.log(`[Telegram] Channel:\n<${chatUsername || 'Unknown'}>`);
+            logWithTime(`[INFO] Telegram Message Received | Channel: <${chatUsername || 'Unknown'}> | MsgID: ${message.id}`);
         } else {
-            console.log(`[Telegram] Message Received`);
-            console.log(`[Telegram] Channel:\n<${chatUsername || 'Unknown'}>`);
+            logWithTime(`[INFO] Telegram Message Received | Channel: <${chatUsername || 'Unknown'}> | MsgID: ${message.id}`);
         }
         
-        const channelRecord = await TelegramChannel.findOneAndUpdate(
-            { username: { $regex: new RegExp(`^${chatUsername}$`, 'i') } },
-            { 
-                $inc: { messagesProcessed: 1 },
-                $set: { lastActivity: new Date(), lastMessageAt: new Date(), lastProcessedAt: new Date(), status: "Online" }
-            },
-            { returnDocument: "after" }
-        ).catch(() => null);
-        emitTelegramSnapshot({
-            channel: chatUsername || "Unknown",
-            text: text.substring(0, 240),
-            receivedAt: new Date(),
-            parsed: false,
-            matched: false
-        }).catch(() => {});
-
-        let inlineUrls = [];
-        if (message.entities) {
-            message.entities.forEach(entity => {
-                if (entity.className === 'MessageEntityTextUrl') {
-                    inlineUrls.push(entity.url);
-                }
-            });
-        }
-
-        if (!isJobMessage(text, inlineUrls)) {
-            if (channelRecord) {
-                channelRecord.ignoredMessages += 1;
-                await channelRecord.save();
-            }
-            console.log("RETURN REASON: - Not a Job Message (Parser skipped)");
-            return; 
-        }
-
-        listenerStatus.lastJobMessageAt = new Date();
-
-        console.log("[Parser] Started");
-        const structuredData = parseStructuredPost(text);
-        let urls = extractUrls(text);
-        urls.push(...inlineUrls);
-        urls = [...new Set(urls)];
-        
-        console.log(`[Parser] URLs Extracted:\n<${urls.length}>`);
-        
-        if (urls.length === 0) {
-            return;
-        }
-
-        const telegramCompany = await Company.findOne({ name: "Telegram Jobs" });
-        if (!telegramCompany) {
-            console.log("RETURN REASON: - Telegram Jobs company not found in DB");
-            return;
-        }
-
-        const profile = await getActiveProfile();
-        const telegramMessageId = message.id;
-
-        let jobCount = 0;
-        let matchCount = 0;
-        for (const url of urls) {
-            const result = await processJobUrl(url, telegramCompany, profile, structuredData, chatUsername, telegramMessageId);
-            if (result && result.parsed) jobCount++;
-            if (result && result.matched) matchCount++;
-        }
-        
-        if (channelRecord) {
-            if (jobCount > 0) channelRecord.jobsFound += jobCount;
-            if (matchCount > 0) channelRecord.matchedJobs += matchCount;
-            if (jobCount === 0) channelRecord.parsingFailures += 1;
-            await channelRecord.save();
-        }
-        emitTelegramSnapshot({
-            channel: chatUsername || "Unknown",
-            text: text.substring(0, 240),
-            receivedAt: new Date(),
-            parsed: jobCount > 0,
-            matched: matchCount > 0,
-            jobsFound: jobCount,
-            matchedJobs: matchCount
-        }).catch(() => {});
+        await processMessageContent(text, message.entities || [], chatUsername, message.id);
 
     } catch (handlerError) {
         console.log(`[Telegram] Unhandled Error in message handler: ${handlerError.message}`);
@@ -540,6 +491,173 @@ const handleIncomingMessage = async (event) => {
             receivedAt: new Date(),
             error: true
         }).catch(() => {});
+    }
+};
+
+/**
+ * Shared message processing core.
+ * Called by both the live NewMessage handler and the historical backfill service.
+ * @param {string}   text          - Raw message text
+ * @param {Array}    entities      - GramJS entity array (for hidden URLs)
+ * @param {string}   chatUsername  - Channel username (already validated as allowed)
+ * @param {number}   messageId     - Telegram message ID
+ * @param {object}   [opts]        - Optional overrides
+ * @param {boolean}  [opts.silent] - If true, suppress stage banners (for backfill batch mode)
+ */
+const processMessageContent = async (text, entities, chatUsername, messageId, opts = {}) => {
+    const silent = opts.silent || false;
+    try {
+        const channelRecord = await TelegramChannel.findOneAndUpdate(
+            { username: { $regex: new RegExp(`^${chatUsername}$`, 'i') } },
+            {
+                $inc: { messagesProcessed: 1 },
+                $set: { lastActivity: new Date(), lastMessageAt: new Date(), lastProcessedAt: new Date(), status: "Online" }
+            },
+            { returnDocument: "after" }
+        ).catch(() => null);
+
+        emitTelegramSnapshot({
+            channel: chatUsername || "Unknown",
+            text: (text || "").substring(0, 240),
+            receivedAt: new Date(),
+            parsed: false,
+            matched: false
+        }).catch(() => {});
+
+        // Extract hidden URLs from entities
+        let inlineUrls = [];
+        if (entities && entities.length > 0) {
+            entities.forEach(entity => {
+                if (entity.className === 'MessageEntityTextUrl' && entity.url) {
+                    inlineUrls.push(entity.url);
+                }
+            });
+        }
+
+        logWithTime(`[INFO] Parsing Message... (Extracted ${inlineUrls.length} hidden entities)`);
+
+        if (!isJobMessage(text, inlineUrls)) {
+            if (channelRecord) {
+                channelRecord.ignoredMessages = (channelRecord.ignoredMessages || 0) + 1;
+                await channelRecord.save();
+            }
+            logWithTime(`[WARNING] Not a Job Message (skipped)`);
+            return { jobCount: 0, matchCount: 0, processedJobs: [] };
+        }
+
+        listenerStatus.lastJobMessageAt = new Date();
+
+        if (!silent) {
+            console.log("\n├─ STAGE 2: Structured Parser");
+        }
+        const structuredData = parseStructuredPost(text);
+        let urls = extractUrls(text);
+        urls.push(...inlineUrls);
+        urls = [...new Set(urls)];
+
+        if (!silent) {
+            console.log(`│  company    : ${structuredData.company || "(not found)"}`);
+            console.log(`│  role       : ${structuredData.role || "(not found)"}`);
+            console.log(`│  location   : ${structuredData.location || "(not found)"}`);
+            console.log(`│  experience : ${structuredData.experience || "(not found)"}`);
+            console.log(`│  URLs found : ${urls.length}`);
+            urls.forEach((u, i) => console.log(`│    [${i+1}] ${u}`));
+        }
+
+        if (urls.length === 0) {
+            if (!silent) console.log("└─ STAGE 2 RESULT: No URLs found — cannot process");
+            return { jobCount: 0, matchCount: 0, processedJobs: [] };
+        }
+        if (!silent) console.log("└─ STAGE 2 RESULT: OK");
+
+        const companyName = structuredData.company || "External Job";
+        let telegramCompany = await Company.findOne({ name: companyName });
+        if (!telegramCompany) {
+            telegramCompany = await Company.create({
+                name: companyName,
+                careerUrl: "https://t.me",
+                ats: "telegram",
+                category: "Telegram",
+                active: false
+            });
+            logWithTime(`[INFO] Dynamic company created: ${companyName}`);
+        }
+
+        const profile = await getActiveProfile();
+
+        let jobCount = 0;
+        let matchCount = 0;
+        let processedJobs = [];
+
+        for (const url of urls) {
+            const result = await processJobUrl(url, telegramCompany, profile, structuredData, chatUsername, messageId);
+            if (result && result.parsed) {
+                jobCount++;
+                processedJobs.push({
+                    company: result.job?.inferredCompany || result.job?.companyName || telegramCompany.name,
+                    role: result.job?.title || "Unknown Role",
+                    location: result.job?.location || "Unknown Location",
+                    source: chatUsername,
+                    applyLink: url,
+                    score: result.result?.score || 0,
+                    status: result.matched ? "AI Accepted" : (result.result ? "AI Rejected" : "Parsed")
+                });
+            }
+            if (result && result.matched) matchCount++;
+        }
+
+        if (channelRecord) {
+            if (jobCount > 0) channelRecord.jobsFound = (channelRecord.jobsFound || 0) + jobCount;
+            if (matchCount > 0) channelRecord.matchedJobs = (channelRecord.matchedJobs || 0) + matchCount;
+            if (jobCount === 0) channelRecord.parsingFailures = (channelRecord.parsingFailures || 0) + 1;
+            await channelRecord.save();
+        }
+
+        const socketPayload = {
+            channel: chatUsername || "Unknown",
+            text: (text || "").substring(0, 240),
+            receivedAt: new Date(),
+            messageId,
+            parsed: jobCount > 0,
+            matched: matchCount > 0,
+            jobsFound: jobCount,
+            matchedJobs: matchCount,
+            processedJobs
+        };
+
+        if (!silent) {
+            console.log("\n╔══════════════════════════════════════════════════╗");
+            console.log("║   STAGE 7: Socket.IO Emission                    ║");
+            console.log("╚══════════════════════════════════════════════════╝");
+            console.log(`  Event         : telegram:update`);
+            console.log(`  channel       : ${socketPayload.channel}`);
+            console.log(`  jobsFound     : ${socketPayload.jobsFound}`);
+            console.log(`  matchedJobs   : ${socketPayload.matchedJobs}`);
+            console.log(`  processedJobs : ${socketPayload.processedJobs.length} job(s)`);
+            socketPayload.processedJobs.forEach((j, i) => {
+                console.log(`    [${i+1}] ${j.role} @ ${j.company} | score=${j.score} | ${j.status}`);
+            });
+        }
+
+        emitTelegramSnapshot(socketPayload).catch(() => {});
+
+        if (!silent) {
+            console.log("\n╔══════════════════════════════════════════════════╗");
+            console.log("║   STAGE 9: Pipeline Complete — Log Summary       ║");
+            console.log("╚══════════════════════════════════════════════════╝");
+            console.log(`  ✅ Message ID                : ${messageId}`);
+            console.log(`  ✅ Channel                  : ${chatUsername}`);
+            console.log(`  ✅ Job Parsed               : ${jobCount > 0 ? "YES (" + jobCount + " job(s))" : "NO"}`);
+            console.log(`  ✅ AI Evaluation            : ${matchCount > 0 ? "MATCHED" : (jobCount > 0 ? "REJECTED/SKIPPED" : "NOT REACHED")}`);
+            console.log(`  ✅ Storage                  : ${jobCount > 0 ? "WRITTEN" : "NOT WRITTEN"}`);
+            console.log(`  ✅ Socket Broadcast         : telegram:update emitted`);
+        }
+
+        return { jobCount, matchCount, processedJobs };
+
+    } catch (err) {
+        console.log(`[Telegram] processMessageContent error (msgId=${messageId}): ${err.message}`);
+        return { jobCount: 0, matchCount: 0, processedJobs: [], error: err.message };
     }
 };
 
@@ -610,8 +728,14 @@ const startTelegramListener = async () => {
         isReconnecting = false;
         
         await loadChannels();
-        
+
         console.log("[Telegram] Connected");
+
+        // ── Historical Backfill (once per startup, non-blocking) ─────────────
+        const { runBackfill } = require("./telegramBackfillService");
+        runBackfill(telegramClient).catch(err => {
+            console.log(`[Telegram Sync] Backfill error: ${err.message}`);
+        });
         
         // Bind cleanly
         const filter = new NewMessage({});
@@ -676,4 +800,18 @@ const stopTelegramListener = () => {
     }
 };
 
-module.exports = { startTelegramListener, stopTelegramListener, parseStructuredPost, processJobUrl, isJobMessage, getListenerStatus, reloadChannels, reconnectTelegram };
+const getTelegramClient = () => telegramClient;
+
+module.exports = {
+    startTelegramListener,
+    stopTelegramListener,
+    parseStructuredPost,
+    processJobUrl,
+    processMessageContent,
+    isJobMessage,
+    getListenerStatus,
+    reloadChannels,
+    reconnectTelegram,
+    handleIncomingMessage,
+    getTelegramClient,
+};

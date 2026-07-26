@@ -310,6 +310,10 @@ const emitTelegram = (data) => {
     broadcast("telegram:update", data);
 };
 
+const emitTelegramSync = (event, data) => {
+    broadcast(event, data);
+};
+
 const emitCache = (data) => {
     broadcast("cache:update", data);
 };
@@ -331,6 +335,7 @@ module.exports = {
     emitCompanySnapshot,
     emitLogs,
     emitTelegram,
+    emitTelegramSync,
     emitCache,
     emitATS,
     emitDashboardSnapshot,

@@ -32,8 +32,7 @@ const BLOCKED_DOMAINS = [
     /twitter\.com/i,
     /x\.com/i,
     /courses\./i,
-    /udemy\.com/i,
-    /bit\.ly/i,
+    /udemy\.com/i
 ];
 
 
@@ -58,7 +57,7 @@ const getUrlStrategy = (url) => {
     }
 
     
-    return null;
+    return "generic-html";
 };
 
 module.exports = {

@@ -5,7 +5,8 @@
     <p class="text-textMuted text-sm">Live monitoring of connected channels and parsed job broadcasts.</p>
 </div>
 
-<div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+<!-- Stats Row -->
+<div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
     <div class="bg-surface border border-border rounded-xl p-5 shadow-sm">
         <h3 class="text-sm font-medium text-textMuted mb-2">Connection State</h3>
         <p id="telegram-state" class="text-3xl font-bold text-success">--</p>
@@ -28,9 +29,51 @@
     </div>
 </div>
 
+<!-- Sync Status Card -->
+<div id="sync-card" class="bg-surface border border-border rounded-xl p-5 shadow-sm mb-6">
+    <div class="flex items-center justify-between mb-4">
+        <div class="flex items-center gap-3">
+            <div id="sync-indicator" class="w-3 h-3 rounded-full bg-textMuted"></div>
+            <h2 class="font-semibold text-textMain">Historical Sync</h2>
+        </div>
+        <span id="sync-status-badge" class="px-3 py-1 rounded-full text-xs font-medium bg-surface border border-border text-textMuted">Waiting</span>
+    </div>
+    <div class="grid grid-cols-2 md:grid-cols-5 gap-4 text-center">
+        <div>
+            <p class="text-xs text-textMuted mb-1">Status</p>
+            <p id="sync-status" class="text-sm font-bold text-textMain">—</p>
+        </div>
+        <div>
+            <p class="text-xs text-textMuted mb-1">Scanned</p>
+            <p id="sync-scanned" class="text-sm font-bold text-textMain">—</p>
+        </div>
+        <div>
+            <p class="text-xs text-textMuted mb-1">Jobs Found</p>
+            <p id="sync-jobs" class="text-sm font-bold text-primary">—</p>
+        </div>
+        <div>
+            <p class="text-xs text-textMuted mb-1">Matched</p>
+            <p id="sync-matched" class="text-sm font-bold text-success">—</p>
+        </div>
+        <div>
+            <p class="text-xs text-textMuted mb-1">Last Sync</p>
+            <p id="sync-time" class="text-sm font-bold text-textMain">—</p>
+        </div>
+    </div>
+    <!-- Progress bar -->
+    <div id="sync-progress-bar-wrap" class="mt-4 hidden">
+        <div class="text-xs text-textMuted mb-1" id="sync-progress-label">Syncing...</div>
+        <div class="w-full bg-background rounded-full h-1.5">
+            <div id="sync-progress-bar" class="bg-primary h-1.5 rounded-full transition-all duration-300" style="width: 0%"></div>
+        </div>
+    </div>
+</div>
+
+<!-- Live Broadcast Feed -->
 <div class="bg-surface border border-border rounded-xl shadow-sm overflow-hidden flex flex-col h-[500px]">
-    <div class="p-4 border-b border-border">
+    <div class="p-4 border-b border-border flex items-center justify-between">
         <h2 class="font-semibold text-textMain">Live Broadcast Feed</h2>
+        <span id="feed-count" class="text-xs text-textMuted bg-background px-2 py-1 rounded-full">0 messages</span>
     </div>
     <div id="telegram-feed" class="flex-1 overflow-y-auto p-4 custom-scrollbar space-y-4">
         <p class="text-textMuted text-sm">Waiting for Telegram activity...</p>
@@ -39,6 +82,11 @@
 
 <script type="module">
     import { createSocket } from '/js/modules/socketClient.js';
+
+    let feedCount = 0;
+    let syncScanned = 0;
+    let syncJobs = 0;
+    let syncMatched = 0;
 
     function renderTelegram(data) {
         document.getElementById('telegram-state').innerText = data.connected ? 'Online' : 'Idle';
@@ -50,19 +98,122 @@
 
     function appendTelegramMessage(message) {
         const feed = document.getElementById('telegram-feed');
-        feed.querySelector('p')?.remove();
+        feed.querySelector('p.text-textMuted')?.remove();
+        feedCount++;
+        document.getElementById('feed-count').innerText = `${feedCount} message${feedCount !== 1 ? 's' : ''}`;
+
+        let jobsHtml = '';
+        if (message.processedJobs && message.processedJobs.length > 0) {
+            jobsHtml = message.processedJobs.map(job => `
+                <div class="mt-3 bg-surface border border-border rounded-xl p-3 flex flex-col gap-2">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="text-sm font-semibold text-textMain">${job.role}</p>
+                            <p class="text-xs text-textMuted">${job.company} • ${job.location}</p>
+                        </div>
+                        <span class="px-2 py-1 rounded-full text-xs font-medium ${
+                            job.status === 'AI Accepted' ? 'bg-success/20 text-success' :
+                            job.status === 'AI Rejected' ? 'bg-error/20 text-error' :
+                            'bg-primary/20 text-primary'
+                        }">${job.status}</span>
+                    </div>
+                    <div class="flex justify-between items-center mt-1">
+                        <span class="text-xs text-textMuted">Score: <span class="font-bold ${job.score >= 70 ? 'text-success' : 'text-textMain'}">${job.score}</span></span>
+                        <a href="${job.applyLink}" target="_blank" class="text-xs bg-primary text-white px-3 py-1 rounded-lg hover:bg-primary/90 transition-colors">Apply</a>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        const isSyncMsg = message._fromSync === true;
+        const labelColor = isSyncMsg ? 'bg-primary/10 text-primary' : 'bg-success/10 text-success';
+        const labelText = isSyncMsg ? '📂 Historical' : '🔴 Live';
+
         feed.insertAdjacentHTML('afterbegin', `
             <div class="flex items-start gap-4">
                 <div class="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center text-primary shrink-0">
                     <i class="fa-brands fa-telegram-plane"></i>
                 </div>
-                <div class="bg-background border border-border rounded-2xl rounded-tl-none p-4 max-w-2xl">
-                    <p class="text-xs text-textMuted mb-2">${new Date(message.receivedAt || Date.now()).toLocaleTimeString()} - ${message.channel || 'Telegram'}</p>
+                <div class="bg-background border border-border rounded-2xl rounded-tl-none p-4 max-w-2xl w-full">
+                    <div class="flex items-center gap-2 mb-2">
+                        <span class="text-xs ${labelColor} px-2 py-0.5 rounded-full font-medium">${labelText}</span>
+                        <span class="text-xs text-textMuted">${new Date(message.receivedAt || Date.now()).toLocaleTimeString('en-IN', {timeZone: 'Asia/Kolkata'})} IST</span>
+                        <span class="text-xs text-textMuted">• ${message.channel || 'Telegram'}</span>
+                        ${message.messageId ? `<span class="text-xs text-textMuted">• MsgID: ${message.messageId}</span>` : ''}
+                    </div>
                     <p class="text-sm text-textMain">${message.text || ''}</p>
-                    <p class="text-xs text-textMuted mt-2">Jobs: ${message.jobsFound || 0} - Matches: ${message.matchedJobs || 0}</p>
+                    <p class="text-xs text-textMuted mt-2">Jobs: ${message.jobsFound || 0} — Matches: ${message.matchedJobs || 0}</p>
+                    ${jobsHtml}
                 </div>
             </div>
         `);
+    }
+
+    // ── Sync Events ──────────────────────────────────────────────────────────
+
+    function handleSyncStart(data) {
+        const indicator = document.getElementById('sync-indicator');
+        const badge = document.getElementById('sync-status-badge');
+        const status = document.getElementById('sync-status');
+        indicator.className = 'w-3 h-3 rounded-full bg-primary animate-pulse';
+        badge.className = 'px-3 py-1 rounded-full text-xs font-medium bg-primary/20 text-primary';
+        badge.innerText = 'Running';
+        status.innerText = 'Starting...';
+        document.getElementById('sync-progress-bar-wrap').classList.remove('hidden');
+        document.getElementById('sync-progress-label').innerText = `Syncing ${(data.channels || []).length} channel(s)...`;
+    }
+
+    function handleSyncProgress(data) {
+        syncScanned++;
+        const label = document.getElementById('sync-progress-label');
+        label.innerText = `Channel @${data.channel} — scanned ${data.scanned || syncScanned} messages...`;
+        document.getElementById('sync-status').innerText = `@${data.channel} (MsgID ${data.messageId || '...'})`;
+        document.getElementById('sync-scanned').innerText = data.scanned || syncScanned;
+
+        // Append to feed if it's a new job
+        if (data.jobs && data.jobs.length > 0) {
+            syncJobs += data.jobs.length;
+            document.getElementById('sync-jobs').innerText = syncJobs;
+            appendTelegramMessage({
+                channel: data.channel,
+                receivedAt: new Date(),
+                messageId: data.messageId,
+                text: `[Historical] ${data.jobs.length} job(s) extracted`,
+                jobsFound: data.jobs.length,
+                matchedJobs: 0,
+                processedJobs: data.jobs,
+                _fromSync: true
+            });
+        }
+    }
+
+    function handleSyncComplete(data) {
+        const indicator = document.getElementById('sync-indicator');
+        const badge = document.getElementById('sync-status-badge');
+        indicator.className = 'w-3 h-3 rounded-full bg-success';
+        badge.className = 'px-3 py-1 rounded-full text-xs font-medium bg-success/20 text-success';
+        badge.innerText = 'Complete';
+        document.getElementById('sync-status').innerText = 'Done';
+        document.getElementById('sync-scanned').innerText = data.totalScanned || syncScanned;
+        document.getElementById('sync-jobs').innerText = data.totalJobsExtracted || syncJobs;
+        document.getElementById('sync-matched').innerText = data.totalMatched || syncMatched;
+        document.getElementById('sync-time').innerText = new Date(data.completedAt || Date.now()).toLocaleTimeString('en-IN', { timeZone: 'Asia/Kolkata' }) + ' IST';
+        document.getElementById('sync-progress-bar-wrap').classList.add('hidden');
+    }
+
+    function handleNewJob(data) {
+        if (data.jobs && data.jobs.length > 0) {
+            appendTelegramMessage({
+                channel: data.channel,
+                receivedAt: new Date(),
+                messageId: data.messageId,
+                text: `[Sync Job] ${data.jobs.length} job(s)`,
+                jobsFound: data.jobs.length,
+                matchedJobs: 0,
+                processedJobs: data.jobs,
+                _fromSync: true
+            });
+        }
     }
 
     document.addEventListener('DOMContentLoaded', async () => {
@@ -70,6 +221,13 @@
         socket.on('dashboard:init', (payload) => renderTelegram(payload.telegram || {}));
         socket.on('telegram:init', renderTelegram);
         socket.on('telegram:update', renderTelegram);
+
+        // Sync events
+        socket.on('telegram:sync:start',    handleSyncStart);
+        socket.on('telegram:sync:progress', handleSyncProgress);
+        socket.on('telegram:sync:complete', handleSyncComplete);
+        socket.on('telegram:newJob',        handleNewJob);
+
         socket.on('logs:new', (log) => {
             if (!String(log.message || '').toLowerCase().includes('telegram')) return;
             appendTelegramMessage({ receivedAt: log.time, channel: 'Log', text: log.message });

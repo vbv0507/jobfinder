@@ -24,4 +24,15 @@ router.delete('/channels/:id', requireAdmin, deleteChannel);
 router.post('/reconnect', requireAdmin, reconnect);
 router.post('/reload', requireAdmin, reload);
 
+// Phase 17: Sync state
+router.get('/sync/status', requireViewer, async (req, res) => {
+    try {
+        const { getSyncStatus } = require('../services/telegramBackfillService');
+        const states = await getSyncStatus();
+        res.json({ success: true, data: states });
+    } catch (err) {
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
+
 module.exports = router;
