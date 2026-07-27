@@ -136,6 +136,38 @@ router.get('/evidence', async (req, res) => {
     }
 });
 
+router.get('/evidence/download/json', (req, res) => {
+    const path = require('path');
+    const evidencePath = path.join(__dirname, '..', 'evidence.json');
+    res.download(evidencePath, 'evidence.json', (err) => {
+        if (err) {
+            res.status(404).send("Evidence file not found.");
+        }
+    });
+});
+
+router.get('/evidence/download/zip', (req, res) => {
+    const path = require('path');
+    const fs = require('fs');
+    const archiver = require('archiver');
+    const evidencePath = path.join(__dirname, '..', 'evidence.json');
+    
+    if (!fs.existsSync(evidencePath)) {
+        return res.status(404).send("Evidence file not found.");
+    }
+    
+    res.attachment('evidence.zip');
+    const archive = archiver('zip', { zlib: { level: 9 } });
+    
+    archive.on('error', (err) => {
+        res.status(500).send({error: err.message});
+    });
+    
+    archive.pipe(res);
+    archive.file(evidencePath, { name: 'evidence.json' });
+    archive.finalize();
+});
+
 router.get('/ai-explainability', (req, res) => {
     res.render('pages/ai-explainability', { title: 'AI Explainability' });
 });

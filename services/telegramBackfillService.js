@@ -42,6 +42,35 @@ const emitSyncEvent = (event, payload) => {
 const runBackfill = async (client) => {
     const { processMessageContent } = require("./telegramService");
 
+    // Let's check the actual client's authorization status
+    let isAuth = false;
+    try {
+        isAuth = await client.isUserAuthorized();
+        syncLog(`Client authorization status: ${isAuth}`);
+        if (isAuth) {
+            syncLog(`Current session string (first 10 chars): ${client.session.save().substring(0, 10)}...`);
+        }
+    } catch (err) {
+        syncLog(`Failed to check authorization: ${err.message}`);
+    }
+
+    if (!isAuth) {
+        syncLog("========================================");
+        syncLog("⚠ BACKFILL SKIPPED: The provided TelegramClient is NOT authorized.");
+        syncLog("  GramJS is connected using an anonymous session.");
+        syncLog("  Backfill requires a fully authenticated session to fetch history.");
+        syncLog("  To fix: run 'node scripts/generateSession.js'");
+        syncLog("  Copy the output into .env as TELEGRAM_SESSION=<string>");
+        syncLog("========================================");
+        emitSyncEvent("telegram:sync:complete", {
+            completedAt: new Date(),
+            totalScanned: 0, totalSkipped: 0, totalJobsExtracted: 0,
+            totalMatched: 0, totalRejected: 0, totalDuplicates: 0, totalErrors: 0,
+            skippedReason: "TelegramClient is not authorized",
+        });
+        return;
+    }
+
     const channels = await TelegramChannel.find({ enabled: true }).lean();
     if (!channels || channels.length === 0) {
         syncLog("No monitored channels found — backfill skipped.");

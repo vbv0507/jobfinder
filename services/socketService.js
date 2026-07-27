@@ -78,17 +78,35 @@ const buildCachePayload = async (analytics = null) => {
 const buildTelegramPayload = async () => {
     const { getListenerStatus } = require("./telegramService");
     const TelegramChannel = require("../models/TelegramChannel");
+    const TelegramSyncState = require("../models/TelegramSyncState");
     const listener = getListenerStatus() || {};
     const channels = await TelegramChannel.find({ enabled: true }).sort({ priority: 1, name: 1 }).lean();
+    
+    let syncStates = [];
+    try {
+        syncStates = await TelegramSyncState.find().lean();
+    } catch (e) {
+        console.warn("[Socket] Could not fetch TelegramSyncState");
+    }
+
+    const messagesProcessed = channels.reduce((sum, channel) => sum + (channel.messagesProcessed || 0), 0) + 
+                              syncStates.reduce((sum, state) => sum + (state.totalMessagesScanned || 0), 0);
+    const jobsFound = channels.reduce((sum, channel) => sum + (channel.jobsFound || 0), 0) + 
+                      syncStates.reduce((sum, state) => sum + (state.totalJobsExtracted || 0), 0);
+    const matchedJobs = channels.reduce((sum, channel) => sum + (channel.matchedJobs || 0), 0) + 
+                        syncStates.reduce((sum, state) => sum + (state.totalJobsMatched || 0), 0);
+    const deliveryErrors = channels.reduce((sum, channel) => sum + (channel.errorCount || 0), 0) + 
+                           syncStates.reduce((sum, state) => sum + (state.totalErrors || 0), 0);
 
     return {
         connected: !!listener.connected || listener.status === "Connected",
         monitoredChannels: listener.monitoredChannels || channels.map((channel) => channel.username),
         channels,
-        messagesProcessed: channels.reduce((sum, channel) => sum + (channel.messagesProcessed || 0), 0),
-        jobsFound: channels.reduce((sum, channel) => sum + (channel.jobsFound || 0), 0),
-        matchedJobs: channels.reduce((sum, channel) => sum + (channel.matchedJobs || 0), 0),
-        deliveryErrors: channels.reduce((sum, channel) => sum + (channel.errorCount || 0), 0),
+        syncStates,
+        messagesProcessed,
+        jobsFound,
+        matchedJobs,
+        deliveryErrors,
         lastMessageAt: listener.lastJobMessageAt || null
     };
 };

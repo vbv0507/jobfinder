@@ -69,6 +69,15 @@ class PipelineStateManager {
         if (this.startTime) {
             this.elapsedTime = this.endTime - this.startTime;
         }
+        
+        // Reset transient state
+        this.currentCompany = null;
+        this.currentATS = null;
+        this.currentURL = null;
+        this.currentModel = null;
+        this.activeCompanies = [];
+        this.companyIndex = 0;
+
         this.currentStage = "FINISHED";
         this.statusText = "Pipeline Finished";
         this.progress = "100%";
@@ -84,6 +93,15 @@ class PipelineStateManager {
         if (this.startTime) {
             this.elapsedTime = this.endTime - this.startTime;
         }
+
+        // Reset transient state
+        this.currentCompany = null;
+        this.currentATS = null;
+        this.currentURL = null;
+        this.currentModel = null;
+        this.activeCompanies = [];
+        this.companyIndex = 0;
+
         this.currentStage = "FAILED";
         this.statusText = `Failed: ${errorMsg}`;
         this.addLog("ERROR", `Pipeline Failed: ${errorMsg}`);
@@ -109,6 +127,15 @@ class PipelineStateManager {
         if (this.startTime) {
             this.elapsedTime = this.endTime - this.startTime;
         }
+
+        // Reset transient state
+        this.currentCompany = null;
+        this.currentATS = null;
+        this.currentURL = null;
+        this.currentModel = null;
+        this.activeCompanies = [];
+        this.companyIndex = 0;
+
         this.currentStage = "CANCELLED";
         this.statusText = "Pipeline Cancelled";
         this.addLog("WARNING", "Pipeline Cancelled");

@@ -92,7 +92,7 @@ const init = () => {
 const getSchedulerStatus = async () => {
     const lastRun = await SchedulerLog.findOne({ triggerSource: "Scheduler" }).sort({ startedAt: -1 }).lean();
     const lastSuccess = await SchedulerLog.findOne({ triggerSource: "Scheduler", result: "Success" }).sort({ startedAt: -1 }).lean();
-    const lastFailed = await SchedulerLog.findOne({ triggerSource: "Scheduler", result: "Failed" }).sort({ startedAt: -1 }).lean();
+    const lastFailed = await SchedulerLog.findOne({ triggerSource: "Scheduler", result: { $in: ["Failed", "Partial Success"] } }).sort({ startedAt: -1 }).lean();
 
     // node-cron doesn't natively expose the exact next date easily without private variables, 
     // but we can calculate it or simply state it's scheduled.
@@ -124,12 +124,25 @@ const getSchedulerStatus = async () => {
         nextRunDate.setDate(nextRunDate.getDate() + 1);
     }
 
+    // Determine actual status
+    let currentStatus = "IDLE";
+    if (cronTask) {
+        currentStatus = "WAITING";
+        const lock = await PipelineLock.findOne({ lockId: "global_pipeline_lock" }).lean();
+        if (lock && lock.status === "Running" && lock.expiresAt > new Date() && lock.runner === "Scheduler") {
+            currentStatus = "RUNNING";
+        } else if (pipelineState.running && pipelineState.owner === "Scheduler") {
+            currentStatus = "RUNNING";
+        }
+    }
+
     return {
-        status: cronTask ? "Running" : "Idle",
+        status: currentStatus,
         lastScheduledRun: lastRun ? lastRun.startedAt : null,
         nextScheduledRun: nextRunDate,
         lastSuccessfulRun: lastSuccess ? lastSuccess.startedAt : null,
         lastFailedRun: lastFailed ? lastFailed.startedAt : null,
+        duration: lastRun ? lastRun.durationMs : 0,
         triggerSource: "Scheduler"
     };
 };
