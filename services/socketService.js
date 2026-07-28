@@ -5,6 +5,19 @@ let io;
 
 const TWELVE_HOURS = 12 * 60 * 60 * 1000;
 
+// ── Rolling Live Feed (Task 1 & 7) ───────────────────────────────────────────
+// Capped in-memory buffer. Never grows beyond LIVE_FEED_LIMIT.
+// Only NEW events are broadcast; clients subscribe incrementally.
+const LIVE_FEED_LIMIT = 100;
+const liveFeedBuffer = [];
+
+const appendLiveFeedEvent = (event) => {
+    liveFeedBuffer.unshift(event); // newest first
+    if (liveFeedBuffer.length > LIVE_FEED_LIMIT) {
+        liveFeedBuffer.length = LIVE_FEED_LIMIT; // drop oldest
+    }
+};
+
 const serializePipeline = (pipelineState) => ({
     running: pipelineState.running,
     cancelRequested: pipelineState.cancelRequested,
@@ -79,6 +92,8 @@ const buildTelegramPayload = async () => {
     const { getListenerStatus } = require("./telegramService");
     const TelegramChannel = require("../models/TelegramChannel");
     const TelegramSyncState = require("../models/TelegramSyncState");
+    const MatchedJob = require("../models/MatchedJob");
+    const RejectedJob = require("../models/RejectedJob");
     const listener = getListenerStatus() || {};
     const channels = await TelegramChannel.find({ enabled: true }).sort({ priority: 1, name: 1 }).lean();
     
@@ -89,25 +104,54 @@ const buildTelegramPayload = async () => {
         console.warn("[Socket] Could not fetch TelegramSyncState");
     }
 
-    const messagesProcessed = channels.reduce((sum, channel) => sum + (channel.messagesProcessed || 0), 0) + 
-                              syncStates.reduce((sum, state) => sum + (state.totalMessagesScanned || 0), 0);
-    const jobsFound = channels.reduce((sum, channel) => sum + (channel.jobsFound || 0), 0) + 
-                      syncStates.reduce((sum, state) => sum + (state.totalJobsExtracted || 0), 0);
-    const matchedJobs = channels.reduce((sum, channel) => sum + (channel.matchedJobs || 0), 0) + 
-                        syncStates.reduce((sum, state) => sum + (state.totalJobsMatched || 0), 0);
-    const deliveryErrors = channels.reduce((sum, channel) => sum + (channel.errorCount || 0), 0) + 
+    // Task 5: Today-based metrics (not all-time totals)
+    const todayStart = new Date();
+    todayStart.setHours(0, 0, 0, 0);
+
+    let messagesToday = 0;
+    let jobsToday = 0;
+    let matchedToday = 0;
+    let rejectedToday = 0;
+    try {
+        const [matched, rejected] = await Promise.all([
+            MatchedJob.countDocuments({ source: "telegram", createdAt: { $gte: todayStart } }),
+            RejectedJob.countDocuments({ source: "telegram", createdAt: { $gte: todayStart } })
+        ]);
+        matchedToday = matched;
+        rejectedToday = rejected;
+        jobsToday = matched + rejected;
+        // messages today: sum from live feed buffer events today
+        messagesToday = liveFeedBuffer.filter(e => {
+            const t = new Date(e.receivedAt || 0);
+            return t >= todayStart;
+        }).length;
+    } catch (e) {
+        // non-fatal — keep zeroes
+    }
+
+    // Lifetime stats (for sync state card only)
+    const deliveryErrors = channels.reduce((sum, channel) => sum + (channel.errorCount || 0), 0) +
                            syncStates.reduce((sum, state) => sum + (state.totalErrors || 0), 0);
 
     return {
         connected: !!listener.connected || listener.status === "Connected",
+        listenerStatus: listener.status || "Unknown",
         monitoredChannels: listener.monitoredChannels || channels.map((channel) => channel.username),
         channels,
         syncStates,
-        messagesProcessed,
-        jobsFound,
-        matchedJobs,
+        // Today metrics (Task 5)
+        messagesToday,
+        jobsToday,
+        matchedToday,
+        rejectedToday,
         deliveryErrors,
-        lastMessageAt: listener.lastJobMessageAt || null
+        lastMessageAt: listener.lastJobMessageAt || null,
+        lastSyncTime: syncStates.reduce((latest, s) => {
+            const t = s.lastSyncTime ? new Date(s.lastSyncTime) : null;
+            return t && (!latest || t > latest) ? t : latest;
+        }, null),
+        // Live feed snapshot sent on init (Task 7)
+        liveFeed: liveFeedBuffer.slice(0, LIVE_FEED_LIMIT)
     };
 };
 
@@ -167,7 +211,9 @@ const emitInitialState = (socket, initialPayload) => {
     socket.emit("companies:init", initialPayload.companies.companies || []);
     socket.emit("analytics:init", initialPayload.analytics);
     socket.emit("cache:init", initialPayload.cache);
+    // Task 7: send live feed buffer on connect so client gets history without re-fetching
     socket.emit("telegram:init", initialPayload.telegram);
+    socket.emit("telegram:feed:init", initialPayload.telegram?.liveFeed || []);
 };
 
 const authenticateSocket = async (socket, next) => {
@@ -325,7 +371,16 @@ const emitLogs = (logEntry) => {
 };
 
 const emitTelegram = (data) => {
-    broadcast("telegram:update", data);
+    // Task 7: Only broadcast the NEW event — not full history
+    // If there's a lastMessage, add it to the rolling buffer and emit only it
+    if (data && data.lastMessage) {
+        const event = { ...data.lastMessage, receivedAt: data.lastMessage.receivedAt || new Date() };
+        appendLiveFeedEvent(event);
+        broadcast("telegram:newEvent", event);
+    }
+    // Always broadcast the state update (connected, channels, counts) WITHOUT the full feed
+    const { liveFeed: _omit, ...stateOnly } = data || {};
+    broadcast("telegram:update", stateOnly);
 };
 
 const emitTelegramSync = (event, data) => {

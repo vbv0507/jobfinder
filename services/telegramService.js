@@ -1,6 +1,7 @@
 const { TelegramClient } = require("telegram");
 const { StringSession } = require("telegram/sessions");
 const { NewMessage } = require("telegram/events");
+const { ConnectionTCPObfuscated } = require("telegram/network/connection/TCPObfuscated");
 const input = require("input");
 const axios = require("axios");
 const { HttpsProxyAgent } = require("https-proxy-agent");
@@ -691,7 +692,7 @@ const startTelegramListener = async () => {
         return;
     }
     
-    console.log("[Telegram] Starting");
+    console.log("\n[START]");
     listenerStatus.status = "Connecting";
     
     if (global.telegramReconnectTimer) {
@@ -700,81 +701,191 @@ const startTelegramListener = async () => {
     }
 
     try {
-        if (telegramClient) {
-            console.log("[Telegram] Cleaning up old client instance");
-            try { await telegramClient.disconnect(); } catch (e) {}
-            try { await telegramClient.destroy(); } catch (e) {}
-            telegramClient = null;
+        console.log("  ↓");
+        
+        if (!telegramClient) {
+            console.log("[Creating TelegramClient]");
+            
+            // ── Phase 1: Environment Verification ─────────────────────────────
+            const rawSession = process.env.TELEGRAM_SESSION || "";
+            console.log("  ├─ TELEGRAM_API_ID    :", API_ID ? `YES (${API_ID})` : "MISSING");
+            console.log("  ├─ TELEGRAM_API_HASH  :", API_HASH ? "YES" : "MISSING");
+            console.log("  ├─ SESSION exists     :", rawSession.length > 0 ? "YES" : "NO - EMPTY");
+            console.log("  ├─ SESSION length     :", rawSession.length);
+            console.log("  ├─ SESSION first 10   :", rawSession.substring(0, 10));
+            console.log("  └─ SESSION last 10    :", rawSession.substring(rawSession.length - 10));
+
+            // ── Phase 2: Session Format Validation ────────────────────────────
+            const b64Body = rawSession.slice(1);
+            const b64Valid = /^[A-Za-z0-9+/=]+$/.test(b64Body);
+            const b64Padded = b64Body.length % 4 === 0;
+            
+            let parsedSession;
+            try {
+                parsedSession = new StringSession(rawSession);
+            } catch (parseErr) {
+                throw new Error(`SESSION_PARSE_FAILED: ${parseErr.message}`);
+            }
+            
+            const authKeyPresent = parsedSession.authKey && parsedSession.authKey.length > 0;
+            
+            console.log("  ├─ Base64 valid       :", b64Valid ? "YES" : "NO - INVALID CHARS");
+            console.log("  ├─ Base64 padded      :", b64Padded ? "YES" : `NO (length%4=${b64Body.length % 4}) - TRUNCATED`);
+            console.log("  └─ Auth key present   :", authKeyPresent ? `YES (${parsedSession.authKey.length} bytes)` : "NO - MISSING");
+            
+            if (!authKeyPresent) {
+                throw new Error("SESSION_AUTH_KEY_MISSING: The TELEGRAM_SESSION string decoded to an empty auth key. The session string is truncated or corrupted. Please run 'node scripts/generateSession.js' to generate a new valid session.");
+            }
+
+            // Use TCPObfuscated instead of TCPFull — bypasses MTProto
+            // plain-text handshake filtering on datacenter IPs.
+            telegramClient = new TelegramClient(parsedSession, API_ID, API_HASH, {
+                connectionRetries: 5,
+                connection: ConnectionTCPObfuscated,
+            });
+        } else {
+            console.log("[Reusing Existing TelegramClient]");
         }
 
-        const session = new StringSession(process.env.TELEGRAM_SESSION || "");
-        telegramClient = new TelegramClient(session, API_ID, API_HASH, {
-            connectionRetries: 5,
-        });
-
-        await telegramClient.connect();
+        console.log("  ↓");
+        console.log("[Calling connect()]");
         
-        // Re-authenticate silently if necessary but connect() handles this automatically with valid session.
-        // GramJS will throw if session is completely dead/empty.
-
+        // Remove 15s timeout, allow GramJS to throw naturally or fallback to 60s max to prevent infinite unhandled rejections
+        const connectPromise = telegramClient.connect();
+        const timeoutPromise = new Promise((_, reject) => 
+            setTimeout(() => reject(new Error("GramJS connect() timed out after 60s")), 60000)
+        );
+        await Promise.race([connectPromise, timeoutPromise]);
+        
+        console.log("  ↓");
+        console.log("[connect resolved]");
+        
+        console.log("  ↓");
+        console.log("[isUserAuthorized()]");
+        const isAuth = await telegramClient.isUserAuthorized();
+        
+        console.log("  ↓");
+        console.log(`[returned ${isAuth ? 'TRUE' : 'FALSE'}]`);
+        
+        if (!isAuth) {
+            throw new Error("NOT_AUTHORIZED");
+        }
+        
+        console.log("  ↓");
+        console.log("[getMe()]");
+        const me = await telegramClient.getMe();
+        
+        console.log("  ↓");
+        console.log(`[returned User: ${me.id} | ${me.username || me.firstName}]`);
+        
         listenerStatus.status = "Connected";
         listenerStatus.lastConnectedAt = new Date();
         listenerStatus.uptimeStart = new Date();
         listenerStatus.layer = telegramClient.session.serverAddress || "Unknown"; 
         listenerStatus.dc = telegramClient.session.dcId || "Unknown";
         
-        // Reset state
         reconnectDelay = 5000;
         isReconnecting = false;
         
         await loadChannels();
-
-        console.log("[Telegram] Connected");
-
-        // ── Historical Backfill (once per startup, non-blocking) ─────────────
+        
+        console.log("  ↓");
+        console.log("[addEventHandler()]");
+        
+        // Avoid duplicate handlers
+        const hasHandler = telegramClient._eventBuilders.some(b => b[0] === handleIncomingMessage);
+        if (!hasHandler) {
+            const filter = new NewMessage({});
+            telegramClient.addEventHandler(handleIncomingMessage, filter);
+            console.log("  ↓");
+            console.log("[Listener Registered]");
+        } else {
+            console.log("  ↓");
+            console.log("[Listener Already Registered]");
+        }
+        
+        console.log("  ↓");
+        
+        // Background historical backfill
         const { runBackfill } = require("./telegramBackfillService");
         runBackfill(telegramClient).catch(err => {
             console.log(`[Telegram Sync] Backfill error: ${err.message}`);
         });
+        console.log("[Historical Backfill Started]");
         
-        // Bind cleanly
-        const filter = new NewMessage({});
-        telegramClient.addEventHandler(handleIncomingMessage, filter);
-        console.log("TelegramClient initialized");
-        console.log("Client connected");
-        console.log("Event handler registered");
-        console.log("NewMessage filter");
-        console.log(`{ _noCheck: ${filter._noCheck}, chats: ${filter.chats} }`);
-        console.log("Number of handlers registered");
-        console.log(telegramClient._eventBuilders.length);
-        console.log("[Telegram] Listener Registered");
+        console.log("  ↓");
+        console.log("[READY]\n");
         
-        const testMode = process.env.TELEGRAM_TEST_MODE === "true";
-        const rawTestChannel = process.env.TELEGRAM_TEST_CHANNEL || "None";
-        const normalizedTestChannel = rawTestChannel.trim().replace(/^@/, "").toLowerCase();
-        
-        console.log("========================================");
-        console.log("Telegram Configuration");
-        console.log("========================================");
-        console.log("Mode:\n" + (testMode ? "Test" : "Production"));
-        console.log("Test Mode:\n" + (testMode ? "Enabled" : "Disabled"));
-        console.log("Configured Test Channel:\n<" + rawTestChannel + ">");
-        console.log("Normalized Test Channel:\n<" + normalizedTestChannel + ">");
-        console.log("Listener Registered:\nYES");
-        console.log("Environment:\n" + (process.env.NODE_ENV === "production" ? "Production" : "Development"));
-        console.log("========================================");
-        
+        // ── Task 9: Startup Storage Audit ────────────────────────────────────
+        setImmediate(async () => {
+            try {
+                const TelegramSyncState = require("../models/TelegramSyncState");
+                const syncStates = await TelegramSyncState.find().lean();
+                const lastIds = syncStates.map(s => `@${s.channelUsername}: ${s.lastProcessedMessageId || 0}`).join(", ");
+                const lastSync = syncStates.reduce((latest, s) => {
+                    const t = s.lastSyncTime ? new Date(s.lastSyncTime) : null;
+                    return t && (!latest || t > latest) ? t : latest;
+                }, null);
+
+                let ttlStatus = "N/A (no TelegramMessages collection)";
+                try {
+                    const db = mongoose.connection.db;
+                    const cols = await db.listCollections({ name: "telegrammessages" }).toArray();
+                    if (cols.length > 0) {
+                        await db.collection("telegrammessages").createIndex(
+                            { createdAt: 1 },
+                            { expireAfterSeconds: 7 * 24 * 60 * 60, background: true }
+                        );
+                        ttlStatus = "ENABLED (7-day expiry on TelegramMessages)";
+                    }
+                } catch (ttlErr) {
+                    ttlStatus = `Error checking TTL: ${ttlErr.message}`;
+                }
+
+                console.log("\n╔══════════════════════════════════════════════════╗");
+                console.log("║   TELEGRAM STORAGE AUDIT                         ║");
+                console.log("╚══════════════════════════════════════════════════╝");
+                console.log(`  Live Feed Buffer Size : 0 (fresh start)`);
+                console.log(`  Channels Tracked      : ${syncStates.length}`);
+                console.log(`  Last Processed IDs    : ${lastIds || "None"}`);
+                console.log(`  Last Sync Time        : ${lastSync ? lastSync.toISOString() : "Never"}`);
+                console.log(`  Historical Sync       : ${process.env.TELEGRAM_SESSION ? "ENABLED (session present)" : "DISABLED (no session)"}`);
+                console.log(`  Listener Active       : YES`);
+                console.log(`  TTL Cleanup           : ${ttlStatus}`);
+                console.log(`  Permanent Storage     : RawJob, MatchedJob, RejectedJob, TelegramSyncState`);
+                console.log(`  Transient Storage     : In-memory live feed (max 100 events)`);
+                console.log("══════════════════════════════════════════════════");
+            } catch (auditErr) {
+                console.warn("[Telegram] Storage audit failed:", auditErr.message);
+            }
+        });
+
         isStarting = false;
 
     } catch (error) {
         isStarting = false;
-        isReconnecting = false; // Reset to allow handleDisconnect to run
-        if (error.message && error.message.includes('AUTH_KEY_DUPLICATED')) {
-            console.log(`[Telegram] AUTH_KEY_DUPLICATED. The session string is invalidated.`);
+        isReconnecting = false;
+        
+        console.log(`\n[Telegram ERROR] RPC or Connection Error: ${error.message}`);
+        
+        if (
+            error.message.includes('AUTH_KEY_UNREGISTERED') ||
+            error.message.includes('SESSION_REVOKED') ||
+            error.message.includes('AUTH_KEY_DUPLICATED') ||
+            error.message.includes('AUTH_KEY_INVALID') ||
+            error.message.includes('NOT_AUTHORIZED')
+        ) {
+            console.log(`[Telegram FATAL] Session is explicitly invalid. Halting reconnects.`);
             listenerStatus.status = "Error: Invalid Session";
+            if (telegramClient) {
+                try { await telegramClient.disconnect(); } catch (e) {}
+                try { await telegramClient.destroy(); } catch (e) {}
+                telegramClient = null;
+            }
             return;
         }
-        console.log(`[Telegram] Reconnect Failed: ${error.message}`);
+        
+        console.log(`[Telegram] Reconnect Failed`);
         handleDisconnect();
     }
 };
@@ -813,5 +924,5 @@ module.exports = {
     reloadChannels,
     reconnectTelegram,
     handleIncomingMessage,
-    getTelegramClient,
+    getTelegramClient: () => telegramClient,
 };

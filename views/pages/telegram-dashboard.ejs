@@ -13,9 +13,9 @@
         <p class="text-xs text-textMuted mt-1">Socket stream active</p>
     </div>
     <div class="bg-surface border border-border rounded-xl p-5 shadow-sm">
-        <h3 class="text-sm font-medium text-textMuted mb-2">Messages Broadcasted</h3>
+        <h3 class="text-sm font-medium text-textMuted mb-2">Messages Today</h3>
         <p id="telegram-messages" class="text-3xl font-bold text-primary">--</p>
-        <p class="text-xs text-textMuted mt-1">Total processed</p>
+        <p class="text-xs text-textMuted mt-1">Today's volume</p>
     </div>
     <div class="bg-surface border border-border rounded-xl p-5 shadow-sm">
         <h3 class="text-sm font-medium text-textMuted mb-2">Active Channels</h3>
@@ -23,9 +23,9 @@
         <p class="text-xs text-textMuted mt-1">Connected</p>
     </div>
     <div class="bg-surface border border-border rounded-xl p-5 shadow-sm">
-        <h3 class="text-sm font-medium text-textMuted mb-2">Delivery Errors</h3>
-        <p id="telegram-errors" class="text-3xl font-bold text-textMain">--</p>
-        <p class="text-xs text-textMuted mt-1">Rate limits or auth drops</p>
+        <h3 class="text-sm font-medium text-textMuted mb-2">Jobs Today</h3>
+        <p id="telegram-jobs" class="text-3xl font-bold text-textMain">--</p>
+        <p class="text-xs text-textMuted mt-1">Parsed / Matched</p>
     </div>
 </div>
 
@@ -87,20 +87,35 @@
     let syncScanned = 0;
     let syncJobs = 0;
     let syncMatched = 0;
+    let autoScroll = true;
+
+    // Detect user scrolling to pause auto-scroll
+    const feedContainer = document.getElementById('telegram-feed');
+    feedContainer.addEventListener('scroll', () => {
+        // If user scrolls up from the bottom (accounting for a small margin of error)
+        const isAtBottom = feedContainer.scrollHeight - feedContainer.scrollTop <= feedContainer.clientHeight + 50;
+        autoScroll = isAtBottom;
+    });
 
     function renderTelegram(data) {
         document.getElementById('telegram-state').innerText = data.connected ? 'Online' : 'Idle';
-        document.getElementById('telegram-messages').innerText = data.messagesProcessed || 0;
+        document.getElementById('telegram-messages').innerText = data.messagesToday || 0;
         document.getElementById('telegram-channels').innerText = (data.channels || []).length;
-        document.getElementById('telegram-errors').innerText = data.deliveryErrors || 0;
-        if (data.lastMessage) appendTelegramMessage(data.lastMessage);
+        document.getElementById('telegram-jobs').innerText = `${data.jobsToday || 0} / ${data.matchedToday || 0}`;
+        // Note: lastMessage is no longer broadcasted here (Task 7)
     }
 
     function appendTelegramMessage(message) {
         const feed = document.getElementById('telegram-feed');
         feed.querySelector('p.text-textMuted')?.remove();
+        
+        // Task 8: Cap at 100 events
+        if (feed.children.length >= 100) {
+            feed.removeChild(feed.lastElementChild);
+        }
+        
         feedCount++;
-        document.getElementById('feed-count').innerText = `${feedCount} message${feedCount !== 1 ? 's' : ''}`;
+        document.getElementById('feed-count').innerText = `${Math.min(feedCount, 100)} message(s) visible`;
 
         let jobsHtml = '';
         if (message.processedJobs && message.processedJobs.length > 0) {
@@ -147,6 +162,13 @@
                 </div>
             </div>
         `);
+
+        if (autoScroll) {
+            feed.scrollTop = 0; // newest-first implies scrolling to top when prepending! Wait, flex-col with afterbegin means it's at the top. We don't actually need to scroll to bottom, we need to scroll to top. 
+            // If the user scrolls down, they are looking at older messages. 
+            // Wait, if it's afterbegin, the newest is AT THE TOP. Auto-scroll should keep it at 0.
+            feed.scrollTop = 0;
+        }
     }
 
     // ── Sync Events ──────────────────────────────────────────────────────────
@@ -220,7 +242,15 @@
         const socket = await createSocket();
         socket.on('dashboard:init', (payload) => renderTelegram(payload.telegram || {}));
         socket.on('telegram:init', renderTelegram);
+        socket.on('telegram:feed:init', (feed) => {
+            document.getElementById('telegram-feed').innerHTML = '';
+            feedCount = 0;
+            // The feed from backend is newest-first, we need to append them in order or reverse?
+            // If we reverse, afterbegin will put newest at top.
+            [...feed].reverse().forEach(appendTelegramMessage);
+        });
         socket.on('telegram:update', renderTelegram);
+        socket.on('telegram:newEvent', appendTelegramMessage);
 
         // Sync events
         socket.on('telegram:sync:start',    handleSyncStart);
