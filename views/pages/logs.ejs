@@ -1,61 +1,147 @@
 <%- include('../layouts/header') %>
 
-<div class="mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+<!-- External Libraries for PDF Export -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+
+<div class="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 sticky top-0 z-20 bg-background/95 backdrop-blur py-4 border-b border-border">
     <div>
-        <h1 class="text-2xl font-bold tracking-tight text-textMain mb-2">Runtime Logs Explorer</h1>
-        <p class="text-textMuted text-sm">Real-time pipeline output with advanced filtering and grouping.</p>
+        <h1 class="text-2xl font-bold tracking-tight text-textMain mb-1">Runtime Logs Explorer</h1>
+        <p class="text-textMuted text-sm">Production-grade log explorer with live streaming and exports.</p>
     </div>
     
     <div class="flex items-center gap-2">
-        <button class="bg-surface hover:bg-surfaceHover border border-border text-textMain px-3 py-1.5 rounded-md text-sm font-medium transition-colors">
-            <i class="fa-solid fa-download mr-1.5"></i> Download
-        </button>
-        <button class="bg-surface hover:bg-surfaceHover border border-border text-textMain px-3 py-1.5 rounded-md text-sm font-medium transition-colors">
-            <i class="fa-regular fa-copy mr-1.5"></i> Copy
-        </button>
+        <!-- Copy Dropdown -->
+        <div class="relative group">
+            <button class="bg-surface hover:bg-surfaceHover border border-border text-textMain px-3 py-1.5 rounded-md text-sm font-medium transition-colors flex items-center gap-1.5">
+                <i class="fa-regular fa-copy"></i> Copy <i class="fa-solid fa-chevron-down text-xs ml-1 opacity-70"></i>
+            </button>
+            <div class="absolute right-0 mt-1 w-40 bg-surface border border-border rounded-md shadow-lg hidden group-hover:block z-30 overflow-hidden">
+                <button id="btn-copy-all" class="w-full text-left px-4 py-2 text-sm text-textMain hover:bg-surfaceHover transition-colors"><i class="fa-solid fa-list mr-2 opacity-70"></i>Copy All Logs</button>
+                <button id="btn-copy-visible" class="w-full text-left px-4 py-2 text-sm text-textMain hover:bg-surfaceHover transition-colors"><i class="fa-solid fa-eye mr-2 opacity-70"></i>Copy Visible</button>
+                <button id="btn-copy-selected" class="w-full text-left px-4 py-2 text-sm text-textMain hover:bg-surfaceHover transition-colors"><i class="fa-solid fa-mouse-pointer mr-2 opacity-70"></i>Copy Selected</button>
+            </div>
+        </div>
+        
+        <!-- Download Dropdown -->
+        <div class="relative group">
+            <button class="bg-primary hover:bg-primary/90 text-white px-3 py-1.5 rounded-md text-sm font-medium transition-colors flex items-center gap-1.5 shadow-sm">
+                <i class="fa-solid fa-download"></i> Export <i class="fa-solid fa-chevron-down text-xs ml-1 opacity-70"></i>
+            </button>
+            <div class="absolute right-0 mt-1 w-40 bg-surface border border-border rounded-md shadow-lg hidden group-hover:block z-30 overflow-hidden">
+                <button id="btn-dl-pdf" class="w-full text-left px-4 py-2 text-sm text-textMain hover:bg-surfaceHover transition-colors"><i class="fa-solid fa-file-pdf text-error mr-2"></i>PDF Report</button>
+                <button id="btn-dl-json" class="w-full text-left px-4 py-2 text-sm text-textMain hover:bg-surfaceHover transition-colors"><i class="fa-solid fa-file-code text-warning mr-2"></i>JSON</button>
+                <button id="btn-dl-csv" class="w-full text-left px-4 py-2 text-sm text-textMain hover:bg-surfaceHover transition-colors"><i class="fa-solid fa-file-csv text-success mr-2"></i>CSV</button>
+                <button id="btn-dl-txt" class="w-full text-left px-4 py-2 text-sm text-textMain hover:bg-surfaceHover transition-colors"><i class="fa-solid fa-file-lines text-textMuted mr-2"></i>TXT</button>
+            </div>
+        </div>
     </div>
 </div>
 
-<!-- Filters -->
-<div class="bg-surface border border-border rounded-xl p-4 shadow-sm mb-4 flex flex-wrap items-center gap-4">
-    <div class="relative flex-1 min-w-[200px]">
-        <i class="fa-solid fa-search absolute left-3 top-1/2 -translate-y-1/2 text-textMuted text-xs"></i>
-        <input type="text" placeholder="Search logs (e.g. 'Playwright failed')..." class="w-full bg-background border border-border rounded-md pl-8 pr-3 py-2 text-sm text-textMain focus:outline-none focus:border-primary transition-colors">
+<!-- Statistics Cards -->
+<div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4 mb-6">
+    <div class="bg-surface border border-border rounded-lg p-3">
+        <p class="text-textMuted text-xs uppercase tracking-wider mb-1">Total Logs</p>
+        <p class="text-xl font-bold text-textMain" id="stat-total">0</p>
     </div>
-    <div class="flex items-center gap-2">
-        <select class="bg-background border border-border rounded-md px-3 py-2 text-sm text-textMain focus:outline-none focus:border-primary">
-            <option>All Levels</option>
-            <option>INFO</option>
-            <option>WARN</option>
-            <option>ERROR</option>
-        </select>
-        <select class="bg-background border border-border rounded-md px-3 py-2 text-sm text-textMain focus:outline-none focus:border-primary">
-            <option>All Systems</option>
-            <option>Pipeline</option>
-            <option>RetryChain</option>
-            <option>Discovery</option>
-        </select>
+    <div class="bg-surface border border-border rounded-lg p-3">
+        <p class="text-textMuted text-xs uppercase tracking-wider mb-1">Errors</p>
+        <p class="text-xl font-bold text-error" id="stat-errors">0</p>
+    </div>
+    <div class="bg-surface border border-border rounded-lg p-3">
+        <p class="text-textMuted text-xs uppercase tracking-wider mb-1">Warnings</p>
+        <p class="text-xl font-bold text-warning" id="stat-warnings">0</p>
+    </div>
+    <div class="bg-surface border border-border rounded-lg p-3">
+        <p class="text-textMuted text-xs uppercase tracking-wider mb-1">Duration</p>
+        <p class="text-xl font-bold text-textMain" id="stat-duration">0s</p>
+    </div>
+    <div class="bg-surface border border-border rounded-lg p-3">
+        <p class="text-textMuted text-xs uppercase tracking-wider mb-1">Companies Processed</p>
+        <p class="text-xl font-bold text-textMain" id="stat-companies">0</p>
+    </div>
+    <div class="bg-surface border border-border rounded-lg p-3">
+        <p class="text-textMuted text-xs uppercase tracking-wider mb-1">Memory Usage</p>
+        <p class="text-xl font-bold text-textMain" id="stat-memory">0 MB</p>
     </div>
 </div>
 
-<!-- Terminal UI -->
-<div class="bg-[#0c0c0c] border border-border rounded-xl shadow-lg overflow-hidden h-[600px] flex flex-col font-mono text-xs relative">
+<!-- Filters & Search -->
+<div class="bg-surface border border-border rounded-xl p-4 shadow-sm mb-4 flex flex-col gap-4">
+    <div class="flex flex-wrap items-center gap-4">
+        <!-- Search Bar -->
+        <div class="relative flex-1 min-w-[250px]">
+            <i class="fa-solid fa-search absolute left-3 top-1/2 -translate-y-1/2 text-textMuted text-xs"></i>
+            <input type="text" id="search-input" placeholder="Search logs... (Press Ctrl+F)" class="w-full bg-background border border-border rounded-md pl-8 pr-24 py-2 text-sm text-textMain focus:outline-none focus:border-primary transition-colors font-mono">
+            <div class="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1">
+                <button id="toggle-regex" class="px-1.5 py-0.5 rounded text-[10px] font-bold border border-transparent text-textMuted hover:text-primary transition-colors" title="Use Regular Expression">.*</button>
+                <button id="toggle-case" class="px-1.5 py-0.5 rounded text-[10px] font-bold border border-transparent text-textMuted hover:text-primary transition-colors" title="Match Case">Aa</button>
+                <button id="toggle-word" class="px-1.5 py-0.5 rounded text-[10px] font-bold border border-transparent text-textMuted hover:text-primary transition-colors" title="Match Whole Word">W</button>
+            </div>
+        </div>
+        
+        <!-- Filters -->
+        <div class="flex flex-wrap items-center gap-2">
+            <select id="filter-level" class="bg-background border border-border rounded-md px-3 py-2 text-sm text-textMain focus:outline-none focus:border-primary">
+                <option value="ALL">All Levels</option>
+                <option value="INFO">INFO</option>
+                <option value="WARN">WARN</option>
+                <option value="ERROR">ERROR</option>
+                <option value="SUCCESS">SUCCESS</option>
+            </select>
+            <select id="filter-system" class="bg-background border border-border rounded-md px-3 py-2 text-sm text-textMain focus:outline-none focus:border-primary">
+                <option value="ALL">All Systems</option>
+                <option value="Pipeline">Pipeline</option>
+                <option value="Telegram">Telegram</option>
+                <option value="AI">AI Evaluation</option>
+                <option value="Cache">Cache</option>
+                <option value="Socket">Socket</option>
+                <option value="ATS">ATS</option>
+            </select>
+        </div>
+    </div>
+    
+    <div class="flex items-center justify-between text-xs text-textMuted border-t border-border pt-3 mt-1">
+        <div class="flex items-center gap-4">
+            <span id="search-results-count" class="font-medium text-primary">0 matches</span>
+            <span class="flex items-center gap-3">
+                <span title="Keyboard Shortcuts" class="cursor-help"><kbd class="bg-background border border-border px-1.5 rounded text-[10px] mr-1">Ctrl+F</kbd>Search</span>
+                <span title="Keyboard Shortcuts" class="cursor-help"><kbd class="bg-background border border-border px-1.5 rounded text-[10px] mr-1">Ctrl+C</kbd>Copy</span>
+                <span title="Keyboard Shortcuts" class="cursor-help"><kbd class="bg-background border border-border px-1.5 rounded text-[10px] mr-1">Ctrl+S</kbd>Save PDF</span>
+            </span>
+        </div>
+        <div class="flex items-center gap-4">
+            <label class="flex items-center gap-1.5 cursor-pointer hover:text-textMain transition-colors">
+                <input type="checkbox" id="toggle-utc" class="accent-primary"> UTC Time
+            </label>
+        </div>
+    </div>
+</div>
+
+<!-- Terminal UI with Virtual Scrolling -->
+<div class="bg-[#0c0c0c] border border-border rounded-xl shadow-lg overflow-hidden h-[700px] flex flex-col font-mono text-[11px] relative">
     <div class="flex items-center justify-between px-4 py-2 bg-surface border-b border-border text-textMuted">
         <div class="flex items-center gap-2">
-            <span class="w-3 h-3 rounded-full bg-error/80"></span>
-            <span class="w-3 h-3 rounded-full bg-warning/80"></span>
-            <span class="w-3 h-3 rounded-full bg-success/80"></span>
+            <span class="w-3 h-3 rounded-full bg-error/80 shadow-[0_0_8px_rgba(239,68,68,0.5)]"></span>
+            <span class="w-3 h-3 rounded-full bg-warning/80 shadow-[0_0_8px_rgba(245,158,11,0.5)]"></span>
+            <span class="w-3 h-3 rounded-full bg-success/80 shadow-[0_0_8px_rgba(34,197,94,0.5)]"></span>
         </div>
-        <div class="flex items-center gap-4 text-[10px] uppercase tracking-wider">
-            <label class="flex items-center gap-1.5 cursor-pointer hover:text-textMain">
-                <input type="checkbox" checked class="accent-primary"> Auto-scroll
+        <div class="flex items-center gap-4 text-[10px] uppercase tracking-wider font-semibold">
+            <button id="btn-pause-stream" class="hover:text-warning transition-colors flex items-center gap-1">
+                <i class="fa-solid fa-pause"></i> Pause Stream
+            </button>
+            <label class="flex items-center gap-1.5 cursor-pointer hover:text-textMain transition-colors">
+                <input type="checkbox" id="toggle-autoscroll" checked class="accent-primary"> Auto-scroll
             </label>
         </div>
     </div>
     
-    <div id="logs-container" class="flex-1 overflow-y-auto p-4 custom-scrollbar space-y-1">
-        <!-- Log Lines injected by JS -->
-        <p class="text-textMuted text-center p-4">Waiting for log stream...</p>
+    <!-- Virtual Scroller Container -->
+    <div id="logs-viewport" class="flex-1 overflow-y-auto custom-scrollbar relative select-text">
+        <div id="logs-spacer" class="w-full"></div>
+        <div id="logs-render-window" class="absolute top-0 left-0 right-0 w-full px-2 py-1">
+            <p class="text-textMuted text-center p-4">Connecting to log stream...</p>
+        </div>
     </div>
 </div>
 

@@ -727,11 +727,11 @@ const startTelegramListener = async () => {
                 throw new Error(`SESSION_PARSE_FAILED: ${parseErr.message}`);
             }
             
-            const authKeyPresent = parsedSession.authKey && parsedSession.authKey.length > 0;
+            const authKeyPresent = (parsedSession.authKey && parsedSession.authKey.length > 0) || (parsedSession._key && parsedSession._key.length > 0);
             
             console.log("  ├─ Base64 valid       :", b64Valid ? "YES" : "NO - INVALID CHARS");
             console.log("  ├─ Base64 padded      :", b64Padded ? "YES" : `NO (length%4=${b64Body.length % 4}) - TRUNCATED`);
-            console.log("  └─ Auth key present   :", authKeyPresent ? `YES (${parsedSession.authKey.length} bytes)` : "NO - MISSING");
+            console.log("  └─ Auth key present   :", authKeyPresent ? `YES` : "NO - MISSING");
             
             if (!authKeyPresent) {
                 throw new Error("SESSION_AUTH_KEY_MISSING: The TELEGRAM_SESSION string decoded to an empty auth key. The session string is truncated or corrupted. Please run 'node scripts/generateSession.js' to generate a new valid session.");
