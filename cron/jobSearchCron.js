@@ -909,8 +909,7 @@ const runSearch = async (triggerSource = "Unknown", forceRefresh = false) => {
   } catch (error) {
     console.error(chalk.bgRed.white(`Cron Error: ${error.message}`));
 
-    pipelineState.fail(error.message);
-
+    // Write SearchLog FIRST so the DB record is complete before the socket fires.
     if (pipelineLog) {
       await SearchLog.findByIdAndUpdate(pipelineLog._id, {
         completedAt: new Date(),
@@ -927,8 +926,11 @@ const runSearch = async (triggerSource = "Unknown", forceRefresh = false) => {
         totalJobs: stats?.jobsFound || 0,
         jobsMatched: stats?.jobsMatched || 0,
         errorDetails: [{ message: error.message }],
-      });
+      }).catch(dbErr => console.error("[Pipeline] Failed to update SearchLog on error:", dbErr.message));
     }
+
+    // Fail AFTER the DB write — this emits the socket broadcast with current data.
+    pipelineState.fail(error.message);
   } finally {
     const endTime = new Date();
     const duration = endTime - startedAt;

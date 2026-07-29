@@ -90,18 +90,18 @@ const init = () => {
 };
 
 const getSchedulerStatus = async () => {
-    const SearchLog = require('../models/SearchLog');
-
-    // Query the authoritative SearchLog (written by saveSearchLog) — not SchedulerLog.
-    // No triggerSource filter: include both "Scheduler" and "Manual" runs so the
-    // dashboard always reflects the most recent execution regardless of how it was triggered.
-    const lastRun = await SearchLog.findOne({ status: { $nin: ["Running", "Skipped"] } })
+    // SchedulerLog is the correct source for the scheduler widget.
+    // It is written in the finally block of every run with result, durationMs,
+    // triggerSource and metrics — purpose-built for this dashboard card.
+    // No triggerSource filter: Manual and Scheduler runs both count.
+    const lastRun = await SchedulerLog.findOne({ result: { $nin: ["Skipped", "Running"] } })
         .sort({ startedAt: -1 })
         .lean();
-    const lastSuccess = await SearchLog.findOne({ status: { $in: ["Success", "Partial Success"] } })
+    const lastSuccess = await SchedulerLog.findOne({ result: { $in: ["Success", "Partial Success"] } })
         .sort({ completedAt: -1 })
         .lean();
-    const lastFailed = await SearchLog.findOne({ status: { $in: ["Failed", "Partial Success"] } })
+    // "Partial Success" = pipeline completed; only pure "Failed" is a failure.
+    const lastFailed = await SchedulerLog.findOne({ result: "Failed" })
         .sort({ startedAt: -1 })
         .lean();
 
@@ -154,8 +154,8 @@ const getSchedulerStatus = async () => {
         lastSuccessfulRun: lastSuccess ? lastSuccess.completedAt : null,
         lastFailedRun: lastFailed ? lastFailed.startedAt : null,
         duration: lastRun ? lastRun.durationMs : 0,
-        jobsFound: lastRun ? (lastRun.jobsFound || 0) : 0,
-        matchedJobs: lastRun ? (lastRun.jobsMatched || 0) : 0,
+        jobsFound: lastRun ? (lastRun.metrics?.jobs || 0) : 0,
+        matchedJobs: lastRun ? (lastRun.metrics?.matched || 0) : 0,
         triggerSource: lastRun ? (lastRun.triggerSource || "Unknown") : "Unknown"
     };
 };
