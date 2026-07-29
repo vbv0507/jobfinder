@@ -89,6 +89,57 @@ const runSearch = async (triggerSource = "Unknown", forceRefresh = false) => {
   let pipelineLog = null;
   pipelineState.start(pipelineId);
 
+  let stats = {
+      totalCompanies: 0,
+      cachedCompanies: 0,
+      companiesScanned: 0,
+      successfulCompanies: 0,
+      failedCompanies: 0,
+      jobsFound: 0,
+      jobsSaved: 0,
+      jobsMatched: 0,
+      newJobs: 0,
+      companiesWithJobs: 0,
+      companiesWithoutJobs: 0,
+      parserOutdated: 0,
+      atsChanged: 0,
+      httpFailed: 0,
+      blocked: 0,
+      retriedSuccessfully: 0,
+      jobsScraped: 0,
+      jobsEvaluated: 0,
+      duplicates: 0,
+      validationDrops: 0,
+      validationDropsByReason: {},
+      totalSaveTime: 0,
+      retrySuccess: 0,
+      jobsArchived: 0,
+      jobsRefreshed: 0,
+      duplicatePreventionCount: 0,
+      totalEvaluationTimeMs: 0,
+      totalMetadataRefreshTimeMs: 0,
+      aiEvaluations: 0,
+      geminiCount: 0,
+      geminiSuccess: 0,
+      geminiFailed: 0,
+      geminiFallbacks: 0,
+      groqCount: 0,
+      groqSuccess: 0,
+      groqFailed: 0,
+      groqFallbacks: 0,
+      zaiCount: 0,
+      zaiSuccess: 0,
+      zaiFailed: 0,
+      zaiFallbacks: 0,
+      localCount: 0,
+      localSuccess: 0,
+      axiosSuccessCount: 0,
+      puppeteerFallbackCount: 0,
+      headerSanitizedCount: 0,
+  };
+
+  let errors = [];
+
   try {
     pipelineLog = await SearchLog.create({
       pipelineId,
@@ -99,54 +150,6 @@ const runSearch = async (triggerSource = "Unknown", forceRefresh = false) => {
 
   console.log(chalk.cyan(`[Pipeline] ID: ${pipelineId} | Trigger source: ${runnerName}. Start time: ${startedAt.toISOString()}`));
 
-    const stats = {
-      totalCompanies: 0,
-      cachedCompanies: 0,
-      companiesScanned: 0,
-      successfulCompanies: 0,
-      failedCompanies: 0,
-    jobsFound: 0,
-    jobsSaved: 0,
-    jobsMatched: 0,
-    newJobs: 0,
-    companiesWithJobs: 0,
-    companiesWithoutJobs: 0,
-    parserOutdated: 0,
-    atsChanged: 0,
-    httpFailed: 0,
-    blocked: 0,
-    retriedSuccessfully: 0,
-    jobsScraped: 0,
-    jobsEvaluated: 0,
-    duplicates: 0,
-    validationDrops: 0,
-    validationDropsByReason: {},
-    totalSaveTime: 0,
-    retrySuccess: 0,
-    jobsArchived: 0,
-    jobsRefreshed: 0,
-    duplicatePreventionCount: 0,
-    totalEvaluationTimeMs: 0,
-    totalMetadataRefreshTimeMs: 0,
-    aiEvaluations: 0,
-    geminiCount: 0,
-    geminiSuccess: 0,
-    geminiFailed: 0,
-    geminiFallbacks: 0,
-    groqCount: 0,
-    groqSuccess: 0,
-    groqFailed: 0,
-    groqFallbacks: 0,
-    zaiCount: 0,
-    zaiSuccess: 0,
-    zaiFailed: 0,
-    zaiFallbacks: 0,
-    localCount: 0,
-    localSuccess: 0,
-    axiosSuccessCount: 0,
-    puppeteerFallbackCount: 0,
-    headerSanitizedCount: 0,
-  };
   const aiState = {
     gemini: { available: true, reason: null, disabledAt: null, requests: 0, success: 0, failed: 0 },
     groq: { available: true, reason: null, disabledAt: null, requests: 0, success: 0, failed: 0 },
@@ -190,8 +193,6 @@ const runSearch = async (triggerSource = "Unknown", forceRefresh = false) => {
   console.log(chalk.bgBlue.white.bold("\n================================="));
   console.log(chalk.bgBlue.white.bold(" Job Search Started...           "));
   console.log(chalk.bgBlue.white.bold("=================================\n"));
-
-  const errors = [];
 
     const companies = await Company.find({ active: true });
     const profile = await getActiveProfile();
@@ -936,14 +937,8 @@ const runSearch = async (triggerSource = "Unknown", forceRefresh = false) => {
     const duration = endTime - startedAt;
     console.log(chalk.gray(`[Pipeline] End time: ${endTime.toISOString()}. Duration: ${duration}ms`));
 
-    // ── Execution-order proof markers ────────────────────────────────────────
-    // [ORDER:1] SchedulerLog.create()  → [ORDER:2] PipelineLock.updateOne()
-    // → [ORDER:3] pipelineState.finish() / emitDashboardSnapshot
-    // Every line below is awaited in sequence; the log timestamps prove it.
-
     // Step 1: Write SchedulerLog FIRST — before socket fires so the dashboard
     // snapshot reads current data when pipelineState.finish() emits it below.
-    console.log(`[ORDER:1-START] SchedulerLog.create() starting @ ${new Date().toISOString()}`);
     try {
         const SchedulerLog = require("../models/SchedulerLog");
         const wasCancelled = pipelineState.cancelRequested;
@@ -960,24 +955,20 @@ const runSearch = async (triggerSource = "Unknown", forceRefresh = false) => {
                 rejected: (stats?.jobsFound || 0) - (stats?.jobsMatched || 0)
             }
         });
-        console.log(`[ORDER:1-DONE]  SchedulerLog.create() committed @ ${new Date().toISOString()}`);
     } catch (logErr) {
-        console.error(`[ORDER:1-FAIL]  SchedulerLog.create() failed: ${logErr.message}`);
+        console.error("Failed to save SchedulerLog:", logErr.message);
     }
 
     // Step 2: Release the distributed lock.
-    console.log(`[ORDER:2-START] PipelineLock.updateOne(Idle) starting @ ${new Date().toISOString()}`);
     await PipelineLock.updateOne(
       { lockId: "global_pipeline_lock" },
       { $set: { status: "Idle", runner: "none", expiresAt: null } }
     ).catch(err => console.error("Error releasing pipeline lock:", err.message));
-    console.log(`[ORDER:2-DONE]  PipelineLock.updateOne(Idle) committed @ ${new Date().toISOString()}`);
 
     console.log(chalk.blue(`[Pipeline] Lock Released. Owner: ${runnerName}.`));
 
     // Step 3: Transition pipelineState — this triggers the socket broadcast.
     // Runs LAST so the DB is fully consistent before the dashboard snapshot fires.
-    console.log(`[ORDER:3-START] pipelineState transition starting @ ${new Date().toISOString()}`);
     if (pipelineState.running) {
        if (pipelineState.cancelRequested) {
            pipelineState.markCancelled();
@@ -992,8 +983,6 @@ const runSearch = async (triggerSource = "Unknown", forceRefresh = false) => {
            console.error("[Socket] Failed to refresh dashboard after exception:", err.message)
        );
     }
-    console.log(`[ORDER:3-DONE]  pipelineState transition complete @ ${new Date().toISOString()}`);
-    // ── End execution-order proof markers ────────────────────────────────────
   }
 };
 
