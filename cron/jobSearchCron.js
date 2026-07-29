@@ -936,8 +936,14 @@ const runSearch = async (triggerSource = "Unknown", forceRefresh = false) => {
     const duration = endTime - startedAt;
     console.log(chalk.gray(`[Pipeline] End time: ${endTime.toISOString()}. Duration: ${duration}ms`));
 
+    // ── Execution-order proof markers ────────────────────────────────────────
+    // [ORDER:1] SchedulerLog.create()  → [ORDER:2] PipelineLock.updateOne()
+    // → [ORDER:3] pipelineState.finish() / emitDashboardSnapshot
+    // Every line below is awaited in sequence; the log timestamps prove it.
+
     // Step 1: Write SchedulerLog FIRST — before socket fires so the dashboard
     // snapshot reads current data when pipelineState.finish() emits it below.
+    console.log(`[ORDER:1-START] SchedulerLog.create() starting @ ${new Date().toISOString()}`);
     try {
         const SchedulerLog = require("../models/SchedulerLog");
         const wasCancelled = pipelineState.cancelRequested;
@@ -954,20 +960,24 @@ const runSearch = async (triggerSource = "Unknown", forceRefresh = false) => {
                 rejected: (stats?.jobsFound || 0) - (stats?.jobsMatched || 0)
             }
         });
+        console.log(`[ORDER:1-DONE]  SchedulerLog.create() committed @ ${new Date().toISOString()}`);
     } catch (logErr) {
-        console.error("Failed to save SchedulerLog:", logErr.message);
+        console.error(`[ORDER:1-FAIL]  SchedulerLog.create() failed: ${logErr.message}`);
     }
 
     // Step 2: Release the distributed lock.
+    console.log(`[ORDER:2-START] PipelineLock.updateOne(Idle) starting @ ${new Date().toISOString()}`);
     await PipelineLock.updateOne(
       { lockId: "global_pipeline_lock" },
       { $set: { status: "Idle", runner: "none", expiresAt: null } }
     ).catch(err => console.error("Error releasing pipeline lock:", err.message));
+    console.log(`[ORDER:2-DONE]  PipelineLock.updateOne(Idle) committed @ ${new Date().toISOString()}`);
 
     console.log(chalk.blue(`[Pipeline] Lock Released. Owner: ${runnerName}.`));
 
     // Step 3: Transition pipelineState — this triggers the socket broadcast.
     // Runs LAST so the DB is fully consistent before the dashboard snapshot fires.
+    console.log(`[ORDER:3-START] pipelineState transition starting @ ${new Date().toISOString()}`);
     if (pipelineState.running) {
        if (pipelineState.cancelRequested) {
            pipelineState.markCancelled();
@@ -982,6 +992,8 @@ const runSearch = async (triggerSource = "Unknown", forceRefresh = false) => {
            console.error("[Socket] Failed to refresh dashboard after exception:", err.message)
        );
     }
+    console.log(`[ORDER:3-DONE]  pipelineState transition complete @ ${new Date().toISOString()}`);
+    // ── End execution-order proof markers ────────────────────────────────────
   }
 };
 
