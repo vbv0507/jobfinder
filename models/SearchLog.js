@@ -55,6 +55,7 @@ const searchLogSchema = new mongoose.Schema({
     },
 
     // Phase 11: Pipeline Summary Metrics
+    skippedRuns: { type: Number, default: 0 },
     companiesWithJobs: { type: Number, default: 0 },
     companiesWithoutJobs: { type: Number, default: 0 },
     parserOutdated: { type: Number, default: 0 },

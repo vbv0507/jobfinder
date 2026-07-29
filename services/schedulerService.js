@@ -90,9 +90,20 @@ const init = () => {
 };
 
 const getSchedulerStatus = async () => {
-    const lastRun = await SchedulerLog.findOne({ triggerSource: "Scheduler" }).sort({ startedAt: -1 }).lean();
-    const lastSuccess = await SchedulerLog.findOne({ triggerSource: "Scheduler", result: "Success" }).sort({ startedAt: -1 }).lean();
-    const lastFailed = await SchedulerLog.findOne({ triggerSource: "Scheduler", result: { $in: ["Failed", "Partial Success"] } }).sort({ startedAt: -1 }).lean();
+    const SearchLog = require('../models/SearchLog');
+
+    // Query the authoritative SearchLog (written by saveSearchLog) — not SchedulerLog.
+    // No triggerSource filter: include both "Scheduler" and "Manual" runs so the
+    // dashboard always reflects the most recent execution regardless of how it was triggered.
+    const lastRun = await SearchLog.findOne({ status: { $nin: ["Running", "Skipped"] } })
+        .sort({ startedAt: -1 })
+        .lean();
+    const lastSuccess = await SearchLog.findOne({ status: { $in: ["Success", "Partial Success"] } })
+        .sort({ completedAt: -1 })
+        .lean();
+    const lastFailed = await SearchLog.findOne({ status: { $in: ["Failed", "Partial Success"] } })
+        .sort({ startedAt: -1 })
+        .lean();
 
     // node-cron doesn't natively expose the exact next date easily without private variables, 
     // but we can calculate it or simply state it's scheduled.
@@ -140,10 +151,12 @@ const getSchedulerStatus = async () => {
         status: currentStatus,
         lastScheduledRun: lastRun ? lastRun.startedAt : null,
         nextScheduledRun: nextRunDate,
-        lastSuccessfulRun: lastSuccess ? lastSuccess.startedAt : null,
+        lastSuccessfulRun: lastSuccess ? lastSuccess.completedAt : null,
         lastFailedRun: lastFailed ? lastFailed.startedAt : null,
         duration: lastRun ? lastRun.durationMs : 0,
-        triggerSource: "Scheduler"
+        jobsFound: lastRun ? (lastRun.jobsFound || 0) : 0,
+        matchedJobs: lastRun ? (lastRun.jobsMatched || 0) : 0,
+        triggerSource: lastRun ? (lastRun.triggerSource || "Unknown") : "Unknown"
     };
 };
 

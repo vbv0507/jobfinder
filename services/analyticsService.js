@@ -153,7 +153,7 @@ const getAnalyticsData = async () => {
         const systemMetrics = globalSearchLogStats.length > 0 ? globalSearchLogStats[0] : {};
         
         
-        const lastSuccess = await SearchLog.findOne({ status: "Success" }).sort({ createdAt: -1 });
+        const lastSuccess = await SearchLog.findOne({ status: { $in: ["Success", "Partial Success"] } }).sort({ completedAt: -1 });
         const latestRun = await SearchLog.findOne({ status: { $ne: "Running" } }).sort({ startedAt: -1, createdAt: -1 }).lean();
         const latest = latestRun || {};
         const latestCompaniesScanned = latest.companiesScanned || latest.totalCompanies || 0;
@@ -183,7 +183,7 @@ const getAnalyticsData = async () => {
                 successRate: latestCompaniesScanned > 0 ? Math.round((latestSuccessfulCompanies / latestCompaniesScanned) * 100) : 100,
                 failureRate: latestCompaniesScanned > 0 ? Math.round((latestFailedCompanies / latestCompaniesScanned) * 100) : 0,
                 skippedRuns: latestCachedCompanies,
-                lastSuccessfulRun: lastSuccess ? lastSuccess.createdAt : null,
+                lastSuccessfulRun: lastSuccess ? lastSuccess.completedAt : null,
                 nextScheduledRun: pipelineState.nextRunTime
             },
             metrics: {

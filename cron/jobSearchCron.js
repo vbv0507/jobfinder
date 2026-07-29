@@ -899,11 +899,12 @@ const runSearch = async (triggerSource = "Unknown", forceRefresh = false) => {
         console.error(chalk.red("Failed to write evidence.json: " + e.message));
     }
     
+    // Do NOT call pipelineState.finish() here.
+    // The finally block runs next and will call finish() AFTER SchedulerLog is
+    // written and PipelineLock is released — ensuring the DB is consistent
+    // before the socket broadcasts the dashboard snapshot.
     if (errors.length > 0) {
-      pipelineState.finish();
       pipelineState.statusText = `Completed with ${errors.length} warnings.`;
-    } else {
-      pipelineState.finish();
     }
   } catch (error) {
     console.error(chalk.bgRed.white(`Cron Error: ${error.message}`));
@@ -932,31 +933,18 @@ const runSearch = async (triggerSource = "Unknown", forceRefresh = false) => {
     const endTime = new Date();
     const duration = endTime - startedAt;
     console.log(chalk.gray(`[Pipeline] End time: ${endTime.toISOString()}. Duration: ${duration}ms`));
-    
-    // Strict pipeline lock release
-    if (pipelineState.running) {
-       if (pipelineState.cancelRequested) {
-           pipelineState.markCancelled();
-       } else {
-           pipelineState.finish();
-       }
-    }
-    
-    await PipelineLock.updateOne(
-      { lockId: "global_pipeline_lock" },
-      { $set: { status: "Idle", runner: "none", expiresAt: null } }
-    ).catch(err => console.error("Error releasing pipeline lock:", err.message));
-    
-    console.log(chalk.blue(`[Pipeline] Lock Released. Owner: ${runnerName}.`));
 
+    // Step 1: Write SchedulerLog FIRST — before socket fires so the dashboard
+    // snapshot reads current data when pipelineState.finish() emits it below.
     try {
         const SchedulerLog = require("../models/SchedulerLog");
+        const wasCancelled = pipelineState.cancelRequested;
         await SchedulerLog.create({
             startedAt,
             completedAt: endTime,
             durationMs: duration,
             triggerSource: runnerName,
-            result: pipelineState.cancelRequested ? "Cancelled" : (errors && errors.length ? "Partial Success" : "Success"),
+            result: wasCancelled ? "Cancelled" : (errors && errors.length ? "Partial Success" : "Success"),
             metrics: {
                 companies: stats?.companiesScanned || 0,
                 jobs: stats?.jobsFound || 0,
@@ -966,6 +954,31 @@ const runSearch = async (triggerSource = "Unknown", forceRefresh = false) => {
         });
     } catch (logErr) {
         console.error("Failed to save SchedulerLog:", logErr.message);
+    }
+
+    // Step 2: Release the distributed lock.
+    await PipelineLock.updateOne(
+      { lockId: "global_pipeline_lock" },
+      { $set: { status: "Idle", runner: "none", expiresAt: null } }
+    ).catch(err => console.error("Error releasing pipeline lock:", err.message));
+
+    console.log(chalk.blue(`[Pipeline] Lock Released. Owner: ${runnerName}.`));
+
+    // Step 3: Transition pipelineState — this triggers the socket broadcast.
+    // Runs LAST so the DB is fully consistent before the dashboard snapshot fires.
+    if (pipelineState.running) {
+       if (pipelineState.cancelRequested) {
+           pipelineState.markCancelled();
+       } else {
+           pipelineState.finish();
+       }
+    } else {
+       // pipelineState.fail() already set running=false (exception path).
+       // Still need to emit a final dashboard refresh to pick up the SchedulerLog
+       // and lock-release that just completed above.
+       socketService.emitDashboardSnapshot(true).catch(err =>
+           console.error("[Socket] Failed to refresh dashboard after exception:", err.message)
+       );
     }
   }
 };
