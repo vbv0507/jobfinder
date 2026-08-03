@@ -55,6 +55,18 @@ const apiLimiter = rateLimit({
     max: 100, // limit each IP to 100 requests per windowMs
     standardHeaders: true,
     legacyHeaders: false,
+    validate: { ip: false }, // Disable strict validation to prevent throws
+    keyGenerator: (req, res) => {
+        let ip = req.ip || req.headers['x-forwarded-for'] || req.socket.remoteAddress || 'unknown';
+        if (typeof ip === 'string') {
+            ip = ip.split(',')[0].trim();
+            // If IPv4 with port (e.g. 103.228.147.81:43833)
+            if (ip.includes(':') && ip.split(':').length === 2) {
+                return ip.split(':')[0];
+            }
+        }
+        return ip;
+    }
 });
 // Skip rate limiting for system telemetry (polling)
 app.use("/api", (req, res, next) => {
