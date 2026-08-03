@@ -227,6 +227,15 @@ const verifyLocalJobs = async () => {
             try {
                 const originalProvider = mJob.provider;
                 const result = await runEvaluationPipeline(mJob.rawJob, profile, aiState);
+
+                // Early exit: if all providers are now disabled, stop processing remaining jobs
+                const allDown = !aiState.gemini.available && !aiState.groq.available && !aiState.zai.available;
+                if (allDown && !result.analysis) {
+                    stats.failed++;
+                    console.log(chalk.red(`[Scheduler] All AI providers exhausted. Stopping re-evaluation early. Processed ${stats.processed} of ${localJobs.length} jobs.`));
+                    break;
+                }
+
                 if (result && !result.skipped && result.analysis) {
                     const newProvider = (result.analysis.provider || "gemini").toLowerCase();
                     const isApproved = result.analysis.suitable === true && result.analysis.score >= MATCH_THRESHOLD;
