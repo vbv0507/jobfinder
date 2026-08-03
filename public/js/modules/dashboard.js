@@ -141,14 +141,26 @@ function updateDOM(data) {
         'metric-avg-comp': metrics["Average Company Time"] ? (metrics["Average Company Time"] / 1000).toFixed(1) + 's' : '0s'
     };
 
+    const formatTime = (d) => d ? new Date(d).toLocaleString('en-US', { timeZone: 'Asia/Kolkata', year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false }) + ' IST' : 'N/A';
+    
     if (data.scheduler) {
-        const formatTime = (d) => d ? new Date(d).toLocaleString('en-US', { timeZone: 'Asia/Kolkata', year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false }) + ' IST' : 'N/A';
         statsMap['scheduler-status'] = data.scheduler.status || "Idle";
         statsMap['scheduler-next'] = formatTime(data.scheduler.nextScheduledRun);
         statsMap['scheduler-last'] = formatTime(data.scheduler.lastScheduledRun);
         statsMap['scheduler-success'] = formatTime(data.scheduler.lastSuccessfulRun);
         statsMap['scheduler-failed'] = formatTime(data.scheduler.lastFailedRun);
         statsMap['scheduler-trigger'] = data.scheduler.triggerSource || "Scheduler";
+    }
+
+    if (data.stats) {
+        statsMap['metric-ats-today'] = data.stats.atsMatchesToday || 0;
+        statsMap['metric-telegram-today'] = data.stats.telegramMatchesToday || 0;
+        statsMap['metric-verified-gemini'] = data.stats.verifiedGemini || 0;
+        statsMap['metric-verified-groq'] = data.stats.verifiedGroq || 0;
+        statsMap['metric-verified-zai'] = data.stats.verifiedZai || 0;
+        statsMap['metric-pending-local'] = data.stats.pendingLocal || 0;
+        statsMap['metric-digest-sent'] = data.stats.dailyDigestSent ? `Yes (${formatTime(data.stats.dailyDigestSentTime)})` : "No";
+        statsMap['metric-next-digest'] = "20:00:00 IST"; // Static as per schedule
     }
 
     for (const [id, val] of Object.entries(statsMap)) {

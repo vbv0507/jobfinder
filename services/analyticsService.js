@@ -161,6 +161,30 @@ const getAnalyticsData = async () => {
         const latestFailedCompanies = latest.failedCompanies || 0;
         const latestCachedCompanies = latest.skippedRuns || 0;
 
+        // --- Daily Digest & Verification Metrics ---
+        const todayJobs = await MatchedJob.find({ createdAt: { $gte: startOfDay } }).populate('rawJob').exec();
+        
+        let atsMatchesToday = 0;
+        let telegramMatchesToday = 0;
+        
+        todayJobs.forEach(job => {
+            if (job.rawJob && (job.rawJob.sources?.length > 0 || job.rawJob.sourceChannel)) {
+                telegramMatchesToday++;
+            } else {
+                atsMatchesToday++;
+            }
+        });
+
+        const verifiedGemini = await MatchedJob.countDocuments({ provider: 'gemini', verificationStatus: 'verified' });
+        const verifiedGroq = await MatchedJob.countDocuments({ provider: 'groq', verificationStatus: 'verified' });
+        const verifiedZai = await MatchedJob.countDocuments({ provider: 'zai', verificationStatus: 'verified' });
+        const pendingLocal = await MatchedJob.countDocuments({ provider: { $regex: /^local/i }, needsReEvaluation: true });
+        
+        const lastSentJob = await MatchedJob.findOne({ emailSent: true }).sort({ emailSentAt: -1 }).lean();
+        const dailyDigestSent = lastSentJob && lastSentJob.emailSentAt && new Date(lastSentJob.emailSentAt) >= startOfDay;
+        const dailyDigestSentTime = lastSentJob ? lastSentJob.emailSentAt : null;
+        // -------------------------------------------
+
         return {
             stats: {
                 companiesMonitored,
@@ -184,7 +208,15 @@ const getAnalyticsData = async () => {
                 failureRate: latestCompaniesScanned > 0 ? Math.round((latestFailedCompanies / latestCompaniesScanned) * 100) : 0,
                 skippedRuns: latestCachedCompanies,
                 lastSuccessfulRun: lastSuccess ? lastSuccess.completedAt : null,
-                nextScheduledRun: pipelineState.nextRunTime
+                nextScheduledRun: pipelineState.nextRunTime,
+                atsMatchesToday,
+                telegramMatchesToday,
+                verifiedGemini,
+                verifiedGroq,
+                verifiedZai,
+                pendingLocal,
+                dailyDigestSent,
+                dailyDigestSentTime
             },
             metrics: {
                 "Actually Scraped": latestCompaniesScanned,

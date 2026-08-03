@@ -258,7 +258,9 @@ const saveMatchedJob = async (rawJob, company, job, analysis) => {
         isActive: true,
         jobStatus: "Open",
         providerChain: analysis.providerChain || [],
-        isDuplicate: !!existingJob
+        isDuplicate: !!existingJob,
+        needsReEvaluation: (analysis.provider || "gemini").toLowerCase() === "local",
+        emailEligible: (analysis.provider || "gemini").toLowerCase() !== "local"
       },
       $push: {
         evaluationHistory: {

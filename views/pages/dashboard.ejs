@@ -104,10 +104,25 @@
 
 </div>
 
+<!-- Digest & Verification Overview -->
+<div class="mb-8">
+    <h2 class="text-lg font-semibold text-textMain mb-4">Daily Digest & Verification Status</h2>
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+        <%- include('../components/metric-card', { id: 'metric-ats-today', title: 'Today\'s ATS Matches', icon: 'fa-file-lines', color: 'text-primary' }) %>
+        <%- include('../components/metric-card', { id: 'metric-telegram-today', title: 'Today\'s Telegram Matches', icon: 'fa-paper-plane', color: 'text-primary' }) %>
+        <%- include('../components/metric-card', { id: 'metric-verified-gemini', title: 'Verified by Gemini', icon: 'fa-brain', color: 'text-[#8b5cf6]' }) %>
+        <%- include('../components/metric-card', { id: 'metric-verified-groq', title: 'Verified by Groq', icon: 'fa-bolt', color: 'text-[#8b5cf6]' }) %>
+        <%- include('../components/metric-card', { id: 'metric-verified-zai', title: 'Verified by Z.AI', icon: 'fa-robot', color: 'text-[#8b5cf6]' }) %>
+        <%- include('../components/metric-card', { id: 'metric-pending-local', title: 'Pending Local Verification', icon: 'fa-clock', color: 'text-warning' }) %>
+        <%- include('../components/metric-card', { id: 'metric-digest-sent', title: 'Daily Digest Sent', icon: 'fa-envelope-circle-check', color: 'text-success' }) %>
+        <%- include('../components/metric-card', { id: 'metric-next-digest', title: 'Next Digest Time', icon: 'fa-calendar-alt', color: 'text-primary' }) %>
+    </div>
+</div>
+
 <!-- Pipeline Metrics Grid -->
 <div class="mb-8">
     <h2 class="text-lg font-semibold text-textMain mb-4">Pipeline Execution Metrics</h2>
-    <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
         
         <!-- Standard Metric Component -->
         <%- include('../components/metric-card', { id: 'metric-companies', title: 'Companies Monitored', icon: 'fa-building', color: 'text-primary' }) %>

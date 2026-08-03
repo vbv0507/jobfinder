@@ -54,6 +54,31 @@ const matchedJobSchema = new mongoose.Schema({
         default: false
     },
     
+    needsReEvaluation: {
+        type: Boolean,
+        default: false
+    },
+
+    emailEligible: {
+        type: Boolean,
+        default: false
+    },
+
+    verificationStatus: {
+        type: String,
+        enum: ['pending', 'verified', 'rejected', 'none'],
+        default: 'none'
+    },
+
+    verifiedAt: Date,
+
+    emailSent: {
+        type: Boolean,
+        default: false
+    },
+
+    emailSentAt: Date,
+    
     evaluatedBy: {
         type: String,
         default: "Gemini"

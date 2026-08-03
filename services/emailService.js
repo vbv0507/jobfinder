@@ -73,38 +73,51 @@ const sendMatchedJobEmail = async ({ company, job, analysis, pipelineId = "Unkno
   }
 };
 
-const sendBatchMatchedJobsEmail = async (jobs) => {
-  if (!hasEmailConfig() || jobs.length === 0) return false;
+const sendDailyDigestEmail = async (atsJobs, telegramJobs) => {
+  if (!hasEmailConfig() || (atsJobs.length === 0 && telegramJobs.length === 0)) return false;
 
   const transporter = createTransporter();
-  console.log(`[Email] Sending Batch | Recipient: ${process.env.EMAIL_TO} | Count: ${jobs.length}`);
+  const totalJobs = atsJobs.length + telegramJobs.length;
+  console.log(`[Email] Sending Daily Digest | Recipient: ${process.env.EMAIL_TO} | Total Count: ${totalJobs}`);
+
+  const renderJobCard = (job) => `
+    <div style="border: 1px solid #ccc; padding: 10px; margin-bottom: 10px; border-radius: 5px;">
+      <p><strong>Provider:</strong> ${job.provider}</p>
+      <p><strong>Company:</strong> ${job.company?.name || 'Unknown'}</p>
+      <p><strong>Role:</strong> ${job.role || job.rawJob?.title || 'Unknown'}</p>
+      <p><strong>Location:</strong> ${job.location || "Not specified"}</p>
+      <p><strong>Apply Link:</strong> <a href="${job.applyLink || job.rawJob?.applyLink}" target="_blank">Apply Now</a></p>
+      <p><strong>Reason Match:</strong> ${job.reason}</p>
+      <p><strong>Match Score:</strong> ${job.score}</p>
+    </div>
+  `;
 
   try {
     const info = await transporter.sendMail({
       from: `"AI Job Finder" <${process.env.EMAIL_USER}>`,
       to: process.env.EMAIL_TO,
-      subject: `Daily Match Digest: ${jobs.length} new jobs found`,
+      subject: `Daily Match Digest: ${totalJobs} new jobs found`,
       html: `
         <div style="font-family: Arial, sans-serif; line-height: 1.5;">
-          <h2>Daily Job Matches (${jobs.length})</h2>
-          ${jobs.map(job => `
-            <div style="border: 1px solid #ccc; padding: 10px; margin-bottom: 10px;">
-              <p><strong>Company:</strong> ${job.company?.name || 'Unknown'}</p>
-              <p><strong>Role:</strong> ${job.role || job.rawJob?.title || 'Unknown'}</p>
-              <p><strong>Location:</strong> ${job.location || "Not specified"}</p>
-              <p><strong>Score:</strong> ${job.score}</p>
-              <p><strong>Reason:</strong> ${job.reason}</p>
-              <p><a href="${job.rawJob?.applyLink}" target="_blank">Apply Now</a></p>
-            </div>
-          `).join('')}
+          <h2>Daily Job Matches (${totalJobs})</h2>
+          
+          ${atsJobs.length > 0 ? `
+            <h3>ATS Jobs (${atsJobs.length})</h3>
+            ${atsJobs.map(renderJobCard).join('')}
+          ` : ''}
+
+          ${telegramJobs.length > 0 ? `
+            <h3>Telegram Jobs (${telegramJobs.length})</h3>
+            ${telegramJobs.map(renderJobCard).join('')}
+          ` : ''}
         </div>
       `,
     });
     
-    console.log(`[Email] Batch Sent | Message ID: ${info.messageId} | Recipient: ${process.env.EMAIL_TO}`);
+    console.log(`[Email] Daily Digest Sent | Message ID: ${info.messageId} | Recipient: ${process.env.EMAIL_TO}`);
     return true;
   } catch (err) {
-    console.error(`[Email] Batch SMTP Failed | Reason: ${err.message} | Recipient: ${process.env.EMAIL_TO}`);
+    console.error(`[Email] Daily Digest SMTP Failed | Reason: ${err.message} | Recipient: ${process.env.EMAIL_TO}`);
     throw err;
   }
 };
@@ -112,27 +125,46 @@ const sendBatchMatchedJobsEmail = async (jobs) => {
 const processBatchEmail = async () => {
   try {
     const MatchedJob = require('../models/MatchedJob');
-    const jobs = await MatchedJob.find({ emailed: false })
-                                 .populate('company')
-                                 .populate('rawJob')
-                                 .exec();
+    const jobs = await MatchedJob.find({
+      emailEligible: true,
+      emailSent: false,
+      provider: { $regex: /^(?!local).*/i }
+    })
+    .populate('company')
+    .populate('rawJob')
+    .exec();
     
     if (jobs.length > 0) {
-      const success = await sendBatchMatchedJobsEmail(jobs);
+      const atsJobs = [];
+      const telegramJobs = [];
+
+      jobs.forEach(job => {
+        // If rawJob has sourceChannel or telegramMessageId, it's a telegram job
+        if (job.rawJob && (job.rawJob.sources?.length > 0 || job.rawJob.sourceChannel)) {
+          telegramJobs.push(job);
+        } else {
+          atsJobs.push(job);
+        }
+      });
+
+      const success = await sendDailyDigestEmail(atsJobs, telegramJobs);
       if (success) {
-        await MatchedJob.updateMany({ _id: { $in: jobs.map(j => j._id) } }, { $set: { emailed: true } });
-        console.log(`[Email] Marked ${jobs.length} jobs as emailed.`);
+        await MatchedJob.updateMany(
+          { _id: { $in: jobs.map(j => j._id) } }, 
+          { $set: { emailSent: true, emailSentAt: new Date(), emailed: true } }
+        );
+        console.log(`[Email] Marked ${jobs.length} jobs as emailSent.`);
       }
     } else {
-      console.log(`[Email] No new jobs to email in batch.`);
+      console.log(`[Email] No verified jobs to email in daily digest.`);
     }
   } catch (err) {
-    console.error(`[Email] Error processing batch email:`, err);
+    console.error(`[Email] Error processing daily digest email:`, err);
   }
 };
 
 module.exports = {
   sendMatchedJobEmail,
-  sendBatchMatchedJobsEmail,
+  sendDailyDigestEmail,
   processBatchEmail
 };

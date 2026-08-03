@@ -175,6 +175,7 @@ class LogExplorer {
 
         let needsFilterRefresh = false;
 
+        let overflowed = false;
         newLogs.forEach(log => {
             // Stats parsing
             if (log.level === 'ERROR') this.stats.errors++;
@@ -193,8 +194,11 @@ class LogExplorer {
             };
             
             this.logs.push(entry);
-            
-            if (this.isMatch(entry)) {
+            if (this.logs.length > 500) {
+                this.logs.shift();
+                overflowed = true;
+                needsFilterRefresh = true;
+            } else if (!overflowed && this.isMatch(entry)) {
                 this.filteredIndices.push(this.logs.length - 1);
                 needsFilterRefresh = true;
             }
@@ -202,7 +206,9 @@ class LogExplorer {
 
         this.updateStats();
 
-        if (needsFilterRefresh) {
+        if (overflowed) {
+            this.applyFilters();
+        } else if (needsFilterRefresh) {
             this.updateVirtualScrollerDimensions();
             this.queueRender();
             if (this.autoScroll) this.scrollToBottom();
