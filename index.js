@@ -29,6 +29,7 @@ const { validateConfig } = require("./utils/configValidator");
 const socketService = require("./services/socketService");
 
 const app = express();
+app.set("trust proxy", 1);
 
 const companyBranding = require("./utils/companyBranding");
 Object.assign(app.locals, companyBranding);

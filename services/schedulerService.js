@@ -192,8 +192,11 @@ const shutdown = () => {
 const verifyLocalJobs = async () => {
     const MatchedJob = require('../models/MatchedJob');
     const { getActiveProfile, runEvaluationPipeline } = require('./pipeline/aiEvaluationService');
+    const { saveMatchedJob } = require('./pipeline/storageService');
     const localJobs = await MatchedJob.find({ provider: { $regex: /^local/i }, needsReEvaluation: true }).populate('rawJob').exec();
     
+    let stats = { processed: 0, approved: 0, rejected: 0, failed: 0 };
+
     if (localJobs.length > 0) {
         console.log(chalk.blue(`[Scheduler] Re-evaluating ${localJobs.length} Local matches...`));
         const profile = await getActiveProfile();
@@ -201,52 +204,55 @@ const verifyLocalJobs = async () => {
             gemini: { available: true }, 
             groq: { available: true }, 
             zai: { available: true },
+            local: { disabled: true },
             calls: 0
         };
         
+        const MATCH_THRESHOLD = Number(process.env.MATCH_THRESHOLD || 70);
+        
         for (const mJob of localJobs) {
-            if (!mJob.rawJob) continue;
+            stats.processed++;
+            if (!mJob.rawJob) {
+                stats.failed++;
+                continue;
+            }
             try {
                 const originalProvider = mJob.provider;
                 const result = await runEvaluationPipeline(mJob.rawJob, profile, aiState);
                 if (result && !result.skipped && result.analysis) {
                     const newProvider = (result.analysis.provider || "gemini").toLowerCase();
-                    const logs = result.analysis.attemptLogs || {};
+                    const isApproved = result.analysis.suitable === true && result.analysis.score >= MATCH_THRESHOLD;
                     
-                    console.log(`[Re-Evaluation] Job ID: ${mJob._id}`);
-                    console.log(`  Original Provider: ${originalProvider}`);
-                    console.log(`  Current Provider:  ${newProvider}`);
-                    console.log(`  Gemini result:     ${logs.gemini || 'Skipped'}`);
-                    console.log(`  Groq result:       ${logs.groq || 'Skipped'}`);
-                    console.log(`  Z.AI result:       ${logs.zai || 'Skipped'}`);
-                    console.log(`  Final Provider:    ${newProvider}`);
-                    console.log(`  Verify Duration:   ${result.analysis.evaluationTimeMs || 0}ms`);
-                    console.log(`  Reason:            ${result.analysis.reason || 'None'}`);
+                    const jobShape = {
+                        title: mJob.role,
+                        location: mJob.location,
+                        applyLink: mJob.rawJob.applyLink,
+                        postedAt: mJob.rawJob.postedAt
+                    };
+                    
+                    await saveMatchedJob(mJob.rawJob, { _id: mJob.company }, jobShape, result.analysis);
 
-                    if (newProvider !== "local") {
-                        mJob.provider = newProvider;
-                        mJob.verificationStatus = 'verified';
-                        mJob.emailEligible = true;
-                        mJob.needsReEvaluation = false;
-                        mJob.verifiedAt = new Date();
-                        mJob.score = result.analysis.score;
-                        mJob.reason = result.analysis.reason;
+                    if (isApproved) {
+                        stats.approved++;
+                        console.log(`[Re-Evaluation] Job ${mJob._id} APPROVED by ${newProvider}. Provider updated.`);
+                        // Ensure it's email eligible again since the original script hid it
+                        await MatchedJob.findByIdAndUpdate(mJob._id, { emailEligible: true, needsReEvaluation: false, verifiedAt: new Date() });
                     } else {
-                        mJob.verificationStatus = 'LOCAL_ONLY';
-                        mJob.emailEligible = false;
-                        mJob.needsReEvaluation = false;
+                        stats.rejected++;
+                        console.log(`[Re-Evaluation] Job ${mJob._id} REJECTED by ${newProvider}. Moved to RejectedJobs.`);
+                        await MatchedJob.findByIdAndDelete(mJob._id);
                     }
                 } else {
-                    mJob.verificationStatus = 'LOCAL_ONLY';
-                    mJob.emailEligible = false;
-                    mJob.needsReEvaluation = false;
+                    stats.failed++;
+                    console.log(`[Re-Evaluation] Job ${mJob._id} FAILED evaluation (Skipped or no analysis).`);
                 }
             } catch (e) {
+                stats.failed++;
                 console.error(chalk.red(`[Scheduler] Re-evaluation failed for job ${mJob._id}: ${e.message}`));
             }
-            await mJob.save();
         }
     }
+    return stats;
 };
 
 module.exports = {

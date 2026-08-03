@@ -379,7 +379,7 @@ const evaluateJob = async (job, profile, aiState = { gemini: { available: true }
     }
 
     // 4. Local
-    if (process.env.ENABLE_LOCAL_MATCH_FALLBACK !== "false") {
+    if (process.env.ENABLE_LOCAL_MATCH_FALLBACK !== "false" && (!aiState.local || !aiState.local.disabled)) {
         providerChain.push("Local");
         if (!aiState.local) aiState.local = {};
         aiState.local.requests = (aiState.local.requests || 0) + 1;
