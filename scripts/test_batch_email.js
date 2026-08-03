@@ -1,0 +1,1 @@
+require('dotenv').config(); const mongoose = require('mongoose'); const { processBatchEmail } = require('../services/emailService'); async function main() { await mongoose.connect(process.env.MONGO_URI); console.log('Connected to DB'); await processBatchEmail(); process.exit(0); } main().catch(console.error);

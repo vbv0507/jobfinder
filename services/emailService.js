@@ -73,6 +73,66 @@ const sendMatchedJobEmail = async ({ company, job, analysis, pipelineId = "Unkno
   }
 };
 
+const sendBatchMatchedJobsEmail = async (jobs) => {
+  if (!hasEmailConfig() || jobs.length === 0) return false;
+
+  const transporter = createTransporter();
+  console.log(`[Email] Sending Batch | Recipient: ${process.env.EMAIL_TO} | Count: ${jobs.length}`);
+
+  try {
+    const info = await transporter.sendMail({
+      from: `"AI Job Finder" <${process.env.EMAIL_USER}>`,
+      to: process.env.EMAIL_TO,
+      subject: `Daily Match Digest: ${jobs.length} new jobs found`,
+      html: `
+        <div style="font-family: Arial, sans-serif; line-height: 1.5;">
+          <h2>Daily Job Matches (${jobs.length})</h2>
+          ${jobs.map(job => `
+            <div style="border: 1px solid #ccc; padding: 10px; margin-bottom: 10px;">
+              <p><strong>Company:</strong> ${job.company?.name || 'Unknown'}</p>
+              <p><strong>Role:</strong> ${job.role || job.rawJob?.title || 'Unknown'}</p>
+              <p><strong>Location:</strong> ${job.location || "Not specified"}</p>
+              <p><strong>Score:</strong> ${job.score}</p>
+              <p><strong>Reason:</strong> ${job.reason}</p>
+              <p><a href="${job.rawJob?.applyLink}" target="_blank">Apply Now</a></p>
+            </div>
+          `).join('')}
+        </div>
+      `,
+    });
+    
+    console.log(`[Email] Batch Sent | Message ID: ${info.messageId} | Recipient: ${process.env.EMAIL_TO}`);
+    return true;
+  } catch (err) {
+    console.error(`[Email] Batch SMTP Failed | Reason: ${err.message} | Recipient: ${process.env.EMAIL_TO}`);
+    throw err;
+  }
+};
+
+const processBatchEmail = async () => {
+  try {
+    const MatchedJob = require('../models/MatchedJob');
+    const jobs = await MatchedJob.find({ emailed: false })
+                                 .populate('company')
+                                 .populate('rawJob')
+                                 .exec();
+    
+    if (jobs.length > 0) {
+      const success = await sendBatchMatchedJobsEmail(jobs);
+      if (success) {
+        await MatchedJob.updateMany({ _id: { $in: jobs.map(j => j._id) } }, { $set: { emailed: true } });
+        console.log(`[Email] Marked ${jobs.length} jobs as emailed.`);
+      }
+    } else {
+      console.log(`[Email] No new jobs to email in batch.`);
+    }
+  } catch (err) {
+    console.error(`[Email] Error processing batch email:`, err);
+  }
+};
+
 module.exports = {
   sendMatchedJobEmail,
+  sendBatchMatchedJobsEmail,
+  processBatchEmail
 };

@@ -48,6 +48,11 @@ const matchedJobSchema = new mongoose.Schema({
     domainMismatch: Boolean,
     
     jobDomain: String,
+
+    emailed: {
+        type: Boolean,
+        default: false
+    },
     
     evaluatedBy: {
         type: String,

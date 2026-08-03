@@ -51,7 +51,7 @@ const evaluateJobLocally = (job, profile, reasonPrefix = "Gemini unavailable") =
     const skillOverlapPercentage = requiredSkills.length > 0 ? Math.round((skillMatches / requiredSkills.length) * 100) : 100;
     
     if (skillOverlapPercentage < 40 && requiredSkills.length > 0) {
-        score -= 30;
+        score -= 15;
         reasonsAgainst.push(`Low skill overlap (${skillOverlapPercentage}%). Missing: ${missingSkills.join(", ")}`);
     } else if (skillMatches > 0) {
         score += 20;
@@ -91,15 +91,15 @@ const evaluateJobLocally = (job, profile, reasonPrefix = "Gemini unavailable") =
     
     const expGap = reqExp - candExp;
     if (expGap >= 6) {
-        score -= 60;
-        experienceMismatch = true;
-        reasonsAgainst.push(`Experience mismatch: Requires ${reqExp}+ years, candidate has ${candExp} (Gap: ${expGap}).`);
-    } else if (expGap >= 4) {
         score -= 40;
         experienceMismatch = true;
         reasonsAgainst.push(`Experience mismatch: Requires ${reqExp}+ years, candidate has ${candExp} (Gap: ${expGap}).`);
-    } else if (expGap >= 2) {
+    } else if (expGap >= 4) {
         score -= 20;
+        experienceMismatch = true;
+        reasonsAgainst.push(`Experience mismatch: Requires ${reqExp}+ years, candidate has ${candExp} (Gap: ${expGap}).`);
+    } else if (expGap >= 2) {
+        score -= 10;
         reasonsAgainst.push(`Experience gap: Requires ${reqExp}+ years, candidate has ${candExp}.`);
     } else {
         reasonsFor.push(`Experience level aligns with role requirements.`);
@@ -122,7 +122,8 @@ const evaluateJobLocally = (job, profile, reasonPrefix = "Gemini unavailable") =
     else if (score >= 60) recommendationLevel = "Moderate Match";
     else if (score <= 39) recommendationLevel = "Reject";
     
-    const suitable = score >= 60 && !domainMismatch && !experienceMismatch;
+    const MATCH_THRESHOLD = Number(process.env.MATCH_THRESHOLD) || 70;
+    const suitable = score >= MATCH_THRESHOLD && !domainMismatch && !experienceMismatch;
 
     return {
         score,

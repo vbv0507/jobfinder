@@ -92,11 +92,12 @@ const buildTelegramPayload = async () => {
     const { getListenerStatus } = require("./telegramService");
     const TelegramChannel = require("../models/TelegramChannel");
     const TelegramSyncState = require("../models/TelegramSyncState");
+    const RawJob = require("../models/RawJob");
     const MatchedJob = require("../models/MatchedJob");
     const RejectedJob = require("../models/RejectedJob");
     const listener = getListenerStatus() || {};
     const channels = await TelegramChannel.find({ enabled: true }).sort({ priority: 1, name: 1 }).lean();
-    
+
     let syncStates = [];
     try {
         syncStates = await TelegramSyncState.find().lean();
@@ -104,7 +105,9 @@ const buildTelegramPayload = async () => {
         console.warn("[Socket] Could not fetch TelegramSyncState");
     }
 
-    // Task 5: Today-based metrics (not all-time totals)
+    // ── Today metrics: derive from DB, not in-memory buffers ─────────────────
+    // FIX 1: MatchedJob/RejectedJob have no 'source' field — query via RawJob.
+    // FIX 2: messagesToday uses DB RawJob count — survives server restarts.
     const todayStart = new Date();
     todayStart.setHours(0, 0, 0, 0);
 
@@ -113,23 +116,45 @@ const buildTelegramPayload = async () => {
     let matchedToday = 0;
     let rejectedToday = 0;
     try {
-        const [matched, rejected] = await Promise.all([
-            MatchedJob.countDocuments({ source: "telegram", createdAt: { $gte: todayStart } }),
-            RejectedJob.countDocuments({ source: "telegram", createdAt: { $gte: todayStart } })
-        ]);
-        matchedToday = matched;
-        rejectedToday = rejected;
-        jobsToday = matched + rejected;
-        // messages today: sum from live feed buffer events today
-        messagesToday = liveFeedBuffer.filter(e => {
-            const t = new Date(e.receivedAt || 0);
-            return t >= todayStart;
-        }).length;
+        // All RawJobs created today that came from Telegram channels
+        const telegramRawJobsToday = await RawJob.find(
+            { 'sources.sourceChannel': { $exists: true, $ne: null }, 'sources.lastSeen': { $gte: todayStart } },
+            { _id: 1 }
+        ).lean();
+
+        const rawJobIds = telegramRawJobsToday.map(r => r._id);
+        messagesToday = rawJobIds.length; // 1 RawJob = 1 processed URL from a channel message
+
+        if (rawJobIds.length > 0) {
+            const [matched, rejected] = await Promise.all([
+                MatchedJob.countDocuments({ rawJob: { $in: rawJobIds } }),
+                RejectedJob.countDocuments({ rawJob: { $in: rawJobIds } })
+            ]);
+            matchedToday = matched;
+            rejectedToday = rejected;
+            jobsToday = rawJobIds.length;  // total processed jobs today
+        }
     } catch (e) {
+        console.warn("[Socket] buildTelegramPayload today-metrics error:", e.message);
         // non-fatal — keep zeroes
     }
 
-    // Lifetime stats (for sync state card only)
+    // ── Sync completion state — included in init so frontend restores on refresh
+    // FIX 3: frontend relied on fire-once telegram:sync:complete event.
+    // Now we embed it in the payload so refresh correctly shows 'Complete'.
+    const lastSyncTime = syncStates.reduce((latest, s) => {
+        const t = s.lastSyncTime ? new Date(s.lastSyncTime) : null;
+        return t && (!latest || t > latest) ? t : latest;
+    }, null);
+    const syncCompleted = !!lastSyncTime;
+    const lastSyncSummary = syncCompleted ? {
+        totalScanned: syncStates.reduce((sum, s) => sum + (s.totalMessagesScanned || 0), 0),
+        totalJobsExtracted: syncStates.reduce((sum, s) => sum + (s.totalJobsExtracted || 0), 0),
+        totalMatched: syncStates.reduce((sum, s) => sum + (s.totalMatched || 0), 0),
+        completedAt: lastSyncTime
+    } : null;
+
+    // Lifetime error stats
     const deliveryErrors = channels.reduce((sum, channel) => sum + (channel.errorCount || 0), 0) +
                            syncStates.reduce((sum, state) => sum + (state.totalErrors || 0), 0);
 
@@ -139,17 +164,17 @@ const buildTelegramPayload = async () => {
         monitoredChannels: listener.monitoredChannels || channels.map((channel) => channel.username),
         channels,
         syncStates,
-        // Today metrics (Task 5)
+        // Today metrics (DB-sourced, restart-safe)
         messagesToday,
         jobsToday,
         matchedToday,
         rejectedToday,
         deliveryErrors,
         lastMessageAt: listener.lastJobMessageAt || null,
-        lastSyncTime: syncStates.reduce((latest, s) => {
-            const t = s.lastSyncTime ? new Date(s.lastSyncTime) : null;
-            return t && (!latest || t > latest) ? t : latest;
-        }, null),
+        lastSyncTime,
+        // Sync completion state for refresh restore (FIX 3)
+        syncCompleted,
+        lastSyncSummary,
         // Live feed snapshot sent on init (Task 7)
         liveFeed: liveFeedBuffer.slice(0, LIVE_FEED_LIMIT)
     };

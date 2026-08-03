@@ -142,7 +142,13 @@ const runBackfill = async (client) => {
     try {
         const socketService = require("./socketService");
         await socketService.emitDashboard();
-    } catch (e) {}
+        
+        // Trigger batch email for historical sync
+        const emailService = require("./emailService");
+        await emailService.processBatchEmail();
+    } catch (e) {
+        syncLog(`  WARN: Error during post-sync processes: ${e.message}`);
+    }
 };
 
 /**

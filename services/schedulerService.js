@@ -7,7 +7,9 @@ const { broadcast } = require('./socketService');
 const runSearch = require('../cron/jobSearchCron');
 
 let cronTask = null;
+let emailCronTask = null;
 const SCHEDULE_EXPRESSION = "0 7 * * *"; // 7:00 AM every day
+const EMAIL_SCHEDULE_EXPRESSION = "0 20 * * *"; // 8:00 PM every day
 const TIMEZONE = "Asia/Kolkata";
 
 const init = () => {
@@ -83,6 +85,19 @@ const init = () => {
             timestamp: new Date()
         });
 
+    }, {
+        scheduled: true,
+        timezone: TIMEZONE
+    });
+
+    emailCronTask = cron.schedule(EMAIL_SCHEDULE_EXPRESSION, async () => {
+        console.log(chalk.blue(`[Scheduler] Email Batch trigger activated at ${new Date().toLocaleString('en-US', { timeZone: TIMEZONE })} IST`));
+        try {
+            const { processBatchEmail } = require('./emailService');
+            await processBatchEmail();
+        } catch (err) {
+            console.error(chalk.red(`[Scheduler] Email Batch failed: ${err.message}`));
+        }
     }, {
         scheduled: true,
         timezone: TIMEZONE
@@ -165,6 +180,10 @@ const shutdown = () => {
         cronTask.stop();
         cronTask = null;
         console.log(chalk.gray("[Scheduler] Shutdown complete."));
+    }
+    if (emailCronTask) {
+        emailCronTask.stop();
+        emailCronTask = null;
     }
 };
 

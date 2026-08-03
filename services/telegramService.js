@@ -278,7 +278,17 @@ const processJobUrl = async (url, telegramCompany, profile, structuredData, sour
 
         // ── STAGE 5: Gemini AI Evaluation ───────────────────────────────────
         console.log("  ├─ STAGE 5: AI Evaluation");
-        const aiState = { calls: 0, quotaExceeded: false };
+        const aiState = {
+            calls: 0,
+            quotaExceeded: false,
+            gemini: { available: true, requests: 0, success: 0, failed: 0, reason: null, disabledAt: null },
+            groq:   { available: true, requests: 0, success: 0, failed: 0, reason: null, disabledAt: null },
+            zai:    { available: true, requests: 0, success: 0, failed: 0, reason: null, disabledAt: null },
+            local:  { requests: 0, success: 0, failed: 0 },
+            geminiFallbacks: 0,
+            groqFallbacks:   0,
+            zaiFallbacks:    0,
+        };
         logWithTime(`[INFO] AI Evaluation Started (Gemini / Groq / Z.ai / Local)`);
         const result = await analyseWithGemini(job, profile, aiState);
         logWithTime(`[INFO] AI Evaluation Completed`);
@@ -322,13 +332,6 @@ const processJobUrl = async (url, telegramCompany, profile, structuredData, sour
             console.log(`  │  ✅ MatchedJob written  (isDuplicate=${matchedJobResult.isDuplicate})`);
             logWithTime(`[SUCCESS] Matched Job Created: ${job.title}`);
             matched = true;
-            try {
-                await sendMatchedJobEmail({ company: telegramCompany, job, analysis });
-                console.log("  │  📧 Email: Sent");
-            } catch (emailError) {
-                logWithTime(`Email failed: ${emailError.message}`);
-                console.log("  │  📧 Email: Skipped");
-            }
         } else {
             console.log(`  │  ❌ RejectedJob written (score=${analysis.score})`);
         }

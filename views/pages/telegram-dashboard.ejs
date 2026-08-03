@@ -99,10 +99,16 @@
 
     function renderTelegram(data) {
         document.getElementById('telegram-state').innerText = data.connected ? 'Online' : 'Idle';
-        document.getElementById('telegram-messages').innerText = data.messagesToday || 0;
+        document.getElementById('telegram-messages').innerText = data.messagesToday ?? 0;
         document.getElementById('telegram-channels').innerText = (data.channels || []).length;
-        document.getElementById('telegram-jobs').innerText = `${data.jobsToday || 0} / ${data.matchedToday || 0}`;
-        // Note: lastMessage is no longer broadcasted here (Task 7)
+        document.getElementById('telegram-jobs').innerText = `${data.jobsToday ?? 0} / ${data.matchedToday ?? 0}`;
+        // FIX 3: restore sync state from payload on every init (not just on sync:complete event)
+        if (data.syncCompleted && data.lastSyncSummary) {
+            handleSyncComplete(data.lastSyncSummary);
+        } else if (data.lastSyncTime) {
+            // Sync ran but no summary — just mark it complete with time
+            handleSyncComplete({ completedAt: data.lastSyncTime });
+        }
     }
 
     function appendTelegramMessage(message) {

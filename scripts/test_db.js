@@ -1,0 +1,1 @@
+require('dotenv').config(); const mongoose = require('mongoose'); const RawJob = require('../models/RawJob'); mongoose.connect(process.env.MONGO_URI).then(async () => { const jobs = await RawJob.find({ 'sources.sourceChannel': { $exists: true } }).limit(5).lean(); console.log(JSON.stringify(jobs, null, 2)); process.exit(0); });
