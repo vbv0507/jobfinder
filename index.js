@@ -55,7 +55,7 @@ const apiLimiter = rateLimit({
     max: 100, // limit each IP to 100 requests per windowMs
     standardHeaders: true,
     legacyHeaders: false,
-    validate: { ip: false }, // Disable strict validation to prevent throws
+    validate: false, // Disable strict validation to prevent throws (especially for custom key generators on IPv6)
     keyGenerator: (req, res) => {
         let ip = req.ip || req.headers['x-forwarded-for'] || req.socket.remoteAddress || 'unknown';
         if (typeof ip === 'string') {
