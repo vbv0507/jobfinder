@@ -189,6 +189,66 @@ const shutdown = () => {
     }
 };
 
+const verifyLocalJobs = async () => {
+    const MatchedJob = require('../models/MatchedJob');
+    const { getActiveProfile, runEvaluationPipeline } = require('./pipeline/aiEvaluationService');
+    const localJobs = await MatchedJob.find({ provider: { $regex: /^local/i }, needsReEvaluation: true }).populate('rawJob').exec();
+    
+    if (localJobs.length > 0) {
+        console.log(chalk.blue(`[Scheduler] Re-evaluating ${localJobs.length} Local matches...`));
+        const profile = await getActiveProfile();
+        const aiState = { 
+            gemini: { available: true }, 
+            groq: { available: true }, 
+            zai: { available: true },
+            calls: 0
+        };
+        
+        for (const mJob of localJobs) {
+            if (!mJob.rawJob) continue;
+            try {
+                const originalProvider = mJob.provider;
+                const result = await runEvaluationPipeline(mJob.rawJob, profile, aiState);
+                if (result && !result.skipped && result.analysis) {
+                    const newProvider = (result.analysis.provider || "gemini").toLowerCase();
+                    const logs = result.analysis.attemptLogs || {};
+                    
+                    console.log(`[Re-Evaluation] Job ID: ${mJob._id}`);
+                    console.log(`  Original Provider: ${originalProvider}`);
+                    console.log(`  Current Provider:  ${newProvider}`);
+                    console.log(`  Gemini result:     ${logs.gemini || 'Skipped'}`);
+                    console.log(`  Groq result:       ${logs.groq || 'Skipped'}`);
+                    console.log(`  Z.AI result:       ${logs.zai || 'Skipped'}`);
+                    console.log(`  Final Provider:    ${newProvider}`);
+                    console.log(`  Verify Duration:   ${result.analysis.evaluationTimeMs || 0}ms`);
+                    console.log(`  Reason:            ${result.analysis.reason || 'None'}`);
+
+                    if (newProvider !== "local") {
+                        mJob.provider = newProvider;
+                        mJob.verificationStatus = 'verified';
+                        mJob.emailEligible = true;
+                        mJob.needsReEvaluation = false;
+                        mJob.verifiedAt = new Date();
+                        mJob.score = result.analysis.score;
+                        mJob.reason = result.analysis.reason;
+                    } else {
+                        mJob.verificationStatus = 'LOCAL_ONLY';
+                        mJob.emailEligible = false;
+                        mJob.needsReEvaluation = false;
+                    }
+                } else {
+                    mJob.verificationStatus = 'LOCAL_ONLY';
+                    mJob.emailEligible = false;
+                    mJob.needsReEvaluation = false;
+                }
+            } catch (e) {
+                console.error(chalk.red(`[Scheduler] Re-evaluation failed for job ${mJob._id}: ${e.message}`));
+            }
+            await mJob.save();
+        }
+    }
+};
+
 module.exports = {
     init,
     getSchedulerStatus,

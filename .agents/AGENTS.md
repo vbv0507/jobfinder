@@ -1,0 +1,1 @@
+- **Documentation Requirement**: Whenever you add a new feature, fix a bug, or make architectural changes to this project, you MUST update the \PROJECT_OVERVIEW.md\ file in the root directory to reflect those changes.
