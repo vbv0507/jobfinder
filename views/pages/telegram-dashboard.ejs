@@ -6,23 +6,23 @@
 </div>
 
 <!-- Stats Row -->
-<div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-    <div class="bg-surface border border-border rounded-xl p-5 shadow-sm">
+<div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+    <div class="bg-surface border border-border rounded-xl p-4 md:p-5 shadow-sm">
         <h3 class="text-sm font-medium text-textMuted mb-2">Connection State</h3>
         <p id="telegram-state" class="text-3xl font-bold text-success">--</p>
         <p class="text-xs text-textMuted mt-1">Socket stream active</p>
     </div>
-    <div class="bg-surface border border-border rounded-xl p-5 shadow-sm">
+    <div class="bg-surface border border-border rounded-xl p-4 md:p-5 shadow-sm">
         <h3 class="text-sm font-medium text-textMuted mb-2">Messages Today</h3>
         <p id="telegram-messages" class="text-3xl font-bold text-primary">--</p>
         <p class="text-xs text-textMuted mt-1">Today's volume</p>
     </div>
-    <div class="bg-surface border border-border rounded-xl p-5 shadow-sm">
+    <div class="bg-surface border border-border rounded-xl p-4 md:p-5 shadow-sm">
         <h3 class="text-sm font-medium text-textMuted mb-2">Active Channels</h3>
         <p id="telegram-channels" class="text-3xl font-bold text-textMain">--</p>
         <p class="text-xs text-textMuted mt-1">Connected</p>
     </div>
-    <div class="bg-surface border border-border rounded-xl p-5 shadow-sm">
+    <div class="bg-surface border border-border rounded-xl p-4 md:p-5 shadow-sm">
         <h3 class="text-sm font-medium text-textMuted mb-2">Jobs Today</h3>
         <p id="telegram-jobs" class="text-3xl font-bold text-textMain">--</p>
         <p class="text-xs text-textMuted mt-1">Parsed / Matched</p>
@@ -30,15 +30,15 @@
 </div>
 
 <!-- Sync Status Card -->
-<div id="sync-card" class="bg-surface border border-border rounded-xl p-5 shadow-sm mb-6">
-    <div class="flex items-center justify-between mb-4">
+<div id="sync-card" class="bg-surface border border-border rounded-xl p-4 md:p-5 shadow-sm mb-6">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
         <div class="flex items-center gap-3">
             <div id="sync-indicator" class="w-3 h-3 rounded-full bg-textMuted"></div>
             <h2 class="font-semibold text-textMain">Historical Sync</h2>
         </div>
         <span id="sync-status-badge" class="px-3 py-1 rounded-full text-xs font-medium bg-surface border border-border text-textMuted">Waiting</span>
     </div>
-    <div class="grid grid-cols-2 md:grid-cols-5 gap-4 text-center">
+    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4 text-center">
         <div>
             <p class="text-xs text-textMuted mb-1">Status</p>
             <p id="sync-status" class="text-sm font-bold text-textMain">—</p>
@@ -156,13 +156,13 @@
                     <i class="fa-brands fa-telegram-plane"></i>
                 </div>
                 <div class="bg-background border border-border rounded-2xl rounded-tl-none p-4 max-w-2xl w-full">
-                    <div class="flex items-center gap-2 mb-2">
-                        <span class="text-xs ${labelColor} px-2 py-0.5 rounded-full font-medium">${labelText}</span>
-                        <span class="text-xs text-textMuted">${new Date(message.receivedAt || Date.now()).toLocaleTimeString('en-IN', {timeZone: 'Asia/Kolkata'})} IST</span>
-                        <span class="text-xs text-textMuted">• ${message.channel || 'Telegram'}</span>
-                        ${message.messageId ? `<span class="text-xs text-textMuted">• MsgID: ${message.messageId}</span>` : ''}
+                    <div class="flex items-center gap-2 mb-2 flex-wrap">
+                        <span class="text-xs ${labelColor} px-2 py-0.5 rounded-full font-medium whitespace-nowrap">${labelText}</span>
+                        <span class="text-xs text-textMuted whitespace-nowrap">${new Date(message.receivedAt || Date.now()).toLocaleTimeString('en-IN', {timeZone: 'Asia/Kolkata'})} IST</span>
+                        <span class="text-xs text-textMuted break-all">• ${message.channel || 'Telegram'}</span>
+                        ${message.messageId ? `<span class="text-xs text-textMuted whitespace-nowrap">• MsgID: ${message.messageId}</span>` : ''}
                     </div>
-                    <p class="text-sm text-textMain">${message.text || ''}</p>
+                    <p class="text-sm text-textMain break-all md:break-words whitespace-pre-wrap">${message.text || ''}</p>
                     <p class="text-xs text-textMuted mt-2">Jobs: ${message.jobsFound || 0} — Matches: ${message.matchedJobs || 0}</p>
                     ${jobsHtml}
                 </div>
