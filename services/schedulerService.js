@@ -193,8 +193,16 @@ const verifyLocalJobs = async () => {
     const MatchedJob = require('../models/MatchedJob');
     const { getActiveProfile, runEvaluationPipeline } = require('./pipeline/aiEvaluationService');
     const { saveMatchedJob } = require('./pipeline/storageService');
-    const localJobs = await MatchedJob.find({ provider: { $regex: /^local/i } }).populate('rawJob').exec();
-    
+    const localJobs = await MatchedJob.find({
+        $or: [
+            { provider: { $regex: /local/i } },
+            { provider: 'unknown' },
+            { provider: { $exists: false } },
+            { provider: null },
+            { evaluatedBy: { $regex: /local/i } }
+        ]
+    }).populate('rawJob').exec();
+
     let stats = { processed: 0, approved: 0, rejected: 0, failed: 0 };
 
     if (localJobs.length > 0) {
