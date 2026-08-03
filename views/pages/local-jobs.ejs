@@ -191,29 +191,30 @@ async function triggerLocalVerification() {
     const originalText = btn.innerHTML;
     try {
         btn.disabled = true;
-        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Starting...';
+        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Verifying...';
         
         const res = await fetch('/api/system/verify-local', { method: 'POST' });
         const data = await res.json();
         
         if (data.success) {
-            btn.innerHTML = '<i class="fa-solid fa-check"></i> Started';
+            btn.innerHTML = '<i class="fa-solid fa-check"></i> Complete';
             btn.classList.replace('bg-primary', 'bg-success');
             btn.classList.replace('hover:bg-primaryHover', 'hover:bg-success/80');
-            setTimeout(() => {
-                btn.innerHTML = originalText;
-                btn.disabled = false;
-                btn.classList.replace('bg-success', 'bg-primary');
-                btn.classList.replace('hover:bg-success/80', 'hover:bg-primaryHover');
-            }, 3000);
+            
+            if (data.stats) {
+                alert(`Verification Complete!\n\nProcessed: ${data.stats.processed}\nApproved: ${data.stats.approved}\nRejected: ${data.stats.rejected}\nFailed: ${data.stats.failed}`);
+            }
+            
+            // Reload page to reflect changes
+            window.location.reload();
         } else {
-            alert('Failed to start verification: ' + data.error);
+            alert('Failed to verify: ' + data.error);
             btn.innerHTML = originalText;
             btn.disabled = false;
         }
     } catch (e) {
         console.error(e);
-        alert('Error starting verification');
+        alert('Error verifying jobs');
         btn.innerHTML = originalText;
         btn.disabled = false;
     }
