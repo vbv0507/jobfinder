@@ -17,7 +17,7 @@ const {
     saveRawJob,
     saveMatchedJob
 } = require("../services/pipeline/storageService");
-const { analyseWithGemini, getActiveProfile } = require("../services/pipeline/aiEvaluationService");
+const { runEvaluationPipeline, getActiveProfile } = require("../services/pipeline/aiEvaluationService");
 const { sendMatchedJobEmail } = require("./emailService");
 const { saveTrainingSample } = require("./trainingDatasetService");
 
@@ -290,7 +290,7 @@ const processJobUrl = async (url, telegramCompany, profile, structuredData, sour
             zaiFallbacks:    0,
         };
         logWithTime(`[INFO] AI Evaluation Started (Gemini / Groq / Z.ai / Local)`);
-        const result = await analyseWithGemini(job, profile, aiState);
+        const result = await runEvaluationPipeline(job, profile, aiState);
         logWithTime(`[INFO] AI Evaluation Completed`);
 
         if (result.skipped) {

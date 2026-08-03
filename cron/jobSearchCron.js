@@ -11,13 +11,13 @@ const PipelineLock = require("../models/PipelineLock");
 
 const AdapterFactory = require("../services/ats/AdapterFactory");
 const { applyJobFilters } = require("../services/pipeline/validationService");
-const { sendMatchedJobEmail } = require("../services/emailService");
+
 const { saveTrainingSample } = require("../services/trainingDatasetService");
 
 const pipelineState = require("../services/pipelineState");
 const crypto = require("crypto");
 const { saveRawJob, saveMatchedJob, hasExistingMatch, saveSearchLog } = require("../services/pipeline/storageService");
-const { getActiveProfile, analyseWithGemini } = require("../services/pipeline/aiEvaluationService");
+const { getActiveProfile, runEvaluationPipeline } = require("../services/pipeline/aiEvaluationService");
 const { discoverEndpoint } = require('../services/ats/discoveryService');
 const socketService = require("../services/socketService");
 
@@ -536,7 +536,7 @@ const runSearch = async (triggerSource = "Unknown", forceRefresh = false) => {
               const evalStart = Date.now();
               let providerContext = "Gemini";
               const result = await withLogContext({ stage: "AI Evaluation", provider: "AI_Engine" }, async () => {
-                  return await analyseWithGemini(job, profile, aiState);
+                  return await runEvaluationPipeline(job, profile, aiState);
               });
               if (result.analysis && result.analysis.evaluationTimeMs) {
                   stats.totalEvaluationTimeMs += result.analysis.evaluationTimeMs;
@@ -592,19 +592,7 @@ const runSearch = async (triggerSource = "Unknown", forceRefresh = false) => {
                 stats.aiProviderUsed = providerStr;
                 
                 const providerChainStr = result.analysis.providerChain ? result.analysis.providerChain.join(' -> ') : providerStr;
-                console.log(chalk.green(`Matched (Score: ${result.analysis.score}) | Email: ${isDuplicate ? 'Skipped' : 'Sent'}`));
-                
-                if (!isDuplicate) {
-                  try {
-                    await sendMatchedJobEmail({
-                      company,
-                      job,
-                      analysis: result.analysis,
-                      pipelineId,
-                      isDuplicate: false
-                    });
-                  } catch (emailError) {}
-                }
+                console.log(chalk.green(`Matched (Score: ${result.analysis.score}) | Saved to DB for 8 PM Digest`));
               } else {
                   companyMetrics.funnel.aiRejected++;
               }

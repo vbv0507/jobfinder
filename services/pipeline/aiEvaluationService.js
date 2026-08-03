@@ -82,7 +82,7 @@ const getSkipReason = (job, profile) => {
 const getActiveProfile = async () =>
   (await CandidateProfile.findOne({ active: true }).sort({ updatedAt: -1 })) ||
   fallbackProfile;
-const analyseWithGemini = async (job, profile, aiState) => {
+const runEvaluationPipeline = async (job, profile, aiState) => {
   const skipReason = getSkipReason(job, profile);
 
   if (skipReason) {
@@ -128,4 +128,4 @@ const analyseWithGemini = async (job, profile, aiState) => {
   return { skipped: false, analysis };
 };
 
-module.exports = { getJobText, hasEntryLevelSignal, getSkipReason, getActiveProfile, analyseWithGemini };
+module.exports = { getJobText, hasEntryLevelSignal, getSkipReason, getActiveProfile, runEvaluationPipeline };

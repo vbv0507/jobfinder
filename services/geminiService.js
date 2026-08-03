@@ -210,6 +210,7 @@ const evaluateJob = async (job, profile, aiState = { gemini: { available: true }
     let fallbackCount = 0;
     let failureReason = null;
     let providerChain = [];
+    const attemptLogs = { gemini: 'Skipped', groq: 'Skipped', zai: 'Skipped', local: 'Skipped' };
 
     // 1. Gemini
     if (aiState.gemini.available && process.env.GEMINI_API_KEY) {
@@ -244,6 +245,8 @@ const evaluateJob = async (job, profile, aiState = { gemini: { available: true }
             parsedResult.fallbackCount = fallbackCount;
             parsedResult.fallbackReason = null;
             parsedResult.providerChain = providerChain;
+            attemptLogs.gemini = 'Success';
+            parsedResult.attemptLogs = attemptLogs;
 
             return parsedResult;
             }); // End withLogContext
@@ -264,6 +267,7 @@ const evaluateJob = async (job, profile, aiState = { gemini: { available: true }
             aiState.geminiFallbacks = (aiState.geminiFallbacks || 0) + 1;
             fallbackCount++;
             failureReason = `Gemini failed: ${errorAnalysis.reason}`;
+            attemptLogs.gemini = `Failed: ${errorAnalysis.reason}`;
             console.log("[AI] Gemini Failed");
             console.error("Gemini Evaluation Error:", error.message);
         }
@@ -293,6 +297,8 @@ const evaluateJob = async (job, profile, aiState = { gemini: { available: true }
             groqAnalysis.fallbackCount = fallbackCount;
             groqAnalysis.fallbackReason = failureReason;
             groqAnalysis.providerChain = providerChain;
+            attemptLogs.groq = 'Success';
+            groqAnalysis.attemptLogs = attemptLogs;
             return groqAnalysis;
             }); // End withLogContext
         } catch (groqError) {
@@ -312,6 +318,7 @@ const evaluateJob = async (job, profile, aiState = { gemini: { available: true }
             aiState.groqFallbacks = (aiState.groqFallbacks || 0) + 1;
             fallbackCount++;
             failureReason = failureReason ? `${failureReason} | Groq failed: ${errorAnalysis.reason}` : `Groq failed: ${errorAnalysis.reason}`;
+            attemptLogs.groq = `Failed: ${errorAnalysis.reason}`;
             console.log("[AI] Groq Failed");
             console.error("Groq Evaluation Error:", groqError.message);
         }
@@ -342,6 +349,8 @@ const evaluateJob = async (job, profile, aiState = { gemini: { available: true }
             zaiAnalysis.fallbackReason = failureReason;
             zaiAnalysis.provider = "zai";
             zaiAnalysis.providerChain = providerChain;
+            attemptLogs.zai = 'Success';
+            zaiAnalysis.attemptLogs = attemptLogs;
             return zaiAnalysis;
             }); // End withLogContext
         } catch (zaiError) {
@@ -361,6 +370,7 @@ const evaluateJob = async (job, profile, aiState = { gemini: { available: true }
             aiState.zaiFallbacks = (aiState.zaiFallbacks || 0) + 1;
             fallbackCount++;
             failureReason = failureReason ? `${failureReason} | Z.ai failed: ${errorAnalysis.reason}` : `Z.ai failed: ${errorAnalysis.reason}`;
+            attemptLogs.zai = `Failed: ${errorAnalysis.reason}`;
             console.log("[AI] Z.ai Failed");
             console.error("Z.ai Evaluation Error:", zaiError.message);
         }
@@ -388,6 +398,8 @@ const evaluateJob = async (job, profile, aiState = { gemini: { available: true }
         localResult.fallbackCount = fallbackCount;
         localResult.fallbackReason = failureReason || "AI evaluation failed";
         localResult.providerChain = providerChain;
+        attemptLogs.local = 'Success';
+        localResult.attemptLogs = attemptLogs;
         return localResult;
         }); // End withLogContext
     }
@@ -425,7 +437,8 @@ const evaluateJob = async (job, profile, aiState = { gemini: { available: true }
         evaluationTimeMs: Date.now() - startTime,
         fallbackCount,
         fallbackReason: failureReason || "AI evaluation failed",
-        providerChain
+        providerChain,
+        attemptLogs
     };
 };
 
