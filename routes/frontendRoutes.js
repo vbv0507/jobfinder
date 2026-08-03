@@ -39,10 +39,20 @@ router.get('/', async (req, res, next) => {
 router.get('/jobs', async (req, res) => {
     try {
         const MatchedJob = require('../models/MatchedJob');
-        const jobs = await MatchedJob.find({ status: 'new' }).populate('company', 'name').sort({ score: -1 });
-        res.render('pages/jobs', { jobs, title: 'Matched Jobs' });
+        const jobs = await MatchedJob.find({ status: 'new', provider: { $not: /^local/i } }).populate('company', 'name').sort({ score: -1 });
+        res.render('pages/jobs', { jobs, title: 'Matched Jobs (AI Evaluated)' });
     } catch (error) {
-        res.render('pages/jobs', { jobs: [], title: 'Matched Jobs' });
+        res.render('pages/jobs', { jobs: [], title: 'Matched Jobs (AI Evaluated)' });
+    }
+});
+
+router.get('/local-jobs', async (req, res) => {
+    try {
+        const MatchedJob = require('../models/MatchedJob');
+        const jobs = await MatchedJob.find({ status: 'new', provider: /^local/i }).populate('company', 'name').sort({ score: -1 });
+        res.render('pages/local-jobs', { jobs, title: 'Local Pending Jobs' });
+    } catch (error) {
+        res.render('pages/local-jobs', { jobs: [], title: 'Local Pending Jobs' });
     }
 });
 

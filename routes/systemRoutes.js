@@ -173,4 +173,14 @@ router.post('/cache/clear', requireAdmin, async (req, res) => {
     }
 });
 
+router.post('/verify-local', requireAdmin, async (req, res) => {
+    try {
+        const { verifyLocalJobs } = require('../services/schedulerService');
+        verifyLocalJobs().catch(e => console.error("Manual local verification failed:", e));
+        res.json({ success: true, message: "Local verification started in the background." });
+    } catch (e) {
+        res.status(500).json({ success: false, error: e.message });
+    }
+});
+
 module.exports = router;
