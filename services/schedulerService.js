@@ -228,8 +228,9 @@ const verifyLocalJobs = async () => {
                 const originalProvider = mJob.provider;
                 const result = await runEvaluationPipeline(mJob.rawJob, profile, aiState);
 
-                // Early exit: if all providers are now disabled, stop processing remaining jobs
-                const allDown = !aiState.gemini.available && !aiState.groq.available && !aiState.zai.available;
+                // Early exit: if all providers are now disabled/unavailable, stop processing remaining jobs
+                const groqActuallyAvailable = aiState.groq.available && process.env.ENABLE_GROQ_FALLBACK !== 'false' && !!process.env.GROQ_API_KEY;
+                const allDown = !aiState.gemini.available && !groqActuallyAvailable && !aiState.zai.available;
                 if (allDown && !result.analysis) {
                     stats.failed++;
                     console.log(chalk.red(`[Scheduler] All AI providers exhausted. Stopping re-evaluation early. Processed ${stats.processed} of ${localJobs.length} jobs.`));
