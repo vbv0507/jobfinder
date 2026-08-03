@@ -8,6 +8,17 @@ const { withRetry } = require("../utils/retry");
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
+// Groq key pool — supports rotation across multiple keys
+// Set GROQ_API_KEYS=key1,key2,key3 in .env for rotation, or falls back to GROQ_API_KEY
+const buildGroqKeyPool = () => {
+    const multi = process.env.GROQ_API_KEYS || '';
+    const single = process.env.GROQ_API_KEY || '';
+    const keys = multi.split(',').map(k => k.trim()).filter(Boolean);
+    if (single && !keys.includes(single)) keys.unshift(single);
+    return keys;
+};
+const GROQ_KEY_POOL = buildGroqKeyPool();
+
 const model = genAI.getGenerativeModel({
     model: process.env.GEMINI_MODEL || "gemini-2.0-flash",
 });
@@ -164,7 +175,8 @@ const evaluateJobLocally = (job, profile, reasonPrefix = "Gemini unavailable") =
     };
 };
 
-const evaluateJobWithGroq = async (job, profile) => {
+const evaluateJobWithGroq = async (job, profile, apiKey) => {
+    const keyToUse = apiKey || process.env.GROQ_API_KEY;
     const response = await axios.post(
         "https://api.groq.com/openai/v1/chat/completions",
         {
@@ -185,7 +197,7 @@ const evaluateJobWithGroq = async (job, profile) => {
         },
         {
             headers: {
-                Authorization: `Bearer ${process.env.GROQ_API_KEY}`,
+                Authorization: `Bearer ${keyToUse}`,
                 "Content-Type": "application/json",
             },
             timeout: 15000,
@@ -275,52 +287,69 @@ const evaluateJob = async (job, profile, aiState = { gemini: { available: true }
         failureReason = `Gemini disabled${aiState.gemini.reason ? ': ' + aiState.gemini.reason : ''}`;
     }
 
-    // 2. Groq
-    if (aiState.groq.available && process.env.ENABLE_GROQ_FALLBACK !== "false" && process.env.GROQ_API_KEY) {
+    // 2. Groq (with key pool rotation)
+    if (aiState.groq.available && process.env.ENABLE_GROQ_FALLBACK !== "false" && GROQ_KEY_POOL.length > 0) {
         providerChain.push("Groq");
         aiState.groq.requests = (aiState.groq.requests || 0) + 1;
-        try {
-            console.log("[AI] Trying Groq");
-            return await withLogContext({ provider: "Groq" }, async () => {
-            const groqAnalysis = await withRetry(() => evaluateJobWithGroq(job, profile), { maxRetries: 3 });
 
-            if (!groqAnalysis) throw new Error("Groq returned empty response");
+        // Track exhausted key indices in aiState
+        if (!aiState.groq.exhaustedKeys) aiState.groq.exhaustedKeys = new Set();
 
-            aiState.groq.success = (aiState.groq.success || 0) + 1;
-            groqAnalysis.evaluationMetrics = {
-                provider: "Groq",
-                durationMs: Date.now() - startTime,
-                fallbackCount,
-                failureReason
-            };
-            groqAnalysis.evaluationTimeMs = Date.now() - startTime;
-            groqAnalysis.fallbackCount = fallbackCount;
-            groqAnalysis.fallbackReason = failureReason;
-            groqAnalysis.providerChain = providerChain;
-            attemptLogs.groq = 'Success';
-            groqAnalysis.attemptLogs = attemptLogs;
-            return groqAnalysis;
-            }); // End withLogContext
-        } catch (groqError) {
-            aiState.groq.failed = (aiState.groq.failed || 0) + 1;
-            const errorAnalysis = analyzeError(groqError);
+        let groqSucceeded = false;
+        for (let ki = 0; ki < GROQ_KEY_POOL.length; ki++) {
+            if (aiState.groq.exhaustedKeys.has(ki)) continue; // skip already exhausted keys
+            const keyToUse = GROQ_KEY_POOL[ki];
+            const keyLabel = `key[${ki + 1}/${GROQ_KEY_POOL.length}]`;
+            try {
+                console.log(`[AI] Trying Groq ${keyLabel}`);
+                const result = await withLogContext({ provider: "Groq" }, async () => {
+                    const groqAnalysis = await withRetry(() => evaluateJobWithGroq(job, profile, keyToUse), { maxRetries: 2 });
+                    if (!groqAnalysis) throw new Error("Groq returned empty response");
+                    aiState.groq.success = (aiState.groq.success || 0) + 1;
+                    groqAnalysis.evaluationMetrics = {
+                        provider: "Groq",
+                        durationMs: Date.now() - startTime,
+                        fallbackCount,
+                        failureReason
+                    };
+                    groqAnalysis.evaluationTimeMs = Date.now() - startTime;
+                    groqAnalysis.fallbackCount = fallbackCount;
+                    groqAnalysis.fallbackReason = failureReason;
+                    groqAnalysis.providerChain = providerChain;
+                    attemptLogs.groq = `Success (${keyLabel})`;
+                    groqAnalysis.attemptLogs = attemptLogs;
+                    return groqAnalysis;
+                });
+                groqSucceeded = true;
+                return result;
+            } catch (groqError) {
+                const errorAnalysis = analyzeError(groqError);
+                if (errorAnalysis.permanent || groqError?.response?.status === 429) {
+                    console.log(`[AI] Groq ${keyLabel} quota exhausted. Rotating to next key...`);
+                    aiState.groq.exhaustedKeys.add(ki);
+                } else {
+                    console.log(`[AI] Groq ${keyLabel} temporary failure: ${errorAnalysis.reason}`);
+                    break; // non-quota error, don't rotate — move to next provider
+                }
+            }
+        }
 
-            if (errorAnalysis.permanent) {
-                console.log(`[AI] Groq disabled for this pipeline.\nReason: ${errorAnalysis.reason}.`);
+        if (!groqSucceeded) {
+            // All Groq keys exhausted
+            const allGroqExhausted = aiState.groq.exhaustedKeys.size >= GROQ_KEY_POOL.length;
+            if (allGroqExhausted) {
+                console.log(`[AI] All ${GROQ_KEY_POOL.length} Groq key(s) exhausted. Disabling Groq for this pipeline.`);
                 aiState.groq.available = false;
                 aiState.groq.disabled = true;
-                aiState.groq.reason = errorAnalysis.reason;
+                aiState.groq.reason = '429 Quota (all keys)';
                 aiState.groq.disabledAt = new Date();
-            } else {
-                console.log(`[AI] Groq temporary failure: ${errorAnalysis.reason}.\nFalling back to Z.ai.\nProvider remains available.`);
             }
-
+            aiState.groq.failed = (aiState.groq.failed || 0) + 1;
             aiState.groqFallbacks = (aiState.groqFallbacks || 0) + 1;
             fallbackCount++;
-            failureReason = failureReason ? `${failureReason} | Groq failed: ${errorAnalysis.reason}` : `Groq failed: ${errorAnalysis.reason}`;
-            attemptLogs.groq = `Failed: ${errorAnalysis.reason}`;
-            console.log("[AI] Groq Failed");
-            console.error("Groq Evaluation Error:", groqError.message);
+            failureReason = failureReason ? `${failureReason} | Groq failed` : `Groq failed (all keys exhausted)`;
+            attemptLogs.groq = 'Failed: all keys exhausted';
+            console.log("[AI] Groq Failed — moving to Z.ai");
         }
     } else if (!aiState.groq.available) {
         failureReason = failureReason ? `${failureReason} | Groq disabled${aiState.groq.reason ? ': ' + aiState.groq.reason : ''}` : `Groq disabled${aiState.groq.reason ? ': ' + aiState.groq.reason : ''}`;
