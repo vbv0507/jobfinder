@@ -191,8 +191,8 @@ const saveMatchedJob = async (rawJob, company, job, analysis) => {
           lastScrapedAt: new Date(),
           lastMetadataUpdate: new Date(),
           lastAIEvaluation: new Date(),
-          isActive: true,
-          jobStatus: "Open",
+          isActive: analysis.isClosed ? false : true,
+          jobStatus: analysis.isClosed ? "Closed" : "Open",
           providerChain: analysis.providerChain || []
         }
       },
@@ -248,15 +248,14 @@ const saveMatchedJob = async (rawJob, company, job, analysis) => {
         fallbackReason: analysis.fallbackReason || null,
         evaluationMetrics: analysis.evaluationMetrics || {
             provider: "Gemini",
-            durationMs: 0,
-            fallbackCount: 0,
-            failureReason: null
+            latencyMs: analysis.evaluationTimeMs || 0,
+            tokens: 0
         },
         lastScrapedAt: new Date(),
         lastMetadataUpdate: new Date(),
         lastAIEvaluation: new Date(),
-        isActive: true,
-        jobStatus: "Open",
+        isActive: analysis.isClosed ? false : true,
+        jobStatus: analysis.isClosed ? "Closed" : "Open",
         providerChain: analysis.providerChain || [],
         isDuplicate: !!existingJob,
         needsReEvaluation: (analysis.provider || "gemini").toLowerCase() === "local",

@@ -39,6 +39,10 @@ Before scoring, extract the following from the Job Details:
 EVALUATION RULES (MULTI-STAGE)
 ========================
 
+STAGE 0: CLOSED/FILLED/REMOVED DETECTION (HARD CONSTRAINT)
+- If the job description explicitly states that the role is 'closed', 'filled', 'no longer accepting applications', or 'removed', set 'isClosed': true.
+- If it is closed, set the score to 0, recommendationLevel to 'Reject', and reason to 'Job is closed or filled'. Reject immediately.
+
 STAGE 1: EXPERIENCE MISMATCH (HARD CONSTRAINT)
 - Experience must be treated as a HARD CONSTRAINT.
 - Candidate Years of Experience: ${profile.yearsOfExperience || 0}.
@@ -80,6 +84,7 @@ Return ONLY valid JSON using this exact schema. DO NOT return markdown, explanat
   "score": 0,
   "confidence": "High|Medium|Low",
   "suitable": true|false,
+  "isClosed": true|false,
   "recommendationLevel": "Excellent Match|Strong Match|Moderate Match|Weak Match|Reject",
   "scoringBreakdown": {
     "roleMatch": 0,
@@ -177,6 +182,7 @@ const validateAiResponse = (parsed, providerName) => {
         throw new Error(`Reasoning is missing or empty from ${providerName}`);
     }
     parsed.score = parseInt(parsed.score);
+    parsed.isClosed = parsed.isClosed === true;
     
     // Ensure new fields have defaults
     parsed.matchedSkills = Array.isArray(parsed.matchedSkills) ? parsed.matchedSkills : [];

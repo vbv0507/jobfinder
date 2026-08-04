@@ -39,10 +39,25 @@ router.get('/', async (req, res, next) => {
 router.get('/jobs', async (req, res) => {
     try {
         const MatchedJob = require('../models/MatchedJob');
-        const jobs = await MatchedJob.find({ status: 'new', provider: { $not: /^local/i } }).populate('company', 'name').sort({ score: -1 });
+        const jobs = await MatchedJob.find({ 
+            status: 'new', 
+            provider: { $not: /^local/i },
+            score: { $gte: 70 },
+            jobStatus: { $ne: 'Closed' }
+        }).populate('company', 'name').sort({ score: -1 });
         res.render('pages/jobs', { jobs, title: 'Matched Jobs (AI Evaluated)' });
     } catch (error) {
         res.render('pages/jobs', { jobs: [], title: 'Matched Jobs (AI Evaluated)' });
+    }
+});
+
+router.get('/closed-jobs', async (req, res) => {
+    try {
+        const MatchedJob = require('../models/MatchedJob');
+        const jobs = await MatchedJob.find({ jobStatus: 'Closed' }).populate('company', 'name').sort({ closedAt: -1, updatedAt: -1 });
+        res.render('pages/jobs', { jobs, title: 'Closed / Filled Jobs' });
+    } catch (error) {
+        res.render('pages/jobs', { jobs: [], title: 'Closed / Filled Jobs' });
     }
 });
 
