@@ -14,3 +14,5 @@ test-results/
 screenshots/
 videos/
 .DS_Store
+project.md
+project.d/

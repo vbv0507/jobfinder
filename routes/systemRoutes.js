@@ -50,6 +50,7 @@ router.get('/detailed-health', requireAdmin, async (req, res) => {
             gemini: pipelineState.geminiStatus || "Unknown",
             groq: pipelineState.groqStatus || "Unknown",
             zai: pipelineState.zaiStatus || "Unknown",
+            deepseek: pipelineState.deepseekStatus || "Unknown",
             local: pipelineState.localStatus || "Ready"
         },
         cron: {

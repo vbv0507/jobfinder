@@ -116,6 +116,15 @@ const runEvaluationPipeline = async (job, profile, aiState) => {
   pipelineState.zaiFailed = aiState.zai.failed || 0;
   pipelineState.zaiFallbacks = aiState.zaiFallbacks || 0;
   pipelineState.zaiDisabledAt = aiState.zai.disabledAt;
+
+  if (!aiState.deepseek) aiState.deepseek = { available: true };
+  pipelineState.deepseekStatus = aiState.deepseek.available ? "Working" : "Unavailable";
+  pipelineState.deepseekReason = aiState.deepseek.reason;
+  pipelineState.deepseekRequests = aiState.deepseek.requests || 0;
+  pipelineState.deepseekSuccess = aiState.deepseek.success || 0;
+  pipelineState.deepseekFailed = aiState.deepseek.failed || 0;
+  pipelineState.deepseekFallbacks = aiState.deepseekFallbacks || 0;
+  pipelineState.deepseekDisabledAt = aiState.deepseek.disabledAt;
   
   pipelineState.localRequests = aiState.local?.requests || 0;
   pipelineState.localSuccess = aiState.local?.success || 0;

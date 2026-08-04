@@ -45,9 +45,10 @@ Instead of relying on a single AI provider (which might rate-limit or fail), Rol
 ### How it works
 The `aiEvaluationService.js` attempts to evaluate a job in the following order:
 1. **Gemini**: The primary provider (fastest and cheapest).
-2. **Groq**: The immediate fallback if Gemini rate-limits or throws a 5xx error.
+2. **Groq**: The immediate fallback if Gemini rate-limits or throws a 5xx error. Supports **key pool rotation** across multiple keys.
 3. **Z.AI**: The tertiary fallback.
-4. **Local (Fallback)**: If all cloud providers fail, the system falls back to a deterministic, keyword-based local evaluation.
+4. **DeepSeek V4 Flash**: The quaternary fallback (OpenAI-compatible API at `api.deepseek.com`).
+5. **Local (Fallback)**: If all cloud providers fail, the system falls back to a deterministic, keyword-based local evaluation.
 
 ### The "Local Pending" Feature
 - **Aim**: To ensure no job is lost due to temporary cloud outages, but also to prevent false-positives from spamming the user.
@@ -120,6 +121,30 @@ A mechanism to prevent scraping the same company's HTML multiple times unnecessa
 - **Scraping**: Playwright, Axios, Cheerio
 - **Frontend**: EJS (Templating), TailwindCSS (Styling), Vanilla JS
 - **Real-time Comms**: Socket.IO
-- **AI Models**: Google Gemini (Primary), Groq (Llama 3), Z.AI
+- **AI Models**: Google Gemini (Primary), Groq/Llama-3 (Secondary), Z.AI/GLM (Tertiary), DeepSeek V4 Flash (Quaternary), Local Heuristic (Final Fallback)
 
 RoleNova represents a perfect synergy between traditional web scraping and modern Generative AI, creating a zero-touch, highly curated job hunting assistant.
+
+---
+
+## 🛠 8. Architecture Updates & Recent Fixes (August 2026)
+
+### Azure App Service Proxy & Rate Limiting
+- **Issue:** The Express application was failing behind Azure's reverse proxy because `express-rate-limit` (v8) detected invalid `request.ip` formats (e.g., `103.228.147.81:43833`).
+- **Fix:** Enabled Express `trust proxy` (`app.set('trust proxy', 1)`) and configured the rate limiter with `validate: false` to allow proper parsing of the `X-Forwarded-For` header injected by Azure.
+
+### Groq API Key Pool Rotation
+- **Issue:** Single Groq API keys frequently hit the daily Free Tier quota limit (`429 Too Many Requests`), causing the evaluation pipeline to fail or prematurely exit.
+- **Architecture Update:** Implemented a **Groq Key Pool Rotation** system in `geminiService.js`.
+- **How it works:** The system accepts multiple API keys via the `GROQ_API_KEYS` environment variable. If one key hits a rate limit, the system gracefully marks it as exhausted for the session and automatically rotates to the next available key in the pool, multiplying the evaluation capacity per pipeline run.
+
+### Local Pending AI Re-evaluation Early Exit
+- **Issue:** The "Verify All Local" manual trigger was not correctly breaking out of its execution loop when all AI providers (Gemini, Groq, Z.AI) exhausted their quotas, leading to wasted processing and log spam.
+- **Fix:** Added a strict early-exit check in `schedulerService.js` that correctly factors in environment flags (`ENABLE_GROQ_FALLBACK`). If the entire AI chain becomes unavailable, the loop immediately terminates.
+
+### DeepSeek V4 Flash Integration (August 2026)
+- **Feature:** Added **DeepSeek V4 Flash** (`deepseek-v4-flash`) as the 4th provider in the AI fallback chain, positioned between Z.AI and the Local heuristic.
+- **Implementation:** New `services/deepseekService.js` using the OpenAI-compatible API at `https://api.deepseek.com`.
+- **Env vars:** `DEEPSEEK_API_KEY`, `DEEPSEEK_MODEL`, `DEEPSEEK_BASE_URL`, `ENABLE_DEEPSEEK_FALLBACK`.
+- **State tracking:** Full request/success/fail/fallback/disabledAt tracking in `pipelineState` and the `/detailed-health` endpoint.
+- **Fallback chain updated:** Gemini → Groq (key pool) → Z.AI → **DeepSeek V4 Flash** → Local Heuristic.

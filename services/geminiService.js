@@ -2,6 +2,7 @@ const { GoogleGenerativeAI } = require("@google/generative-ai");
 const axios = require("axios");
 const { classifyDomain } = require("../utils/domains");
 const { evaluateJobWithZai } = require("./zaiService");
+const { evaluateJobWithDeepSeek } = require("./deepseekService");
 const { buildEvaluationPrompt, parseJsonResponse, analyzeError, validateAiResponse } = require("./aiHelpers");
 const { withLogContext } = require("../utils/logger");
 const { withRetry } = require("../utils/retry");
@@ -217,12 +218,12 @@ const evaluateJobWithGroq = async (job, profile, apiKey) => {
 
 
 
-const evaluateJob = async (job, profile, aiState = { gemini: { available: true }, groq: { available: true }, zai: { available: true } }) => {
+const evaluateJob = async (job, profile, aiState = { gemini: { available: true }, groq: { available: true }, zai: { available: true }, deepseek: { available: true } }) => {
     const startTime = Date.now();
     let fallbackCount = 0;
     let failureReason = null;
     let providerChain = [];
-    const attemptLogs = { gemini: 'Skipped', groq: 'Skipped', zai: 'Skipped', local: 'Skipped' };
+    const attemptLogs = { gemini: 'Skipped', groq: 'Skipped', zai: 'Skipped', deepseek: 'Skipped', local: 'Skipped' };
 
     // 1. Gemini
     if (aiState.gemini.available && process.env.GEMINI_API_KEY) {
@@ -407,7 +408,60 @@ const evaluateJob = async (job, profile, aiState = { gemini: { available: true }
         failureReason = failureReason ? `${failureReason} | Z.ai disabled${aiState.zai.reason ? ': ' + aiState.zai.reason : ''}` : `Z.ai disabled${aiState.zai.reason ? ': ' + aiState.zai.reason : ''}`;
     }
 
-    // 4. Local
+    // 4. DeepSeek V4 Flash
+    if (!aiState.deepseek) aiState.deepseek = { available: true };
+    if (aiState.deepseek.available && process.env.ENABLE_DEEPSEEK_FALLBACK !== "false" && process.env.DEEPSEEK_API_KEY) {
+        providerChain.push("DeepSeek");
+        aiState.deepseek.requests = (aiState.deepseek.requests || 0) + 1;
+        try {
+            console.log("[AI] Trying DeepSeek V4 Flash");
+            return await withLogContext({ provider: "DeepSeek" }, async () => {
+            const deepseekAnalysis = await withRetry(() => evaluateJobWithDeepSeek(job, profile), { maxRetries: 2 });
+
+            if (!deepseekAnalysis) throw new Error("DeepSeek returned empty response");
+
+            aiState.deepseek.success = (aiState.deepseek.success || 0) + 1;
+            deepseekAnalysis.evaluationMetrics = {
+                provider: "DeepSeek",
+                durationMs: Date.now() - startTime,
+                fallbackCount,
+                failureReason
+            };
+            deepseekAnalysis.evaluationTimeMs = Date.now() - startTime;
+            deepseekAnalysis.fallbackCount = fallbackCount;
+            deepseekAnalysis.fallbackReason = failureReason;
+            deepseekAnalysis.provider = "deepseek";
+            deepseekAnalysis.providerChain = providerChain;
+            attemptLogs.deepseek = 'Success';
+            deepseekAnalysis.attemptLogs = attemptLogs;
+            return deepseekAnalysis;
+            }); // End withLogContext
+        } catch (deepseekError) {
+            aiState.deepseek.failed = (aiState.deepseek.failed || 0) + 1;
+            const errorAnalysis = analyzeError(deepseekError);
+
+            if (errorAnalysis.permanent) {
+                console.log(`[AI] DeepSeek disabled for this pipeline.\nReason: ${errorAnalysis.reason}.`);
+                aiState.deepseek.available = false;
+                aiState.deepseek.disabled = true;
+                aiState.deepseek.reason = errorAnalysis.reason;
+                aiState.deepseek.disabledAt = new Date();
+            } else {
+                console.log(`[AI] DeepSeek temporary failure: ${errorAnalysis.reason}.\nFalling back to Local.\nProvider remains available.`);
+            }
+
+            aiState.deepseekFallbacks = (aiState.deepseekFallbacks || 0) + 1;
+            fallbackCount++;
+            failureReason = failureReason ? `${failureReason} | DeepSeek failed: ${errorAnalysis.reason}` : `DeepSeek failed: ${errorAnalysis.reason}`;
+            attemptLogs.deepseek = `Failed: ${errorAnalysis.reason}`;
+            console.log("[AI] DeepSeek Failed");
+            console.error("DeepSeek Evaluation Error:", deepseekError.message);
+        }
+    } else if (!aiState.deepseek.available) {
+        failureReason = failureReason ? `${failureReason} | DeepSeek disabled${aiState.deepseek.reason ? ': ' + aiState.deepseek.reason : ''}` : `DeepSeek disabled${aiState.deepseek.reason ? ': ' + aiState.deepseek.reason : ''}`;
+    }
+
+    // 5. Local
     if (process.env.ENABLE_LOCAL_MATCH_FALLBACK !== "false" && (!aiState.local || !aiState.local.disabled)) {
         providerChain.push("Local");
         if (!aiState.local) aiState.local = {};
