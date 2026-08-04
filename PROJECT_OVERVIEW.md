@@ -44,11 +44,12 @@ Instead of relying on a single AI provider (which might rate-limit or fail), Rol
 
 ### How it works
 The `aiEvaluationService.js` attempts to evaluate a job in the following order:
-1. **Gemini**: The primary provider (fastest and cheapest).
-2. **Groq**: The immediate fallback if Gemini rate-limits or throws a 5xx error. Supports **key pool rotation** across multiple keys.
-3. **Z.AI**: The tertiary fallback.
-4. **DeepSeek V4 Flash**: The quaternary fallback (OpenAI-compatible API at `api.deepseek.com`).
-5. **Local (Fallback)**: If all cloud providers fail, the system falls back to a deterministic, keyword-based local evaluation.
+1. **Gemini 2.0 Flash**: The primary provider (fastest and cheapest). 1,500 req/day free.
+2. **Groq / Llama 3.3 70B**: Immediate fallback with **key pool rotation** across multiple accounts. 100K TPD per key.
+3. **Z.AI / GLM 4.5**: Tertiary fallback.
+4. **Cerebras / Llama 3.3 70B**: Quaternary fallback — **1M tokens/day FREE**, no credit card. ~2600 tok/s.
+5. **DeepSeek V4 Flash**: Paid backup ($0.14/1M tokens) via OpenAI-compatible API.
+6. **Local Heuristic**: If all cloud providers fail, deterministic keyword-based local evaluation.
 
 ### The "Local Pending" Feature
 - **Aim**: To ensure no job is lost due to temporary cloud outages, but also to prevent false-positives from spamming the user.
@@ -121,7 +122,7 @@ A mechanism to prevent scraping the same company's HTML multiple times unnecessa
 - **Scraping**: Playwright, Axios, Cheerio
 - **Frontend**: EJS (Templating), TailwindCSS (Styling), Vanilla JS
 - **Real-time Comms**: Socket.IO
-- **AI Models**: Google Gemini (Primary), Groq/Llama-3 (Secondary), Z.AI/GLM (Tertiary), DeepSeek V4 Flash (Quaternary), Local Heuristic (Final Fallback)
+- **AI Models**: Google Gemini (Primary), Groq/Llama-3 (Secondary, key-pool), Z.AI/GLM (Tertiary), Cerebras/Llama-3.3 (Quaternary, FREE 1M/day), DeepSeek V4 Flash (Paid backup), Local Heuristic (Final fallback)
 
 RoleNova represents a perfect synergy between traditional web scraping and modern Generative AI, creating a zero-touch, highly curated job hunting assistant.
 
@@ -143,8 +144,19 @@ RoleNova represents a perfect synergy between traditional web scraping and moder
 - **Fix:** Added a strict early-exit check in `schedulerService.js` that correctly factors in environment flags (`ENABLE_GROQ_FALLBACK`). If the entire AI chain becomes unavailable, the loop immediately terminates.
 
 ### DeepSeek V4 Flash Integration (August 2026)
-- **Feature:** Added **DeepSeek V4 Flash** (`deepseek-v4-flash`) as the 4th provider in the AI fallback chain, positioned between Z.AI and the Local heuristic.
+- **Feature:** Added **DeepSeek V4 Flash** (`deepseek-v4-flash`) as a paid backup provider in the AI fallback chain.
 - **Implementation:** New `services/deepseekService.js` using the OpenAI-compatible API at `https://api.deepseek.com`.
+- **Note:** Requires account balance. HTTP 402 now correctly treated as a permanent error.
 - **Env vars:** `DEEPSEEK_API_KEY`, `DEEPSEEK_MODEL`, `DEEPSEEK_BASE_URL`, `ENABLE_DEEPSEEK_FALLBACK`.
-- **State tracking:** Full request/success/fail/fallback/disabledAt tracking in `pipelineState` and the `/detailed-health` endpoint.
-- **Fallback chain updated:** Gemini → Groq (key pool) → Z.AI → **DeepSeek V4 Flash** → Local Heuristic.
+
+### Cerebras Free Provider Integration (August 2026)
+- **Feature:** Added **Cerebras** (`llama-3.3-70b`) as the 4th free provider — **1M tokens/day, no credit card required**.
+- **Why:** Cerebras offers the fastest open-model inference (~2,600 tokens/sec) with the largest free daily token budget of any provider.
+- **Implementation:** New `services/cerebrasService.js` using the OpenAI-compatible API at `https://api.cerebras.ai/v1`.
+- **Position:** Inserted between Z.AI (#3) and DeepSeek (#5) in the fallback chain.
+- **Env vars:** `CEREBRAS_API_KEY`, `CEREBRAS_MODEL`, `CEREBRAS_BASE_URL`, `ENABLE_CEREBRAS_FALLBACK`.
+- **Full chain:** Gemini → Groq (key pool) → Z.AI → **Cerebras** → DeepSeek → Local Heuristic.
+
+### HTTP 402 Permanent Error Fix (August 2026)
+- **Issue:** `analyzeError()` was treating HTTP 402 (Payment Required) as a temporary error, causing providers with empty wallets to retry on every job.
+- **Fix:** Added `is402` check in `services/aiHelpers.js` — 402 now immediately disables the provider for the pipeline session.
