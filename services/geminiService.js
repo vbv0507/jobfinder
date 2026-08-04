@@ -20,6 +20,15 @@ const buildGroqKeyPool = () => {
 };
 const GROQ_KEY_POOL = buildGroqKeyPool();
 
+const buildOpenRouterKeyPool = () => {
+    const multi = process.env.OPENROUTER_API_KEYS || '';
+    const single = process.env.OPENROUTER_API_KEY || '';
+    const keys = multi.split(',').map(k => k.trim()).filter(Boolean);
+    if (single && !keys.includes(single)) keys.unshift(single);
+    return keys;
+};
+const OPENROUTER_KEY_POOL = buildOpenRouterKeyPool();
+
 const model = genAI.getGenerativeModel({
     model: process.env.GEMINI_MODEL || "gemini-2.0-flash",
 });
@@ -358,52 +367,69 @@ const evaluateJob = async (job, profile, aiState = { gemini: { available: true }
 
     // 3. OpenRouter (FREE — no credit card required)
     if (!aiState.openrouter) aiState.openrouter = { available: true };
-    if (aiState.openrouter.available && process.env.ENABLE_OPENROUTER_FALLBACK !== "false" && process.env.OPENROUTER_API_KEY) {
+    if (aiState.openrouter.available && process.env.ENABLE_OPENROUTER_FALLBACK !== "false" && OPENROUTER_KEY_POOL.length > 0) {
         providerChain.push("OpenRouter");
         aiState.openrouter.requests = (aiState.openrouter.requests || 0) + 1;
-        try {
-            console.log("[AI] Trying OpenRouter (Llama 3.3 70B free)");
-            return await withLogContext({ provider: "OpenRouter" }, async () => {
-            const orAnalysis = await withRetry(() => evaluateJobWithOpenRouter(job, profile), { maxRetries: 2 });
 
-            if (!orAnalysis) throw new Error("OpenRouter returned empty response");
+        // Track exhausted key indices in aiState
+        if (!aiState.openrouter.exhaustedKeys) aiState.openrouter.exhaustedKeys = new Set();
 
-            aiState.openrouter.success = (aiState.openrouter.success || 0) + 1;
-            orAnalysis.evaluationMetrics = {
-                provider: "OpenRouter",
-                durationMs: Date.now() - startTime,
-                fallbackCount,
-                failureReason
-            };
-            orAnalysis.evaluationTimeMs = Date.now() - startTime;
-            orAnalysis.fallbackCount = fallbackCount;
-            orAnalysis.fallbackReason = failureReason;
-            orAnalysis.provider = "openrouter";
-            orAnalysis.providerChain = providerChain;
-            attemptLogs.openrouter = 'Success';
-            orAnalysis.attemptLogs = attemptLogs;
-            return orAnalysis;
-            }); // End withLogContext
-        } catch (orError) {
-            aiState.openrouter.failed = (aiState.openrouter.failed || 0) + 1;
-            const errorAnalysis = analyzeError(orError);
+        let openRouterSucceeded = false;
+        for (let ki = 0; ki < OPENROUTER_KEY_POOL.length; ki++) {
+            if (aiState.openrouter.exhaustedKeys.has(ki)) continue; // skip already exhausted keys
+            const keyToUse = OPENROUTER_KEY_POOL[ki];
+            const keyLabel = `key[${ki + 1}/${OPENROUTER_KEY_POOL.length}]`;
+            try {
+                console.log(`[AI] Trying OpenRouter ${keyLabel}`);
+                const result = await withLogContext({ provider: "OpenRouter" }, async () => {
+                    const orAnalysis = await withRetry(() => evaluateJobWithOpenRouter(job, profile, keyToUse), { maxRetries: 2 });
+                    if (!orAnalysis) throw new Error("OpenRouter returned empty response");
+                    aiState.openrouter.success = (aiState.openrouter.success || 0) + 1;
+                    orAnalysis.evaluationMetrics = {
+                        provider: "OpenRouter",
+                        durationMs: Date.now() - startTime,
+                        fallbackCount,
+                        failureReason
+                    };
+                    orAnalysis.evaluationTimeMs = Date.now() - startTime;
+                    orAnalysis.fallbackCount = fallbackCount;
+                    orAnalysis.fallbackReason = failureReason;
+                    orAnalysis.provider = "openrouter";
+                    orAnalysis.providerChain = providerChain;
+                    attemptLogs.openrouter = `Success (${keyLabel})`;
+                    orAnalysis.attemptLogs = attemptLogs;
+                    return orAnalysis;
+                });
+                openRouterSucceeded = true;
+                return result;
+            } catch (orError) {
+                const errorAnalysis = analyzeError(orError);
+                if (errorAnalysis.permanent || orError?.response?.status === 429) {
+                    console.log(`[AI] OpenRouter ${keyLabel} quota exhausted. Rotating to next key...`);
+                    aiState.openrouter.exhaustedKeys.add(ki);
+                } else {
+                    console.log(`[AI] OpenRouter ${keyLabel} temporary failure: ${errorAnalysis.reason}`);
+                    break; // non-quota error, don't rotate — move to next provider
+                }
+            }
+        }
 
-            if (errorAnalysis.permanent) {
-                console.log(`[AI] OpenRouter disabled for this pipeline.\nReason: ${errorAnalysis.reason}.`);
+        if (!openRouterSucceeded) {
+            // All OpenRouter keys exhausted
+            const allOpenRouterExhausted = aiState.openrouter.exhaustedKeys.size >= OPENROUTER_KEY_POOL.length;
+            if (allOpenRouterExhausted) {
+                console.log(`[AI] All ${OPENROUTER_KEY_POOL.length} OpenRouter key(s) exhausted. Disabling OpenRouter for this pipeline.`);
                 aiState.openrouter.available = false;
                 aiState.openrouter.disabled = true;
-                aiState.openrouter.reason = errorAnalysis.reason;
+                aiState.openrouter.reason = '429 Quota (all keys)';
                 aiState.openrouter.disabledAt = new Date();
-            } else {
-                console.log(`[AI] OpenRouter temporary failure: ${errorAnalysis.reason}.\nFalling back to Local.`);
             }
-
+            aiState.openrouter.failed = (aiState.openrouter.failed || 0) + 1;
             aiState.openrouterFallbacks = (aiState.openrouterFallbacks || 0) + 1;
             fallbackCount++;
-            failureReason = failureReason ? `${failureReason} | OpenRouter failed: ${errorAnalysis.reason}` : `OpenRouter failed: ${errorAnalysis.reason}`;
-            attemptLogs.openrouter = `Failed: ${errorAnalysis.reason}`;
-            console.log("[AI] OpenRouter Failed");
-            console.error("OpenRouter Evaluation Error:", orError.message);
+            failureReason = failureReason ? `${failureReason} | OpenRouter failed` : `OpenRouter failed (all keys exhausted)`;
+            attemptLogs.openrouter = 'Failed: all keys exhausted';
+            console.log("[AI] OpenRouter Failed — moving to Local");
         }
     } else if (!aiState.openrouter.available) {
         failureReason = failureReason ? `${failureReason} | OpenRouter disabled${aiState.openrouter.reason ? ': ' + aiState.openrouter.reason : ''}` : `OpenRouter disabled${aiState.openrouter.reason ? ': ' + aiState.openrouter.reason : ''}`;

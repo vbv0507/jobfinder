@@ -195,4 +195,10 @@ router.get('/verify-local/status', requireAdmin, (req, res) => {
     res.json({ isRunning: getVerifyLocalStatus() });
 });
 
+router.post('/verify-local/stop', requireAdmin, (req, res) => {
+    const { stopVerifyLocalJobs } = require('../services/schedulerService');
+    stopVerifyLocalJobs();
+    res.json({ success: true, message: "Requested to stop local verification." });
+});
+
 module.exports = router;

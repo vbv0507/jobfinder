@@ -14,6 +14,9 @@
         <button id="btnVerifyLocal" onclick="triggerLocalVerification()" class="whitespace-nowrap bg-primary hover:bg-primaryHover text-white px-4 py-2 rounded-md text-sm font-medium transition-colors shadow-sm disabled:opacity-50 flex items-center gap-2">
             <i class="fa-solid fa-brain"></i> Verify All Local
         </button>
+        <button id="btnStopVerify" onclick="stopLocalVerification()" class="hidden whitespace-nowrap bg-error hover:bg-error/80 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors shadow-sm disabled:opacity-50 flex items-center gap-2">
+            <i class="fa-solid fa-stop"></i> Stop
+        </button>
     </div>
 </div>
 
@@ -206,6 +209,29 @@ function setButtonLoading(btn) {
         span.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Verifying... (Background)';
         btn.parentNode.insertBefore(span, btn);
     }
+    const stopBtn = document.getElementById('btnStopVerify');
+    if (stopBtn) stopBtn.classList.remove('hidden');
+}
+
+async function stopLocalVerification() {
+    const stopBtn = document.getElementById('btnStopVerify');
+    const originalText = stopBtn.innerHTML;
+    try {
+        stopBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Stopping...';
+        stopBtn.disabled = true;
+        const res = await fetch('/api/system/verify-local/stop', { method: 'POST' });
+        const data = await res.json();
+        if (!data.success) {
+            alert('Failed to stop: ' + data.error);
+            stopBtn.innerHTML = originalText;
+            stopBtn.disabled = false;
+        }
+    } catch (e) {
+        console.error(e);
+        alert('Error stopping verification');
+        stopBtn.innerHTML = originalText;
+        stopBtn.disabled = false;
+    }
 }
 
 async function pollStatusUntilDone() {
@@ -218,6 +244,9 @@ async function pollStatusUntilDone() {
             clearInterval(interval);
             const span = document.getElementById('verifyLoadingText');
             if (span) span.remove();
+            
+            const stopBtn = document.getElementById('btnStopVerify');
+            if (stopBtn) stopBtn.classList.add('hidden');
             
             btn.style.display = 'flex'; // restore button
             btn.innerHTML = '<i class="fa-solid fa-check"></i> Complete';

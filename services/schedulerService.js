@@ -13,6 +13,7 @@ const EMAIL_SCHEDULE_EXPRESSION = "0 20 * * *"; // 8:00 PM every day
 const TIMEZONE = "Asia/Kolkata";
 
 let isVerifyLocalRunning = false;
+let shouldStopVerifyLocal = false;
 
 const init = () => {
     if (cronTask) {
@@ -235,6 +236,12 @@ const verifyLocalJobs = async () => {
                     stats.failed++;
                     continue;
                 }
+                if (shouldStopVerifyLocal) {
+                    console.log(chalk.yellow(`[Scheduler] Re-evaluation stopped by user request.`));
+                    stats.stopped = true;
+                    break;
+                }
+
                 try {
                     const originalProvider = mJob.provider;
                     const result = await runEvaluationPipeline(mJob.rawJob, profile, aiState);
@@ -300,6 +307,13 @@ const verifyLocalJobs = async () => {
         return stats;
     } finally {
         isVerifyLocalRunning = false;
+        shouldStopVerifyLocal = false;
+    }
+};
+
+const stopVerifyLocalJobs = () => {
+    if (isVerifyLocalRunning) {
+        shouldStopVerifyLocal = true;
     }
 };
 
@@ -310,5 +324,6 @@ module.exports = {
     getSchedulerStatus,
     shutdown,
     verifyLocalJobs,
-    getVerifyLocalStatus
+    getVerifyLocalStatus,
+    stopVerifyLocalJobs
 };

@@ -12,9 +12,9 @@ const { buildEvaluationPrompt, parseJsonResponse, validateAiResponse } = require
  *   - google/gemma-4-31b-it:free
  *   - nvidia/nemotron-3-ultra-550b-a55b:free
  */
-const evaluateJobWithOpenRouter = async (job, profile) => {
-    const apiKey = process.env.OPENROUTER_API_KEY;
-    if (!apiKey) throw new Error("OPENROUTER_API_KEY not configured");
+const evaluateJobWithOpenRouter = async (job, profile, apiKey) => {
+    const keyToUse = apiKey || process.env.OPENROUTER_API_KEY;
+    if (!keyToUse) throw new Error("OPENROUTER_API_KEY not configured");
 
     const model = process.env.OPENROUTER_MODEL || "openrouter/free";
     const baseUrl = "https://openrouter.ai/api/v1";
@@ -38,7 +38,7 @@ const evaluateJobWithOpenRouter = async (job, profile) => {
         },
         {
             headers: {
-                Authorization: `Bearer ${apiKey}`,
+                Authorization: `Bearer ${keyToUse}`,
                 "Content-Type": "application/json",
                 "HTTP-Referer": "https://rolenova.app",
                 "X-Title": "RoleNova Job Evaluator",

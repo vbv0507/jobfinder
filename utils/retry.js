@@ -16,8 +16,8 @@ const withRetry = async (fn, options = {}) => {
       
       const status = error.response?.status || error.status;
       
-      // Do NOT retry these HTTP statuses (permanent failures)
-      if (status === 400 || status === 401 || status === 403 || status === 404) {
+      // Do NOT retry these HTTP statuses (permanent failures or quota limits that need immediate rotation)
+      if (status === 400 || status === 401 || status === 403 || status === 404 || status === 429) {
         throw error;
       }
 
