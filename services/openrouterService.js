@@ -8,15 +8,15 @@ const { buildEvaluationPrompt, parseJsonResponse, validateAiResponse } = require
  * Sign up free: https://openrouter.ai
  *
  * Free models available:
- *   - meta-llama/llama-3.3-70b-instruct:free
- *   - mistralai/mistral-7b-instruct:free
- *   - google/gemma-3-27b-it:free
+ *   - openrouter/free (Auto-routes to best available free model)
+ *   - google/gemma-4-31b-it:free
+ *   - nvidia/nemotron-3-ultra-550b-a55b:free
  */
 const evaluateJobWithOpenRouter = async (job, profile) => {
     const apiKey = process.env.OPENROUTER_API_KEY;
     if (!apiKey) throw new Error("OPENROUTER_API_KEY not configured");
 
-    const model = process.env.OPENROUTER_MODEL || "meta-llama/llama-3.3-70b-instruct:free";
+    const model = process.env.OPENROUTER_MODEL || "openrouter/free";
     const baseUrl = "https://openrouter.ai/api/v1";
 
     const response = await axios.post(
