@@ -282,8 +282,8 @@ const verifyLocalJobs = async () => {
                 
                 // Batch pause logic (Wait 15 seconds every 5 jobs)
                 if (index % 5 === 0 && index < localJobs.length) {
-                    console.log(chalk.gray(`[Scheduler] Batch complete. Waiting 15 seconds before processing the next batch to respect AI rate limits...`));
-                    await new Promise(resolve => setTimeout(resolve, 15000));
+                    console.log(chalk.gray(`[Scheduler] Batch complete. Waiting 5 seconds before processing the next batch to respect AI rate limits...`));
+                    await new Promise(resolve => setTimeout(resolve, 5000));
                 }
             }
         }
