@@ -219,7 +219,8 @@ const verifyLocalJobs = async () => {
             const profile = await getActiveProfile();
             const aiState = { 
                 gemini: { available: true }, 
-                groq: { available: true }, 
+                groq: { available: true },
+                openrouter: { available: true },
                 local: { disabled: true },
                 calls: 0
             };
@@ -238,13 +239,23 @@ const verifyLocalJobs = async () => {
                     const originalProvider = mJob.provider;
                     const result = await runEvaluationPipeline(mJob.rawJob, profile, aiState);
 
-                    // Early exit: if all providers are now disabled/unavailable, stop processing remaining jobs
+                    // Graceful pause: if all providers are now disabled/unavailable, wait 60s and reset instead of failing
                     const groqActuallyAvailable = aiState.groq.available && process.env.ENABLE_GROQ_FALLBACK !== 'false' && !!process.env.GROQ_API_KEY;
-                    const allDown = !aiState.gemini.available && !groqActuallyAvailable;
-                    if (allDown && !result.analysis) {
-                        stats.failed++;
-                        console.log(chalk.red(`[Scheduler] All AI providers exhausted. Stopping re-evaluation early. Processed ${stats.processed} of ${localJobs.length} jobs.`));
-                        break;
+                    const openRouterActuallyAvailable = aiState.openrouter.available && process.env.ENABLE_OPENROUTER_FALLBACK !== 'false' && !!process.env.OPENROUTER_API_KEY;
+                    const allDown = !aiState.gemini.available && !groqActuallyAvailable && !openRouterActuallyAvailable;
+                    
+                    if (allDown && (!result || !result.analysis)) {
+                        console.log(chalk.yellow(`[Scheduler] All AI providers rate-limited. Pausing for 60 seconds before retrying...`));
+                        await new Promise(resolve => setTimeout(resolve, 60000));
+                        
+                        // Reset availability for the next attempt
+                        aiState.gemini.available = true;
+                        aiState.groq.available = true;
+                        aiState.openrouter.available = true;
+                        
+                        // Push the current job back to the end of the queue so we don't skip it
+                        localJobs.push(mJob);
+                        continue;
                     }
 
                     if (result && !result.skipped && result.analysis) {

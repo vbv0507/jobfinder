@@ -110,14 +110,7 @@ const runEvaluationPipeline = async (job, profile, aiState) => {
   pipelineState.groqDisabledAt = aiState.groq.disabledAt;
   
 
-  if (!aiState.deepseek) aiState.deepseek = { available: true };
-  pipelineState.deepseekStatus = aiState.deepseek.available ? "Working" : "Unavailable";
-  pipelineState.deepseekReason = aiState.deepseek.reason;
-  pipelineState.deepseekRequests = aiState.deepseek.requests || 0;
-  pipelineState.deepseekSuccess = aiState.deepseek.success || 0;
-  pipelineState.deepseekFailed = aiState.deepseek.failed || 0;
-  pipelineState.deepseekFallbacks = aiState.deepseekFallbacks || 0;
-  pipelineState.deepseekDisabledAt = aiState.deepseek.disabledAt;
+
 
   if (!aiState.openrouter) aiState.openrouter = { available: true };
   pipelineState.openrouterStatus = aiState.openrouter.available ? "Working" : "Unavailable";
