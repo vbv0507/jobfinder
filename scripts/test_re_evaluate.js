@@ -31,7 +31,7 @@ async function main() {
         };
         
         try {
-            const aiState = { gemini: { available: true }, groq: { available: true }, zai: { available: true }, local: {} };
+            const aiState = { gemini: { available: true }, groq: { available: true }, local: {} };
             const result = await evaluateJob(rawJob, profile, aiState);
             console.log(`New Score: ${result.score} (Suitable: ${result.suitable})`);
             if (result.suitable) matchedCount++;

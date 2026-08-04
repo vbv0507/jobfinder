@@ -15,19 +15,6 @@
             const res = await apiCall('/api/system/health');
             const data = res;
             
-            const metricsRes = await apiCall('/api/system/metrics');
-            const metrics = metricsRes;
-            
-            const providers = [
-                { id: 'gemini', name: 'Gemini', status: data.ai.gemini },
-                { id: 'groq', name: 'Groq', status: data.ai.groq },
-                { id: 'zai', name: 'Z.ai', status: data.ai.zai },
-                { id: 'local', name: 'Local Heuristic', status: data.ai.local }
-            ];
-
-            const container = document.getElementById('aiCards');
-            container.innerHTML = providers.map(p => {
-                const stat = metrics["Provider Usage"]?.find(s => s._id === p.id) || { count: 0, avgTime: 0, fallbacks: 0 };
                 
                 let color = 'gray';
                 if (p.status === 'Ready' || p.status === 'Working') color = 'green';

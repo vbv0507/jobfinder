@@ -283,11 +283,9 @@ const processJobUrl = async (url, telegramCompany, profile, structuredData, sour
             quotaExceeded: false,
             gemini: { available: true, requests: 0, success: 0, failed: 0, reason: null, disabledAt: null },
             groq:   { available: true, requests: 0, success: 0, failed: 0, reason: null, disabledAt: null },
-            zai:    { available: true, requests: 0, success: 0, failed: 0, reason: null, disabledAt: null },
             local:  { requests: 0, success: 0, failed: 0 },
             geminiFallbacks: 0,
             groqFallbacks:   0,
-            zaiFallbacks:    0,
         };
         logWithTime(`[INFO] AI Evaluation Started (Gemini / Groq / Z.ai / Local)`);
         const result = await runEvaluationPipeline(job, profile, aiState);
@@ -407,7 +405,7 @@ const handleIncomingMessage = async (event) => {
                 
                 const procTime = new Date() - receivedTime;
                 
-                const replyMessage = `✅ RoleNova Diagnostics\n\nEnvironment\n${process.env.NODE_ENV === "production" ? "Production" : "Development"}\n\nVersion\nv1.0.0 (${gitCommit})\n\nStatus\nHealthy\n\nTelegram\n🟢 Connected\n\nMongoDB\n${mongoStatus}\n\nPipeline\n${pipelineState.status === "Running" ? "🔵 Running" : "🟢 Idle"}\n\nDistributed Lock\n${lockStatus}\n\nGemini\n${pipelineState.geminiStatus === "Ready" ? "🟢 Ready" : "🔴 " + pipelineState.geminiStatus}\n${pipelineState.geminiReason ? "Reason:\n" + pipelineState.geminiReason : ""}\n\nGroq\n${pipelineState.groqStatus === "Ready" ? "🟢 Ready" : "🔴 " + pipelineState.groqStatus}\n\nZ.ai\n${pipelineState.zaiStatus === "Ready" ? "🟢 Ready" : "🔴 " + pipelineState.zaiStatus}\n\nLocal\n${pipelineState.localStatus === "Ready" ? "🟢 Ready" : "🔴 " + pipelineState.localStatus}\n\nLast Pipeline\n${lastPipelineStart}\n\nLast Telegram Message\n${lastTelegramMsg}\n\nMemory\n${memUsage} MB\n\nUptime\n${uptimeStr}\n\nLatency\n${procTime} ms`;
+                const replyMessage = `✅ RoleNova Diagnostics\n\nEnvironment\n${process.env.NODE_ENV === "production" ? "Production" : "Development"}\n\nVersion\nv1.0.0 (${gitCommit})\n\nStatus\nHealthy\n\nTelegram\n🟢 Connected\n\nMongoDB\n${mongoStatus}\n\nPipeline\n${pipelineState.status === "Running" ? "🔵 Running" : "🟢 Idle"}\n\nDistributed Lock\n${lockStatus}\n\nGemini\n${pipelineState.geminiStatus === "Ready" ? "🟢 Ready" : "🔴 " + pipelineState.geminiStatus}\n${pipelineState.geminiReason ? "Reason:\n" + pipelineState.geminiReason : ""}\n\nGroq\n${pipelineState.groqStatus === "Ready" ? "🟢 Ready" : "🔴 " + pipelineState.groqStatus}\n\nLocal\n${pipelineState.localStatus === "Ready" ? "🟢 Ready" : "🔴 " + pipelineState.localStatus}\n\nLast Pipeline\n${lastPipelineStart}\n\nLast Telegram Message\n${lastTelegramMsg}\n\nMemory\n${memUsage} MB\n\nUptime\n${uptimeStr}\n\nLatency\n${procTime} ms`;
                 
                 try {
                     await telegramClient.sendMessage(message.peerId, { message: replyMessage, replyTo: message.id });

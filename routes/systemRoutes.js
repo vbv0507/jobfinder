@@ -49,7 +49,6 @@ router.get('/detailed-health', requireAdmin, async (req, res) => {
         ai: {
             gemini: pipelineState.geminiStatus || "Unknown",
             groq: pipelineState.groqStatus || "Unknown",
-            zai: pipelineState.zaiStatus || "Unknown",
             openrouter: pipelineState.openrouterStatus || "Unknown",
             deepseek: pipelineState.deepseekStatus || "Unknown",
             local: pipelineState.localStatus || "Ready"

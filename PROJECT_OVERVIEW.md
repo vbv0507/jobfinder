@@ -46,10 +46,9 @@ Instead of relying on a single AI provider (which might rate-limit or fail), Rol
 The `aiEvaluationService.js` attempts to evaluate a job in the following order:
 1. **Gemini 2.0 Flash**: The primary provider (fastest and cheapest). 1,500 req/day free.
 2. **Groq / Llama 3.3 70B**: Immediate fallback with **key pool rotation** across multiple accounts. 100K TPD per key.
-3. **Z.AI / GLM 4.5**: Tertiary fallback.
-4. **OpenRouter / Llama 3.3 70B (free)**: Quaternary fallback — **no credit card required**, 300+ models via one key.
-5. **DeepSeek V4 Flash**: Paid backup ($0.14/1M tokens) via OpenAI-compatible API.
-6. **Local Heuristic**: If all cloud providers fail, deterministic keyword-based local evaluation.
+3. **OpenRouter / Llama 3.3 70B (free)**: Tertiary fallback — **no credit card required**, 300+ models via one key.
+4. **DeepSeek V4 Flash**: Paid backup ($0.14/1M tokens) via OpenAI-compatible API.
+5. **Local Heuristic**: If all cloud providers fail, deterministic keyword-based local evaluation.
 
 ### The "Local Pending" Feature
 - **Aim**: To ensure no job is lost due to temporary cloud outages, but also to prevent false-positives from spamming the user.
@@ -122,7 +121,7 @@ A mechanism to prevent scraping the same company's HTML multiple times unnecessa
 - **Scraping**: Playwright, Axios, Cheerio
 - **Frontend**: EJS (Templating), TailwindCSS (Styling), Vanilla JS
 - **Real-time Comms**: Socket.IO
-- **AI Models**: Google Gemini (Primary), Groq/Llama-3 (Secondary, key-pool), Z.AI/GLM (Tertiary), OpenRouter/Llama-3.3-free (Quaternary, no card), DeepSeek V4 Flash (Paid backup), Local Heuristic (Final fallback)
+- **AI Models**: Google Gemini (Primary), Groq/Llama-3 (Secondary, key-pool), OpenRouter/Llama-3.3-free (Tertiary, no card), DeepSeek V4 Flash (Paid backup), Local Heuristic (Final fallback)
 
 RoleNova represents a perfect synergy between traditional web scraping and modern Generative AI, creating a zero-touch, highly curated job hunting assistant.
 
@@ -140,7 +139,7 @@ RoleNova represents a perfect synergy between traditional web scraping and moder
 - **How it works:** The system accepts multiple API keys via the `GROQ_API_KEYS` environment variable. If one key hits a rate limit, the system gracefully marks it as exhausted for the session and automatically rotates to the next available key in the pool, multiplying the evaluation capacity per pipeline run.
 
 ### Local Pending AI Re-evaluation Early Exit
-- **Issue:** The "Verify All Local" manual trigger was not correctly breaking out of its execution loop when all AI providers (Gemini, Groq, Z.AI) exhausted their quotas, leading to wasted processing and log spam.
+- **Issue:** The "Verify All Local" manual trigger was not correctly breaking out of its execution loop when all AI providers (Gemini, Groq) exhausted their quotas, leading to wasted processing and log spam.
 - **Fix:** Added a strict early-exit check in `schedulerService.js` that correctly factors in environment flags (`ENABLE_GROQ_FALLBACK`). If the entire AI chain becomes unavailable, the loop immediately terminates.
 
 ### DeepSeek V4 Flash Integration (August 2026)
@@ -153,9 +152,9 @@ RoleNova represents a perfect synergy between traditional web scraping and moder
 - **Feature:** Added **OpenRouter** (`meta-llama/llama-3.3-70b-instruct:free`) as provider #4 — **no credit card required**.
 - **Why:** OpenRouter aggregates 300+ models with `:free` suffix models available without any payment method.
 - **Implementation:** New `services/openrouterService.js` using OpenAI-compatible API at `https://openrouter.ai/api/v1`.
-- **Position:** Inserted between Z.AI (#3) and DeepSeek (#5) in the fallback chain.
+- **Position:** Inserted before DeepSeek in the fallback chain.
 - **Env vars:** `OPENROUTER_API_KEY`, `OPENROUTER_MODEL`, `ENABLE_OPENROUTER_FALLBACK`.
-- **Full chain:** Gemini → Groq (key pool) → Z.AI → **OpenRouter** → DeepSeek → Local Heuristic.
+- **Full chain:** Gemini → Groq (key pool) → **OpenRouter** → DeepSeek → Local Heuristic.
 
 ### HTTP 402 Permanent Error Fix (August 2026)
 - **Issue:** `analyzeError()` was treating HTTP 402 (Payment Required) as a temporary error, causing providers with empty wallets to retry on every job.

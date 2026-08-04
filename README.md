@@ -1,13 +1,13 @@
 # RoleNova v2.0 🚀
 
-RoleNova is an intelligent, high-performance ATS Discovery and Job Scraping Engine. Built for scale and reliability, it automatically traverses company career pages, scrapes job listings, evaluates them against a Candidate Profile using AI (Gemini / Groq / Z.ai), and alerts you of matching opportunities.
+RoleNova is an intelligent, high-performance ATS Discovery and Job Scraping Engine. Built for scale and reliability, it automatically traverses company career pages, scrapes job listings, evaluates them against a Candidate Profile using AI (Gemini / Groq / OpenRouter / DeepSeek), and alerts you of matching opportunities.
 
 ## ✨ Features
 
 - **Automated ATS Discovery**: Automatically detects and parses Greenhouse, Lever, Workday, SmartRecruiters, and standard HTML job boards.
 - **Self-Healing Retry Chain**: Automatically intercepts network errors and rate limits, applying anti-bot headers and adaptive retries.
 - **Smart Caching**: Saves Playwright resources by caching previously scraped companies for 12 hours.
-- **AI Evaluation**: Integrates with Google Gemini, Groq, and Z.ai to evaluate job requirements against your exact career profile, filtering out senior roles or unaligned domains.
+- **AI Evaluation**: Integrates with Google Gemini, Groq, OpenRouter, and DeepSeek to evaluate job requirements against your exact career profile, filtering out senior roles or unaligned domains.
 - **Operational Control Center**: A beautiful, real-time dashboard tracking pipeline execution, AI telemetry, parsing statistics, and live logs.
 - **Telegram Integration**: Receives job postings via Telegram channels and instantly processes them through the pipeline.
 

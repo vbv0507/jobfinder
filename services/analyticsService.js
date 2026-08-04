@@ -177,7 +177,7 @@ const getAnalyticsData = async () => {
 
         const verifiedGemini = await MatchedJob.countDocuments({ provider: 'gemini', verificationStatus: 'verified' });
         const verifiedGroq = await MatchedJob.countDocuments({ provider: 'groq', verificationStatus: 'verified' });
-        const verifiedZai = await MatchedJob.countDocuments({ provider: 'zai', verificationStatus: 'verified' });
+
         const pendingLocal = await MatchedJob.countDocuments({ provider: { $regex: /^local/i }, needsReEvaluation: true });
         
         const lastSentJob = await MatchedJob.findOne({ emailSent: true }).sort({ emailSentAt: -1 }).lean();
@@ -213,7 +213,7 @@ const getAnalyticsData = async () => {
                 telegramMatchesToday,
                 verifiedGemini,
                 verifiedGroq,
-                verifiedZai,
+
                 pendingLocal,
                 dailyDigestSent,
                 dailyDigestSentTime

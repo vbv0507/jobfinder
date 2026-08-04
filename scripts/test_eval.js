@@ -8,11 +8,9 @@ const aiState = {
     quotaExceeded: false,
     gemini: { available: true, requests: 0, success: 0, failed: 0, reason: null, disabledAt: null },
     groq:   { available: true, requests: 0, success: 0, failed: 0, reason: null, disabledAt: null },
-    zai:    { available: true, requests: 0, success: 0, failed: 0, reason: null, disabledAt: null },
     local:  { requests: 0, success: 0, failed: 0 },
     geminiFallbacks: 0,
     groqFallbacks:   0,
-    zaiFallbacks:    0,
 };
 
 const job = {

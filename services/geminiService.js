@@ -1,7 +1,6 @@
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 const axios = require("axios");
 const { classifyDomain } = require("../utils/domains");
-const { evaluateJobWithZai } = require("./zaiService");
 const { evaluateJobWithOpenRouter } = require("./openrouterService");
 const { evaluateJobWithDeepSeek } = require("./deepseekService");
 const { buildEvaluationPrompt, parseJsonResponse, analyzeError, validateAiResponse } = require("./aiHelpers");
@@ -219,12 +218,12 @@ const evaluateJobWithGroq = async (job, profile, apiKey) => {
 
 
 
-const evaluateJob = async (job, profile, aiState = { gemini: { available: true }, groq: { available: true }, zai: { available: true }, openrouter: { available: true }, deepseek: { available: true } }) => {
+const evaluateJob = async (job, profile, aiState = { gemini: { available: true }, groq: { available: true }, openrouter: { available: true }, deepseek: { available: true } }) => {
     const startTime = Date.now();
     let fallbackCount = 0;
     let failureReason = null;
     let providerChain = [];
-    const attemptLogs = { gemini: 'Skipped', groq: 'Skipped', zai: 'Skipped', openrouter: 'Skipped', deepseek: 'Skipped', local: 'Skipped' };
+    const attemptLogs = { gemini: 'Skipped', groq: 'Skipped', openrouter: 'Skipped', deepseek: 'Skipped', local: 'Skipped' };
 
     // 1. Gemini
     if (aiState.gemini.available && process.env.GEMINI_API_KEY) {
@@ -351,65 +350,13 @@ const evaluateJob = async (job, profile, aiState = { gemini: { available: true }
             fallbackCount++;
             failureReason = failureReason ? `${failureReason} | Groq failed` : `Groq failed (all keys exhausted)`;
             attemptLogs.groq = 'Failed: all keys exhausted';
-            console.log("[AI] Groq Failed — moving to Z.ai");
+            console.log("[AI] Groq Failed — moving to OpenRouter");
         }
     } else if (!aiState.groq.available) {
         failureReason = failureReason ? `${failureReason} | Groq disabled${aiState.groq.reason ? ': ' + aiState.groq.reason : ''}` : `Groq disabled${aiState.groq.reason ? ': ' + aiState.groq.reason : ''}`;
     }
 
-    // 3. Z.ai
-    if (aiState.zai.available && process.env.ENABLE_ZAI_FALLBACK !== "false" && process.env.ZAI_API_KEY) {
-        providerChain.push("Z.ai");
-        aiState.zai.requests = (aiState.zai.requests || 0) + 1;
-        try {
-            console.log("[AI] Trying Z.ai");
-            return await withLogContext({ provider: "Z.ai" }, async () => {
-            const zaiAnalysis = await withRetry(() => evaluateJobWithZai(job, profile), { maxRetries: 3 });
-
-            if (!zaiAnalysis) throw new Error("Z.ai returned empty response");
-
-            aiState.zai.success = (aiState.zai.success || 0) + 1;
-            zaiAnalysis.evaluationMetrics = {
-                provider: "Z.ai",
-                durationMs: Date.now() - startTime,
-                fallbackCount,
-                failureReason
-            };
-            zaiAnalysis.evaluationTimeMs = Date.now() - startTime;
-            zaiAnalysis.fallbackCount = fallbackCount;
-            zaiAnalysis.fallbackReason = failureReason;
-            zaiAnalysis.provider = "zai";
-            zaiAnalysis.providerChain = providerChain;
-            attemptLogs.zai = 'Success';
-            zaiAnalysis.attemptLogs = attemptLogs;
-            return zaiAnalysis;
-            }); // End withLogContext
-        } catch (zaiError) {
-            aiState.zai.failed = (aiState.zai.failed || 0) + 1;
-            const errorAnalysis = analyzeError(zaiError);
-
-            if (errorAnalysis.permanent) {
-                console.log(`[AI] Z.ai disabled for this pipeline.\nReason: ${errorAnalysis.reason}.`);
-                aiState.zai.available = false;
-                aiState.zai.disabled = true;
-                aiState.zai.reason = errorAnalysis.reason;
-                aiState.zai.disabledAt = new Date();
-            } else {
-                console.log(`[AI] Z.ai temporary failure: ${errorAnalysis.reason}.\nFalling back to Local.\nProvider remains available.`);
-            }
-
-            aiState.zaiFallbacks = (aiState.zaiFallbacks || 0) + 1;
-            fallbackCount++;
-            failureReason = failureReason ? `${failureReason} | Z.ai failed: ${errorAnalysis.reason}` : `Z.ai failed: ${errorAnalysis.reason}`;
-            attemptLogs.zai = `Failed: ${errorAnalysis.reason}`;
-            console.log("[AI] Z.ai Failed");
-            console.error("Z.ai Evaluation Error:", zaiError.message);
-        }
-    } else if (!aiState.zai.available) {
-        failureReason = failureReason ? `${failureReason} | Z.ai disabled${aiState.zai.reason ? ': ' + aiState.zai.reason : ''}` : `Z.ai disabled${aiState.zai.reason ? ': ' + aiState.zai.reason : ''}`;
-    }
-
-    // 4. OpenRouter (FREE — no credit card required)
+    // 3. OpenRouter (FREE — no credit card required)
     if (!aiState.openrouter) aiState.openrouter = { available: true };
     if (aiState.openrouter.available && process.env.ENABLE_OPENROUTER_FALLBACK !== "false" && process.env.OPENROUTER_API_KEY) {
         providerChain.push("OpenRouter");
@@ -462,7 +409,7 @@ const evaluateJob = async (job, profile, aiState = { gemini: { available: true }
         failureReason = failureReason ? `${failureReason} | OpenRouter disabled${aiState.openrouter.reason ? ': ' + aiState.openrouter.reason : ''}` : `OpenRouter disabled${aiState.openrouter.reason ? ': ' + aiState.openrouter.reason : ''}`;
     }
 
-    // 5. DeepSeek V4 Flash
+    // 4. DeepSeek V4 Flash
     if (!aiState.deepseek) aiState.deepseek = { available: true };
     if (aiState.deepseek.available && process.env.ENABLE_DEEPSEEK_FALLBACK !== "false" && process.env.DEEPSEEK_API_KEY) {
         providerChain.push("DeepSeek");
