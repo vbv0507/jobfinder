@@ -47,7 +47,7 @@ The `aiEvaluationService.js` attempts to evaluate a job in the following order:
 1. **Gemini 2.0 Flash**: The primary provider (fastest and cheapest). 1,500 req/day free.
 2. **Groq / Llama 3.3 70B**: Immediate fallback with **key pool rotation** across multiple accounts. 100K TPD per key.
 3. **Z.AI / GLM 4.5**: Tertiary fallback.
-4. **Cerebras / Llama 3.3 70B**: Quaternary fallback — **1M tokens/day FREE**, no credit card. ~2600 tok/s.
+4. **OpenRouter / Llama 3.3 70B (free)**: Quaternary fallback — **no credit card required**, 300+ models via one key.
 5. **DeepSeek V4 Flash**: Paid backup ($0.14/1M tokens) via OpenAI-compatible API.
 6. **Local Heuristic**: If all cloud providers fail, deterministic keyword-based local evaluation.
 
@@ -122,7 +122,7 @@ A mechanism to prevent scraping the same company's HTML multiple times unnecessa
 - **Scraping**: Playwright, Axios, Cheerio
 - **Frontend**: EJS (Templating), TailwindCSS (Styling), Vanilla JS
 - **Real-time Comms**: Socket.IO
-- **AI Models**: Google Gemini (Primary), Groq/Llama-3 (Secondary, key-pool), Z.AI/GLM (Tertiary), Cerebras/Llama-3.3 (Quaternary, FREE 1M/day), DeepSeek V4 Flash (Paid backup), Local Heuristic (Final fallback)
+- **AI Models**: Google Gemini (Primary), Groq/Llama-3 (Secondary, key-pool), Z.AI/GLM (Tertiary), OpenRouter/Llama-3.3-free (Quaternary, no card), DeepSeek V4 Flash (Paid backup), Local Heuristic (Final fallback)
 
 RoleNova represents a perfect synergy between traditional web scraping and modern Generative AI, creating a zero-touch, highly curated job hunting assistant.
 
@@ -149,13 +149,13 @@ RoleNova represents a perfect synergy between traditional web scraping and moder
 - **Note:** Requires account balance. HTTP 402 now correctly treated as a permanent error.
 - **Env vars:** `DEEPSEEK_API_KEY`, `DEEPSEEK_MODEL`, `DEEPSEEK_BASE_URL`, `ENABLE_DEEPSEEK_FALLBACK`.
 
-### Cerebras Free Provider Integration (August 2026)
-- **Feature:** Added **Cerebras** (`llama-3.3-70b`) as the 4th free provider — **1M tokens/day, no credit card required**.
-- **Why:** Cerebras offers the fastest open-model inference (~2,600 tokens/sec) with the largest free daily token budget of any provider.
-- **Implementation:** New `services/cerebrasService.js` using the OpenAI-compatible API at `https://api.cerebras.ai/v1`.
+### OpenRouter Free Provider Integration (August 2026)
+- **Feature:** Added **OpenRouter** (`meta-llama/llama-3.3-70b-instruct:free`) as provider #4 — **no credit card required**.
+- **Why:** OpenRouter aggregates 300+ models with `:free` suffix models available without any payment method.
+- **Implementation:** New `services/openrouterService.js` using OpenAI-compatible API at `https://openrouter.ai/api/v1`.
 - **Position:** Inserted between Z.AI (#3) and DeepSeek (#5) in the fallback chain.
-- **Env vars:** `CEREBRAS_API_KEY`, `CEREBRAS_MODEL`, `CEREBRAS_BASE_URL`, `ENABLE_CEREBRAS_FALLBACK`.
-- **Full chain:** Gemini → Groq (key pool) → Z.AI → **Cerebras** → DeepSeek → Local Heuristic.
+- **Env vars:** `OPENROUTER_API_KEY`, `OPENROUTER_MODEL`, `ENABLE_OPENROUTER_FALLBACK`.
+- **Full chain:** Gemini → Groq (key pool) → Z.AI → **OpenRouter** → DeepSeek → Local Heuristic.
 
 ### HTTP 402 Permanent Error Fix (August 2026)
 - **Issue:** `analyzeError()` was treating HTTP 402 (Payment Required) as a temporary error, causing providers with empty wallets to retry on every job.

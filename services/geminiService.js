@@ -2,7 +2,7 @@ const { GoogleGenerativeAI } = require("@google/generative-ai");
 const axios = require("axios");
 const { classifyDomain } = require("../utils/domains");
 const { evaluateJobWithZai } = require("./zaiService");
-const { evaluateJobWithCerebras } = require("./cerebrasService");
+const { evaluateJobWithOpenRouter } = require("./openrouterService");
 const { evaluateJobWithDeepSeek } = require("./deepseekService");
 const { buildEvaluationPrompt, parseJsonResponse, analyzeError, validateAiResponse } = require("./aiHelpers");
 const { withLogContext } = require("../utils/logger");
@@ -219,12 +219,12 @@ const evaluateJobWithGroq = async (job, profile, apiKey) => {
 
 
 
-const evaluateJob = async (job, profile, aiState = { gemini: { available: true }, groq: { available: true }, zai: { available: true }, cerebras: { available: true }, deepseek: { available: true } }) => {
+const evaluateJob = async (job, profile, aiState = { gemini: { available: true }, groq: { available: true }, zai: { available: true }, openrouter: { available: true }, deepseek: { available: true } }) => {
     const startTime = Date.now();
     let fallbackCount = 0;
     let failureReason = null;
     let providerChain = [];
-    const attemptLogs = { gemini: 'Skipped', groq: 'Skipped', zai: 'Skipped', cerebras: 'Skipped', deepseek: 'Skipped', local: 'Skipped' };
+    const attemptLogs = { gemini: 'Skipped', groq: 'Skipped', zai: 'Skipped', openrouter: 'Skipped', deepseek: 'Skipped', local: 'Skipped' };
 
     // 1. Gemini
     if (aiState.gemini.available && process.env.GEMINI_API_KEY) {
@@ -409,57 +409,57 @@ const evaluateJob = async (job, profile, aiState = { gemini: { available: true }
         failureReason = failureReason ? `${failureReason} | Z.ai disabled${aiState.zai.reason ? ': ' + aiState.zai.reason : ''}` : `Z.ai disabled${aiState.zai.reason ? ': ' + aiState.zai.reason : ''}`;
     }
 
-    // 4. Cerebras (FREE — 1M tokens/day, no credit card)
-    if (!aiState.cerebras) aiState.cerebras = { available: true };
-    if (aiState.cerebras.available && process.env.ENABLE_CEREBRAS_FALLBACK !== "false" && process.env.CEREBRAS_API_KEY) {
-        providerChain.push("Cerebras");
-        aiState.cerebras.requests = (aiState.cerebras.requests || 0) + 1;
+    // 4. OpenRouter (FREE — no credit card required)
+    if (!aiState.openrouter) aiState.openrouter = { available: true };
+    if (aiState.openrouter.available && process.env.ENABLE_OPENROUTER_FALLBACK !== "false" && process.env.OPENROUTER_API_KEY) {
+        providerChain.push("OpenRouter");
+        aiState.openrouter.requests = (aiState.openrouter.requests || 0) + 1;
         try {
-            console.log("[AI] Trying Cerebras (Llama 3.3 70B)");
-            return await withLogContext({ provider: "Cerebras" }, async () => {
-            const cerebrasAnalysis = await withRetry(() => evaluateJobWithCerebras(job, profile), { maxRetries: 2 });
+            console.log("[AI] Trying OpenRouter (Llama 3.3 70B free)");
+            return await withLogContext({ provider: "OpenRouter" }, async () => {
+            const orAnalysis = await withRetry(() => evaluateJobWithOpenRouter(job, profile), { maxRetries: 2 });
 
-            if (!cerebrasAnalysis) throw new Error("Cerebras returned empty response");
+            if (!orAnalysis) throw new Error("OpenRouter returned empty response");
 
-            aiState.cerebras.success = (aiState.cerebras.success || 0) + 1;
-            cerebrasAnalysis.evaluationMetrics = {
-                provider: "Cerebras",
+            aiState.openrouter.success = (aiState.openrouter.success || 0) + 1;
+            orAnalysis.evaluationMetrics = {
+                provider: "OpenRouter",
                 durationMs: Date.now() - startTime,
                 fallbackCount,
                 failureReason
             };
-            cerebrasAnalysis.evaluationTimeMs = Date.now() - startTime;
-            cerebrasAnalysis.fallbackCount = fallbackCount;
-            cerebrasAnalysis.fallbackReason = failureReason;
-            cerebrasAnalysis.provider = "cerebras";
-            cerebrasAnalysis.providerChain = providerChain;
-            attemptLogs.cerebras = 'Success';
-            cerebrasAnalysis.attemptLogs = attemptLogs;
-            return cerebrasAnalysis;
+            orAnalysis.evaluationTimeMs = Date.now() - startTime;
+            orAnalysis.fallbackCount = fallbackCount;
+            orAnalysis.fallbackReason = failureReason;
+            orAnalysis.provider = "openrouter";
+            orAnalysis.providerChain = providerChain;
+            attemptLogs.openrouter = 'Success';
+            orAnalysis.attemptLogs = attemptLogs;
+            return orAnalysis;
             }); // End withLogContext
-        } catch (cerebrasError) {
-            aiState.cerebras.failed = (aiState.cerebras.failed || 0) + 1;
-            const errorAnalysis = analyzeError(cerebrasError);
+        } catch (orError) {
+            aiState.openrouter.failed = (aiState.openrouter.failed || 0) + 1;
+            const errorAnalysis = analyzeError(orError);
 
             if (errorAnalysis.permanent) {
-                console.log(`[AI] Cerebras disabled for this pipeline.\nReason: ${errorAnalysis.reason}.`);
-                aiState.cerebras.available = false;
-                aiState.cerebras.disabled = true;
-                aiState.cerebras.reason = errorAnalysis.reason;
-                aiState.cerebras.disabledAt = new Date();
+                console.log(`[AI] OpenRouter disabled for this pipeline.\nReason: ${errorAnalysis.reason}.`);
+                aiState.openrouter.available = false;
+                aiState.openrouter.disabled = true;
+                aiState.openrouter.reason = errorAnalysis.reason;
+                aiState.openrouter.disabledAt = new Date();
             } else {
-                console.log(`[AI] Cerebras temporary failure: ${errorAnalysis.reason}.\nFalling back to DeepSeek.\nProvider remains available.`);
+                console.log(`[AI] OpenRouter temporary failure: ${errorAnalysis.reason}.\nFalling back to DeepSeek.`);
             }
 
-            aiState.cerebrasFallbacks = (aiState.cerebrasFallbacks || 0) + 1;
+            aiState.openrouterFallbacks = (aiState.openrouterFallbacks || 0) + 1;
             fallbackCount++;
-            failureReason = failureReason ? `${failureReason} | Cerebras failed: ${errorAnalysis.reason}` : `Cerebras failed: ${errorAnalysis.reason}`;
-            attemptLogs.cerebras = `Failed: ${errorAnalysis.reason}`;
-            console.log("[AI] Cerebras Failed");
-            console.error("Cerebras Evaluation Error:", cerebrasError.message);
+            failureReason = failureReason ? `${failureReason} | OpenRouter failed: ${errorAnalysis.reason}` : `OpenRouter failed: ${errorAnalysis.reason}`;
+            attemptLogs.openrouter = `Failed: ${errorAnalysis.reason}`;
+            console.log("[AI] OpenRouter Failed");
+            console.error("OpenRouter Evaluation Error:", orError.message);
         }
-    } else if (!aiState.cerebras.available) {
-        failureReason = failureReason ? `${failureReason} | Cerebras disabled${aiState.cerebras.reason ? ': ' + aiState.cerebras.reason : ''}` : `Cerebras disabled${aiState.cerebras.reason ? ': ' + aiState.cerebras.reason : ''}`;
+    } else if (!aiState.openrouter.available) {
+        failureReason = failureReason ? `${failureReason} | OpenRouter disabled${aiState.openrouter.reason ? ': ' + aiState.openrouter.reason : ''}` : `OpenRouter disabled${aiState.openrouter.reason ? ': ' + aiState.openrouter.reason : ''}`;
     }
 
     // 5. DeepSeek V4 Flash
