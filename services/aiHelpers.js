@@ -138,14 +138,16 @@ const analyzeError = (error) => {
 
     const is429 = status === 429 || msg.includes("429") || msg.includes("quota");
     const is401 = status === 401 || msg.includes("401") || msg.includes("unauthorized") || msg.includes("unauthenticated");
+    const is402 = status === 402 || msg.includes("402") || msg.includes("payment required") || msg.includes("insufficient balance") || msg.includes("no credit");
     const is400 = status === 400 || msg.includes("400") || msg.includes("invalid api key");
     const is403 = status === 403 || msg.includes("403") || msg.includes("billing disabled");
 
-    const isPermanent = is429 || is401 || is400 || is403;
+    const isPermanent = is429 || is401 || is402 || is400 || is403;
 
     let reason = "Unknown Error";
     if (is429) reason = "429 Quota";
     else if (is401) reason = "401 Unauthorized";
+    else if (is402) reason = "402 Payment Required (no balance)";
     else if (is400) reason = "400 Invalid API Key";
     else if (is403) reason = "403 Billing Disabled";
     
