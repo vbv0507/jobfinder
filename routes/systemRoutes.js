@@ -178,11 +178,12 @@ router.post('/cache/clear', requireAdmin, async (req, res) => {
 router.post('/verify-local', requireAdmin, async (req, res) => {
     try {
         const { verifyLocalJobs } = require('../services/schedulerService');
-        const stats = await verifyLocalJobs();
+        // Start asynchronously in the background
+        verifyLocalJobs().catch(e => console.error("[Background] Local verification failed:", e));
+        
         res.json({ 
             success: true, 
-            message: "Local verification completed.",
-            stats
+            message: "Local verification started in the background. It will process in batches to respect AI rate limits."
         });
     } catch (e) {
         console.error("Manual local verification failed:", e);
