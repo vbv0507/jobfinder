@@ -293,9 +293,12 @@ const verifyLocalJobs = async () => {
     }
 };
 
+const getVerifyLocalStatus = () => isVerifyLocalRunning;
+
 module.exports = {
     init,
     getSchedulerStatus,
     shutdown,
-    verifyLocalJobs
+    verifyLocalJobs,
+    getVerifyLocalStatus
 };

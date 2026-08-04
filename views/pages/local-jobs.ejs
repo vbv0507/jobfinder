@@ -186,27 +186,50 @@ function toggleRow(rowId) {
     }
 }
 
+async function checkLocalVerificationStatus() {
+    try {
+        const res = await fetch('/api/system/verify-local/status');
+        const data = await res.json();
+        return data.isRunning;
+    } catch (e) {
+        console.error('Error checking status', e);
+        return false;
+    }
+}
+
+function setButtonLoading(btn) {
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Verifying... (Background)';
+}
+
+async function pollStatusUntilDone() {
+    const btn = document.getElementById('btnVerifyLocal');
+    setButtonLoading(btn);
+
+    const interval = setInterval(async () => {
+        const isRunning = await checkLocalVerificationStatus();
+        if (!isRunning) {
+            clearInterval(interval);
+            btn.innerHTML = '<i class="fa-solid fa-check"></i> Complete';
+            btn.classList.replace('bg-primary', 'bg-success');
+            btn.classList.replace('hover:bg-primaryHover', 'hover:bg-success/80');
+            setTimeout(() => window.location.reload(), 1000);
+        }
+    }, 5000); // Check every 5 seconds
+}
+
 async function triggerLocalVerification() {
     const btn = document.getElementById('btnVerifyLocal');
     const originalText = btn.innerHTML;
     try {
-        btn.disabled = true;
-        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Verifying...';
+        setButtonLoading(btn);
         
         const res = await fetch('/api/system/verify-local', { method: 'POST' });
         const data = await res.json();
         
-        if (data.success) {
-            btn.innerHTML = '<i class="fa-solid fa-check"></i> Complete';
-            btn.classList.replace('bg-primary', 'bg-success');
-            btn.classList.replace('hover:bg-primaryHover', 'hover:bg-success/80');
-            
-            if (data.stats) {
-                alert(`Verification Complete!\n\nProcessed: ${data.stats.processed}\nApproved: ${data.stats.approved}\nRejected: ${data.stats.rejected}\nFailed: ${data.stats.failed}`);
-            }
-            
-            // Reload page to reflect changes
-            window.location.reload();
+        if (data.success || data.message === "Already running") {
+            // Started in background, now poll until it finishes
+            pollStatusUntilDone();
         } else {
             alert('Failed to verify: ' + data.error);
             btn.innerHTML = originalText;
@@ -219,6 +242,13 @@ async function triggerLocalVerification() {
         btn.disabled = false;
     }
 }
+
+document.addEventListener("DOMContentLoaded", async () => {
+    const isRunning = await checkLocalVerificationStatus();
+    if (isRunning) {
+        pollStatusUntilDone();
+    }
+});
 </script>
 
 <%- include('../layouts/footer') %>

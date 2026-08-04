@@ -191,4 +191,9 @@ router.post('/verify-local', requireAdmin, async (req, res) => {
     }
 });
 
+router.get('/verify-local/status', requireAdmin, (req, res) => {
+    const { getVerifyLocalStatus } = require('../services/schedulerService');
+    res.json({ isRunning: getVerifyLocalStatus() });
+});
+
 module.exports = router;
