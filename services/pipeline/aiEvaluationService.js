@@ -125,6 +125,15 @@ const runEvaluationPipeline = async (job, profile, aiState) => {
   pipelineState.deepseekFailed = aiState.deepseek.failed || 0;
   pipelineState.deepseekFallbacks = aiState.deepseekFallbacks || 0;
   pipelineState.deepseekDisabledAt = aiState.deepseek.disabledAt;
+
+  if (!aiState.cerebras) aiState.cerebras = { available: true };
+  pipelineState.cerebrasStatus = aiState.cerebras.available ? "Working" : "Unavailable";
+  pipelineState.cerebrasReason = aiState.cerebras.reason;
+  pipelineState.cerebrasRequests = aiState.cerebras.requests || 0;
+  pipelineState.cerebrasSuccess = aiState.cerebras.success || 0;
+  pipelineState.cerebrasFailed = aiState.cerebras.failed || 0;
+  pipelineState.cerebrasFallbacks = aiState.cerebrasFallbacks || 0;
+  pipelineState.cerebrasDisabledAt = aiState.cerebras.disabledAt;
   
   pipelineState.localRequests = aiState.local?.requests || 0;
   pipelineState.localSuccess = aiState.local?.success || 0;

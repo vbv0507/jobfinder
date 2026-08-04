@@ -2,6 +2,7 @@ const { GoogleGenerativeAI } = require("@google/generative-ai");
 const axios = require("axios");
 const { classifyDomain } = require("../utils/domains");
 const { evaluateJobWithZai } = require("./zaiService");
+const { evaluateJobWithCerebras } = require("./cerebrasService");
 const { evaluateJobWithDeepSeek } = require("./deepseekService");
 const { buildEvaluationPrompt, parseJsonResponse, analyzeError, validateAiResponse } = require("./aiHelpers");
 const { withLogContext } = require("../utils/logger");
@@ -218,12 +219,12 @@ const evaluateJobWithGroq = async (job, profile, apiKey) => {
 
 
 
-const evaluateJob = async (job, profile, aiState = { gemini: { available: true }, groq: { available: true }, zai: { available: true }, deepseek: { available: true } }) => {
+const evaluateJob = async (job, profile, aiState = { gemini: { available: true }, groq: { available: true }, zai: { available: true }, cerebras: { available: true }, deepseek: { available: true } }) => {
     const startTime = Date.now();
     let fallbackCount = 0;
     let failureReason = null;
     let providerChain = [];
-    const attemptLogs = { gemini: 'Skipped', groq: 'Skipped', zai: 'Skipped', deepseek: 'Skipped', local: 'Skipped' };
+    const attemptLogs = { gemini: 'Skipped', groq: 'Skipped', zai: 'Skipped', cerebras: 'Skipped', deepseek: 'Skipped', local: 'Skipped' };
 
     // 1. Gemini
     if (aiState.gemini.available && process.env.GEMINI_API_KEY) {
@@ -408,7 +409,60 @@ const evaluateJob = async (job, profile, aiState = { gemini: { available: true }
         failureReason = failureReason ? `${failureReason} | Z.ai disabled${aiState.zai.reason ? ': ' + aiState.zai.reason : ''}` : `Z.ai disabled${aiState.zai.reason ? ': ' + aiState.zai.reason : ''}`;
     }
 
-    // 4. DeepSeek V4 Flash
+    // 4. Cerebras (FREE — 1M tokens/day, no credit card)
+    if (!aiState.cerebras) aiState.cerebras = { available: true };
+    if (aiState.cerebras.available && process.env.ENABLE_CEREBRAS_FALLBACK !== "false" && process.env.CEREBRAS_API_KEY) {
+        providerChain.push("Cerebras");
+        aiState.cerebras.requests = (aiState.cerebras.requests || 0) + 1;
+        try {
+            console.log("[AI] Trying Cerebras (Llama 3.3 70B)");
+            return await withLogContext({ provider: "Cerebras" }, async () => {
+            const cerebrasAnalysis = await withRetry(() => evaluateJobWithCerebras(job, profile), { maxRetries: 2 });
+
+            if (!cerebrasAnalysis) throw new Error("Cerebras returned empty response");
+
+            aiState.cerebras.success = (aiState.cerebras.success || 0) + 1;
+            cerebrasAnalysis.evaluationMetrics = {
+                provider: "Cerebras",
+                durationMs: Date.now() - startTime,
+                fallbackCount,
+                failureReason
+            };
+            cerebrasAnalysis.evaluationTimeMs = Date.now() - startTime;
+            cerebrasAnalysis.fallbackCount = fallbackCount;
+            cerebrasAnalysis.fallbackReason = failureReason;
+            cerebrasAnalysis.provider = "cerebras";
+            cerebrasAnalysis.providerChain = providerChain;
+            attemptLogs.cerebras = 'Success';
+            cerebrasAnalysis.attemptLogs = attemptLogs;
+            return cerebrasAnalysis;
+            }); // End withLogContext
+        } catch (cerebrasError) {
+            aiState.cerebras.failed = (aiState.cerebras.failed || 0) + 1;
+            const errorAnalysis = analyzeError(cerebrasError);
+
+            if (errorAnalysis.permanent) {
+                console.log(`[AI] Cerebras disabled for this pipeline.\nReason: ${errorAnalysis.reason}.`);
+                aiState.cerebras.available = false;
+                aiState.cerebras.disabled = true;
+                aiState.cerebras.reason = errorAnalysis.reason;
+                aiState.cerebras.disabledAt = new Date();
+            } else {
+                console.log(`[AI] Cerebras temporary failure: ${errorAnalysis.reason}.\nFalling back to DeepSeek.\nProvider remains available.`);
+            }
+
+            aiState.cerebrasFallbacks = (aiState.cerebrasFallbacks || 0) + 1;
+            fallbackCount++;
+            failureReason = failureReason ? `${failureReason} | Cerebras failed: ${errorAnalysis.reason}` : `Cerebras failed: ${errorAnalysis.reason}`;
+            attemptLogs.cerebras = `Failed: ${errorAnalysis.reason}`;
+            console.log("[AI] Cerebras Failed");
+            console.error("Cerebras Evaluation Error:", cerebrasError.message);
+        }
+    } else if (!aiState.cerebras.available) {
+        failureReason = failureReason ? `${failureReason} | Cerebras disabled${aiState.cerebras.reason ? ': ' + aiState.cerebras.reason : ''}` : `Cerebras disabled${aiState.cerebras.reason ? ': ' + aiState.cerebras.reason : ''}`;
+    }
+
+    // 5. DeepSeek V4 Flash
     if (!aiState.deepseek) aiState.deepseek = { available: true };
     if (aiState.deepseek.available && process.env.ENABLE_DEEPSEEK_FALLBACK !== "false" && process.env.DEEPSEEK_API_KEY) {
         providerChain.push("DeepSeek");
