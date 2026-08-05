@@ -48,11 +48,18 @@
           setTimeout(initClerk, 50);
           return;
         }
-        if (window.Clerk.loaded || window.Clerk.isReady || typeof window.Clerk.user !== 'undefined') {
-          window.clerkReady = true;
-          window.dispatchEvent(new Event('clerk-ready'));
+        
+        if (typeof window.Clerk.addListener === 'function') {
+            window.Clerk.addListener((state) => {
+                if (!window.clerkReady) {
+                    window.clerkReady = true;
+                    window.dispatchEvent(new Event('clerk-ready'));
+                }
+            });
         } else {
-          setTimeout(initClerk, 50);
+            // Fallback just in case
+            window.clerkReady = true;
+            window.dispatchEvent(new Event('clerk-ready'));
         }
       }
       initClerk();
