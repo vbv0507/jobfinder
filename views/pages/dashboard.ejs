@@ -102,7 +102,7 @@
 <script>
 async function requestExtendedAccess() {
     try {
-        const response = await fetch('/api/users/request-access', {
+        const response = await fetch('/api/system/users/request-access', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' }
         });
