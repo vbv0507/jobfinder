@@ -152,7 +152,11 @@
         }
     }
 
-    document.addEventListener('DOMContentLoaded', loadUsers);
+    if (window.clerkReady) {
+        loadUsers();
+    } else {
+        window.addEventListener('clerk-ready', loadUsers);
+    }
 </script>
 
 <%- include('../partials/footer') %>

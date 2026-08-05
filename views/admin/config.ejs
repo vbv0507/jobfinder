@@ -48,6 +48,10 @@
             console.error(e);
         }
     }
-    loadConfig();
+    if (window.clerkReady) {
+        loadConfig();
+    } else {
+        window.addEventListener('clerk-ready', loadConfig);
+    }
 </script>
 <%- include('../partials/footer') %>
