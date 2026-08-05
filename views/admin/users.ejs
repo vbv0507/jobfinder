@@ -146,7 +146,7 @@
     }
 
     async function toggleStatus(userId) {
-        if (!confirm('Are you sure you want to change this user\\'s status?')) return;
+        if (!confirm("Are you sure you want to change this user's status?")) return;
         try {
             await apiCall(`/admin/api/users/${userId}/toggle`, 'POST');
             loadUsers();
