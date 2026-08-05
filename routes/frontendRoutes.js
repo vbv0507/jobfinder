@@ -1,10 +1,10 @@
 const express = require('express');
-const { requireAuth } = require('../middleware/authMiddleware');
+const { requireAuth, requireAdmin } = require('../middleware/authMiddleware');
 const router = express.Router();
 
 router.use(requireAuth);
 
-router.get('/pipeline', (req, res) => {
+router.get('/pipeline', requireAdmin, (req, res) => {
     res.render('pages/pipeline', { title: 'Pipeline Execution' });
 });
 
@@ -111,7 +111,7 @@ router.get('/job/:id', async (req, res) => {
     }
 });
 
-router.get('/telegram', (req, res) => {
+router.get('/telegram', requireAdmin, (req, res) => {
     res.render('pages/telegram-channels', { title: 'Telegram Channels' });
 });
 
@@ -123,11 +123,11 @@ router.get('/analytics', (req, res) => {
     res.render('pages/analytics');
 });
 
-router.get('/profile', (req, res) => {
+router.get('/profile', requireAdmin, (req, res) => {
     res.render('pages/profile');
 });
 
-router.get('/cache', (req, res) => {
+router.get('/cache', requireAdmin, (req, res) => {
     res.render('pages/cache-dashboard', { title: 'Smart Cache' });
 });
 
@@ -135,15 +135,15 @@ router.get('/ai-dashboard', (req, res) => {
     res.render('pages/ai-dashboard', { title: 'AI Evaluation' });
 });
 
-router.get('/logs', (req, res) => {
+router.get('/logs', requireAdmin, (req, res) => {
     res.render('pages/logs', { title: 'Runtime Logs' });
 });
 
-router.get('/telegram-dashboard', (req, res) => {
+router.get('/telegram-dashboard', requireAdmin, (req, res) => {
     res.render('pages/telegram-dashboard', { title: 'Telegram Monitoring' });
 });
 
-router.get('/evidence', async (req, res) => {
+router.get('/evidence', requireAdmin, async (req, res) => {
     try {
         const fs = require('fs').promises;
         const path = require('path');
@@ -161,7 +161,7 @@ router.get('/evidence', async (req, res) => {
     }
 });
 
-router.get('/evidence/download/json', (req, res) => {
+router.get('/evidence/download/json', requireAdmin, (req, res) => {
     const path = require('path');
     const evidencePath = path.join(__dirname, '..', 'evidence.json');
     res.download(evidencePath, 'evidence.json', (err) => {
@@ -171,7 +171,7 @@ router.get('/evidence/download/json', (req, res) => {
     });
 });
 
-router.get('/evidence/download/zip', (req, res) => {
+router.get('/evidence/download/zip', requireAdmin, (req, res) => {
     const path = require('path');
     const fs = require('fs');
     const archiver = require('archiver');
