@@ -48,7 +48,7 @@
           setTimeout(initClerk, 50);
           return;
         }
-        if (window.Clerk.isReady) {
+        if (window.Clerk.loaded || window.Clerk.isReady || typeof window.Clerk.user !== 'undefined') {
           window.clerkReady = true;
           window.dispatchEvent(new Event('clerk-ready'));
         } else {
