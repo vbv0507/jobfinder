@@ -1,5 +1,5 @@
 const express = require('express');
-const { requireAuth, requireAdmin } = require('../middleware/authMiddleware');
+const { requireAuth, requireAdmin, requireExtendedViewer } = require('../middleware/authMiddleware');
 const router = express.Router();
 
 router.use(requireAuth);
@@ -8,11 +8,11 @@ router.get('/pipeline', requireAdmin, (req, res) => {
     res.render('pages/pipeline', { title: 'Pipeline Execution' });
 });
 
-router.get('/discovery', requireAdmin, (req, res) => {
+router.get('/discovery', requireExtendedViewer, (req, res) => {
     res.render('pages/ats-discovery', { title: 'ATS Discovery Engine' });
 });
 
-router.get('/ai-rejected', requireAdmin, async (req, res) => {
+router.get('/ai-rejected', requireExtendedViewer, async (req, res) => {
     try {
         const RejectedJob = require('../models/RejectedJob');
         const jobs = await RejectedJob.find().populate('company', 'name').sort({ createdAt: -1 });
@@ -36,7 +36,7 @@ router.get('/', async (req, res, next) => {
     }
 });
 
-router.get('/jobs', requireAdmin, async (req, res) => {
+router.get('/jobs', requireExtendedViewer, async (req, res) => {
     try {
         const MatchedJob = require('../models/MatchedJob');
         const jobs = await MatchedJob.find({ 
@@ -51,7 +51,7 @@ router.get('/jobs', requireAdmin, async (req, res) => {
     }
 });
 
-router.get('/closed-jobs', requireAdmin, async (req, res) => {
+router.get('/closed-jobs', requireExtendedViewer, async (req, res) => {
     try {
         const MatchedJob = require('../models/MatchedJob');
         const jobs = await MatchedJob.find({ jobStatus: 'Closed' }).populate('company', 'name').sort({ closedAt: -1, updatedAt: -1 });
@@ -61,7 +61,7 @@ router.get('/closed-jobs', requireAdmin, async (req, res) => {
     }
 });
 
-router.get('/local-jobs', requireAdmin, async (req, res) => {
+router.get('/local-jobs', requireExtendedViewer, async (req, res) => {
     try {
         const MatchedJob = require('../models/MatchedJob');
         const jobs = await MatchedJob.find({ status: 'new', provider: /^local/i }).populate('company', 'name').sort({ score: -1 });
@@ -71,7 +71,7 @@ router.get('/local-jobs', requireAdmin, async (req, res) => {
     }
 });
 
-router.get('/saved', requireAdmin, async (req, res) => {
+router.get('/saved', requireExtendedViewer, async (req, res) => {
     try {
         const MatchedJob = require('../models/MatchedJob');
         const jobs = await MatchedJob.find({ status: 'saved' }).populate('company', 'name').sort({ score: -1 });
@@ -81,7 +81,7 @@ router.get('/saved', requireAdmin, async (req, res) => {
     }
 });
 
-router.get('/applied', requireAdmin, async (req, res) => {
+router.get('/applied', requireExtendedViewer, async (req, res) => {
     try {
         const MatchedJob = require('../models/MatchedJob');
         const jobs = await MatchedJob.find({ status: 'applied' }).populate('company', 'name').sort({ appliedAt: -1 });
@@ -91,7 +91,7 @@ router.get('/applied', requireAdmin, async (req, res) => {
     }
 });
 
-router.get('/rejected', requireAdmin, async (req, res) => {
+router.get('/rejected', requireExtendedViewer, async (req, res) => {
     try {
         const MatchedJob = require('../models/MatchedJob');
         const jobs = await MatchedJob.find({ status: 'rejected' }).populate('company', 'name').sort({ updatedAt: -1 });
@@ -101,7 +101,7 @@ router.get('/rejected', requireAdmin, async (req, res) => {
     }
 });
 
-router.get('/job/:id', requireAdmin, async (req, res) => {
+router.get('/job/:id', requireExtendedViewer, async (req, res) => {
     try {
         const MatchedJob = require('../models/MatchedJob');
         const job = await MatchedJob.findById(req.params.id).populate('company', 'name');
@@ -111,7 +111,7 @@ router.get('/job/:id', requireAdmin, async (req, res) => {
     }
 });
 
-router.get('/telegram', requireAdmin, (req, res) => {
+router.get('/telegram', requireExtendedViewer, (req, res) => {
     res.render('pages/telegram-channels', { title: 'Telegram Channels' });
 });
 
@@ -131,7 +131,7 @@ router.get('/cache', requireAdmin, (req, res) => {
     res.render('pages/cache-dashboard', { title: 'Smart Cache' });
 });
 
-router.get('/ai-dashboard', requireAdmin, (req, res) => {
+router.get('/ai-dashboard', requireExtendedViewer, (req, res) => {
     res.render('pages/ai-dashboard', { title: 'AI Evaluation' });
 });
 
@@ -139,11 +139,11 @@ router.get('/logs', requireAdmin, (req, res) => {
     res.render('pages/logs', { title: 'Runtime Logs' });
 });
 
-router.get('/telegram-dashboard', requireAdmin, (req, res) => {
+router.get('/telegram-dashboard', requireExtendedViewer, (req, res) => {
     res.render('pages/telegram-dashboard', { title: 'Telegram Monitoring' });
 });
 
-router.get('/evidence', requireAdmin, async (req, res) => {
+router.get('/evidence', requireExtendedViewer, async (req, res) => {
     try {
         const fs = require('fs').promises;
         const path = require('path');
@@ -193,7 +193,7 @@ router.get('/evidence/download/zip', requireAdmin, (req, res) => {
     archive.finalize();
 });
 
-router.get('/ai-explainability', requireAdmin, (req, res) => {
+router.get('/ai-explainability', requireExtendedViewer, (req, res) => {
     res.render('pages/ai-explainability', { title: 'AI Explainability' });
 });
 

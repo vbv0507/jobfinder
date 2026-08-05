@@ -1,6 +1,6 @@
 const express = require('express');
 const { requireAdmin } = require('../middleware/authMiddleware');
-const { getUsers, promoteUser, demoteUser, toggleUserStatus } = require('../controllers/adminController');
+const { getUsers, promoteUser, demoteUser, toggleUserStatus, grantViewAccess, revokeViewAccess } = require('../controllers/adminController');
 
 const router = express.Router();
 
@@ -33,6 +33,8 @@ router.get('/api/users', getUsers);
 router.post('/api/users/:id/promote', promoteUser);
 router.post('/api/users/:id/demote', demoteUser);
 router.post('/api/users/:id/toggle', toggleUserStatus);
+router.post('/api/users/:id/grant-access', grantViewAccess);
+router.post('/api/users/:id/revoke-access', revokeViewAccess);
 
 // Scraper Diagnostics APIs
 const Company = require('../models/Company');

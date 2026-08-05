@@ -97,9 +97,22 @@ const requireViewer = async (req, res, next) => {
     });
 };
 
+const requireExtendedViewer = async (req, res, next) => {
+    await requireAuth(req, res, () => {
+        if (req.user && (req.user.role === 'admin' || (req.user.role === 'viewer' && req.user.viewAccess === 'granted'))) {
+            return next();
+        }
+        if (req.originalUrl.startsWith('/api')) {
+            return res.status(403).json({ success: false, message: 'Forbidden: Extended view access required.' });
+        }
+        return res.status(403).send('Forbidden: Extended view access required.');
+    });
+};
+
 module.exports = {
     clerkMiddleware,
     requireAuth,
     requireAdmin,
-    requireViewer
+    requireViewer,
+    requireExtendedViewer
 };

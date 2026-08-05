@@ -60,7 +60,7 @@
                         <i class="fa-regular fa-building w-4 text-center"></i>
                         Companies
                     </a>
-                    <% if (locals.user && locals.user.role === 'admin') { %>
+                    <% if (locals.user && (locals.user.role === 'admin' || locals.user.viewAccess === 'granted')) { %>
                     <a href="/jobs" class="nav-link flex items-center justify-between px-3 py-2 rounded-md text-sm font-medium text-textMuted hover:text-textMain hover:bg-surface transition-colors">
                         <div class="flex items-center gap-3">
                             <i class="fa-solid fa-briefcase w-4 text-center"></i>
@@ -93,7 +93,7 @@
                 </div>
             </div>
 
-            <% if (locals.user && locals.user.role === 'admin') { %>
+            <% if (locals.user && (locals.user.role === 'admin' || locals.user.viewAccess === 'granted')) { %>
             <!-- Diagnostics Section -->
             <div>
                 <p class="px-3 mb-2 text-[10px] font-semibold text-textMuted uppercase tracking-widest">Diagnostics</p>
@@ -106,6 +106,7 @@
                         <i class="fa-solid fa-brain w-4 text-center"></i>
                         AI Evaluation
                     </a>
+                    <% if (locals.user && locals.user.role === 'admin') { %>
                     <a href="/cache" class="nav-link flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium text-textMuted hover:text-textMain hover:bg-surface transition-colors">
                         <i class="fa-solid fa-memory w-4 text-center"></i>
                         Cache Layer
@@ -114,6 +115,7 @@
                         <i class="fa-solid fa-terminal w-4 text-center"></i>
                         Runtime Logs
                     </a>
+                    <% } %>
                     <a href="/telegram-dashboard" class="nav-link flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium text-textMuted hover:text-textMain hover:bg-surface transition-colors">
                         <i class="fa-brands fa-telegram w-4 text-center"></i>
                         Telegram

@@ -20,6 +20,64 @@
     <% } %>
 </div>
 
+<% if (locals.user && locals.user.role === 'viewer') { %>
+<div class="mb-8 p-6 bg-surface border border-border rounded-lg shadow-sm">
+    <h2 class="text-xl font-semibold text-textMain mb-2">About RoleNova Pipeline</h2>
+    <p class="text-textMuted mb-4">
+        RoleNova is an autonomous, AI-driven ATS Discovery and Job Scraping Engine. It traverses company career pages in real-time, scrapes job listings, and uses AI (Gemini, Groq, DeepSeek) to evaluate matches against candidate profiles. As a viewer, you have access to top-level analytics and company tracking.
+    </p>
+    
+    <% if (locals.user.viewAccess === 'none') { %>
+        <div class="flex items-center gap-4 bg-background p-4 rounded-md border border-border">
+            <i class="fa-solid fa-lock text-textMuted text-2xl"></i>
+            <div class="flex-1">
+                <p class="text-sm font-medium text-textMain">Want to see more?</p>
+                <p class="text-xs text-textMuted">You can request extended view access to explore matched jobs, AI evaluation logs, and pipeline evidence.</p>
+            </div>
+            <button onclick="requestExtendedAccess()" class="px-4 py-2 bg-primary hover:bg-primaryHover text-white rounded-md text-sm font-medium transition-colors shadow-sm">
+                Request Access
+            </button>
+        </div>
+    <% } else if (locals.user.viewAccess === 'requested') { %>
+        <div class="flex items-center gap-4 bg-warning/10 p-4 rounded-md border border-warning/20">
+            <i class="fa-solid fa-clock text-warning text-2xl"></i>
+            <div class="flex-1">
+                <p class="text-sm font-medium text-warning">Access Request Pending</p>
+                <p class="text-xs text-warning/80">Your request for extended view access is currently under review by an administrator.</p>
+            </div>
+        </div>
+    <% } else if (locals.user.viewAccess === 'granted') { %>
+        <div class="flex items-center gap-4 bg-success/10 p-4 rounded-md border border-success/20">
+            <i class="fa-solid fa-check-circle text-success text-2xl"></i>
+            <div class="flex-1">
+                <p class="text-sm font-medium text-success">Extended Access Granted</p>
+                <p class="text-xs text-success/80">You can now view detailed jobs, Telegram channels, and pipeline evidence from the sidebar.</p>
+            </div>
+        </div>
+    <% } %>
+</div>
+
+<script>
+async function requestExtendedAccess() {
+    try {
+        const response = await fetch('/api/users/request-access', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' }
+        });
+        const data = await response.json();
+        if (data.success) {
+            window.location.reload();
+        } else {
+            alert('Failed to request access: ' + (data.message || data.error));
+        }
+    } catch (err) {
+        console.error(err);
+        alert('An error occurred.');
+    }
+}
+</script>
+<% } %>
+
 <!-- Scheduler Overview -->
 <div class="mb-8">
     <h2 class="text-lg font-semibold text-textMain mb-4">Scheduler Status (Azure Native)</h2>

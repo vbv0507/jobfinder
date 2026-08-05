@@ -94,10 +94,52 @@ const toggleUserStatus = async (req, res) => {
     }
 };
 
+const grantViewAccess = async (req, res) => {
+    try {
+        const user = await User.findById(req.params.id);
+        if (!user) return res.status(404).json({ error: 'User not found' });
+
+        user.viewAccess = 'granted';
+        await user.save();
+
+        await AuditLog.create({
+            action: 'Grant View Access',
+            user: req.user.email,
+            details: `Granted extended view access to ${user.email}`
+        });
+
+        res.json({ success: true, user });
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+};
+
+const revokeViewAccess = async (req, res) => {
+    try {
+        const user = await User.findById(req.params.id);
+        if (!user) return res.status(404).json({ error: 'User not found' });
+
+        user.viewAccess = 'none';
+        await user.save();
+
+        await AuditLog.create({
+            action: 'Revoke View Access',
+            user: req.user.email,
+            details: `Revoked extended view access from ${user.email}`
+        });
+
+        res.json({ success: true, user });
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+};
+
 module.exports = {
     getUsers,
     promoteUser,
     demoteUser,
     toggleUserStatus,
-    getScraperHealth
+    getScraperHealth,
+    grantViewAccess,
+    revokeViewAccess
 };

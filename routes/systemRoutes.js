@@ -201,4 +201,21 @@ router.post('/verify-local/stop', requireAdmin, (req, res) => {
     res.json({ success: true, message: "Requested to stop local verification." });
 });
 
+router.post('/users/request-access', requireViewer, async (req, res) => {
+    try {
+        if (!req.user) return res.status(401).json({ error: 'Unauthorized' });
+        
+        if (req.user.role === 'admin' || req.user.viewAccess === 'granted') {
+            return res.json({ success: true, message: 'Access already granted' });
+        }
+        
+        req.user.viewAccess = 'requested';
+        await req.user.save();
+        
+        res.json({ success: true, message: 'Access requested successfully' });
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
 module.exports = router;

@@ -15,6 +15,7 @@
                     <th scope="col" class="px-6 py-4">User</th>
                     <th scope="col" class="px-6 py-4">Role</th>
                     <th scope="col" class="px-6 py-4">Status</th>
+                    <th scope="col" class="px-6 py-4">Extended Access</th>
                     <th scope="col" class="px-6 py-4">Last Login</th>
                     <th scope="col" class="px-6 py-4 text-right">Actions</th>
                 </tr>
@@ -22,7 +23,7 @@
             <tbody id="usersTableBody">
                 <!-- Data populated by JS -->
                 <tr>
-                    <td colspan="5" class="px-6 py-8 text-center text-gray-500 dark:text-gray-400">Loading users...</td>
+                    <td colspan="6" class="px-6 py-8 text-center text-gray-500 dark:text-gray-400">Loading users...</td>
                 </tr>
             </tbody>
         </table>
@@ -36,7 +37,7 @@
             const tbody = document.getElementById('usersTableBody');
             
             if (users.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="5" class="px-6 py-8 text-center text-gray-500 dark:text-gray-400">No users found.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="6" class="px-6 py-8 text-center text-gray-500 dark:text-gray-400">No users found.</td></tr>';
                 return;
             }
 
@@ -66,6 +67,17 @@
                             ${user.isActive ? 'Active' : 'Deactivated'}
                         </span>
                     </td>
+                    <td class="px-6 py-4">
+                        ${user.role === 'admin' ? '<span class="text-xs text-gray-500 dark:text-gray-400">N/A (Admin)</span>' : `
+                            <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${
+                                user.viewAccess === 'granted' ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300' :
+                                user.viewAccess === 'requested' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300' :
+                                'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300'
+                            }">
+                                ${user.viewAccess ? user.viewAccess.toUpperCase() : 'NONE'}
+                            </span>
+                        `}
+                    </td>
                     <td class="px-6 py-4 text-xs">
                         ${user.lastLoginAt ? new Date(user.lastLoginAt).toLocaleString() : 'Never'}
                     </td>
@@ -80,6 +92,18 @@
                                     Promote
                                 </button>
                             `}
+                            
+                            ${user.role === 'viewer' ? `
+                                ${user.viewAccess === 'granted' ? `
+                                    <button onclick="changeAccess('${user._id}', 'revoke-access')" class="px-3 py-1.5 text-xs font-medium text-red-700 bg-red-50 hover:bg-red-100 rounded-lg transition-colors border border-red-200">
+                                        Revoke Access
+                                    </button>
+                                ` : `
+                                    <button onclick="changeAccess('${user._id}', 'grant-access')" class="px-3 py-1.5 text-xs font-medium text-green-700 bg-green-50 hover:bg-green-100 rounded-lg transition-colors border border-green-200">
+                                        Grant Access
+                                    </button>
+                                `}
+                            ` : ''}
                             
                             <button onclick="toggleStatus('${user._id}')" class="px-3 py-1.5 text-xs font-medium ${
                                 user.isActive 
@@ -105,6 +129,16 @@
             loadUsers();
         } catch (error) {
             alert(error.message || 'Failed to change role');
+        }
+    }
+
+    async function changeAccess(userId, action) {
+        if (!confirm(`Are you sure you want to ${action.split('-')[0]} extended access?`)) return;
+        try {
+            await apiCall(`/admin/api/users/${userId}/${action}`, 'POST');
+            loadUsers();
+        } catch (error) {
+            alert(error.message || 'Failed to change access');
         }
     }
 

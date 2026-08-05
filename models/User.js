@@ -24,6 +24,11 @@ const userSchema = new mongoose.Schema({
         required: true,
         default: 'viewer'
     },
+    viewAccess: {
+        type: String,
+        enum: ['none', 'requested', 'granted'],
+        default: 'none'
+    },
     isActive: {
         type: Boolean,
         default: true
