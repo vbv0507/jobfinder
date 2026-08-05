@@ -48,16 +48,12 @@
           setTimeout(initClerk, 50);
           return;
         }
-        Clerk.load().then(() => {
-          if (Clerk.user) {
-            const userButtonDiv = document.getElementById('user-button');
-            if (userButtonDiv) Clerk.mountUserButton(userButtonDiv);
-          }
+        if (window.Clerk.isReady) {
           window.clerkReady = true;
           window.dispatchEvent(new Event('clerk-ready'));
-        }).catch(err => {
-          console.error("Clerk init failed", err);
-        });
+        } else {
+          setTimeout(initClerk, 50);
+        }
       }
       initClerk();
     </script>
