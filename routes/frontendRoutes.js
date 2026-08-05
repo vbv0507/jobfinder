@@ -29,7 +29,16 @@ router.get('/', async (req, res, next) => {
         
         console.log(`[Root Route] UserId: ${req.user._id} | SessionId: ${req.auth?.sessionId || 'N/A'} | Email: ${req.user.email} | DBUserExists: true | CandidateProfileExists: ${!!hasProfile} | RenderPath: index`);
         
-        res.render('pages/dashboard');
+        const User = require('../models/User');
+        const viewers = await User.find({ role: 'viewer' }, 'fullName email viewAccess isActive');
+        
+        const viewerStats = {
+            total: viewers.length,
+            requested: viewers.filter(v => v.viewAccess === 'requested').length,
+            granted: viewers.filter(v => v.viewAccess === 'granted')
+        };
+        
+        res.render('pages/dashboard', { viewerStats });
     } catch (error) {
         console.error(`[Root Route] Exception in GET /:`, error.stack);
         next(error);
