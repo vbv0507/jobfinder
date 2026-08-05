@@ -38,6 +38,15 @@ async function syncUser(clerkId) {
     const fullName = `${clerkUser.firstName || ''} ${clerkUser.lastName || ''}`.trim() || clerkUser.username || email;
     const imageUrl = clerkUser.imageUrl;
 
+    if (!dbUser && email) {
+        // Link existing email to new clerkId if they created a new Clerk account with same email
+        dbUser = await User.findOne({ email });
+        if (dbUser) {
+            console.log(`[UserService] Linking existing email ${email} to new clerkId ${clerkId}`);
+            dbUser.clerkId = clerkId;
+        }
+    }
+
     if (dbUser) {
         // Update returning user details (excluding role)
         dbUser.email = email;
@@ -95,9 +104,20 @@ async function syncUser(clerkId) {
             try {
                 await dbUser.save();
             } catch (err) {
-                // If unique constraint violated, it was created concurrently
+                // If unique constraint violated, it was created concurrently OR email already exists
                 if (err.code === 11000) {
                     dbUser = await User.findOne({ clerkId });
+                    if (!dbUser) {
+                        // Email collision?
+                        dbUser = await User.findOne({ email });
+                        if (dbUser) {
+                            console.warn(`[UserService] Email collision for ${email}. Updating clerkId.`);
+                            dbUser.clerkId = clerkId;
+                            await dbUser.save();
+                        } else {
+                            throw new Error(`Unique constraint violation but user not found: ${err.message}`);
+                        }
+                    }
                 } else {
                     throw err;
                 }
@@ -105,6 +125,10 @@ async function syncUser(clerkId) {
         }
     } finally {
         await session.endSession();
+    }
+
+    if (!dbUser) {
+        throw new Error(`Failed to sync user: user could not be created or found.`);
     }
 
     return dbUser;
