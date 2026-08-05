@@ -14,7 +14,7 @@
 <script>
     async function loadConfig() {
         try {
-            const res = await apiCall('/api/system/health');
+            const res = await apiCall('/api/system/detailed-health');
             const data = res;
             
             const list = document.getElementById('configList');
