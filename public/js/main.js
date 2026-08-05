@@ -24,9 +24,15 @@ async function apiCall(endpoint, method = 'GET', data = null) {
             }
         };
         
-        if (window.Clerk && window.Clerk.session) {
-            const token = await window.Clerk.session.getToken();
-            options.headers['Authorization'] = `Bearer ${token}`;
+        if (window.Clerk) {
+            if (typeof window.Clerk.load === 'function' && !window.clerkReady) {
+                await window.Clerk.load().catch(() => {});
+                window.clerkReady = true;
+            }
+            if (window.Clerk.session) {
+                const token = await window.Clerk.session.getToken();
+                options.headers['Authorization'] = `Bearer ${token}`;
+            }
         }
         
         if (data) {
@@ -37,7 +43,8 @@ async function apiCall(endpoint, method = 'GET', data = null) {
         const responseData = await response.json().catch(() => null);
         
         if (!response.ok) {
-            throw new Error(responseData && responseData.message ? responseData.message : `API Error: ${response.statusText}`);
+            const apiMessage = responseData && (responseData.message || responseData.error);
+            throw new Error(apiMessage || `API Error: ${response.statusText}`);
         }
         
         return responseData;

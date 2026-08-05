@@ -1,5 +1,5 @@
 const User = require('../models/User');
-const AuditLog = require('../models/AuditLog');
+const { logAuditAction } = require('../services/auditService');
 
 const getUsers = async (req, res) => {
     try {
@@ -29,11 +29,7 @@ const promoteUser = async (req, res) => {
         user.role = 'admin';
         await user.save();
 
-        await AuditLog.create({
-            action: 'Role Change',
-            user: req.user.email,
-            details: `Promoted ${user.email} to Admin`
-        });
+        await logAuditAction(req, 'Role Change', `Promoted ${user.email} to Admin`);
 
         res.json({ success: true, user });
     } catch (e) {
@@ -55,11 +51,7 @@ const demoteUser = async (req, res) => {
         user.role = 'viewer';
         await user.save();
 
-        await AuditLog.create({
-            action: 'Role Change',
-            user: req.user.email,
-            details: `Demoted ${user.email} to Viewer`
-        });
+        await logAuditAction(req, 'Role Change', `Demoted ${user.email} to Viewer`);
 
         res.json({ success: true, user });
     } catch (e) {
@@ -82,11 +74,7 @@ const toggleUserStatus = async (req, res) => {
         user.isActive = !user.isActive;
         await user.save();
 
-        await AuditLog.create({
-            action: user.isActive ? 'Activate User' : 'Deactivate User',
-            user: req.user.email,
-            details: `${user.isActive ? 'Activated' : 'Deactivated'} ${user.email}`
-        });
+        await logAuditAction(req, user.isActive ? 'Activate User' : 'Deactivate User', `${user.isActive ? 'Activated' : 'Deactivated'} ${user.email}`);
 
         res.json({ success: true, user });
     } catch (e) {
@@ -102,11 +90,7 @@ const grantViewAccess = async (req, res) => {
         user.viewAccess = 'granted';
         await user.save();
 
-        await AuditLog.create({
-            action: 'Grant View Access',
-            user: req.user.email,
-            details: `Granted extended view access to ${user.email}`
-        });
+        await logAuditAction(req, 'Grant View Access', `Granted extended view access to ${user.email}`);
 
         res.json({ success: true, user });
     } catch (e) {
@@ -122,11 +106,7 @@ const revokeViewAccess = async (req, res) => {
         user.viewAccess = 'none';
         await user.save();
 
-        await AuditLog.create({
-            action: 'Revoke View Access',
-            user: req.user.email,
-            details: `Revoked extended view access from ${user.email}`
-        });
+        await logAuditAction(req, 'Revoke View Access', `Revoked extended view access from ${user.email}`);
 
         res.json({ success: true, user });
     } catch (e) {

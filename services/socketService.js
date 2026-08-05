@@ -252,9 +252,20 @@ const authenticateSocket = async (socket, next) => {
 
         if (!payload || !payload.sub) return next(new Error("Unauthorized"));
 
+        const { syncUser } = require("./userService");
+        const user = await syncUser(payload.sub);
+        if (!user || !user.isActive) return next(new Error("Unauthorized"));
+
+        const hasExtendedAccess = user.role === "admin" || (user.role === "viewer" && user.viewAccess === "granted");
+        if (!hasExtendedAccess) return next(new Error("Extended view access required"));
+
         socket.auth = {
             userId: payload.sub,
-            sessionId: payload.sid || payload.session_id || null
+            sessionId: payload.sid || payload.session_id || null,
+            email: user.email,
+            role: user.role,
+            viewAccess: user.viewAccess,
+            mongoUserId: user._id?.toString()
         };
         return next();
     } catch (error) {
@@ -267,7 +278,13 @@ const auditSocketAction = async (socket, action, status) => {
     try {
         const { logAuditAction } = require("./auditService");
         await logAuditAction({
-            user: { clerkId: socket.auth.userId },
+            auth: {
+                userId: socket.auth.userId,
+                sessionClaims: {
+                    email: socket.auth.email,
+                    metadata: { role: socket.auth.role }
+                }
+            },
             headers: {},
             socket: { remoteAddress: socket.handshake.address }
         }, action, status);
@@ -275,6 +292,8 @@ const auditSocketAction = async (socket, action, status) => {
         console.warn("[Socket] Audit log skipped:", error.message);
     }
 };
+
+const socketIsAdmin = (socket) => socket.auth && socket.auth.role === "admin";
 
 const init = (server) => {
     if (io) return io;
@@ -313,6 +332,11 @@ const init = (server) => {
         socket.on("pipeline:start", async (force = false) => {
             const runSearch = require("../cron/jobSearchCron");
 
+            if (!socketIsAdmin(socket)) {
+                socket.emit("pipeline:error", "Forbidden: Admin access required.");
+                return;
+            }
+
             if (pipelineState.running) {
                 socket.emit("pipeline:error", "Pipeline is already running.");
                 return;
@@ -330,6 +354,11 @@ const init = (server) => {
         });
 
         socket.on("pipeline:stop", async () => {
+            if (!socketIsAdmin(socket)) {
+                socket.emit("pipeline:error", "Forbidden: Admin access required.");
+                return;
+            }
+
             if (!pipelineState.running) {
                 socket.emit("pipeline:error", "Pipeline is not currently running.");
                 return;

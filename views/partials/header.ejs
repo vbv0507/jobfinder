@@ -43,23 +43,26 @@
       type="text/javascript"
     ></script>
     <script>
-      function initClerk() {
+      async function initClerk() {
         if (!window.Clerk) {
           setTimeout(initClerk, 50);
           return;
         }
-        
-        if (typeof window.Clerk.addListener === 'function') {
-            window.Clerk.addListener((state) => {
-                if (!window.clerkReady) {
-                    window.clerkReady = true;
-                    window.dispatchEvent(new Event('clerk-ready'));
-                }
-            });
-        } else {
-            // Fallback just in case
-            window.clerkReady = true;
-            window.dispatchEvent(new Event('clerk-ready'));
+
+        try {
+          if (typeof window.Clerk.load === 'function') {
+            await window.Clerk.load();
+          }
+
+          const userButton = document.getElementById('user-button');
+          if (userButton && window.Clerk.user && typeof window.Clerk.mountUserButton === 'function') {
+            window.Clerk.mountUserButton(userButton);
+          }
+        } catch (error) {
+          console.error('Clerk init failed', error);
+        } finally {
+          window.clerkReady = true;
+          window.dispatchEvent(new Event('clerk-ready'));
         }
       }
       initClerk();

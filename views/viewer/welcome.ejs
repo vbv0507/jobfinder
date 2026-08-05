@@ -1,0 +1,104 @@
+<%- include('../layouts/header') %>
+
+<div class="max-w-5xl mx-auto">
+    <div class="mb-8">
+        <p class="text-sm font-semibold uppercase tracking-widest text-primary mb-2">Base Viewer</p>
+        <h1 class="text-3xl font-bold tracking-tight text-textMain">Welcome to RoleNova ATS</h1>
+        <p class="mt-3 text-textMuted max-w-3xl">
+            Your account is active, but full data access is pending approval. For now, this page explains what the platform is doing behind the scenes.
+        </p>
+    </div>
+
+    <div class="bg-surface border border-border rounded-xl shadow-sm overflow-hidden">
+        <div class="p-6 border-b border-border">
+            <div class="flex items-start gap-4">
+                <div class="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center text-primary text-xl shrink-0">
+                    <i class="fa-solid fa-diagram-project"></i>
+                </div>
+                <div>
+                    <h2 class="text-2xl font-bold text-textMain">High-Level Design: AI Job Discovery Pipeline</h2>
+                    <p class="text-textMuted mt-2">
+                        RoleNova continuously discovers jobs, evaluates fit with AI, stores the useful signals, and sends alerts when an opportunity is worth acting on.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="p-4 bg-background border border-border rounded-lg">
+                <h3 class="font-semibold text-textMain mb-2"><i class="fa-solid fa-spider text-primary mr-2"></i>1. Job Scraping</h3>
+                <p class="text-sm text-textMuted leading-relaxed">
+                    The system monitors company career pages and ATS platforms such as Workday, Greenhouse, Lever, and custom careers pages. It normalizes discovered postings before sending them into the evaluation pipeline.
+                </p>
+            </div>
+
+            <div class="p-4 bg-background border border-border rounded-lg">
+                <h3 class="font-semibold text-textMain mb-2"><i class="fa-solid fa-brain text-[#8b5cf6] mr-2"></i>2. AI Evaluation</h3>
+                <p class="text-sm text-textMuted leading-relaxed">
+                    Gemini and Groq evaluate job descriptions against the configured candidate profile, producing match scores, explanations, and rejection reasons where a job is not a strong fit.
+                </p>
+            </div>
+
+            <div class="p-4 bg-background border border-border rounded-lg">
+                <h3 class="font-semibold text-textMain mb-2"><i class="fa-brands fa-telegram text-[#0088cc] mr-2"></i>3. Telegram Monitoring</h3>
+                <p class="text-sm text-textMuted leading-relaxed">
+                    RoleNova can also listen to Telegram job channels, parse useful messages, deduplicate opportunities, and route them through the same AI matching process.
+                </p>
+            </div>
+
+            <div class="p-4 bg-background border border-border rounded-lg">
+                <h3 class="font-semibold text-textMain mb-2"><i class="fa-solid fa-bell text-warning mr-2"></i>4. Alerts & Review</h3>
+                <p class="text-sm text-textMuted leading-relaxed">
+                    High-value matches are saved for review and can be sent as Telegram alerts, helping the team act quickly without exposing system controls to new users.
+                </p>
+            </div>
+        </div>
+
+        <div class="p-6 border-t border-border">
+            <% if (locals.user.viewAccess === 'requested') { %>
+                <button disabled class="w-full sm:w-auto px-5 py-3 bg-warning/10 border border-warning/20 text-warning rounded-md text-sm font-semibold cursor-not-allowed">
+                    <i class="fa-solid fa-clock mr-2"></i> Access Requested (Pending Admin Approval)
+                </button>
+            <% } else { %>
+                <button id="request-access-btn" onclick="requestExtendedAccess()" class="w-full sm:w-auto px-5 py-3 bg-primary hover:bg-primaryHover text-white rounded-md text-sm font-semibold transition-colors shadow-sm">
+                    <i class="fa-solid fa-unlock-keyhole mr-2"></i> Request Full View Access
+                </button>
+            <% } %>
+        </div>
+    </div>
+</div>
+
+<script>
+async function requestExtendedAccess() {
+    const button = document.getElementById('request-access-btn');
+    if (button) {
+        button.disabled = true;
+        button.classList.add('opacity-75', 'cursor-not-allowed');
+        button.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i> Requesting...';
+    }
+
+    try {
+        const response = await fetch('/admin/api/users/request-access', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' }
+        });
+        const data = await response.json();
+        if (!response.ok || !data.success) {
+            throw new Error(data.message || data.error || 'Failed to request access');
+        }
+        if (button) {
+            button.innerHTML = '<i class="fa-solid fa-clock mr-2"></i> Access Requested (Pending Admin Approval)';
+        }
+    } catch (err) {
+        console.error(err);
+        alert(err.message || 'An error occurred.');
+        if (button) {
+            button.disabled = false;
+            button.classList.remove('opacity-75', 'cursor-not-allowed');
+            button.innerHTML = '<i class="fa-solid fa-unlock-keyhole mr-2"></i> Request Full View Access';
+        }
+    }
+}
+</script>
+
+<%- include('../layouts/footer') %>

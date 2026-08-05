@@ -24,6 +24,12 @@ router.get('/ai-rejected', requireExtendedViewer, async (req, res) => {
 
 router.get('/', async (req, res, next) => {
     try {
+        const hasExtendedAccess = req.user.role === 'admin' || req.user.viewAccess === 'granted';
+
+        if (!hasExtendedAccess) {
+            return res.render('viewer/welcome', { title: 'Welcome' });
+        }
+
         const CandidateProfile = require('../models/CandidateProfile');
         const hasProfile = await CandidateProfile.exists({ user: req.user._id });
         
@@ -124,11 +130,11 @@ router.get('/telegram', requireExtendedViewer, (req, res) => {
     res.render('pages/telegram-channels', { title: 'Telegram Channels' });
 });
 
-router.get('/companies', (req, res) => {
+router.get('/companies', requireExtendedViewer, (req, res) => {
     res.render('pages/companies');
 });
 
-router.get('/analytics', (req, res) => {
+router.get('/analytics', requireExtendedViewer, (req, res) => {
     res.render('pages/analytics');
 });
 

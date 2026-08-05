@@ -20,7 +20,7 @@
     <% } %>
 </div>
 
-<% if (locals.user && locals.user.role === 'viewer') { %>
+<% if (locals.user && locals.user.role === 'viewer' && locals.user.viewAccess !== 'granted') { %>
 <div class="mb-8 p-8 bg-surface border border-border rounded-xl shadow-sm">
     <div class="flex items-center gap-4 mb-6 pb-6 border-b border-border">
         <div class="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center text-primary text-xl">
@@ -102,7 +102,7 @@
 <script>
 async function requestExtendedAccess() {
     try {
-        const response = await fetch('/api/system/users/request-access', {
+        const response = await fetch('/admin/api/users/request-access', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' }
         });
@@ -120,9 +120,9 @@ async function requestExtendedAccess() {
 </script>
 <% } %>
 
-<% if (locals.user && locals.user.role === 'admin') { %>
+<% if (locals.user && (locals.user.role === 'admin' || locals.user.viewAccess === 'granted')) { %>
 <!-- User & Access Management -->
-<% if (locals.viewerStats) { %>
+<% if (locals.user.role === 'admin' && locals.viewerStats) { %>
 <div class="mb-8">
     <div class="flex items-center justify-between mb-4">
         <h2 class="text-lg font-semibold text-textMain">User Access Overview</h2>

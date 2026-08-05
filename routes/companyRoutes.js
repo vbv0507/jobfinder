@@ -9,7 +9,7 @@ const {
 const router = express.Router();
 
 
-const { requireAdmin, requireViewer } = require("../middleware/authMiddleware");
+const { requireAdmin, requireExtendedViewer } = require("../middleware/authMiddleware");
 
 
 
@@ -19,6 +19,6 @@ router.post("/seed", requireAdmin, seedCompanyList);
 router.post("/", requireAdmin, addCompany);
 
 
-router.get("/", requireViewer, getCompanies);
+router.get("/", requireExtendedViewer, getCompanies);
 
 module.exports = router;

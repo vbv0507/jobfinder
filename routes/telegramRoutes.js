@@ -11,13 +11,13 @@ const {
     reload
 } = require('../controllers/telegramController');
 
-const { requireAdmin, requireViewer } = require("../middleware/authMiddleware");
+const { requireAdmin, requireExtendedViewer } = require("../middleware/authMiddleware");
 
 
 
-router.get('/status', requireViewer, getStatus);
-router.get('/statistics', requireViewer, getStatistics);
-router.get('/channels', requireViewer, getChannels);
+router.get('/status', requireExtendedViewer, getStatus);
+router.get('/statistics', requireExtendedViewer, getStatistics);
+router.get('/channels', requireExtendedViewer, getChannels);
 router.patch('/channels/:id/toggle', requireAdmin, toggleChannel);
 router.post('/channels', requireAdmin, addChannel);
 router.delete('/channels/:id', requireAdmin, deleteChannel);
@@ -25,7 +25,7 @@ router.post('/reconnect', requireAdmin, reconnect);
 router.post('/reload', requireAdmin, reload);
 
 // Phase 17: Sync state
-router.get('/sync/status', requireViewer, async (req, res) => {
+router.get('/sync/status', requireExtendedViewer, async (req, res) => {
     try {
         const { getSyncStatus } = require('../services/telegramBackfillService');
         const states = await getSyncStatus();

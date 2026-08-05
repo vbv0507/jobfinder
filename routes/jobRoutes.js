@@ -13,17 +13,17 @@ const {
     deleteRawJobs,
 } = require("../controllers/jobController");
 
-const { requireAdmin, requireViewer } = require("../middleware/authMiddleware");
+const { requireAdmin, requireExtendedViewer } = require("../middleware/authMiddleware");
 
 const router = express.Router();
 
-router.get("/raw", requireViewer, getRawJobs);
-router.get("/matched", requireViewer, getMatchedJobs);
-router.get("/rejected", requireViewer, getRejectedJobs);
-router.get("/grouped", requireViewer, getGroupedJobs);
-router.get("/complete", requireViewer, getCompleteJobs);
-router.get("/report", requireViewer, getReport);
-router.post("/run", runJobSearch);
+router.get("/raw", requireExtendedViewer, getRawJobs);
+router.get("/matched", requireExtendedViewer, getMatchedJobs);
+router.get("/rejected", requireExtendedViewer, getRejectedJobs);
+router.get("/grouped", requireExtendedViewer, getGroupedJobs);
+router.get("/complete", requireExtendedViewer, getCompleteJobs);
+router.get("/report", requireExtendedViewer, getReport);
+router.post("/run", requireAdmin, runJobSearch);
 router.post("/stop", requireAdmin, stopJobSearch);
 router.patch("/:id/status", requireAdmin, updateJobStatus);
 router.delete("/raw", requireAdmin, deleteRawJobs);

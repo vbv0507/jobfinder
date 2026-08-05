@@ -1,1 +1,136 @@
-const mongoose = require('mongoose'); const SearchLog = require('./models/SearchLog'); const RawJob = require('./models/RawJob'); async function run() { try { await mongoose.connect('mongodb://localhost:27017/jobfinder'); const logs = await SearchLog.find({}).sort({ startedAt: -1, createdAt: -1 }).limit(3).lean(); console.log('=== LATEST SEARCH LOGS ==='); logs.forEach(log => { console.log('ID: ' + log._id + ' | Status: ' + log.status + ' | StartedAt: ' + log.startedAt + ' | CreatedAt: ' + log.createdAt + ' | Scanned: ' + log.companiesScanned + ' | Jobs Found: ' + log.jobsFound + ' | Cached: ' + log.skippedRuns); }); const startOfDay = new Date(); startOfDay.setUTCHours(0, 0, 0, 0); const rawJobsToday = await RawJob.countDocuments({ scrapedAt: { $gte: startOfDay } }); console.log('\n=== RAW JOBS TODAY ===\nCount: ' + rawJobsToday); } catch (err) { console.error(err); } finally { mongoose.disconnect(); } } run();
+
+    async function loadUsers() {
+        if (!window.Clerk || typeof window.Clerk.session === 'undefined') {
+            setTimeout(loadUsers, 100);
+            return;
+        }
+
+        const tbody = document.getElementById('usersTableBody');
+        if (tbody) tbody.innerHTML = '<tr><td colspan="6" class="px-6 py-8 text-center text-blue-500">Executing loadUsers...</td></tr>';
+        
+        try {
+            if (tbody) tbody.innerHTML = '<tr><td colspan="6" class="px-6 py-8 text-center text-blue-500">Calling API...</td></tr>';
+            const users = await apiCall('/admin/api/users');
+            if (tbody) tbody.innerHTML = '<tr><td colspan="6" class="px-6 py-8 text-center text-blue-500">API returned data! Mapping...</td></tr>';
+            
+            if (!users || users.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" class="px-6 py-8 text-center text-gray-500 dark:text-gray-400">No users found.</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = users.map(user => `
+                <tr class="border-b dark:border-gray-700 hover:bg-gray-50 dark:bg-gray-900 dark:hover:bg-gray-700/50">
+                    <td class="px-6 py-4">
+                        <div class="flex items-center gap-3">
+                            <img src="${user.imageUrl || '/default-avatar.png'}" class="w-10 h-10 rounded-full bg-gray-200">
+                            <div>
+                                <div class="font-medium text-gray-900 dark:text-gray-100 dark:text-white">${user.fullName}</div>
+                                <div class="text-xs text-gray-500 dark:text-gray-400">${user.email}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4">
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                            user.role === 'admin' 
+                            ? 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300' 
+                            : 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300'
+                        }">
+                            ${(user.role || 'viewer').toUpperCase()}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4">
+                        <span class="inline-flex items-center gap-1.5">
+                            <span class="w-2 h-2 rounded-full ${user.isActive ? 'bg-green-500' : 'bg-red-500'}"></span>
+                            ${user.isActive ? 'Active' : 'Deactivated'}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4">
+                        ${user.role === 'admin' ? '<span class="text-xs text-gray-500 dark:text-gray-400">N/A (Admin)</span>' : `
+                            <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${
+                                user.viewAccess === 'granted' ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300' :
+                                user.viewAccess === 'requested' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300' :
+                                'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300'
+                            }">
+                                ${user.viewAccess ? user.viewAccess.toUpperCase() : 'NONE'}
+                            </span>
+                        `}
+                    </td>
+                    <td class="px-6 py-4 text-xs">
+                        ${user.lastLoginAt ? new Date(user.lastLoginAt).toLocaleString() : 'Never'}
+                    </td>
+                    <td class="px-6 py-4 text-right">
+                        <div class="flex items-center justify-end gap-2">
+                            ${user.role === 'admin' ? `
+                                <button onclick="changeRole('${user._id}', 'demote')" class="px-3 py-1.5 text-xs font-medium text-amber-700 bg-amber-50 hover:bg-amber-100 rounded-lg transition-colors border border-amber-200">
+                                    Demote
+                                </button>
+                            ` : `
+                                <button onclick="changeRole('${user._id}', 'promote')" class="px-3 py-1.5 text-xs font-medium text-purple-700 bg-purple-50 hover:bg-purple-100 rounded-lg transition-colors border border-purple-200">
+                                    Promote
+                                </button>
+                            `}
+                            
+                            ${user.role === 'viewer' ? `
+                                ${user.viewAccess === 'granted' ? `
+                                    <button onclick="changeAccess('${user._id}', 'revoke-access')" class="px-3 py-1.5 text-xs font-medium text-red-700 bg-red-50 hover:bg-red-100 rounded-lg transition-colors border border-red-200">
+                                        Revoke Access
+                                    </button>
+                                ` : `
+                                    <button onclick="changeAccess('${user._id}', 'grant-access')" class="px-3 py-1.5 text-xs font-medium text-green-700 bg-green-50 hover:bg-green-100 rounded-lg transition-colors border border-green-200">
+                                        Grant Access
+                                    </button>
+                                `}
+                            ` : ''}
+                            
+                            <button onclick="toggleStatus('${user._id}')" class="px-3 py-1.5 text-xs font-medium ${
+                                user.isActive 
+                                ? 'text-red-700 bg-red-50 hover:bg-red-100 border-red-200' 
+                                : 'text-green-700 bg-green-50 hover:bg-green-100 border-green-200'
+                            } rounded-lg transition-colors border">
+                                ${user.isActive ? 'Deactivate' : 'Reactivate'}
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        } catch (error) {
+            console.error('Failed to load users:', error);
+            const tbody = document.getElementById('usersTableBody');
+            if (tbody) {
+                tbody.innerHTML = `<tr><td colspan="6" class="px-6 py-8 text-center text-red-500">Error: ${error.message}</td></tr>`;
+            }
+        }
+    }
+
+    async function changeRole(userId, action) {
+        if (!confirm(`Are you sure you want to ${action} this user?`)) return;
+        try {
+            await apiCall(`/admin/api/users/${userId}/${action}`, 'POST');
+            loadUsers();
+        } catch (error) {
+            alert(error.message || 'Failed to change role');
+        }
+    }
+
+    async function changeAccess(userId, action) {
+        if (!confirm(`Are you sure you want to ${action.split('-')[0]} extended access?`)) return;
+        try {
+            await apiCall(`/admin/api/users/${userId}/${action}`, 'POST');
+            loadUsers();
+        } catch (error) {
+            alert(error.message || 'Failed to change access');
+        }
+    }
+
+    async function toggleStatus(userId) {
+        if (!confirm("Are you sure you want to change this user's status?")) return;
+        try {
+            await apiCall(`/admin/api/users/${userId}/toggle`, 'POST');
+            loadUsers();
+        } catch (error) {
+            alert(error.message || 'Failed to toggle status');
+        }
+    }
+
+    // Start polling immediately
+    loadUsers();

@@ -1,8 +1,28 @@
 const express = require('express');
-const { requireAdmin } = require('../middleware/authMiddleware');
+const { requireAdmin, requireViewer } = require('../middleware/authMiddleware');
 const { getUsers, promoteUser, demoteUser, toggleUserStatus, grantViewAccess, revokeViewAccess } = require('../controllers/adminController');
+const { logAuditAction } = require('../services/auditService');
 
 const router = express.Router();
+
+// Viewer self-service access request. This must stay before the admin gate.
+router.post('/api/users/request-access', requireViewer, async (req, res) => {
+    try {
+        if (req.user.role === 'admin' || req.user.viewAccess === 'granted') {
+            return res.json({ success: true, message: 'Extended view access is already granted.' });
+        }
+
+        if (req.user.viewAccess !== 'requested') {
+            req.user.viewAccess = 'requested';
+            await req.user.save();
+            await logAuditAction(req, 'Request View Access', `Requested extended view access for ${req.user.email}`);
+        }
+
+        res.json({ success: true, message: 'Access request submitted.' });
+    } catch (e) {
+        res.status(500).json({ success: false, error: e.message });
+    }
+});
 
 // All admin routes require admin privileges
 router.use(requireAdmin);

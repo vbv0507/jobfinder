@@ -159,3 +159,11 @@ RoleNova represents a perfect synergy between traditional web scraping and moder
 ### HTTP 402 Permanent Error Fix (August 2026)
 - **Issue:** `analyzeError()` was treating HTTP 402 (Payment Required) as a temporary error, causing providers with empty wallets to retry on every job.
 - **Fix:** Added `is402` check in `services/aiHelpers.js` — 402 now immediately disables the provider for the pipeline session.
+
+### Multi-Tiered Viewer and Admin Authorization (August 2026)
+- **Feature:** Added a safe onboarding flow for new users without exposing sensitive data or destructive pipeline controls.
+- **3-Tier Permission System:**
+  1. **Base Viewer:** Can only access a specialized Project Aim / HLD dashboard. Cannot see actual scraped data or configurations.
+  2. **Extended Viewer:** Can request access via the UI (iewAccess: requested). Once an admin grants access (iewAccess: granted), the sidebar unlocks, allowing them to view Analytics, Companies, and Jobs dashboards. They cannot start/stop pipelines or modify configurations.
+  3. **Admin:** Full system control. Manages roles via /admin/users dashboard.
+- **Implementation:** Robust native Clerk polling via Clerk.addListener injected into EJS to prevent synchronous racing on route initialization.
