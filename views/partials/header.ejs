@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" class="h-full bg-gray-50 dark:bg-gray-900">
+<html lang="en" class="dark h-full bg-gray-50 dark:bg-gray-900">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -50,6 +50,8 @@
             const userButtonDiv = document.getElementById('user-button');
             if (userButtonDiv) Clerk.mountUserButton(userButtonDiv);
           }
+          window.clerkReady = true;
+          window.dispatchEvent(new Event('clerk-ready'));
         } catch (err) {
           console.error("Clerk init failed", err);
         }
@@ -67,6 +69,14 @@
             --color-border: #e5e7eb;
             --color-text: #1f2937;
             --color-text-muted: #6b7280;
+        }
+        .dark {
+            --color-secondary: #374151;
+            --color-bg: #111827;
+            --color-surface: #1f2937;
+            --color-border: #374151;
+            --color-text: #f9fafb;
+            --color-text-muted: #9ca3af;
         }
         /* Custom scrollbar and minor tweaks */
         ::-webkit-scrollbar { width: 6px; height: 6px; }
