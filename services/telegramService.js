@@ -17,7 +17,7 @@ const {
     saveRawJob,
     saveMatchedJob
 } = require("../services/pipeline/storageService");
-const { runEvaluationPipeline, getActiveProfile } = require("../services/pipeline/aiEvaluationService");
+const aiEvaluationService = require("../services/pipeline/aiEvaluationService");
 const { sendMatchedJobEmail } = require("./emailService");
 const { saveTrainingSample } = require("./trainingDatasetService");
 
@@ -288,7 +288,7 @@ const processJobUrl = async (url, telegramCompany, profile, structuredData, sour
             groqFallbacks:   0,
         };
         logWithTime(`[INFO] AI Evaluation Started (Gemini / Groq / Z.ai / Local)`);
-        const result = await runEvaluationPipeline(job, profile, aiState);
+        const result = await aiEvaluationService.runEvaluationPipeline(job, profile, aiState);
         logWithTime(`[INFO] AI Evaluation Completed`);
 
         if (result.skipped) {
@@ -585,7 +585,7 @@ const processMessageContent = async (text, entities, chatUsername, messageId, op
             logWithTime(`[INFO] Dynamic company created: ${companyName}`);
         }
 
-        const profile = await getActiveProfile();
+        const profile = await aiEvaluationService.getActiveProfile();
 
         let jobCount = 0;
         let matchCount = 0;

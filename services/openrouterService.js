@@ -43,7 +43,7 @@ const evaluateJobWithOpenRouter = async (job, profile, apiKey) => {
                 "HTTP-Referer": "https://rolenova.app",
                 "X-Title": "RoleNova Job Evaluator",
             },
-            timeout: 20000,
+            timeout: 60000,
         }
     );
 

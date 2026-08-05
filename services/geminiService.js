@@ -313,7 +313,7 @@ const evaluateJob = async (job, profile, aiState = { gemini: { available: true }
             try {
                 console.log(`[AI] Trying Groq ${keyLabel}`);
                 const result = await withLogContext({ provider: "Groq" }, async () => {
-                    const groqAnalysis = await withRetry(() => evaluateJobWithGroq(job, profile, keyToUse), { maxRetries: 2 });
+                    const groqAnalysis = await withRetry(() => evaluateJobWithGroq(job, profile, keyToUse), { maxRetries: 0 });
                     if (!groqAnalysis) throw new Error("Groq returned empty response");
                     aiState.groq.success = (aiState.groq.success || 0) + 1;
                     groqAnalysis.evaluationMetrics = {
@@ -382,7 +382,7 @@ const evaluateJob = async (job, profile, aiState = { gemini: { available: true }
             try {
                 console.log(`[AI] Trying OpenRouter ${keyLabel}`);
                 const result = await withLogContext({ provider: "OpenRouter" }, async () => {
-                    const orAnalysis = await withRetry(() => evaluateJobWithOpenRouter(job, profile, keyToUse), { maxRetries: 2 });
+                    const orAnalysis = await withRetry(() => evaluateJobWithOpenRouter(job, profile, keyToUse), { maxRetries: 0 });
                     if (!orAnalysis) throw new Error("OpenRouter returned empty response");
                     aiState.openrouter.success = (aiState.openrouter.success || 0) + 1;
                     orAnalysis.evaluationMetrics = {
