@@ -8,11 +8,11 @@ router.get('/pipeline', requireAdmin, (req, res) => {
     res.render('pages/pipeline', { title: 'Pipeline Execution' });
 });
 
-router.get('/discovery', (req, res) => {
+router.get('/discovery', requireAdmin, (req, res) => {
     res.render('pages/ats-discovery', { title: 'ATS Discovery Engine' });
 });
 
-router.get('/ai-rejected', async (req, res) => {
+router.get('/ai-rejected', requireAdmin, async (req, res) => {
     try {
         const RejectedJob = require('../models/RejectedJob');
         const jobs = await RejectedJob.find().populate('company', 'name').sort({ createdAt: -1 });
@@ -36,7 +36,7 @@ router.get('/', async (req, res, next) => {
     }
 });
 
-router.get('/jobs', async (req, res) => {
+router.get('/jobs', requireAdmin, async (req, res) => {
     try {
         const MatchedJob = require('../models/MatchedJob');
         const jobs = await MatchedJob.find({ 
@@ -51,7 +51,7 @@ router.get('/jobs', async (req, res) => {
     }
 });
 
-router.get('/closed-jobs', async (req, res) => {
+router.get('/closed-jobs', requireAdmin, async (req, res) => {
     try {
         const MatchedJob = require('../models/MatchedJob');
         const jobs = await MatchedJob.find({ jobStatus: 'Closed' }).populate('company', 'name').sort({ closedAt: -1, updatedAt: -1 });
@@ -61,7 +61,7 @@ router.get('/closed-jobs', async (req, res) => {
     }
 });
 
-router.get('/local-jobs', async (req, res) => {
+router.get('/local-jobs', requireAdmin, async (req, res) => {
     try {
         const MatchedJob = require('../models/MatchedJob');
         const jobs = await MatchedJob.find({ status: 'new', provider: /^local/i }).populate('company', 'name').sort({ score: -1 });
@@ -71,7 +71,7 @@ router.get('/local-jobs', async (req, res) => {
     }
 });
 
-router.get('/saved', async (req, res) => {
+router.get('/saved', requireAdmin, async (req, res) => {
     try {
         const MatchedJob = require('../models/MatchedJob');
         const jobs = await MatchedJob.find({ status: 'saved' }).populate('company', 'name').sort({ score: -1 });
@@ -81,7 +81,7 @@ router.get('/saved', async (req, res) => {
     }
 });
 
-router.get('/applied', async (req, res) => {
+router.get('/applied', requireAdmin, async (req, res) => {
     try {
         const MatchedJob = require('../models/MatchedJob');
         const jobs = await MatchedJob.find({ status: 'applied' }).populate('company', 'name').sort({ appliedAt: -1 });
@@ -91,7 +91,7 @@ router.get('/applied', async (req, res) => {
     }
 });
 
-router.get('/rejected', async (req, res) => {
+router.get('/rejected', requireAdmin, async (req, res) => {
     try {
         const MatchedJob = require('../models/MatchedJob');
         const jobs = await MatchedJob.find({ status: 'rejected' }).populate('company', 'name').sort({ updatedAt: -1 });
@@ -101,7 +101,7 @@ router.get('/rejected', async (req, res) => {
     }
 });
 
-router.get('/job/:id', async (req, res) => {
+router.get('/job/:id', requireAdmin, async (req, res) => {
     try {
         const MatchedJob = require('../models/MatchedJob');
         const job = await MatchedJob.findById(req.params.id).populate('company', 'name');
@@ -131,7 +131,7 @@ router.get('/cache', requireAdmin, (req, res) => {
     res.render('pages/cache-dashboard', { title: 'Smart Cache' });
 });
 
-router.get('/ai-dashboard', (req, res) => {
+router.get('/ai-dashboard', requireAdmin, (req, res) => {
     res.render('pages/ai-dashboard', { title: 'AI Evaluation' });
 });
 
@@ -193,7 +193,7 @@ router.get('/evidence/download/zip', requireAdmin, (req, res) => {
     archive.finalize();
 });
 
-router.get('/ai-explainability', (req, res) => {
+router.get('/ai-explainability', requireAdmin, (req, res) => {
     res.render('pages/ai-explainability', { title: 'AI Explainability' });
 });
 

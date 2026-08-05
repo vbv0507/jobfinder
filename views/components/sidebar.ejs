@@ -60,6 +60,7 @@
                         <i class="fa-regular fa-building w-4 text-center"></i>
                         Companies
                     </a>
+                    <% if (locals.user && locals.user.role === 'admin') { %>
                     <a href="/jobs" class="nav-link flex items-center justify-between px-3 py-2 rounded-md text-sm font-medium text-textMuted hover:text-textMain hover:bg-surface transition-colors">
                         <div class="flex items-center gap-3">
                             <i class="fa-solid fa-briefcase w-4 text-center"></i>
@@ -88,6 +89,7 @@
                         <i class="fa-solid fa-robot w-4 text-center"></i>
                         AI Rejected
                     </a>
+                    <% } %>
                 </div>
             </div>
 
