@@ -32,11 +32,39 @@
 
 <script>
     async function loadUsers() {
+        const tbody = document.getElementById('usersTableBody');
+        
+        if (!window.Clerk) {
+            setTimeout(loadUsers, 100);
+            return;
+        }
+
+        // Wait for Clerk to be ready using its native event listener
+        if (typeof window.Clerk.addListener === 'function' && typeof window.Clerk.session === 'undefined') {
+            let fired = false;
+            window.Clerk.addListener((state) => {
+                if (fired) return;
+                if (state.session !== undefined) {
+                    fired = true;
+                    executeLoadUsers();
+                }
+            });
+            return;
+        }
+
+        executeLoadUsers();
+    }
+
+    async function executeLoadUsers() {
+        const tbody = document.getElementById('usersTableBody');
+        if (tbody) tbody.innerHTML = '<tr><td colspan="6" class="px-6 py-8 text-center text-blue-500">Executing loadUsers...</td></tr>';
+        
         try {
+            if (tbody) tbody.innerHTML = '<tr><td colspan="6" class="px-6 py-8 text-center text-blue-500">Calling API...</td></tr>';
             const users = await apiCall('/admin/api/users');
-            const tbody = document.getElementById('usersTableBody');
+            if (tbody) tbody.innerHTML = '<tr><td colspan="6" class="px-6 py-8 text-center text-blue-500">API returned data! Mapping...</td></tr>';
             
-            if (users.length === 0) {
+            if (!users || users.length === 0) {
                 tbody.innerHTML = '<tr><td colspan="6" class="px-6 py-8 text-center text-gray-500 dark:text-gray-400">No users found.</td></tr>';
                 return;
             }
@@ -155,11 +183,8 @@
         }
     }
 
-    if (window.clerkReady) {
-        loadUsers();
-    } else {
-        window.addEventListener('clerk-ready', loadUsers);
-    }
+    // Start polling immediately
+    loadUsers();
 </script>
 
 <%- include('../partials/footer') %>

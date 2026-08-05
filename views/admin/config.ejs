@@ -13,45 +13,37 @@
 
 <script>
     async function loadConfig() {
+        if (!window.Clerk) {
+            setTimeout(loadConfig, 100);
+            return;
+        }
+
+        if (typeof window.Clerk.addListener === 'function' && typeof window.Clerk.session === 'undefined') {
+            let fired = false;
+            window.Clerk.addListener((state) => {
+                if (fired) return;
+                if (state.session !== undefined) {
+                    fired = true;
+                    executeLoadConfig();
+                }
+            });
+            return;
+        }
+
+        executeLoadConfig();
+    }
+
+    async function executeLoadConfig() {
         try {
-            const res = await apiCall('/api/system/detailed-health');
-            const data = res;
-            
-            const list = document.getElementById('configList');
-            list.innerHTML = `
-                <div>
-                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Environment</dt>
-                    <dd class="mt-1 text-sm text-gray-900 dark:text-gray-100">${data.environment}</dd>
-                </div>
-                <div>
-                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Version</dt>
-                    <dd class="mt-1 text-sm text-gray-900 dark:text-gray-100">${data.version}</dd>
-                </div>
-                <div>
-                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Cron Enabled</dt>
-                    <dd class="mt-1 text-sm text-gray-900 dark:text-gray-100">Unknown (Check .env)</dd>
-                </div>
-                <div>
-                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Node Version</dt>
-                    <dd class="mt-1 text-sm text-gray-900 dark:text-gray-100">${navigator.userAgent}</dd>
-                </div>
-                <div>
-                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Configured AI Providers</dt>
-                    <dd class="mt-1 text-sm text-gray-900 dark:text-gray-100">Gemini: ${data.ai.gemini}, Groq: ${data.ai.groq}, Local: ${data.ai.local}</dd>
-                </div>
-                <div>
-                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Monitored Telegram Channels</dt>
-                    <dd class="mt-1 text-sm text-gray-900 dark:text-gray-100">${data.telegram.monitoredChannels.length} Channels</dd>
-                </div>
-            `;
-        } catch (e) {
-            console.error(e);
+            const config = await apiCall('/admin/api/config');
+            document.getElementById('MATCH_THRESHOLD').value = config.MATCH_THRESHOLD || 65;
+            document.getElementById('MAX_JOBS_PER_COMPANY').value = config.MAX_JOBS_PER_COMPANY || 100;
+            document.getElementById('MAX_AI_EVALUATIONS_PER_RUN').value = config.MAX_AI_EVALUATIONS_PER_RUN || 10;
+        } catch (error) {
+            console.error('Failed to load config:', error);
         }
     }
-    if (window.clerkReady) {
-        loadConfig();
-    } else {
-        window.addEventListener('clerk-ready', loadConfig);
-    }
+    
+    loadConfig();
 </script>
 <%- include('../partials/footer') %>
