@@ -5,6 +5,7 @@
         <h1 class="text-3xl font-bold tracking-tight text-textMain">Welcome back, <%= locals.user ? locals.user.fullName : 'Admin' %></h1>
         <p class="text-textMuted">Here's a detailed overview of the RoleNova ATS Pipeline and Engine health.</p>
     </div>
+    <% if (locals.user && locals.user.role === 'admin') { %>
     <div class="flex flex-wrap items-center gap-3">
         <button id="btn-run" class="px-4 py-2 bg-primary hover:bg-primaryHover text-white rounded-md text-sm font-medium transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed flex-1 sm:flex-none text-center">
             <i class="fa-solid fa-play mr-2"></i> Run Pipeline
@@ -16,6 +17,7 @@
             <i class="fa-solid fa-stop mr-2"></i> Stop
         </button>
     </div>
+    <% } %>
 </div>
 
 <!-- Scheduler Overview -->
