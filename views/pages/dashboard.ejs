@@ -21,18 +21,59 @@
 </div>
 
 <% if (locals.user && locals.user.role === 'viewer') { %>
-<div class="mb-8 p-6 bg-surface border border-border rounded-lg shadow-sm">
-    <h2 class="text-xl font-semibold text-textMain mb-2">About RoleNova Pipeline</h2>
-    <p class="text-textMuted mb-4">
-        RoleNova is an autonomous, AI-driven ATS Discovery and Job Scraping Engine. It traverses company career pages in real-time, scrapes job listings, and uses AI (Gemini, Groq, DeepSeek) to evaluate matches against candidate profiles. As a viewer, you have access to top-level analytics and company tracking.
-    </p>
+<div class="mb-8 p-8 bg-surface border border-border rounded-xl shadow-sm">
+    <div class="flex items-center gap-4 mb-6 pb-6 border-b border-border">
+        <div class="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center text-primary text-xl">
+            <i class="fa-solid fa-rocket"></i>
+        </div>
+        <div>
+            <h2 class="text-2xl font-bold text-textMain">Welcome to RoleNova</h2>
+            <p class="text-textMuted mt-1">Autonomous ATS Discovery & Job Scraping Engine</p>
+        </div>
+    </div>
+
+    <div class="space-y-6">
+        <section>
+            <h3 class="text-lg font-semibold text-textMain mb-2 flex items-center gap-2">
+                <i class="fa-solid fa-bullseye text-[#8b5cf6]"></i> Project Aim
+            </h3>
+            <p class="text-textMuted leading-relaxed">
+                Finding the perfect job shouldn't require hundreds of hours of manual searching. RoleNova was built to automate the entire job discovery process. It acts as your personal, highly intelligent AI recruiter that works 24/7. It constantly monitors company career pages, discovers hidden job postings the second they are published, and uses advanced Artificial Intelligence to read the job descriptions and determine if you are a strong match based on your specific skills and experience.
+            </p>
+        </section>
+
+        <section>
+            <h3 class="text-lg font-semibold text-textMain mb-2 flex items-center gap-2">
+                <i class="fa-solid fa-diagram-project text-success"></i> How It Works (Behind the Scenes)
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-3">
+                <div class="p-4 bg-background border border-border rounded-lg">
+                    <h4 class="font-medium text-textMain mb-1"><i class="fa-solid fa-spider text-primary mr-1"></i> 1. Smart Scraping</h4>
+                    <p class="text-sm text-textMuted">RoleNova connects to Applicant Tracking Systems (like Workday, Greenhouse, and Lever) directly. If a company blocks automated access, it intelligently bypasses restrictions using browser emulation.</p>
+                </div>
+                <div class="p-4 bg-background border border-border rounded-lg">
+                    <h4 class="font-medium text-textMain mb-1"><i class="fa-solid fa-brain text-[#8b5cf6] mr-1"></i> 2. AI Evaluation</h4>
+                    <p class="text-sm text-textMuted">When a new job is found, it is sent to Large Language Models (like Google Gemini and Groq). The AI reads your resume profile and the job description, scoring the match out of 100.</p>
+                </div>
+                <div class="p-4 bg-background border border-border rounded-lg">
+                    <h4 class="font-medium text-textMain mb-1"><i class="fa-brands fa-telegram text-[#0088cc] mr-1"></i> 3. External Monitoring</h4>
+                    <p class="text-sm text-textMuted">Beyond company websites, RoleNova actively listens to premium Telegram job channels, instantly intercepting messages, parsing job details, and adding them to the pipeline.</p>
+                </div>
+                <div class="p-4 bg-background border border-border rounded-lg">
+                    <h4 class="font-medium text-textMain mb-1"><i class="fa-solid fa-bell text-warning mr-1"></i> 4. Alerts & Action</h4>
+                    <p class="text-sm text-textMuted">Only the highly-matched jobs survive the pipeline. These jobs are categorized, saved to the database, and you are immediately notified so you can apply first.</p>
+                </div>
+            </div>
+        </section>
+    </div>
     
+    <div class="mt-8 pt-6 border-t border-border">
     <% if (locals.user.viewAccess === 'none') { %>
         <div class="flex items-center gap-4 bg-background p-4 rounded-md border border-border">
             <i class="fa-solid fa-lock text-textMuted text-2xl"></i>
             <div class="flex-1">
-                <p class="text-sm font-medium text-textMain">Want to see more?</p>
-                <p class="text-xs text-textMuted">You can request extended view access to explore matched jobs, AI evaluation logs, and pipeline evidence.</p>
+                <p class="text-sm font-medium text-textMain">Want to explore the data?</p>
+                <p class="text-xs text-textMuted">Request extended view access to see the actual matched jobs, AI reasoning, and real-time logs.</p>
             </div>
             <button onclick="requestExtendedAccess()" class="px-4 py-2 bg-primary hover:bg-primaryHover text-white rounded-md text-sm font-medium transition-colors shadow-sm">
                 Request Access
@@ -55,6 +96,7 @@
             </div>
         </div>
     <% } %>
+    </div>
 </div>
 
 <script>
@@ -78,6 +120,7 @@ async function requestExtendedAccess() {
 </script>
 <% } %>
 
+<% if (locals.user && locals.user.role === 'admin') { %>
 <!-- Scheduler Overview -->
 <div class="mb-8">
     <h2 class="text-lg font-semibold text-textMain mb-4">Scheduler Status (Azure Native)</h2>
@@ -107,9 +150,9 @@ async function requestExtendedAccess() {
                 <p class="text-3xl font-bold text-textMain" id="stat-health-score">--%</p>
                 <p class="text-xs text-textMuted mt-1">Based on recent pipeline run</p>
             </div>
-            <div class="text-sm text-success font-medium flex items-center gap-1">
+            <div class="flex items-center gap-1 text-xs font-medium text-success" id="stat-health-trend">
                 <i class="fa-solid fa-arrow-up"></i>
-                <span id="stat-health-trend">--%</span>
+                <span>--%</span>
             </div>
         </div>
     </div>
@@ -239,6 +282,7 @@ async function requestExtendedAccess() {
         </div>
     </div>
 </div>
+<% } %>
 
 <script type="module" src="/js/modules/dashboard.js"></script>
 
