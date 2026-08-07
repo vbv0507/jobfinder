@@ -7,10 +7,13 @@ const axios = require("axios");
 const { HttpsProxyAgent } = require("https-proxy-agent");
 const { normalizeJobUrl } = require("../utils/urlNormalizer");
 const { withLogContext } = require("../utils/logger");
+const os = require("os");
+const crypto = require("crypto");
 
 const Company = require("../models/Company");
 const CandidateProfile = require("../models/CandidateProfile");
 const TelegramChannel = require("../models/TelegramChannel");
+const TelegramListenerLock = require("../models/TelegramListenerLock");
 
 const { extractUrls, getUrlStrategy } = require("../utils/urlStrategy");
 const {
@@ -42,6 +45,114 @@ let isStarting = false;
 let reconnectDelay = 5000;
 let allowedChannels = new Set();
 let messagesReceivedSinceStartup = 0;
+let telegramLockHeartbeatTimer = null;
+
+const TELEGRAM_LOCK_ID = "global_telegram_listener";
+const TELEGRAM_LOCK_TTL_MS = Number(process.env.TELEGRAM_LISTENER_LOCK_TTL_MS || 90000);
+const TELEGRAM_LOCK_HEARTBEAT_MS = Number(process.env.TELEGRAM_LISTENER_LOCK_HEARTBEAT_MS || 30000);
+const TELEGRAM_INSTANCE_ID = process.env.WEBSITE_INSTANCE_ID ||
+    process.env.ROLE_INSTANCE_ID ||
+    `${os.hostname()}-${process.pid}-${crypto.randomUUID()}`;
+
+const acquireTelegramListenerLock = async () => {
+    const now = new Date();
+    const expiresAt = new Date(now.getTime() + TELEGRAM_LOCK_TTL_MS);
+
+    try {
+        const lock = await TelegramListenerLock.findOneAndUpdate(
+            {
+                lockId: TELEGRAM_LOCK_ID,
+                $or: [
+                    { status: "Idle" },
+                    { expiresAt: { $lte: now } },
+                    { ownerId: TELEGRAM_INSTANCE_ID }
+                ]
+            },
+            {
+                $set: {
+                    status: "Running",
+                    ownerId: TELEGRAM_INSTANCE_ID,
+                    hostname: os.hostname(),
+                    pid: process.pid,
+                    heartbeatAt: now,
+                    expiresAt
+                },
+                $setOnInsert: {
+                    lockId: TELEGRAM_LOCK_ID,
+                    startedAt: now
+                }
+            },
+            { upsert: true, new: true }
+        );
+
+        return lock && lock.ownerId === TELEGRAM_INSTANCE_ID;
+    } catch (error) {
+        if (error.code === 11000) return false;
+        throw error;
+    }
+};
+
+const renewTelegramListenerLock = async () => {
+    const now = new Date();
+    const result = await TelegramListenerLock.updateOne(
+        {
+            lockId: TELEGRAM_LOCK_ID,
+            ownerId: TELEGRAM_INSTANCE_ID,
+            status: "Running"
+        },
+        {
+            $set: {
+                heartbeatAt: now,
+                expiresAt: new Date(now.getTime() + TELEGRAM_LOCK_TTL_MS)
+            }
+        }
+    );
+
+    return result.modifiedCount === 1 || result.matchedCount === 1;
+};
+
+const releaseTelegramListenerLock = async () => {
+    await TelegramListenerLock.updateOne(
+        { lockId: TELEGRAM_LOCK_ID, ownerId: TELEGRAM_INSTANCE_ID },
+        {
+            $set: {
+                status: "Idle",
+                ownerId: null,
+                hostname: null,
+                pid: null,
+                expiresAt: null
+            }
+        }
+    ).catch(error => console.warn("[Telegram Lock] Release skipped:", error.message));
+};
+
+const stopTelegramLockHeartbeat = () => {
+    if (telegramLockHeartbeatTimer) {
+        clearInterval(telegramLockHeartbeatTimer);
+        telegramLockHeartbeatTimer = null;
+    }
+};
+
+const startTelegramLockHeartbeat = () => {
+    stopTelegramLockHeartbeat();
+    telegramLockHeartbeatTimer = setInterval(async () => {
+        try {
+            const renewed = await renewTelegramListenerLock();
+            if (!renewed) {
+                console.warn("[Telegram Lock] Lost listener lock. Disconnecting this Telegram client to prevent duplicate session use.");
+                stopTelegramLockHeartbeat();
+                listenerStatus.status = "Lock Lost";
+                if (telegramClient) {
+                    try { await telegramClient.disconnect(); } catch (e) {}
+                    try { await telegramClient.destroy(); } catch (e) {}
+                    telegramClient = null;
+                }
+            }
+        } catch (error) {
+            console.warn("[Telegram Lock] Heartbeat failed:", error.message);
+        }
+    }, TELEGRAM_LOCK_HEARTBEAT_MS);
+};
 
 const emitTelegramSnapshot = async (lastMessage = null) => {
     try {
@@ -103,6 +214,15 @@ const parseStructuredPost = (text = "") => {
     location = matchLine(/(?:Location|Job Location)[\s:]+([^\n*]+)/i) || text.match(/(?:Location|Job Location)[\s:]+([^\n*]+)/i)?.[1]?.trim();
     salary = matchLine(/(?:Salary|Stipend|CTC|Package)[\s:]+([^\n*]+)/i) || text.match(/(?:Salary|Stipend|CTC|Package)[\s:]+([^\n*]+)/i)?.[1]?.trim();
     type = matchLine(/(?:Type|Employment Type)[\s:]+([^\n*]+)/i) || text.match(/(?:Type|Employment Type)[\s:]+([^\n*]+)/i)?.[1]?.trim();
+
+    const hiringLine = lines
+        .map(l => l.replace(/^[^\w@#]+/, "").replace(/[*_]/g, "").trim())
+        .find(l => /\bis hiring\b/i.test(l));
+    const hiringMatch = hiringLine?.match(/^(.+?)\s+is hiring\s+(.+)$/i);
+    if (hiringMatch) {
+        company = company || hiringMatch[1].trim();
+        role = role || hiringMatch[2].trim();
+    }
     
     
     const genericPhrases = /^(hiring|urgent hiring|frontend developers|developers|software engineers|apply now|freshers|immediate joiners|urgent|apply)$/i;
@@ -125,6 +245,39 @@ const parseStructuredPost = (text = "") => {
         salary: salary || null,
         type: type || null,
     };
+};
+
+const buildTelegramJobCandidates = (text = "", inlineUrls = []) => {
+    const lines = text.split('\n');
+    const candidates = [];
+    let currentBlock = [];
+
+    for (const line of lines) {
+        const lineUrls = extractUrls(line);
+        currentBlock.push(line);
+
+        if (lineUrls.length > 0) {
+            const blockText = currentBlock.join('\n').trim() || text;
+            lineUrls.forEach(url => candidates.push({ url, text: blockText }));
+            currentBlock = [];
+        }
+    }
+
+    const existingUrls = new Set(candidates.map(candidate => candidate.url));
+    inlineUrls.forEach(url => {
+        if (!existingUrls.has(url)) {
+            candidates.push({ url, text });
+            existingUrls.add(url);
+        }
+    });
+
+    if (candidates.length === 0) {
+        return [];
+    }
+
+    return candidates.filter((candidate, index, all) =>
+        all.findIndex(other => other.url === candidate.url && other.text === candidate.text) === index
+    );
 };
 
 const scrapeGenericJobPage = async (url) => {
@@ -552,38 +705,23 @@ const processMessageContent = async (text, entities, chatUsername, messageId, op
         if (!silent) {
             console.log("\n├─ STAGE 2: Structured Parser");
         }
-        const structuredData = parseStructuredPost(text);
-        let urls = extractUrls(text);
-        urls.push(...inlineUrls);
-        urls = [...new Set(urls)];
+        const jobCandidates = buildTelegramJobCandidates(text, inlineUrls);
+        const previewStructuredData = parseStructuredPost(jobCandidates[0]?.text || text);
 
         if (!silent) {
-            console.log(`│  company    : ${structuredData.company || "(not found)"}`);
-            console.log(`│  role       : ${structuredData.role || "(not found)"}`);
-            console.log(`│  location   : ${structuredData.location || "(not found)"}`);
-            console.log(`│  experience : ${structuredData.experience || "(not found)"}`);
-            console.log(`│  URLs found : ${urls.length}`);
-            urls.forEach((u, i) => console.log(`│    [${i+1}] ${u}`));
+            console.log(`│  company    : ${previewStructuredData.company || "(not found)"}`);
+            console.log(`│  role       : ${previewStructuredData.role || "(not found)"}`);
+            console.log(`│  location   : ${previewStructuredData.location || "(not found)"}`);
+            console.log(`│  experience : ${previewStructuredData.experience || "(not found)"}`);
+            console.log(`│  URLs found : ${jobCandidates.length}`);
+            jobCandidates.forEach((candidate, i) => console.log(`│    [${i+1}] ${candidate.url}`));
         }
 
-        if (urls.length === 0) {
+        if (jobCandidates.length === 0) {
             if (!silent) console.log("└─ STAGE 2 RESULT: No URLs found — cannot process");
             return { jobCount: 0, matchCount: 0, processedJobs: [] };
         }
         if (!silent) console.log("└─ STAGE 2 RESULT: OK");
-
-        const companyName = structuredData.company || "External Job";
-        let telegramCompany = await Company.findOne({ name: companyName });
-        if (!telegramCompany) {
-            telegramCompany = await Company.create({
-                name: companyName,
-                careerUrl: "https://t.me",
-                ats: "telegram",
-                category: "Telegram",
-                active: false
-            });
-            logWithTime(`[INFO] Dynamic company created: ${companyName}`);
-        }
 
         const profile = await aiEvaluationService.getActiveProfile();
 
@@ -591,8 +729,22 @@ const processMessageContent = async (text, entities, chatUsername, messageId, op
         let matchCount = 0;
         let processedJobs = [];
 
-        for (const url of urls) {
-            const result = await processJobUrl(url, telegramCompany, profile, structuredData, chatUsername, messageId);
+        for (const candidate of jobCandidates) {
+            const structuredData = parseStructuredPost(candidate.text || text);
+            const companyName = structuredData.company || "External Job";
+            let telegramCompany = await Company.findOne({ name: companyName });
+            if (!telegramCompany) {
+                telegramCompany = await Company.create({
+                    name: companyName,
+                    careerUrl: "https://t.me",
+                    ats: "telegram",
+                    category: "Telegram",
+                    active: false
+                });
+                logWithTime(`[INFO] Dynamic company created: ${companyName}`);
+            }
+
+            const result = await processJobUrl(candidate.url, telegramCompany, profile, structuredData, chatUsername, messageId);
             if (result && result.parsed) {
                 jobCount++;
                 processedJobs.push({
@@ -666,6 +818,8 @@ const processMessageContent = async (text, entities, chatUsername, messageId, op
 const handleDisconnect = () => {
     if (isReconnecting) return;
     isReconnecting = true;
+    stopTelegramLockHeartbeat();
+    releaseTelegramListenerLock();
     
     listenerStatus.status = "Disconnected";
     listenerStatus.lastDisconnectedAt = new Date();
@@ -692,9 +846,19 @@ const startTelegramListener = async () => {
         isStarting = false;
         return;
     }
+
+    const lockAcquired = await acquireTelegramListenerLock();
+    if (!lockAcquired) {
+        console.log("[Telegram Lock] Another RoleNova instance owns the Telegram listener lock. This instance will not connect.");
+        listenerStatus.status = "Standby (Listener Lock Held Elsewhere)";
+        listenerStatus.lockOwner = "another-instance";
+        isStarting = false;
+        return;
+    }
     
     console.log("\n[START]");
     listenerStatus.status = "Connecting";
+    listenerStatus.lockOwner = TELEGRAM_INSTANCE_ID;
     
     if (global.telegramReconnectTimer) {
         clearTimeout(global.telegramReconnectTimer);
@@ -784,6 +948,7 @@ const startTelegramListener = async () => {
         listenerStatus.uptimeStart = new Date();
         listenerStatus.layer = telegramClient.session.serverAddress || "Unknown"; 
         listenerStatus.dc = telegramClient.session.dcId || "Unknown";
+        startTelegramLockHeartbeat();
         
         reconnectDelay = 5000;
         isReconnecting = false;
@@ -866,6 +1031,8 @@ const startTelegramListener = async () => {
     } catch (error) {
         isStarting = false;
         isReconnecting = false;
+        stopTelegramLockHeartbeat();
+        await releaseTelegramListenerLock();
         
         console.log(`\n[Telegram ERROR] RPC or Connection Error: ${error.message}`);
         
@@ -904,11 +1071,14 @@ const reconnectTelegram = async () => {
     return listenerStatus;
 };
 
-const stopTelegramListener = () => {
+const stopTelegramListener = async () => {
+    stopTelegramLockHeartbeat();
+    await releaseTelegramListenerLock();
     if (telegramClient) {
         console.log('[Telegram] Disconnecting client...');
-        telegramClient.disconnect();
+        await telegramClient.disconnect();
         listenerStatus.status = "Disconnected (Manual)";
+        telegramClient = null;
     }
 };
 
