@@ -3869,5 +3869,54 @@ module.exports = [
                 "3+"
             ]
         }
+    },
+    {
+        "name": "Unthinkable",
+        "category": "Product",
+        "industry": "Indian Product",
+        "active": true,
+        "careerUrl": "https://www.unthinkable.co/",
+        "careerPage": "https://www.unthinkable.co/",
+        "logo": "https://logo.clearbit.com/unthinkable.co",
+        "scraperType": "api",
+        "scraperConfig": {
+            "allowedLocations": [
+                "india",
+                "remote",
+                "bengaluru",
+                "bangalore",
+                "hyderabad",
+                "pune",
+                "gurgaon",
+                "noida"
+            ],
+            "targetKeywords": [
+                "software engineer",
+                "software development engineer",
+                "sde",
+                "backend",
+                "developer",
+                "api",
+                "java",
+                "python",
+                "node",
+                "golang"
+            ],
+            "excludedKeywords": [
+                "senior",
+                "sr ",
+                "sr.",
+                "staff",
+                "principal",
+                "manager",
+                "director",
+                "lead",
+                "architect",
+                "1-3",
+                "1 to 3",
+                "2+",
+                "3+"
+            ]
+        }
     }
 ];
