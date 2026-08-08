@@ -32,6 +32,11 @@ const companySchema = new mongoose.Schema({
         type: Boolean,
         default: true,
     },
+    isSeedCompany: {
+        type: Boolean,
+        default: false,
+        index: true,
+    },
     priority: {
         type: Number,
         default: 2,

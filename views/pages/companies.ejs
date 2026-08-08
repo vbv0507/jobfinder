@@ -1,8 +1,8 @@
-<%- include('../layouts/header', { title: 'Companies Monitored' }) %>
+<%- include('../layouts/header', { title: pageTitle || 'Companies Monitored' }) %>
 
 <div class="mb-8">
-    <h1 class="text-2xl font-bold tracking-tight text-textMain mb-2">Active Companies</h1>
-    <p class="text-textMuted text-sm">Companies currently monitored by the job pipeline.</p>
+    <h1 class="text-2xl font-bold tracking-tight text-textMain mb-2"><%= pageTitle || 'Active Companies' %></h1>
+    <p class="text-textMuted text-sm"><%= pageSubtitle || 'Companies currently monitored by the job pipeline.' %></p>
 </div>
 
 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6" id="companies-grid">
@@ -13,6 +13,9 @@
 </div>
 
 <script>
+    const companiesApiUrl = <%- JSON.stringify(apiUrl || '/api/companies') %>;
+    const enableRealtime = <%- JSON.stringify(enableRealtime !== false) %>;
+
     const timeAgo = (dateStr) => {
         if (!dateStr) return 'Never';
         const date = new Date(dateStr);
@@ -142,7 +145,23 @@
             }
     }
 
+    async function loadCompaniesOnce() {
+        try {
+            const response = await fetch(companiesApiUrl);
+            const data = await response.json();
+            renderCompanies(data, null);
+        } catch (e) {
+            console.error('REST load failed:', e);
+            document.getElementById("companies-grid").innerHTML = '<div class="col-span-full p-12 text-center text-error">Failed to load companies.</div>';
+        }
+    }
+
     async function initCompaniesSocket() {
+        if (!enableRealtime) {
+            await loadCompaniesOnce();
+            return;
+        }
+
         let latestCompanies = null;
         let latestPipeline = null;
         
@@ -150,8 +169,8 @@
         const fallbackTimer = setTimeout(async () => {
             if (!latestCompanies) {
                 try {
-                    console.log("[Companies] Socket/Clerk took too long, falling back to REST /api/companies...");
-                    const response = await fetch('/api/companies');
+                    console.log("[Companies] Socket/Clerk took too long, falling back to REST " + companiesApiUrl + "...");
+                    const response = await fetch(companiesApiUrl);
                     const data = await response.json();
                     if (data.success && data.companies && !latestCompanies) { // check again to avoid race condition
                         latestCompanies = data;

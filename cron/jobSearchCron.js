@@ -10,6 +10,7 @@ const CandidateProfile = require("../models/CandidateProfile");
 const PipelineLock = require("../models/PipelineLock");
 
 const AdapterFactory = require("../services/ats/AdapterFactory");
+const LightweightHtmlAdapter = require("../services/ats/providers/Fallback/LightweightHtmlAdapter");
 const { applyJobFilters } = require("../services/pipeline/validationService");
 
 const { saveTrainingSample } = require("../services/trainingDatasetService");
@@ -22,6 +23,26 @@ const { discoverEndpoint } = require('../services/ats/discoveryService');
 const socketService = require("../services/socketService");
 
 const MAX_JOBS_PER_COMPANY = Number(process.env.MAX_JOBS_PER_COMPANY || 10);
+
+const recordRecoveredParserMetric = (stats, companyMetrics, logEvent, companyName, parserName) => {
+  const targets = [stats, companyMetrics, pipelineState];
+  const metricKeys = ["recoveredParserFallbacks", "recoveredParserCount", "parserRecoveryCount", "zeroJobRecoveries"];
+
+  for (const target of targets) {
+    if (!target) continue;
+    for (const key of metricKeys) {
+      if (typeof target[key] === "number") {
+        target[key] += 1;
+        return true;
+      }
+    }
+  }
+
+  const message = `Recovered jobs via ${parserName} after primary adapter returned zero jobs`;
+  logEvent("Recovery", "WARN", message);
+  console.log(chalk.yellow(`[Recovery] ${companyName}: ${message}`));
+  return false;
+};
 
 const runSearch = async (triggerSource = "Unknown", forceRefresh = false) => {
   const startedAt = new Date();
@@ -310,36 +331,72 @@ const runSearch = async (triggerSource = "Unknown", forceRefresh = false) => {
             companyMetrics.parserUsed = adapter.constructor.name;
             companyMetrics.parserName = adapter.parserName;
             companyMetrics.parserVersion = adapter.parserVersion;
-            
-            const searchPromise = adapter.searchJobs();
-            const timeoutPromise = new Promise((_, reject) => {
+
+            let activeAdapter = adapter;
+
+            const runAdapterSearch = async (activeAdapter) => {
+              const searchPromise = activeAdapter.searchJobs();
+              const timeoutPromise = new Promise((_, reject) => {
                 const interval = setInterval(() => {
-                    if (pipelineState.cancelRequested) {
-                        clearInterval(interval);
-                        reject(new Error("Pipeline cancelled by user"));
-                    }
-                }, 1000);
-                
-                setTimeout(() => {
+                  if (pipelineState.cancelRequested) {
                     clearInterval(interval);
-                    reject(new Error("Scraper timeout: Exceeded 4 minutes"));
+                    reject(new Error("Pipeline cancelled by user"));
+                  }
+                }, 1000);
+
+                setTimeout(() => {
+                  clearInterval(interval);
+                  reject(new Error("Scraper timeout: Exceeded 4 minutes"));
                 }, 4 * 60 * 1000);
-                
+
                 searchPromise.finally(() => clearInterval(interval)).catch(() => {});
-            });
+              });
+
+              return Promise.race([searchPromise, timeoutPromise]);
+            };
             
-            jobs = await Promise.race([searchPromise, timeoutPromise]);
+            jobs = await runAdapterSearch(adapter);
             
             // Append scraper internal trail if present
             if (adapter.trail) {
                 adapter.trail.forEach(t => logEvent(t.stage, t.severity, t.message, t.httpCode, t.durationMs));
             }
             
+            if (jobs.length === 0 && !(adapter instanceof LightweightHtmlAdapter)) {
+              logEvent("Recovery", "WARN", "Zero jobs from primary adapter; trying universal rendered fallback");
+              console.log(chalk.yellow(`[Recovery] ${company.name}: Zero jobs from primary adapter; trying universal rendered fallback`));
+
+              try {
+                const fallbackAdapter = new LightweightHtmlAdapter(company);
+                const fallbackJobs = await runAdapterSearch(fallbackAdapter);
+
+                if (fallbackAdapter.trail) {
+                  fallbackAdapter.trail.forEach(t => logEvent(t.stage, t.severity, t.message, t.httpCode, t.durationMs));
+                }
+
+                if (fallbackJobs.length > 0) {
+                  jobs = fallbackJobs;
+                  activeAdapter = fallbackAdapter;
+                  companyMetrics.parserUsed = fallbackAdapter.constructor.name;
+                  companyMetrics.parserName = fallbackAdapter.parserName;
+                  companyMetrics.parserVersion = fallbackAdapter.parserVersion;
+                  recordRecoveredParserMetric(stats, companyMetrics, logEvent, company.name, fallbackAdapter.parserName || "LightweightHtmlAdapter");
+                  logEvent("Recovery", "SUCCESS", `Recovered ${jobs.length} jobs via ${fallbackAdapter.constructor.name}`);
+                  console.log(chalk.green(`[Recovery] ${company.name}: Recovered ${jobs.length} jobs via ${fallbackAdapter.constructor.name}`));
+                } else {
+                  logEvent("Recovery", "WARN", "Universal rendered fallback returned no jobs");
+                }
+              } catch (recoveryError) {
+                logEvent("Recovery", "WARN", `Universal rendered fallback failed: ${recoveryError.message}`);
+                console.log(chalk.yellow(`[Recovery] ${company.name}: Universal rendered fallback failed: ${recoveryError.message}`));
+              }
+            }
+            
             logEvent("Scraping", "SUCCESS", `Parsed ${jobs.length} raw jobs`);
             companyMetrics.jobsScraped = jobs.length;
             companyMetrics.jobsParsed = jobs.length;
             
-            droppedJobs = adapter.droppedJobs || [];
+            droppedJobs = activeAdapter.droppedJobs || [];
             companyMetrics.jobsValidated = jobs.length;
 
             validJobs = applyJobFilters(jobs, company, droppedJobs);

@@ -9,7 +9,7 @@ const seedCompanies = async () => {
         companies.map((company) =>
             Company.findOneAndUpdate(
                 { name: company.name },
-                { $set: company },
+                { $set: { ...company, isSeedCompany: true } },
                 { upsert: true, returnDocument: "after", setDefaultsOnInsert: true },
             ),
         ),

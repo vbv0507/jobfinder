@@ -131,7 +131,21 @@ router.get('/telegram', requireExtendedViewer, (req, res) => {
 });
 
 router.get('/companies', requireExtendedViewer, (req, res) => {
-    res.render('pages/companies');
+    res.render('pages/companies', {
+        pageTitle: 'Active Companies',
+        pageSubtitle: 'Companies currently monitored by the job pipeline.',
+        apiUrl: '/api/companies',
+        enableRealtime: true,
+    });
+});
+
+router.get('/seed-companies', requireExtendedViewer, (req, res) => {
+    res.render('pages/companies', {
+        pageTitle: 'Seed Companies',
+        pageSubtitle: 'Companies that were seeded into the database from the maintained seed list.',
+        apiUrl: '/api/companies?seedOnly=true',
+        enableRealtime: false,
+    });
 });
 
 router.get('/analytics', requireExtendedViewer, (req, res) => {
