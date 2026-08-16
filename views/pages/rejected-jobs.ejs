@@ -50,12 +50,17 @@
                                 <span class="md:hidden text-xs font-medium text-textMuted uppercase">Score</span>
                                 <div class="flex items-center gap-2">
                                     <% 
-                                        let scoreColor = "text-success bg-success/10 border-success/20";
-                                        if (job.score < 70) scoreColor = "text-warning bg-warning/10 border-warning/20";
-                                        if (job.score < 40) scoreColor = "text-error bg-error/10 border-error/20";
+                                        let scoreColor = "text-textMuted bg-surfaceHover border-border";
+                                        let displayScore = "N/A";
+                                        if (job.score != null) {
+                                            displayScore = job.score + "/100";
+                                            scoreColor = "text-success bg-success/10 border-success/20";
+                                            if (job.score < 70) scoreColor = "text-warning bg-warning/10 border-warning/20";
+                                            if (job.score < 40) scoreColor = "text-error bg-error/10 border-error/20";
+                                        }
                                     %>
                                     <span class="px-2.5 py-0.5 inline-flex text-xs font-bold rounded-full border <%= scoreColor %>">
-                                        <%= job.score %>/100
+                                        <%= displayScore %>
                                     </span>
                                     
                                     <% 
