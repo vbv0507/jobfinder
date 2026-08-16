@@ -2,7 +2,8 @@
   "scripts": {
     "start": "node index.js",
     "dev": "node --watch index.js",
-    "test": "echo \"No tests configured\""
+    "test": "echo \"No tests configured\"",
+    "postinstall": "npx playwright install chromium"
   },
   "dependencies": {
     "@clerk/express": "^2.1.44",
