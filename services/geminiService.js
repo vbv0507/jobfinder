@@ -5,7 +5,6 @@ const { classifyDomain } = require("../utils/domains");
 const { buildEvaluationPrompt, parseJsonResponse, analyzeError, validateAiResponse } = require("./aiHelpers");
 const { withLogContext } = require("../utils/logger");
 
-// Initialize OpenAI client pointing to Local LiteLLM Proxy
 const litellmClient = new OpenAI({
     apiKey: process.env.LITELLM_MASTER_KEY || "dummy-key", 
     baseURL: process.env.LITELLM_BASE_URL || "http://localhost:4000/v1"
@@ -31,7 +30,6 @@ const evaluateJobLocally = (job, profile, reasonPrefix = "AI unavailable") => {
     let domainMismatch = false;
     let experienceMismatch = false;
 
-    // 1. Mandatory Skills Extraction & Match
     const profileSkills = (profile.skills || []).map(s => s.toLowerCase());
     const commonTechs = ["node.js", "express", "mongodb", "react", "python", "java", "aws", "kubernetes", "docker", "sql", "linux", "jenkins", "argocd", "slurm"];
     const requiredSkills = commonTechs.filter(tech => text.includes(tech));
@@ -57,7 +55,6 @@ const evaluateJobLocally = (job, profile, reasonPrefix = "AI unavailable") => {
         reasonsFor.push(`Strong skill match (${skillOverlapPercentage}% overlap)`);
     }
 
-    // 2. Domain Classification
     const jobDomain = classifyDomain(text);
     const excludedDomains = (profile.excludedDomains || []).map(d => d.toUpperCase());
     
@@ -69,17 +66,14 @@ const evaluateJobLocally = (job, profile, reasonPrefix = "AI unavailable") => {
         reasonsFor.push(`Domain (${jobDomain}) is acceptable.`);
     }
 
-    // 3. Experience Extraction & Penalty
     const candExp = parseFloat(profile.yearsOfExperience) || 0;
     let reqExp = 0;
     
-    // Extract req exp
     const expMatch = text.match(/\b(\d+)\s*\+?\s*(?:years?|yrs?)\b/i);
     if (expMatch) {
         reqExp = parseInt(expMatch[1]);
     }
     
-    // Senior titles
     const isSenior = /\b(senior|sr\.?|staff|principal|manager|director|architect|lead|production engineer|site reliability engineer|platform engineer|infrastructure engineer)\b/i.test(text);
     
     if (isSenior && candExp < 3) {
@@ -104,14 +98,12 @@ const evaluateJobLocally = (job, profile, reasonPrefix = "AI unavailable") => {
         reasonsFor.push(`Experience level aligns with role requirements.`);
     }
     
-    // Hard constraint check: Fresher applying for 5+ years
     if (candExp === 0 && reqExp >= 5) {
         score = Math.min(score, 35);
         experienceMismatch = true;
         reasonsAgainst.push("HARD CONSTRAINT: Fresher applied to a role requiring 5+ years experience.");
     }
 
-    // Bounds
     if (score < 0) score = 0;
     if (score > 100) score = 100;
     
@@ -170,7 +162,6 @@ const evaluateJob = async (job, profile, aiState = { litellm: { available: true 
     let providerChain = [];
     const attemptLogs = { litellm: 'Skipped', local: 'Skipped' };
 
-    // 1. LiteLLM Proxy (Handles Groq -> OpenRouter internally)
     if (!aiState.litellm) aiState.litellm = { available: true };
 
     if (aiState.litellm.available) {
@@ -180,7 +171,6 @@ const evaluateJob = async (job, profile, aiState = { litellm: { available: true 
 
         try {
             return await withLogContext({ provider: "LiteLLM" }, async () => {
-                // Truncate job description to 25,000 characters to safely fit into Groq/OpenRouter limits
                 const MAX_CHARS = 25000;
                 let originalDescription = job.description || "";
                 let jobForPrompt = job;
@@ -195,7 +185,6 @@ const evaluateJob = async (job, profile, aiState = { litellm: { available: true 
                 
                 const prompt = buildEvaluationPrompt(jobForPrompt, profile);
                 
-                // We request 'withResponse()' to access headers so we can extract exactly which provider served it
                 const { data, response: rawResponse } = await litellmClient.chat.completions.create({
                     model: "job-scorer",
                     messages: [
@@ -204,13 +193,12 @@ const evaluateJob = async (job, profile, aiState = { litellm: { available: true 
                     ],
                     temperature: 0.1,
                     response_format: { type: "json_object" }
-                }, { timeout: 35000 }).withResponse(); // Extra timeout because LiteLLM may retry behind the scenes
+                }, { timeout: 35000 }).withResponse();
                 
                 const content = data.choices?.[0]?.message?.content || "";
                 let parsedResult = parseJsonResponse(content);
                 parsedResult = validateAiResponse(parsedResult, "LiteLLM");
                 
-                // LiteLLM indicates which model ultimately succeeded in the data.model field (e.g., 'cerebras/llama-3.3-70b')
                 const actualModel = data.model || "unknown";
                 let actualProvider = "litellm";
                 if (actualModel.includes("cerebras")) actualProvider = "cerebras";
@@ -229,7 +217,7 @@ const evaluateJob = async (job, profile, aiState = { litellm: { available: true 
                     failureReason: null
                 };
 
-                parsedResult.provider = actualProvider; // Maps beautifully to your TrainingDataset log line
+                parsedResult.provider = actualProvider;
                 parsedResult.model = actualModel;
                 parsedResult.evaluationTimeMs = Date.now() - startTime;
                 parsedResult.fallbackCount = 0;
@@ -252,7 +240,6 @@ const evaluateJob = async (job, profile, aiState = { litellm: { available: true 
         }
     }
 
-    // 5. Local
     if (process.env.ENABLE_LOCAL_MATCH_FALLBACK !== "false" && (!aiState.local || !aiState.local.disabled)) {
         providerChain.push("Local");
         if (!aiState.local) aiState.local = {};
@@ -275,7 +262,7 @@ const evaluateJob = async (job, profile, aiState = { litellm: { available: true 
         attemptLogs.local = 'Success';
         localResult.attemptLogs = attemptLogs;
         return localResult;
-        }); // End withLogContext
+        });
     }
 
     return {

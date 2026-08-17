@@ -1,65 +1,10 @@
-<#
-.SYNOPSIS
-    STAGE B -- Full Production Deploy
-    Updates the existing Stage A container app with the full LiteLLM configuration:
-    config injection via base64 env var, custom --command entrypoint, all API key
-    env vars, and the IP allowlist ingress rules.
-
-.DESCRIPTION
-    PREREQUISITES -- Do NOT run this script until ALL Stage A manual checks passed:
-      [x] CHECK A: 'sh' found at /bin/sh (or /bin/bash -- update $SHELL_BIN below)
-      [x] CHECK B: 'base64 -d' works correctly
-      [x] CHECK C: /app is writable (if not, update $CONFIG_WRITE_PATH below)
-      [x] CHECK D: 'litellm --version' works and '--config' flag is in --help output
-      [x] CHECK E: end-to-end decode+write dry run produced 'decode+write: OK'
-
-    What this script does:
-      1. Base64-encodes the litellm_config.yaml from this directory.
-      2. Updates the container app via `az containerapp update` with:
-         - All Groq / OpenRouter API key env vars (loaded from .env)
-         - LITELLM_CONFIG_B64: the base64-encoded config
-         - A custom --command that decodes and writes the config file, then starts litellm
-           using the --config flag (confirmed to be the correct invocation per LiteLLM docs)
-      3. Applies ingress traffic rules to restrict to the 31 approved IP ranges.
-      4. Verifies the updated revision is active and prints the external URL.
-
-.NOTES
-    LiteLLM --config flag: Confirmed correct per official LiteLLM documentation.
-    The image's default entrypoint is the litellm proxy; passing --config /path/to/file
-    instructs it to load that YAML. The custom --command in Stage B overrides the
-    default to first decode the config from the env var before calling litellm.
-
-    The command override runs:
-      /bin/sh -c "echo $LITELLM_CONFIG_B64 | base64 -d > /app/litellm_config.yaml && litellm --config /app/litellm_config.yaml --port 4000"
-
-    This pattern is the documented approach for config injection in Azure Container
-    Apps when volume mounts are not available (ACA does not support bind mounts from
-    local paths; Azure File Share mount is the alternative, but adds complexity).
-#>
-
-# ==============================================================================
-# SECTION 0 -- CONFIGURATION
-# Edit these to match Stage A values exactly, and update any Stage A findings.
-# ==============================================================================
-
-$RESOURCE_GROUP  = "rg-litellm-proxy"
-$ENV_NAME        = "litellm-env"
-$APP_NAME        = "litellm-proxy"
-$IMAGE           = "ghcr.io/berriai/litellm:main-latest"
-
-# -- Update these based on Stage A manual check results --
-# If CHECK A showed /bin/bash instead of /bin/sh, change this:
-$SHELL_BIN       = "/bin/sh"
-
-# If CHECK C showed /app was NOT writable, change this to the writable path found:
+$RESOURCE_GROUP    = "rg-litellm-proxy"
+$ENV_NAME          = "litellm-env"
+$APP_NAME          = "litellm-proxy"
+$IMAGE             = "ghcr.io/berriai/litellm:main-latest"
+$SHELL_BIN         = "/bin/sh"
 $CONFIG_WRITE_PATH = "/app/litellm_config.yaml"
-
-# Path to your litellm config file (relative to this script)
-$CONFIG_FILE_PATH = "$PSScriptRoot\litellm_config.yaml"
-
-# ==============================================================================
-# SECTION 1 -- PREREQUISITE CONFIRMATION GATE
-# ==============================================================================
+$CONFIG_FILE_PATH  = "$PSScriptRoot\litellm_config.yaml"
 
 Write-Host ""
 Write-Host "==========================================================" -ForegroundColor Cyan
@@ -76,10 +21,6 @@ if ($confirmed -ne "y" -and $confirmed -ne "Y") {
     exit 1
 }
 
-# ==============================================================================
-# SECTION 2 -- LOAD API KEYS FROM .ENV
-# ==============================================================================
-
 Write-Host ""
 Write-Host "==========================================================" -ForegroundColor Cyan
 Write-Host "  STAGE B -- Step 1: Loading API Keys from .env" -ForegroundColor Cyan
@@ -88,11 +29,9 @@ Write-Host "==========================================================" -Foregro
 $ENV_FILE = "$PSScriptRoot\.env"
 if (-not (Test-Path $ENV_FILE)) {
     Write-Error "[FATAL] .env file not found at: $ENV_FILE"
-    Write-Error "Create it with the required keys before running Stage B."
     exit 1
 }
 
-# Load env vars from .env (key=value format, skip comments and blanks)
 $envVars = @{}
 Get-Content $ENV_FILE | Where-Object { $_ -match '^\s*[^#].*=.*' } | ForEach-Object {
     $parts = $_ -split '=', 2
@@ -103,7 +42,6 @@ Get-Content $ENV_FILE | Where-Object { $_ -match '^\s*[^#].*=.*' } | ForEach-Obj
     }
 }
 
-# Required keys for LiteLLM proxy operation
 $requiredKeys = @(
     "GROQ_API_KEY_1",
     "GROQ_API_KEY_2",
@@ -128,10 +66,6 @@ if ($missing.Count -gt 0) {
 
 Write-Host "[OK] All required API keys found in .env." -ForegroundColor Green
 
-# ==============================================================================
-# SECTION 3 -- BASE64-ENCODE litellm_config.yaml
-# ==============================================================================
-
 Write-Host ""
 Write-Host "==========================================================" -ForegroundColor Cyan
 Write-Host "  STAGE B -- Step 2: Base64 Encoding Config File" -ForegroundColor Cyan
@@ -142,39 +76,22 @@ if (-not (Test-Path $CONFIG_FILE_PATH)) {
     exit 1
 }
 
-# Read as bytes and convert to base64 (avoids PowerShell encoding issues)
-$configBytes  = [System.IO.File]::ReadAllBytes($CONFIG_FILE_PATH)
-$configB64    = [System.Convert]::ToBase64String($configBytes)
+$configBytes = [System.IO.File]::ReadAllBytes($CONFIG_FILE_PATH)
+$configB64   = [System.Convert]::ToBase64String($configBytes)
 
 Write-Host "[OK] Config file encoded. Length: $($configB64.Length) chars." -ForegroundColor Green
 Write-Host "     First 80 chars (sanity check): $($configB64.Substring(0, [Math]::Min(80, $configB64.Length)))" -ForegroundColor DarkGray
 
-# Sanity check: verify the base64 string is non-empty and looks valid
 if ($configB64.Length -lt 10) {
     Write-Error "[FATAL] Base64 output is suspiciously short. Check the config file."
     exit 1
 }
 
-# ==============================================================================
-# SECTION 4 -- VERIFY ENV VARS LOADED (actual env array built in Section 6)
-# ==============================================================================
-
 Write-Host ""
 Write-Host "==========================================================" -ForegroundColor Cyan
 Write-Host "  STAGE B -- Step 3: Verifying Env Vars" -ForegroundColor Cyan
 Write-Host "==========================================================" -ForegroundColor Cyan
-
 Write-Host "[OK] Env vars loaded. Will be embedded in REST PATCH body." -ForegroundColor Green
-
-# ==============================================================================
-# SECTION 5 -- BUILD CUSTOM COMMAND
-# The command:
-#   1. Decodes LITELLM_CONFIG_B64 into a file at CONFIG_WRITE_PATH
-#   2. Starts litellm with --config pointing at that file
-#
-# CONFIRMED: --config is the correct flag per LiteLLM official documentation.
-# The litellm proxy accepts: litellm --config /path/to/config.yaml --port 4000
-# ==============================================================================
 
 $customCommand = "$SHELL_BIN -c `"echo \`$LITELLM_CONFIG_B64 | base64 -d > $CONFIG_WRITE_PATH && litellm --config $CONFIG_WRITE_PATH --port 4000`""
 
@@ -182,13 +99,6 @@ Write-Host ""
 Write-Host "Custom command that will be injected:" -ForegroundColor DarkGray
 Write-Host "  $customCommand" -ForegroundColor DarkGray
 Write-Host ""
-
-# ==============================================================================
-# SECTION 6 -- UPDATE THE CONTAINER APP (single REST PATCH)
-# One atomic call sets image + env vars + command + args together.
-# Reason: a two-step approach (CLI for env vars, REST PATCH for command) was
-# wiping the env vars because the PATCH replaced the whole container spec.
-# ==============================================================================
 
 Write-Host ""
 Write-Host "==========================================================" -ForegroundColor Cyan
@@ -203,8 +113,6 @@ $resourceUrl = "https://management.azure.com/subscriptions/$subId/resourceGroups
 
 $shellScript = "echo `$LITELLM_CONFIG_B64 | base64 -d > $CONFIG_WRITE_PATH && litellm --config $CONFIG_WRITE_PATH --port 4000"
 
-# Build env array as PowerShell objects -> JSON
-# This keeps all special characters correctly escaped by ConvertTo-Json
 $envArray = @(
     @{ name = "GROQ_API_KEY_1";      value = $envVars['GROQ_API_KEY_1'] },
     @{ name = "GROQ_API_KEY_2";      value = $envVars['GROQ_API_KEY_2'] },
@@ -216,7 +124,6 @@ $envArray = @(
     @{ name = "PORT";                value = "4000" }
 )
 
-# Add optional keys if present
 $optionalKeys = @("CEREBRAS_API_KEY", "DEEPSEEK_API_KEY")
 foreach ($optKey in $optionalKeys) {
     if ($envVars.ContainsKey($optKey) -and -not [string]::IsNullOrWhiteSpace($envVars[$optKey])) {
@@ -242,8 +149,6 @@ $patchObj = @{
 }
 
 $patchJson = $patchObj | ConvertTo-Json -Depth 15 -Compress
-
-# Write to temp file -> az rest reads from @file (no shell escaping of body)
 $tmpFile = [System.IO.Path]::GetTempFileName() -replace '\.tmp$', '.json'
 [System.IO.File]::WriteAllText($tmpFile, $patchJson, [System.Text.Encoding]::UTF8)
 
@@ -270,11 +175,6 @@ if ($restCode -ne 0) {
 
 Write-Host "[OK] Container app fully updated (image + env + command + args)." -ForegroundColor Green
 
-
-# ==============================================================================
-# SECTION 7 -- IP ALLOWLIST (SKIPPED -- secured by LITELLM_MASTER_KEY instead)
-# ==============================================================================
-
 Write-Host ""
 Write-Host "==========================================================" -ForegroundColor Cyan
 Write-Host "  STAGE B -- Step 5: IP Allowlist" -ForegroundColor Cyan
@@ -285,11 +185,6 @@ Write-Host "  The proxy is secured by LITELLM_MASTER_KEY auth on every request."
 Write-Host "  Any caller without the key receives HTTP 401." -ForegroundColor DarkGray
 Write-Host "  To add IP restrictions later: Azure Portal -> litellm-proxy -> Ingress -> IP Restrictions" -ForegroundColor DarkGray
 Write-Host ""
-
-
-# ==============================================================================
-# SECTION 8 -- VERIFY DEPLOYMENT
-# ==============================================================================
 
 Write-Host ""
 Write-Host "==========================================================" -ForegroundColor Cyan
@@ -326,15 +221,7 @@ if (-not $ready) {
     Write-Host "[WARNING] No replica is Running. Checking for startup errors..." -ForegroundColor Yellow
     Write-Host "  Run this to see container logs:" -ForegroundColor White
     Write-Host "    az containerapp logs show --name $APP_NAME --resource-group $RESOURCE_GROUP --follow" -ForegroundColor Cyan
-    Write-Host ""
-    Write-Host "  Common Stage B failures and their meaning:" -ForegroundColor White
-    Write-Host "  - 'base64: invalid input' or decode error: config B64 string is corrupted" -ForegroundColor DarkGray
-    Write-Host "  - 'permission denied' writing config: /app not writable -- update CONFIG_WRITE_PATH" -ForegroundColor DarkGray
-    Write-Host "  - 'litellm: not found': PATH issue in shell override -- use full path" -ForegroundColor DarkGray
-    Write-Host "  - 'invalid config': litellm_config.yaml has syntax errors -- validate YAML" -ForegroundColor DarkGray
-    Write-Host "  - Container exits immediately: the --command/-args split is wrong in the CLI" -ForegroundColor DarkGray
 } else {
-    # Get the external URL
     $fqdn = az containerapp show `
         --name $APP_NAME `
         --resource-group $RESOURCE_GROUP `

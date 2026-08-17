@@ -1,48 +1,9 @@
-<#
-.SYNOPSIS
-    STAGE A — Minimal Verification Deploy
-    Deploys LiteLLM to Azure Container Apps with NO custom entrypoint or config injection.
-    Purpose: Verify the image environment before committing to the full deployment.
-
-.DESCRIPTION
-    What this script does:
-      1. Creates the Resource Group (idempotent).
-      2. Creates a Container Apps Environment on the Workload Profiles (v2) architecture.
-         - The container itself is pinned to the built-in "Consumption" workload profile,
-           which gives identical free-tier billing to the legacy v1 approach.
-         - IMPORTANT: As of Azure CLI 2.x (2025+), Workload Profiles v2 is the default
-           environment type. A v2 environment ALWAYS contains a built-in "Consumption"
-           profile -- this is not a paid dedicated profile. You MUST explicitly target it
-           when creating the container app (--workload-profile-name Consumption).
-      3. Immediately verifies the environment's plan via `az containerapp env show` and
-         asserts that a "Consumption" workload profile is present before proceeding.
-      4. Deploys the bare LiteLLM image (default entrypoint, no config, minimal env vars).
-      5. Prints the exact `az containerapp exec` shell-in command and manual checklist.
-
-    DO NOT run deploy-aca-stage-b.ps1 until you have manually verified all Stage A checks.
-
-.NOTES
-    Requires: Azure CLI with containerapp extension installed.
-    Run `az extension add --name containerapp --upgrade` if needed.
-#>
-
-# ==============================================================================
-# SECTION 0 -- CONFIGURATION (edit these before running)
-# ==============================================================================
-
 $RESOURCE_GROUP  = "rg-litellm-proxy"
-$LOCATION        = "centralindia"     # Azure for Students: eastus blocked; centralindia is allowed
+$LOCATION        = "centralindia"
 $ENV_NAME        = "litellm-env"
 $APP_NAME        = "litellm-proxy"
 $IMAGE           = "ghcr.io/berriai/litellm:main-latest"
-
-# Minimal env vars for Stage A (just enough to stop a startup crash).
-# We are NOT injecting any real API keys or config here.
 $STAGE_A_ENV_VARS = "LITELLM_MASTER_KEY=sk-stagea-verify-only PORT=4000"
-
-# ==============================================================================
-# SECTION 1 -- PREFLIGHT: Ensure containerapp extension is installed
-# ==============================================================================
 
 Write-Host ""
 Write-Host "==========================================================" -ForegroundColor Cyan
@@ -50,22 +11,13 @@ Write-Host "  STAGE A -- Pre-flight: Azure CLI Extension Check" -ForegroundColor
 Write-Host "==========================================================" -ForegroundColor Cyan
 
 az extension add --name containerapp --upgrade --output none 2>&1 | Out-Null
-if ($LASTEXITCODE -ne 0) {
-    # Non-zero exit from add/upgrade is usually just "already installed", not fatal.
-    Write-Host "[INFO] containerapp extension already at latest or installed." -ForegroundColor DarkGray
-}
 
-# Confirm the extension is available
 $extCheck = az extension list --query "[?name=='containerapp'].name" -o tsv
 if (-not $extCheck) {
     Write-Error "[FATAL] The 'containerapp' Azure CLI extension could not be installed. Aborting."
     exit 1
 }
 Write-Host "[OK] containerapp extension is available." -ForegroundColor Green
-
-# ==============================================================================
-# SECTION 2 -- RESOURCE GROUP
-# ==============================================================================
 
 Write-Host ""
 Write-Host "==========================================================" -ForegroundColor Cyan
@@ -83,10 +35,6 @@ if ($LASTEXITCODE -ne 0) {
     exit 1
 }
 Write-Host "[OK] Resource group ready." -ForegroundColor Green
-
-# ==============================================================================
-# SECTION 3 -- CONTAINER APPS ENVIRONMENT (Workload Profiles v2 + Consumption profile)
-# ==============================================================================
 
 Write-Host ""
 Write-Host "==========================================================" -ForegroundColor Cyan
@@ -115,17 +63,12 @@ if ($LASTEXITCODE -ne 0) {
 }
 Write-Host "[OK] Environment created." -ForegroundColor Green
 
-# ==============================================================================
-# SECTION 4 -- VERIFICATION: Confirm Consumption workload profile exists
-# ==============================================================================
-
 Write-Host ""
 Write-Host "==========================================================" -ForegroundColor Cyan
 Write-Host "  STAGE A -- Step 3: Environment Plan Verification" -ForegroundColor Cyan
 Write-Host "==========================================================" -ForegroundColor Cyan
 Write-Host "Querying environment to verify billing plan before deployment..." -ForegroundColor White
 
-# Full JSON output for human review
 Write-Host ""
 Write-Host "--- Full environment JSON (workloadProfiles section) ---" -ForegroundColor DarkGray
 az containerapp env show `
@@ -136,7 +79,6 @@ az containerapp env show `
 Write-Host "--- End of workloadProfiles JSON ---" -ForegroundColor DarkGray
 Write-Host ""
 
-# Machine-readable assertion: find the "Consumption" profile
 $consumptionProfile = az containerapp env show `
     --name $ENV_NAME `
     --resource-group $RESOURCE_GROUP `
@@ -160,10 +102,6 @@ if ($consumptionProfile -eq "Consumption") {
         exit 1
     }
 }
-
-# ==============================================================================
-# SECTION 5 -- STAGE A DEPLOY: Bare image, default entrypoint, NO config injection
-# ==============================================================================
 
 Write-Host ""
 Write-Host "==========================================================" -ForegroundColor Cyan
@@ -198,7 +136,6 @@ if ($LASTEXITCODE -ne 0) {
 Write-Host ""
 Write-Host "[OK] Container app created. Waiting for replica to become ready..." -ForegroundColor Green
 
-# Poll until at least 1 replica is running (max ~3 minutes)
 $maxWait  = 180
 $elapsed  = 0
 $interval = 10
@@ -233,10 +170,6 @@ if (-not $ready) {
     Write-Host "[OK] At least 1 replica is in Running state." -ForegroundColor Green
 }
 
-# ==============================================================================
-# SECTION 6 -- MANUAL VERIFICATION GUIDE
-# ==============================================================================
-
 Write-Host ""
 Write-Host "==========================================================" -ForegroundColor Magenta
 Write-Host "  STAGE A -- Manual Verification Checklist" -ForegroundColor Magenta
@@ -253,8 +186,7 @@ Write-Host "  If that fails (shell not found), try /bin/bash:" -ForegroundColor 
 Write-Host "    az containerapp exec --name $APP_NAME --resource-group $RESOURCE_GROUP --command /bin/bash" -ForegroundColor Cyan
 Write-Host ""
 Write-Host "  SUCCESS: A shell prompt appears, e.g.:  #  or  /app $" -ForegroundColor Green
-Write-Host "  FAILURE: 'Error: exec failed' -- image may be distroless (very unlikely" -ForegroundColor Red
-Write-Host "           for litellm Debian-based image). Stop and report this." -ForegroundColor Red
+Write-Host "  FAILURE: 'Error: exec failed' -- image may be distroless. Stop and report this." -ForegroundColor Red
 Write-Host ""
 
 Write-Host "-----------------------------------------------------------" -ForegroundColor DarkGray
@@ -271,14 +203,12 @@ Write-Host "  CHECK B -- 'base64' is present and works" -ForegroundColor White
 Write-Host "    echo 'aGVsbG8=' | base64 -d && echo '' && echo 'base64: OK'" -ForegroundColor Cyan
 Write-Host "  SUCCESS:  hello  then  base64: OK" -ForegroundColor Green
 Write-Host "  FAILURE:  'base64: not found' -- the decode approach in Stage B will fail." -ForegroundColor Red
-Write-Host "            Note: busybox base64 uses same -d flag; coreutils base64 uses -d." -ForegroundColor DarkGray
 Write-Host ""
 
 Write-Host "  CHECK C -- /app exists and is writable" -ForegroundColor White
 Write-Host "    ls -la /app && touch /app/.write_test && echo 'writable: OK' && rm /app/.write_test" -ForegroundColor Cyan
 Write-Host "  SUCCESS:  Directory listing, then  writable: OK" -ForegroundColor Green
-Write-Host "  FAILURE:  'Permission denied' -- note the actual working dir (run: pwd) and" -ForegroundColor Red
-Write-Host "            report it; Stage B path must be updated accordingly." -ForegroundColor Red
+Write-Host "  FAILURE:  'Permission denied' -- update CONFIG_WRITE_PATH in Stage B." -ForegroundColor Red
 Write-Host ""
 
 Write-Host "  CHECK D -- litellm binary and --config flag" -ForegroundColor White
