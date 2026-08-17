@@ -40,15 +40,15 @@ The **Job Search Pipeline** is the heart of RoleNova. It runs completely autonom
 ## 🧠 3. Multi-Tiered AI Evaluation
 
 ### What is it?
-Instead of relying on a single AI provider (which might rate-limit or fail), RoleNova uses a highly resilient fallback chain to ensure jobs are evaluated quickly and cheaply.
+Instead of relying on a single AI provider (which might rate-limit or fail), RoleNova uses a highly resilient fallback chain managed by a self-hosted **LiteLLM Proxy**.
 
 ### How it works
-The `aiEvaluationService.js` attempts to evaluate a job in the following order:
-1. **Gemini 2.0 Flash**: The primary provider (fastest and cheapest). 1,500 req/day free.
-2. **Groq / Llama 3.3 70B**: Immediate fallback with **key pool rotation** across multiple accounts. 100K TPD per key.
-3. **OpenRouter / Llama 3.3 70B (free)**: Tertiary fallback — **no credit card required**, 300+ models via one key.
+The `aiEvaluationService.js` makes a single API call to the local LiteLLM Proxy (`job-scorer` model), which internally manages cascading fallbacks, retries, and rate limiting in the following priority order:
+1. **Cerebras (Llama 3.3 70B)**: The primary provider. Extremely fast, paced automatically to 15 RPM.
+2. **Groq (Llama 3.3 70B)**: Immediate fallback with **key pool rotation** across multiple accounts configured directly in the proxy.
+3. **OpenRouter (Free Tier)**: Tertiary fallback — **no credit card required**, 300+ models via one key.
 4. **DeepSeek V4 Flash**: Paid backup ($0.14/1M tokens) via OpenAI-compatible API.
-5. **Local Heuristic**: If all cloud providers fail, deterministic keyword-based local evaluation.
+5. **Local Heuristic**: If the entire LiteLLM proxy chain fails, deterministic keyword-based local evaluation.
 
 ### The "Local Pending" Feature
 - **Aim**: To ensure no job is lost due to temporary cloud outages, but also to prevent false-positives from spamming the user.
@@ -121,9 +121,44 @@ A mechanism to prevent scraping the same company's HTML multiple times unnecessa
 - **Scraping**: Playwright, Axios, Cheerio
 - **Frontend**: EJS (Templating), TailwindCSS (Styling), Vanilla JS
 - **Real-time Comms**: Socket.IO
-- **AI Models**: Google Gemini (Primary), Groq/Llama-3 (Secondary, key-pool), OpenRouter/Llama-3.3-free (Tertiary, no card), DeepSeek V4 Flash (Paid backup), Local Heuristic (Final fallback)
-
+- **AI Models**: LiteLLM Proxy routing to Cerebras (Primary), Groq/Llama-3 (Secondary, key-pool), OpenRouter/Llama-3.3-free (Tertiary), DeepSeek V4 Flash (Paid backup), Local Heuristic (Final fallback)
 RoleNova represents a perfect synergy between traditional web scraping and modern Generative AI, creating a zero-touch, highly curated job hunting assistant.
+
+---
+
+## 🚀 9. LiteLLM Proxy — Azure Container Apps Deployment (August 2026)
+
+### Overview
+The LiteLLM proxy (which handles the Groq key pool, OpenRouter, and other fallbacks) is deployed separately as a containerized service on Azure Container Apps (ACA). The deployment is split into two cautious stages to avoid blind failures.
+
+### Files
+- **`deploy-aca-stage-a.ps1`**: Minimal verification deploy.
+- **`deploy-aca-stage-b.ps1`**: Full production deploy (run only after Stage A passes).
+- **`litellm_config.yaml`**: The proxy config (model list + fallback router settings). This file is base64-encoded at deploy time and injected as an env var for decoding inside the container.
+
+### Stage A — Environment and Image Verification
+1. Creates the Azure Resource Group and Container Apps Environment (Workload Profiles v2 default).
+2. **Immediately verifies the billing plan** via `az containerapp env show` — the script asserts that a `Consumption` workload profile is present before proceeding (free-tier equivalent; v2 environments always include this profile built-in).
+3. Deploys the bare `ghcr.io/berriai/litellm:v1.98.0` image with default entrypoint and no config injection.
+4. Prints the exact `az containerapp exec` command and a five-check manual verification checklist:
+   - CHECK A: `sh` is available
+   - CHECK B: `base64 -d` works
+   - CHECK C: `/app` is writable
+   - CHECK D: `litellm --version` and `--config` flag are present
+   - CHECK E: End-to-end decode+write dry run succeeds
+
+### Stage B — Full Production Deploy (gate-locked by Stage A)
+1. Loads API keys from `.env` (validates required keys before proceeding).
+2. Base64-encodes `litellm_config.yaml` and passes it as `LITELLM_CONFIG_B64`.
+3. Overrides the container command to decode the config and invoke `litellm --config /app/litellm_config.yaml --port 4000` (the `--config` flag is the confirmed correct invocation per LiteLLM docs).
+4. Applies a 31-entry IP ingress allowlist.
+5. Verifies the updated revision is running and prints the external FQDN.
+
+### Why `--config` and Not Something Else
+LiteLLM's official Docker documentation confirms `litellm --config /path/to/file.yaml` as the standard invocation. The `STORE_MODEL_IN_DB` env var alternative was intentionally excluded since this deployment uses a flat YAML config without a PostgreSQL backend.
+
+### Billing Plan Notes
+The legacy `--enable-workload-profiles false` flag is obsolete. As of 2025+, Workload Profiles v2 is the ACA default. Every v2 environment contains a built-in `Consumption` profile with identical free-tier entitlements (180k vCPU-sec/mo, 360k GiB-sec/mo, 2M requests/mo, scale-to-zero). The scripts explicitly target `--workload-profile-name Consumption` on the container app to guarantee free-tier billing.
 
 ---
 
@@ -167,3 +202,14 @@ RoleNova represents a perfect synergy between traditional web scraping and moder
   2. **Extended Viewer:** Can request access via the UI (iewAccess: requested). Once an admin grants access (iewAccess: granted), the sidebar unlocks, allowing them to view Analytics, Companies, and Jobs dashboards. They cannot start/stop pipelines or modify configurations.
   3. **Admin:** Full system control. Manages roles via /admin/users dashboard.
 - **Implementation:** Robust native Clerk polling via Clerk.addListener injected into EJS to prevent synchronous racing on route initialization.
+
+### LiteLLM Proxy on Azure Container Apps (August 2026)
+- **Feature:** Deployed a centralised LiteLLM reverse-proxy to Azure Container Apps (ACA) Consumption tier (free tier).
+- **Architecture:** RoleNova backend → LiteLLM Proxy (ACA) → AI Providers (Groq ×4, OpenRouter ×4, DeepSeek).
+- **Live URL:** `https://litellm-proxy.politecoast-a10be51c.centralindia.azurecontainerapps.io`
+- **Region:** `centralindia` (Azure for Students subscription; eastus blocked for Log Analytics).
+- **Billing:** ACA Consumption workload profile — scale-to-zero, 180k vCPU-s/mo free tier. Verified via `az containerapp env show`.
+- **Config injection:** `litellm_config.yaml` is base64-encoded at deploy time, stored as `LITELLM_CONFIG_B64` env var, and decoded at container startup via `sh -c "echo $LITELLM_CONFIG_B64 | base64 -d > /app/litellm_config.yaml && litellm --config ..."`. The command/args are patched via `az rest` (ARM REST API) rather than `az containerapp update --command/--args`, which cannot handle `-c` as a value in the CLI extension version used.
+- **Security:** Protected by `LITELLM_MASTER_KEY` (HTTP 401 for any unauthenticated request). No IP allowlist (key-based auth is sufficient).
+- **Deployment scripts:** `deploy-aca-stage-a.ps1` (environment + bare image verification) and `deploy-aca-stage-b.ps1` (full production config).
+- **App `.env`:** `LITELLM_BASE_URL` set to the live ACA URL.

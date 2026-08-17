@@ -1,0 +1,39 @@
+model_list:
+  # 1. Primary: Groq Key 1
+  - model_name: job-scorer
+    litellm_params:
+      model: groq/llama-3.3-70b-versatile
+      api_key: "os.environ/GROQ_API_KEY_1"
+
+  # 2. Fallbacks: Groq Keys 2-4
+  - model_name: groq-2
+    litellm_params:
+      model: groq/llama-3.3-70b-versatile
+      api_key: "os.environ/GROQ_API_KEY_2"
+  - model_name: groq-3
+    litellm_params:
+      model: groq/llama-3.3-70b-versatile
+      api_key: "os.environ/GROQ_API_KEY_3"
+  - model_name: groq-4
+    litellm_params:
+      model: groq/llama-3.3-70b-versatile
+      api_key: "os.environ/GROQ_API_KEY_4"
+
+  # 3. Final Fallback: OpenRouter
+  - model_name: openrouter-model
+    litellm_params:
+      model: openrouter/openrouter/free
+      api_key: "os.environ/OPENROUTER_API_KEY"
+
+router_settings:
+  fallbacks:
+    - {"job-scorer": ["groq-2", "groq-3", "groq-4", "openrouter-model"]}
+  num_retries: 2
+
+general_settings:
+  # Disable all database-dependent features (no DATABASE_URL configured)
+  disable_spend_logs: true
+  disable_reset_budget: true
+  disable_error_logs: true
+  # Disable the master budget check (no DB to track against)
+  disable_master_key_return_spend: true

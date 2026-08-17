@@ -1,36 +1,14 @@
-const { GoogleGenerativeAI } = require("@google/generative-ai");
+const { OpenAI } = require("openai");
 const axios = require("axios");
 const { classifyDomain } = require("../utils/domains");
-const { evaluateJobWithOpenRouter } = require("./openrouterService");
 
 const { buildEvaluationPrompt, parseJsonResponse, analyzeError, validateAiResponse } = require("./aiHelpers");
 const { withLogContext } = require("../utils/logger");
-const { withRetry } = require("../utils/retry");
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-
-// Groq key pool — supports rotation across multiple keys
-// Set GROQ_API_KEYS=key1,key2,key3 in .env for rotation, or falls back to GROQ_API_KEY
-const buildGroqKeyPool = () => {
-    const multi = process.env.GROQ_API_KEYS || '';
-    const single = process.env.GROQ_API_KEY || '';
-    const keys = multi.split(',').map(k => k.trim()).filter(Boolean);
-    if (single && !keys.includes(single)) keys.unshift(single);
-    return keys;
-};
-const GROQ_KEY_POOL = buildGroqKeyPool();
-
-const buildOpenRouterKeyPool = () => {
-    const multi = process.env.OPENROUTER_API_KEYS || '';
-    const single = process.env.OPENROUTER_API_KEY || '';
-    const keys = multi.split(',').map(k => k.trim()).filter(Boolean);
-    if (single && !keys.includes(single)) keys.unshift(single);
-    return keys;
-};
-const OPENROUTER_KEY_POOL = buildOpenRouterKeyPool();
-
-const model = genAI.getGenerativeModel({
-    model: process.env.GEMINI_MODEL || "gemini-2.0-flash",
+// Initialize OpenAI client pointing to Local LiteLLM Proxy
+const litellmClient = new OpenAI({
+    apiKey: process.env.LITELLM_MASTER_KEY || "dummy-key", 
+    baseURL: process.env.LITELLM_BASE_URL || "http://localhost:4000/v1"
 });
 
 const getText = (job) =>
@@ -42,7 +20,7 @@ const getText = (job) =>
 const countMatches = (text, values = []) =>
     values.filter((value) => text.includes(value.toLowerCase())).length;
 
-const evaluateJobLocally = (job, profile, reasonPrefix = "Gemini unavailable") => {
+const evaluateJobLocally = (job, profile, reasonPrefix = "AI unavailable") => {
     const text = getText(job);
     let score = 50;
     const missingSkills = [];
@@ -185,254 +163,93 @@ const evaluateJobLocally = (job, profile, reasonPrefix = "Gemini unavailable") =
     };
 };
 
-const evaluateJobWithGroq = async (job, profile, apiKey) => {
-    const keyToUse = apiKey || process.env.GROQ_API_KEY;
-    const response = await axios.post(
-        "https://api.groq.com/openai/v1/chat/completions",
-        {
-            model: process.env.GROQ_MODEL || "llama-3.3-70b-versatile",
-            messages: [
-                {
-                    role: "system",
-                    content:
-                        "You are a strict job matching engine. Return only valid JSON.",
-                },
-                {
-                    role: "user",
-                    content: buildEvaluationPrompt(job, profile),
-                },
-            ],
-            temperature: 0.1,
-            response_format: { type: "json_object" },
-        },
-        {
-            headers: {
-                Authorization: `Bearer ${keyToUse}`,
-                "Content-Type": "application/json",
-            },
-            timeout: 15000,
-        },
-    );
-
-    const content = response.data.choices?.[0]?.message?.content || "";
-    let parsed = parseJsonResponse(content);
-    parsed = validateAiResponse(parsed, "Groq");
-    parsed.evaluatedBy = "Groq";
-    parsed.provider = "groq";
-    parsed.model = process.env.GROQ_MODEL || "llama-3.3-70b-versatile";
-    return parsed;
-};
-
-
-
-
-
-const evaluateJob = async (job, profile, aiState = { gemini: { available: true }, groq: { available: true }, openrouter: { available: true } }) => {
+const evaluateJob = async (job, profile, aiState = { litellm: { available: true } }) => {
     const startTime = Date.now();
     let fallbackCount = 0;
     let failureReason = null;
     let providerChain = [];
-    const attemptLogs = { gemini: 'Skipped', groq: 'Skipped', openrouter: 'Skipped', local: 'Skipped' };
+    const attemptLogs = { litellm: 'Skipped', local: 'Skipped' };
 
-    // 1. Gemini
-    if (aiState.gemini.available && process.env.GEMINI_API_KEY) {
-        console.log("[AI] Trying Gemini");
-        providerChain.push("Gemini");
-        aiState.gemini.requests = (aiState.gemini.requests || 0) + 1;
+    // 1. LiteLLM Proxy (Handles Groq -> OpenRouter internally)
+    if (!aiState.litellm) aiState.litellm = { available: true };
+
+    if (aiState.litellm.available) {
+        console.log("[AI] Routing request through LiteLLM...");
+        providerChain.push("LiteLLM_Proxy");
+        aiState.litellm.requests = (aiState.litellm.requests || 0) + 1;
+
         try {
-            return await withLogContext({ provider: "Gemini" }, async () => {
-            const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error("Gemini timeout exceeded")), 15000));
-            const generatePromise = model.generateContent(buildEvaluationPrompt(job, profile));
-            const result = await Promise.race([generatePromise, timeoutPromise]);
-            
-            let parsedResult = parseJsonResponse(result.response.text());
-            
-            parsedResult = validateAiResponse(parsedResult, "Gemini");
-            
-            parsedResult.evaluatedBy = "Gemini";
-            parsedResult.jobDomain = parsedResult.jobDomain || classifyDomain(getText(job));
-            
-            aiState.gemini.success = (aiState.gemini.success || 0) + 1;
-            
-            parsedResult.evaluationMetrics = {
-                provider: "Gemini",
-                durationMs: Date.now() - startTime,
-                fallbackCount,
-                failureReason: null
-            };
+            return await withLogContext({ provider: "LiteLLM" }, async () => {
+                // Truncate job description to 25,000 characters to safely fit into Groq/OpenRouter limits
+                const MAX_CHARS = 25000;
+                let originalDescription = job.description || "";
+                let jobForPrompt = job;
+                
+                if (originalDescription.length > MAX_CHARS) {
+                    console.log(`[AI] Truncating job description from ${originalDescription.length} to ${MAX_CHARS} characters.`);
+                    jobForPrompt = { 
+                        ...job, 
+                        description: originalDescription.substring(0, MAX_CHARS) + "\n\n...[TRUNCATED FOR LENGTH]..."
+                    };
+                }
+                
+                const prompt = buildEvaluationPrompt(jobForPrompt, profile);
+                
+                // We request 'withResponse()' to access headers so we can extract exactly which provider served it
+                const { data, response: rawResponse } = await litellmClient.chat.completions.create({
+                    model: "job-scorer",
+                    messages: [
+                        { role: "system", content: "You are a strict job matching engine. Return only valid JSON." },
+                        { role: "user", content: prompt }
+                    ],
+                    temperature: 0.1,
+                    response_format: { type: "json_object" }
+                }, { timeout: 35000 }).withResponse(); // Extra timeout because LiteLLM may retry behind the scenes
+                
+                const content = data.choices?.[0]?.message?.content || "";
+                let parsedResult = parseJsonResponse(content);
+                parsedResult = validateAiResponse(parsedResult, "LiteLLM");
+                
+                // LiteLLM indicates which model ultimately succeeded in the data.model field (e.g., 'cerebras/llama-3.3-70b')
+                const actualModel = data.model || "unknown";
+                let actualProvider = "litellm";
+                if (actualModel.includes("cerebras")) actualProvider = "cerebras";
+                else if (actualModel.includes("groq")) actualProvider = "groq";
+                else if (actualModel.includes("openrouter")) actualProvider = "openrouter";
 
-            parsedResult.provider = "gemini";
-            parsedResult.model = process.env.GEMINI_MODEL || "gemini-2.0-flash";
-            parsedResult.evaluationTimeMs = Date.now() - startTime;
-            parsedResult.fallbackCount = fallbackCount;
-            parsedResult.fallbackReason = null;
-            parsedResult.providerChain = providerChain;
-            attemptLogs.gemini = 'Success';
-            parsedResult.attemptLogs = attemptLogs;
+                parsedResult.evaluatedBy = "LiteLLM";
+                parsedResult.jobDomain = parsedResult.jobDomain || classifyDomain(getText(job));
+                
+                aiState.litellm.success = (aiState.litellm.success || 0) + 1;
+                
+                parsedResult.evaluationMetrics = {
+                    provider: actualProvider,
+                    durationMs: Date.now() - startTime,
+                    fallbackCount: 0,
+                    failureReason: null
+                };
 
-            return parsedResult;
-            }); // End withLogContext
+                parsedResult.provider = actualProvider; // Maps beautifully to your TrainingDataset log line
+                parsedResult.model = actualModel;
+                parsedResult.evaluationTimeMs = Date.now() - startTime;
+                parsedResult.fallbackCount = 0;
+                parsedResult.fallbackReason = null;
+                parsedResult.providerChain = [actualProvider];
+                
+                attemptLogs.litellm = 'Success';
+                parsedResult.attemptLogs = attemptLogs;
+
+                return parsedResult;
+            });
         } catch (error) {
-            aiState.gemini.failed = (aiState.gemini.failed || 0) + 1;
+            aiState.litellm.failed = (aiState.litellm.failed || 0) + 1;
             const errorAnalysis = analyzeError(error);
-
-            if (errorAnalysis.permanent) {
-                console.log(`[AI] Gemini disabled for this pipeline.\nReason: ${errorAnalysis.reason}.`);
-                aiState.gemini.available = false;
-                aiState.gemini.disabled = true;
-                aiState.gemini.reason = errorAnalysis.reason;
-                aiState.gemini.disabledAt = new Date();
-            } else {
-                console.log(`[AI] Gemini temporary failure: ${errorAnalysis.reason}.\nFalling back to Groq.\nProvider remains available.`);
-            }
-
-            aiState.geminiFallbacks = (aiState.geminiFallbacks || 0) + 1;
+            
             fallbackCount++;
-            failureReason = `Gemini failed: ${errorAnalysis.reason}`;
-            attemptLogs.gemini = `Failed: ${errorAnalysis.reason}`;
-            console.log("[AI] Gemini Failed");
-            console.error("Gemini Evaluation Error:", error.message);
+            failureReason = `LiteLLM failed: ${errorAnalysis.reason}`;
+            attemptLogs.litellm = `Failed: ${errorAnalysis.reason}`;
+            console.log(`[AI] LiteLLM Failed: ${error.message}`);
         }
-    } else {
-        failureReason = `Gemini disabled${aiState.gemini.reason ? ': ' + aiState.gemini.reason : ''}`;
-    }
-
-    // 2. Groq (with key pool rotation)
-    if (aiState.groq.available && process.env.ENABLE_GROQ_FALLBACK !== "false" && GROQ_KEY_POOL.length > 0) {
-        providerChain.push("Groq");
-        aiState.groq.requests = (aiState.groq.requests || 0) + 1;
-
-        // Track exhausted key indices in aiState
-        if (!aiState.groq.exhaustedKeys) aiState.groq.exhaustedKeys = new Set();
-
-        let groqSucceeded = false;
-        for (let ki = 0; ki < GROQ_KEY_POOL.length; ki++) {
-            if (aiState.groq.exhaustedKeys.has(ki)) continue; // skip already exhausted keys
-            const keyToUse = GROQ_KEY_POOL[ki];
-            const keyLabel = `key[${ki + 1}/${GROQ_KEY_POOL.length}]`;
-            try {
-                console.log(`[AI] Trying Groq ${keyLabel}`);
-                const result = await withLogContext({ provider: "Groq" }, async () => {
-                    const groqAnalysis = await withRetry(() => evaluateJobWithGroq(job, profile, keyToUse), { maxRetries: 0 });
-                    if (!groqAnalysis) throw new Error("Groq returned empty response");
-                    aiState.groq.success = (aiState.groq.success || 0) + 1;
-                    groqAnalysis.evaluationMetrics = {
-                        provider: "Groq",
-                        durationMs: Date.now() - startTime,
-                        fallbackCount,
-                        failureReason
-                    };
-                    groqAnalysis.evaluationTimeMs = Date.now() - startTime;
-                    groqAnalysis.fallbackCount = fallbackCount;
-                    groqAnalysis.fallbackReason = failureReason;
-                    groqAnalysis.providerChain = providerChain;
-                    attemptLogs.groq = `Success (${keyLabel})`;
-                    groqAnalysis.attemptLogs = attemptLogs;
-                    return groqAnalysis;
-                });
-                groqSucceeded = true;
-                return result;
-            } catch (groqError) {
-                const errorAnalysis = analyzeError(groqError);
-                if (errorAnalysis.permanent || groqError?.response?.status === 429) {
-                    console.log(`[AI] Groq ${keyLabel} quota exhausted. Rotating to next key...`);
-                    aiState.groq.exhaustedKeys.add(ki);
-                } else {
-                    console.log(`[AI] Groq ${keyLabel} temporary failure: ${errorAnalysis.reason}`);
-                    break; // non-quota error, don't rotate — move to next provider
-                }
-            }
-        }
-
-        if (!groqSucceeded) {
-            // All Groq keys exhausted
-            const allGroqExhausted = aiState.groq.exhaustedKeys.size >= GROQ_KEY_POOL.length;
-            if (allGroqExhausted) {
-                console.log(`[AI] All ${GROQ_KEY_POOL.length} Groq key(s) exhausted. Disabling Groq for this pipeline.`);
-                aiState.groq.available = false;
-                aiState.groq.disabled = true;
-                aiState.groq.reason = '429 Quota (all keys)';
-                aiState.groq.disabledAt = new Date();
-            }
-            aiState.groq.failed = (aiState.groq.failed || 0) + 1;
-            aiState.groqFallbacks = (aiState.groqFallbacks || 0) + 1;
-            fallbackCount++;
-            failureReason = failureReason ? `${failureReason} | Groq failed` : `Groq failed (all keys exhausted)`;
-            attemptLogs.groq = 'Failed: all keys exhausted';
-            console.log("[AI] Groq Failed — moving to OpenRouter");
-        }
-    } else if (!aiState.groq.available) {
-        failureReason = failureReason ? `${failureReason} | Groq disabled${aiState.groq.reason ? ': ' + aiState.groq.reason : ''}` : `Groq disabled${aiState.groq.reason ? ': ' + aiState.groq.reason : ''}`;
-    }
-
-    // 3. OpenRouter (FREE — no credit card required)
-    if (!aiState.openrouter) aiState.openrouter = { available: true };
-    if (aiState.openrouter.available && process.env.ENABLE_OPENROUTER_FALLBACK !== "false" && OPENROUTER_KEY_POOL.length > 0) {
-        providerChain.push("OpenRouter");
-        aiState.openrouter.requests = (aiState.openrouter.requests || 0) + 1;
-
-        // Track exhausted key indices in aiState
-        if (!aiState.openrouter.exhaustedKeys) aiState.openrouter.exhaustedKeys = new Set();
-
-        let openRouterSucceeded = false;
-        for (let ki = 0; ki < OPENROUTER_KEY_POOL.length; ki++) {
-            if (aiState.openrouter.exhaustedKeys.has(ki)) continue; // skip already exhausted keys
-            const keyToUse = OPENROUTER_KEY_POOL[ki];
-            const keyLabel = `key[${ki + 1}/${OPENROUTER_KEY_POOL.length}]`;
-            try {
-                console.log(`[AI] Trying OpenRouter ${keyLabel}`);
-                const result = await withLogContext({ provider: "OpenRouter" }, async () => {
-                    const orAnalysis = await withRetry(() => evaluateJobWithOpenRouter(job, profile, keyToUse), { maxRetries: 0 });
-                    if (!orAnalysis) throw new Error("OpenRouter returned empty response");
-                    aiState.openrouter.success = (aiState.openrouter.success || 0) + 1;
-                    orAnalysis.evaluationMetrics = {
-                        provider: "OpenRouter",
-                        durationMs: Date.now() - startTime,
-                        fallbackCount,
-                        failureReason
-                    };
-                    orAnalysis.evaluationTimeMs = Date.now() - startTime;
-                    orAnalysis.fallbackCount = fallbackCount;
-                    orAnalysis.fallbackReason = failureReason;
-                    orAnalysis.provider = "openrouter";
-                    orAnalysis.providerChain = providerChain;
-                    attemptLogs.openrouter = `Success (${keyLabel})`;
-                    orAnalysis.attemptLogs = attemptLogs;
-                    return orAnalysis;
-                });
-                openRouterSucceeded = true;
-                return result;
-            } catch (orError) {
-                const errorAnalysis = analyzeError(orError);
-                if (errorAnalysis.permanent || orError?.response?.status === 429) {
-                    console.log(`[AI] OpenRouter ${keyLabel} quota exhausted. Rotating to next key...`);
-                    aiState.openrouter.exhaustedKeys.add(ki);
-                } else {
-                    console.log(`[AI] OpenRouter ${keyLabel} temporary failure: ${errorAnalysis.reason}`);
-                    break; // non-quota error, don't rotate — move to next provider
-                }
-            }
-        }
-
-        if (!openRouterSucceeded) {
-            // All OpenRouter keys exhausted
-            const allOpenRouterExhausted = aiState.openrouter.exhaustedKeys.size >= OPENROUTER_KEY_POOL.length;
-            if (allOpenRouterExhausted) {
-                console.log(`[AI] All ${OPENROUTER_KEY_POOL.length} OpenRouter key(s) exhausted. Disabling OpenRouter for this pipeline.`);
-                aiState.openrouter.available = false;
-                aiState.openrouter.disabled = true;
-                aiState.openrouter.reason = '429 Quota (all keys)';
-                aiState.openrouter.disabledAt = new Date();
-            }
-            aiState.openrouter.failed = (aiState.openrouter.failed || 0) + 1;
-            aiState.openrouterFallbacks = (aiState.openrouterFallbacks || 0) + 1;
-            fallbackCount++;
-            failureReason = failureReason ? `${failureReason} | OpenRouter failed` : `OpenRouter failed (all keys exhausted)`;
-            attemptLogs.openrouter = 'Failed: all keys exhausted';
-            console.log("[AI] OpenRouter Failed — moving to Local");
-        }
-    } else if (!aiState.openrouter.available) {
-        failureReason = failureReason ? `${failureReason} | OpenRouter disabled${aiState.openrouter.reason ? ': ' + aiState.openrouter.reason : ''}` : `OpenRouter disabled${aiState.openrouter.reason ? ': ' + aiState.openrouter.reason : ''}`;
     }
 
     // 5. Local
