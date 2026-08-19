@@ -1,7 +1,11 @@
 const GreenhouseAdapter = require('./providers/Priority1/GreenhouseAdapter');
 const LeverAdapter = require('./providers/Priority1/LeverAdapter');
 const WorkdayAdapter = require('./providers/Priority1/WorkdayAdapter');
+const WorkdayCsrfAdapter = require('./providers/Priority1/WorkdayCsrfAdapter');
 const SmartRecruitersAdapter = require('./providers/Priority1/SmartRecruitersAdapter');
+const NetflixAdapter = require('./providers/Priority1/NetflixAdapter');
+const AmazonAdapter = require('./providers/Priority1/AmazonAdapter');
+const EightfoldAdapter = require('./providers/Priority1/EightfoldAdapter');
 const OfficialApiAdapter = require('./providers/Fallback/OfficialApiAdapter');
 const LightweightHtmlAdapter = require('./providers/Fallback/LightweightHtmlAdapter');
 
@@ -27,8 +31,16 @@ class AdapterFactory {
         return new LeverAdapter(company);
       case 'workday':
         return new WorkdayAdapter(company);
+      case 'workday-csrf':
+        return new WorkdayCsrfAdapter(company);
       case 'smartrecruiters':
         return new SmartRecruitersAdapter(company);
+      case 'netflix':
+        return new NetflixAdapter(company);
+      case 'amazon':
+        return new AmazonAdapter(company);
+      case 'eightfold':
+        return new EightfoldAdapter(company);
       case 'api':
       case 'officialapi':
         return new OfficialApiAdapter(company);

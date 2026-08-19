@@ -990,12 +990,16 @@ module.exports = [
         "name": "Amazon",
         "category": "Product",
         "industry": "Big Tech",
-        "active": false,
+        "active": true,
         "careerUrl": "https://www.amazon.jobs/en/search",
         "careerPage": "https://www.amazon.jobs/en/search",
         "logo": "https://logo.clearbit.com/www.amazon.jobs",
         "scraperType": "api",
         "scraperConfig": {
+            "apiUrl": "https://www.amazon.jobs/en/search.json",
+            "keywords": "software development engineer",
+            "country": "IN",
+            "location": "India",
             "allowedLocations": [
                 "india",
                 "remote",
@@ -1033,7 +1037,8 @@ module.exports = [
                 "2+",
                 "3+"
             ]
-        }
+        },
+        "ats": "amazon"
     },
     {
         "name": "Microsoft",
@@ -1137,12 +1142,15 @@ module.exports = [
         "name": "Netflix",
         "category": "Product",
         "industry": "Big Tech",
-        "active": false,
+        "active": true,
         "careerUrl": "https://jobs.netflix.com/search",
         "careerPage": "https://jobs.netflix.com/search",
         "logo": "https://logo.clearbit.com/jobs.netflix.com",
         "scraperType": "api",
         "scraperConfig": {
+            "apiUrl": "https://explore.jobs.netflix.net/api/apply/v2/jobs",
+            "keywords": "software engineer",
+            "pageSize": 50,
             "allowedLocations": [
                 "india",
                 "remote",
@@ -1180,7 +1188,8 @@ module.exports = [
                 "2+",
                 "3+"
             ]
-        }
+        },
+        "ats": "netflix"
     },
     {
         "name": "Adobe",
@@ -1244,7 +1253,7 @@ module.exports = [
         "name": "Salesforce",
         "category": "Product",
         "industry": "Big Tech",
-        "active": false,
+        "active": true,
         "careerUrl": "https://salesforce.wd1.myworkdayjobs.com/External_Career_Site",
         "careerPage": "https://salesforce.wd1.myworkdayjobs.com/External_Career_Site",
         "logo": "https://logo.clearbit.com/salesforce.wd1.myworkdayjobs.com",
@@ -1286,8 +1295,11 @@ module.exports = [
                 "1 to 3",
                 "2+",
                 "3+"
-            ]
-        }
+            ],
+            "apiUrl": "https://salesforce.wd12.myworkdayjobs.com/wday/cxs/salesforce/External_Career_Site/jobs",
+            "siteUrl": "https://salesforce.wd12.myworkdayjobs.com/External_Career_Site"
+        },
+        "ats": "workday-csrf"
     },
     {
         "name": "Oracle",
@@ -1391,7 +1403,7 @@ module.exports = [
         "name": "Cisco",
         "category": "Product",
         "industry": "Big Tech",
-        "active": false,
+        "active": true,
         "careerUrl": "https://jobs.cisco.com/jobs/SearchSite",
         "careerPage": "https://jobs.cisco.com/jobs/SearchSite",
         "logo": "https://logo.clearbit.com/jobs.cisco.com",
@@ -1433,8 +1445,11 @@ module.exports = [
                 "1 to 3",
                 "2+",
                 "3+"
-            ]
-        }
+            ],
+            "apiUrl": "https://cisco.wd5.myworkdayjobs.com/wday/cxs/cisco/Cisco_Careers/jobs",
+            "siteUrl": "https://cisco.wd5.myworkdayjobs.com/Cisco_Careers"
+        },
+        "ats": "workday-csrf"
     },
     {
         "name": "Intel",
