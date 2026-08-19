@@ -404,7 +404,12 @@ module.exports = [
         "scraperConfig": {
             "apiUrl": "https://visa.wd5.myworkdayjobs.com/wday/cxs/visa/Visa/jobs",
             "apiMethod": "POST",
-            "apiPayload": { "appliedFacets": {}, "limit": 20, "offset": 0, "searchText": "software engineer" },
+            "apiPayload": {
+                "appliedFacets": {},
+                "limit": 20,
+                "offset": 0,
+                "searchText": "software engineer"
+            },
             "allowedLocations": [
                 "india",
                 "remote",
@@ -457,7 +462,12 @@ module.exports = [
         "scraperConfig": {
             "apiUrl": "https://mastercard.wd1.myworkdayjobs.com/wday/cxs/mastercard/CorporateCareers/jobs",
             "apiMethod": "POST",
-            "apiPayload": { "appliedFacets": {}, "limit": 20, "offset": 0, "searchText": "software engineer" },
+            "apiPayload": {
+                "appliedFacets": {},
+                "limit": 20,
+                "offset": 0,
+                "searchText": "software engineer"
+            },
             "allowedLocations": [
                 "india",
                 "remote",
@@ -510,7 +520,12 @@ module.exports = [
         "scraperConfig": {
             "apiUrl": "https://paypal.wd1.myworkdayjobs.com/wday/cxs/paypal/jobs/jobs",
             "apiMethod": "POST",
-            "apiPayload": { "appliedFacets": {}, "limit": 20, "offset": 0, "searchText": "software engineer" },
+            "apiPayload": {
+                "appliedFacets": {},
+                "limit": 20,
+                "offset": 0,
+                "searchText": "software engineer"
+            },
             "allowedLocations": [
                 "india",
                 "remote",
@@ -654,7 +669,7 @@ module.exports = [
         "name": "Revolut",
         "category": "Service",
         "industry": "Finance",
-        "active": true,
+        "active": false,
         "careerUrl": "https://www.revolut.com/careers/",
         "careerPage": "https://www.revolut.com/careers/",
         "logo": "https://logo.clearbit.com/www.revolut.com",
@@ -709,6 +724,7 @@ module.exports = [
         "logo": "https://logo.clearbit.com/boards.greenhouse.io",
         "scraperType": "api",
         "scraperConfig": {
+            "apiUrl": "https://boards-api.greenhouse.io/v1/boards/brex/jobs?content=true",
             "allowedLocations": [
                 "india",
                 "remote",
@@ -746,7 +762,8 @@ module.exports = [
                 "2+",
                 "3+"
             ]
-        }
+        },
+        "ats": "greenhouse"
     },
     {
         "name": "Ramp",
@@ -820,6 +837,17 @@ module.exports = [
         "logo": "https://logo.clearbit.com/plaid.com",
         "scraperType": "api",
         "scraperConfig": {
+            "apiUrl": "https://api.ashbyhq.com/posting-api/job-board/plaid",
+            "listPath": "jobs",
+            "fields": {
+                "title": "title",
+                "location": "location",
+                "jobId": "id",
+                "department": "department",
+                "applyLink": "jobUrl",
+                "postedAt": "publishedAt",
+                "employmentType": "employmentType"
+            },
             "allowedLocations": [
                 "india",
                 "remote",
@@ -857,13 +885,14 @@ module.exports = [
                 "2+",
                 "3+"
             ]
-        }
+        },
+        "ats": "api"
     },
     {
         "name": "Google",
         "category": "Product",
         "industry": "Big Tech",
-        "active": true,
+        "active": false,
         "careerUrl": "https://careers.google.com/jobs/results/",
         "careerPage": "https://careers.google.com/jobs/results/",
         "logo": "https://logo.clearbit.com/careers.google.com",
@@ -912,7 +941,7 @@ module.exports = [
         "name": "Apple",
         "category": "Product",
         "industry": "Big Tech",
-        "active": true,
+        "active": false,
         "careerUrl": "https://jobs.apple.com/en-us/search",
         "careerPage": "https://jobs.apple.com/en-us/search",
         "logo": "https://logo.clearbit.com/jobs.apple.com",
@@ -961,7 +990,7 @@ module.exports = [
         "name": "Amazon",
         "category": "Product",
         "industry": "Big Tech",
-        "active": true,
+        "active": false,
         "careerUrl": "https://www.amazon.jobs/en/search",
         "careerPage": "https://www.amazon.jobs/en/search",
         "logo": "https://logo.clearbit.com/www.amazon.jobs",
@@ -1010,7 +1039,7 @@ module.exports = [
         "name": "Microsoft",
         "category": "Product",
         "industry": "Big Tech",
-        "active": true,
+        "active": false,
         "careerUrl": "https://jobs.careers.microsoft.com/global/en/search",
         "careerPage": "https://jobs.careers.microsoft.com/global/en/search",
         "logo": "https://logo.clearbit.com/jobs.careers.microsoft.com",
@@ -1108,7 +1137,7 @@ module.exports = [
         "name": "Netflix",
         "category": "Product",
         "industry": "Big Tech",
-        "active": true,
+        "active": false,
         "careerUrl": "https://jobs.netflix.com/search",
         "careerPage": "https://jobs.netflix.com/search",
         "logo": "https://logo.clearbit.com/jobs.netflix.com",
@@ -1163,6 +1192,14 @@ module.exports = [
         "logo": "https://logo.clearbit.com/adobe.wd5.myworkdayjobs.com",
         "scraperType": "api",
         "scraperConfig": {
+            "apiUrl": "https://adobe.wd5.myworkdayjobs.com/wday/cxs/adobe/external_experienced/jobs",
+            "apiMethod": "POST",
+            "apiPayload": {
+                "appliedFacets": {},
+                "limit": 20,
+                "offset": 0,
+                "searchText": "software engineer"
+            },
             "allowedLocations": [
                 "india",
                 "remote",
@@ -1200,13 +1237,14 @@ module.exports = [
                 "2+",
                 "3+"
             ]
-        }
+        },
+        "ats": "workday"
     },
     {
         "name": "Salesforce",
         "category": "Product",
         "industry": "Big Tech",
-        "active": true,
+        "active": false,
         "careerUrl": "https://salesforce.wd1.myworkdayjobs.com/External_Career_Site",
         "careerPage": "https://salesforce.wd1.myworkdayjobs.com/External_Career_Site",
         "logo": "https://logo.clearbit.com/salesforce.wd1.myworkdayjobs.com",
@@ -1255,7 +1293,7 @@ module.exports = [
         "name": "Oracle",
         "category": "Product",
         "industry": "Big Tech",
-        "active": true,
+        "active": false,
         "careerUrl": "https://careers.oracle.com/jobs",
         "careerPage": "https://careers.oracle.com/jobs",
         "logo": "https://logo.clearbit.com/careers.oracle.com",
@@ -1304,7 +1342,7 @@ module.exports = [
         "name": "IBM",
         "category": "Product",
         "industry": "Big Tech",
-        "active": true,
+        "active": false,
         "careerUrl": "https://careers.ibm.com/job/search/",
         "careerPage": "https://careers.ibm.com/job/search/",
         "logo": "https://logo.clearbit.com/careers.ibm.com",
@@ -1353,7 +1391,7 @@ module.exports = [
         "name": "Cisco",
         "category": "Product",
         "industry": "Big Tech",
-        "active": true,
+        "active": false,
         "careerUrl": "https://jobs.cisco.com/jobs/SearchSite",
         "careerPage": "https://jobs.cisco.com/jobs/SearchSite",
         "logo": "https://logo.clearbit.com/jobs.cisco.com",
@@ -1408,6 +1446,14 @@ module.exports = [
         "logo": "https://logo.clearbit.com/jobs.intel.com",
         "scraperType": "api",
         "scraperConfig": {
+            "apiUrl": "https://intel.wd1.myworkdayjobs.com/wday/cxs/intel/External/jobs",
+            "apiMethod": "POST",
+            "apiPayload": {
+                "appliedFacets": {},
+                "limit": 20,
+                "offset": 0,
+                "searchText": "software engineer"
+            },
             "allowedLocations": [
                 "india",
                 "remote",
@@ -1445,13 +1491,14 @@ module.exports = [
                 "2+",
                 "3+"
             ]
-        }
+        },
+        "ats": "workday"
     },
     {
         "name": "AMD",
         "category": "Product",
         "industry": "Big Tech",
-        "active": true,
+        "active": false,
         "careerUrl": "https://careers.amd.com/careers-home",
         "careerPage": "https://careers.amd.com/careers-home",
         "logo": "https://logo.clearbit.com/careers.amd.com",
@@ -1506,6 +1553,14 @@ module.exports = [
         "logo": "https://logo.clearbit.com/nvidia.wd5.myworkdayjobs.com",
         "scraperType": "api",
         "scraperConfig": {
+            "apiUrl": "https://nvidia.wd5.myworkdayjobs.com/wday/cxs/nvidia/NVIDIAExternalCareerSite/jobs",
+            "apiMethod": "POST",
+            "apiPayload": {
+                "appliedFacets": {},
+                "limit": 20,
+                "offset": 0,
+                "searchText": "software engineer"
+            },
             "allowedLocations": [
                 "india",
                 "remote",
@@ -1543,13 +1598,14 @@ module.exports = [
                 "2+",
                 "3+"
             ]
-        }
+        },
+        "ats": "workday"
     },
     {
         "name": "Qualcomm",
         "category": "Product",
         "industry": "Big Tech",
-        "active": true,
+        "active": false,
         "careerUrl": "https://careers.qualcomm.com/careers",
         "careerPage": "https://careers.qualcomm.com/careers",
         "logo": "https://logo.clearbit.com/careers.qualcomm.com",
@@ -1604,6 +1660,14 @@ module.exports = [
         "logo": "https://logo.clearbit.com/broadcom.wd1.myworkdayjobs.com",
         "scraperType": "api",
         "scraperConfig": {
+            "apiUrl": "https://broadcom.wd1.myworkdayjobs.com/wday/cxs/broadcom/External_Career/jobs",
+            "apiMethod": "POST",
+            "apiPayload": {
+                "appliedFacets": {},
+                "limit": 20,
+                "offset": 0,
+                "searchText": "software engineer"
+            },
             "allowedLocations": [
                 "india",
                 "remote",
@@ -1641,13 +1705,14 @@ module.exports = [
                 "2+",
                 "3+"
             ]
-        }
+        },
+        "ats": "workday"
     },
     {
         "name": "GitHub",
         "category": "Product",
         "industry": "Developer Tools",
-        "active": true,
+        "active": false,
         "careerUrl": "https://github.com/about/careers",
         "careerPage": "https://github.com/about/careers",
         "logo": "https://logo.clearbit.com/github.com",
@@ -1702,6 +1767,7 @@ module.exports = [
         "logo": "https://logo.clearbit.com/boards.greenhouse.io",
         "scraperType": "api",
         "scraperConfig": {
+            "apiUrl": "https://boards-api.greenhouse.io/v1/boards/gitlab/jobs?content=true",
             "allowedLocations": [
                 "india",
                 "remote",
@@ -1739,7 +1805,8 @@ module.exports = [
                 "2+",
                 "3+"
             ]
-        }
+        },
+        "ats": "greenhouse"
     },
     {
         "name": "MongoDB",
@@ -1751,6 +1818,7 @@ module.exports = [
         "logo": "https://logo.clearbit.com/boards.greenhouse.io",
         "scraperType": "api",
         "scraperConfig": {
+            "apiUrl": "https://boards-api.greenhouse.io/v1/boards/mongodb/jobs?content=true",
             "allowedLocations": [
                 "india",
                 "remote",
@@ -1788,7 +1856,8 @@ module.exports = [
                 "2+",
                 "3+"
             ]
-        }
+        },
+        "ats": "greenhouse"
     },
     {
         "name": "Datadog",
@@ -1800,6 +1869,7 @@ module.exports = [
         "logo": "https://logo.clearbit.com/www.datadoghq.com",
         "scraperType": "api",
         "scraperConfig": {
+            "apiUrl": "https://boards-api.greenhouse.io/v1/boards/datadog/jobs?content=true",
             "allowedLocations": [
                 "india",
                 "remote",
@@ -1837,13 +1907,14 @@ module.exports = [
                 "2+",
                 "3+"
             ]
-        }
+        },
+        "ats": "greenhouse"
     },
     {
         "name": "HashiCorp",
         "category": "Product",
         "industry": "Developer Tools",
-        "active": true,
+        "active": false,
         "careerUrl": "https://boards.greenhouse.io/hashicorp",
         "careerPage": "https://boards.greenhouse.io/hashicorp",
         "logo": "https://logo.clearbit.com/boards.greenhouse.io",
@@ -1898,6 +1969,7 @@ module.exports = [
         "logo": "https://logo.clearbit.com/boards.greenhouse.io",
         "scraperType": "api",
         "scraperConfig": {
+            "apiUrl": "https://boards-api.greenhouse.io/v1/boards/cloudflare/jobs?content=true",
             "allowedLocations": [
                 "india",
                 "remote",
@@ -1935,7 +2007,8 @@ module.exports = [
                 "2+",
                 "3+"
             ]
-        }
+        },
+        "ats": "greenhouse"
     },
     {
         "name": "Snowflake",
@@ -1947,6 +2020,17 @@ module.exports = [
         "logo": "https://logo.clearbit.com/careers.snowflake.com",
         "scraperType": "api",
         "scraperConfig": {
+            "apiUrl": "https://api.ashbyhq.com/posting-api/job-board/snowflake",
+            "listPath": "jobs",
+            "fields": {
+                "title": "title",
+                "location": "location",
+                "jobId": "id",
+                "department": "department",
+                "applyLink": "jobUrl",
+                "postedAt": "publishedAt",
+                "employmentType": "employmentType"
+            },
             "allowedLocations": [
                 "india",
                 "remote",
@@ -1984,7 +2068,8 @@ module.exports = [
                 "2+",
                 "3+"
             ]
-        }
+        },
+        "ats": "api"
     },
     {
         "name": "Confluent",
@@ -1996,6 +2081,17 @@ module.exports = [
         "logo": "https://logo.clearbit.com/boards.greenhouse.io",
         "scraperType": "api",
         "scraperConfig": {
+            "apiUrl": "https://api.ashbyhq.com/posting-api/job-board/confluent",
+            "listPath": "jobs",
+            "fields": {
+                "title": "title",
+                "location": "location",
+                "jobId": "id",
+                "department": "department",
+                "applyLink": "jobUrl",
+                "postedAt": "publishedAt",
+                "employmentType": "employmentType"
+            },
             "allowedLocations": [
                 "india",
                 "remote",
@@ -2033,7 +2129,8 @@ module.exports = [
                 "2+",
                 "3+"
             ]
-        }
+        },
+        "ats": "api"
     },
     {
         "name": "Elastic",
@@ -2045,6 +2142,7 @@ module.exports = [
         "logo": "https://logo.clearbit.com/boards.greenhouse.io",
         "scraperType": "api",
         "scraperConfig": {
+            "apiUrl": "https://boards-api.greenhouse.io/v1/boards/elastic/jobs?content=true",
             "allowedLocations": [
                 "india",
                 "remote",
@@ -2082,7 +2180,8 @@ module.exports = [
                 "2+",
                 "3+"
             ]
-        }
+        },
+        "ats": "greenhouse"
     },
     {
         "name": "Postman",
@@ -2094,6 +2193,7 @@ module.exports = [
         "logo": "https://logo.clearbit.com/boards.greenhouse.io",
         "scraperType": "api",
         "scraperConfig": {
+            "apiUrl": "https://boards-api.greenhouse.io/v1/boards/postman/jobs?content=true",
             "allowedLocations": [
                 "india",
                 "remote",
@@ -2131,7 +2231,8 @@ module.exports = [
                 "2+",
                 "3+"
             ]
-        }
+        },
+        "ats": "greenhouse"
     },
     {
         "name": "Docker",
@@ -2143,6 +2244,17 @@ module.exports = [
         "logo": "https://logo.clearbit.com/boards.greenhouse.io",
         "scraperType": "api",
         "scraperConfig": {
+            "apiUrl": "https://api.ashbyhq.com/posting-api/job-board/docker",
+            "listPath": "jobs",
+            "fields": {
+                "title": "title",
+                "location": "location",
+                "jobId": "id",
+                "department": "department",
+                "applyLink": "jobUrl",
+                "postedAt": "publishedAt",
+                "employmentType": "employmentType"
+            },
             "allowedLocations": [
                 "india",
                 "remote",
@@ -2180,7 +2292,8 @@ module.exports = [
                 "2+",
                 "3+"
             ]
-        }
+        },
+        "ats": "api"
     },
     {
         "name": "Redis",
@@ -2192,6 +2305,17 @@ module.exports = [
         "logo": "https://logo.clearbit.com/boards.greenhouse.io",
         "scraperType": "api",
         "scraperConfig": {
+            "apiUrl": "https://api.ashbyhq.com/posting-api/job-board/redis",
+            "listPath": "jobs",
+            "fields": {
+                "title": "title",
+                "location": "location",
+                "jobId": "id",
+                "department": "department",
+                "applyLink": "jobUrl",
+                "postedAt": "publishedAt",
+                "employmentType": "employmentType"
+            },
             "allowedLocations": [
                 "india",
                 "remote",
@@ -2229,7 +2353,8 @@ module.exports = [
                 "2+",
                 "3+"
             ]
-        }
+        },
+        "ats": "api"
     },
     {
         "name": "Vercel",
@@ -2241,6 +2366,7 @@ module.exports = [
         "logo": "https://logo.clearbit.com/vercel.com",
         "scraperType": "api",
         "scraperConfig": {
+            "apiUrl": "https://boards-api.greenhouse.io/v1/boards/vercel/jobs?content=true",
             "allowedLocations": [
                 "india",
                 "remote",
@@ -2278,7 +2404,8 @@ module.exports = [
                 "2+",
                 "3+"
             ]
-        }
+        },
+        "ats": "greenhouse"
     },
     {
         "name": "Netlify",
@@ -2290,6 +2417,7 @@ module.exports = [
         "logo": "https://logo.clearbit.com/boards.greenhouse.io",
         "scraperType": "api",
         "scraperConfig": {
+            "apiUrl": "https://boards-api.greenhouse.io/v1/boards/netlify/jobs?content=true",
             "allowedLocations": [
                 "india",
                 "remote",
@@ -2327,7 +2455,8 @@ module.exports = [
                 "2+",
                 "3+"
             ]
-        }
+        },
+        "ats": "greenhouse"
     },
     {
         "name": "DigitalOcean",
@@ -2339,6 +2468,7 @@ module.exports = [
         "logo": "https://logo.clearbit.com/boards.greenhouse.io",
         "scraperType": "api",
         "scraperConfig": {
+            "apiUrl": "https://boards-api.greenhouse.io/v1/boards/digitalocean98/jobs?content=true",
             "allowedLocations": [
                 "india",
                 "remote",
@@ -2376,7 +2506,8 @@ module.exports = [
                 "2+",
                 "3+"
             ]
-        }
+        },
+        "ats": "greenhouse"
     },
     {
         "name": "Twilio",
@@ -2388,6 +2519,7 @@ module.exports = [
         "logo": "https://logo.clearbit.com/boards.greenhouse.io",
         "scraperType": "api",
         "scraperConfig": {
+            "apiUrl": "https://boards-api.greenhouse.io/v1/boards/twilio/jobs?content=true",
             "allowedLocations": [
                 "india",
                 "remote",
@@ -2425,7 +2557,8 @@ module.exports = [
                 "2+",
                 "3+"
             ]
-        }
+        },
+        "ats": "greenhouse"
     },
     {
         "name": "Okta",
@@ -2437,6 +2570,7 @@ module.exports = [
         "logo": "https://logo.clearbit.com/okta.wd1.myworkdayjobs.com",
         "scraperType": "api",
         "scraperConfig": {
+            "apiUrl": "https://boards-api.greenhouse.io/v1/boards/okta/jobs?content=true",
             "allowedLocations": [
                 "india",
                 "remote",
@@ -2474,7 +2608,8 @@ module.exports = [
                 "2+",
                 "3+"
             ]
-        }
+        },
+        "ats": "greenhouse"
     },
     {
         "name": "OpenAI",
@@ -2535,6 +2670,7 @@ module.exports = [
         "logo": "https://logo.clearbit.com/boards.greenhouse.io",
         "scraperType": "api",
         "scraperConfig": {
+            "apiUrl": "https://boards-api.greenhouse.io/v1/boards/anthropic/jobs?content=true",
             "allowedLocations": [
                 "india",
                 "remote",
@@ -2572,7 +2708,8 @@ module.exports = [
                 "2+",
                 "3+"
             ]
-        }
+        },
+        "ats": "greenhouse"
     },
     {
         "name": "Cohere",
@@ -2584,6 +2721,17 @@ module.exports = [
         "logo": "https://logo.clearbit.com/jobs.lever.co",
         "scraperType": "api",
         "scraperConfig": {
+            "apiUrl": "https://api.ashbyhq.com/posting-api/job-board/cohere",
+            "listPath": "jobs",
+            "fields": {
+                "title": "title",
+                "location": "location",
+                "jobId": "id",
+                "department": "department",
+                "applyLink": "jobUrl",
+                "postedAt": "publishedAt",
+                "employmentType": "employmentType"
+            },
             "allowedLocations": [
                 "india",
                 "remote",
@@ -2621,13 +2769,14 @@ module.exports = [
                 "2+",
                 "3+"
             ]
-        }
+        },
+        "ats": "api"
     },
     {
         "name": "Hugging Face",
         "category": "Product",
         "industry": "A I",
-        "active": true,
+        "active": false,
         "careerUrl": "https://boards.greenhouse.io/huggingface",
         "careerPage": "https://boards.greenhouse.io/huggingface",
         "logo": "https://logo.clearbit.com/boards.greenhouse.io",
@@ -2676,7 +2825,7 @@ module.exports = [
         "name": "Mistral AI",
         "category": "Product",
         "industry": "A I",
-        "active": true,
+        "active": false,
         "careerUrl": "https://jobs.lever.co/mistral",
         "careerPage": "https://jobs.lever.co/mistral",
         "logo": "https://logo.clearbit.com/jobs.lever.co",
@@ -2731,6 +2880,7 @@ module.exports = [
         "logo": "https://logo.clearbit.com/boards.greenhouse.io",
         "scraperType": "api",
         "scraperConfig": {
+            "apiUrl": "https://boards-api.greenhouse.io/v1/boards/scaleai/jobs?content=true",
             "allowedLocations": [
                 "india",
                 "remote",
@@ -2768,7 +2918,8 @@ module.exports = [
                 "2+",
                 "3+"
             ]
-        }
+        },
+        "ats": "greenhouse"
     },
     {
         "name": "Perplexity AI",
@@ -2780,6 +2931,17 @@ module.exports = [
         "logo": "https://logo.clearbit.com/jobs.lever.co",
         "scraperType": "api",
         "scraperConfig": {
+            "apiUrl": "https://api.ashbyhq.com/posting-api/job-board/perplexity",
+            "listPath": "jobs",
+            "fields": {
+                "title": "title",
+                "location": "location",
+                "jobId": "id",
+                "department": "department",
+                "applyLink": "jobUrl",
+                "postedAt": "publishedAt",
+                "employmentType": "employmentType"
+            },
             "allowedLocations": [
                 "india",
                 "remote",
@@ -2817,7 +2979,8 @@ module.exports = [
                 "2+",
                 "3+"
             ]
-        }
+        },
+        "ats": "api"
     },
     {
         "name": "Together AI",
@@ -2829,6 +2992,7 @@ module.exports = [
         "logo": "https://logo.clearbit.com/jobs.lever.co",
         "scraperType": "api",
         "scraperConfig": {
+            "apiUrl": "https://boards-api.greenhouse.io/v1/boards/togetherai/jobs?content=true",
             "allowedLocations": [
                 "india",
                 "remote",
@@ -2866,7 +3030,8 @@ module.exports = [
                 "2+",
                 "3+"
             ]
-        }
+        },
+        "ats": "greenhouse"
     },
     {
         "name": "ElevenLabs",
@@ -2878,6 +3043,17 @@ module.exports = [
         "logo": "https://logo.clearbit.com/boards.greenhouse.io",
         "scraperType": "api",
         "scraperConfig": {
+            "apiUrl": "https://api.ashbyhq.com/posting-api/job-board/elevenlabs",
+            "listPath": "jobs",
+            "fields": {
+                "title": "title",
+                "location": "location",
+                "jobId": "id",
+                "department": "department",
+                "applyLink": "jobUrl",
+                "postedAt": "publishedAt",
+                "employmentType": "employmentType"
+            },
             "allowedLocations": [
                 "india",
                 "remote",
@@ -2915,7 +3091,8 @@ module.exports = [
                 "2+",
                 "3+"
             ]
-        }
+        },
+        "ats": "api"
     },
     {
         "name": "Flipkart",
@@ -3021,7 +3198,7 @@ module.exports = [
         "name": "BrowserStack",
         "category": "Product",
         "industry": "Indian Product",
-        "active": true,
+        "active": false,
         "careerUrl": "https://boards.greenhouse.io/browserstack",
         "careerPage": "https://boards.greenhouse.io/browserstack",
         "logo": "https://logo.clearbit.com/boards.greenhouse.io",
@@ -3076,6 +3253,7 @@ module.exports = [
         "logo": "https://logo.clearbit.com/careers.freshworks.com",
         "scraperType": "api",
         "scraperConfig": {
+            "apiUrl": "https://api.smartrecruiters.com/v1/companies/freshworks/postings",
             "allowedLocations": [
                 "india",
                 "remote",
@@ -3113,7 +3291,8 @@ module.exports = [
                 "2+",
                 "3+"
             ]
-        }
+        },
+        "ats": "smartrecruiters"
     },
     {
         "name": "Razorpay",
@@ -3176,6 +3355,7 @@ module.exports = [
         "logo": "https://logo.clearbit.com/boards.greenhouse.io",
         "scraperType": "api",
         "scraperConfig": {
+            "apiUrl": "https://boards-api.greenhouse.io/v1/boards/phonepe/jobs?content=true",
             "allowedLocations": [
                 "india",
                 "remote",
@@ -3213,7 +3393,8 @@ module.exports = [
                 "2+",
                 "3+"
             ]
-        }
+        },
+        "ats": "greenhouse"
     },
     {
         "name": "Groww",
@@ -3225,6 +3406,7 @@ module.exports = [
         "logo": "https://logo.clearbit.com/boards.greenhouse.io",
         "scraperType": "api",
         "scraperConfig": {
+            "apiUrl": "https://boards-api.greenhouse.io/v1/boards/groww/jobs?content=true",
             "allowedLocations": [
                 "india",
                 "remote",
@@ -3262,7 +3444,8 @@ module.exports = [
                 "2+",
                 "3+"
             ]
-        }
+        },
+        "ats": "greenhouse"
     },
     {
         "name": "CRED",
@@ -3368,7 +3551,7 @@ module.exports = [
         "name": "Zomato",
         "category": "Product",
         "industry": "Indian Product",
-        "active": true,
+        "active": false,
         "careerUrl": "https://www.zomato.com/careers",
         "careerPage": "https://www.zomato.com/careers",
         "logo": "https://logo.clearbit.com/www.zomato.com",
@@ -3472,6 +3655,7 @@ module.exports = [
         "logo": "https://logo.clearbit.com/boards.greenhouse.io",
         "scraperType": "api",
         "scraperConfig": {
+            "apiUrl": "https://boards-api.greenhouse.io/v1/boards/inmobi/jobs?content=true",
             "allowedLocations": [
                 "india",
                 "remote",
@@ -3509,7 +3693,8 @@ module.exports = [
                 "2+",
                 "3+"
             ]
-        }
+        },
+        "ats": "greenhouse"
     },
     {
         "name": "Tekion",
@@ -3521,6 +3706,17 @@ module.exports = [
         "logo": "https://logo.clearbit.com/boards.greenhouse.io",
         "scraperType": "api",
         "scraperConfig": {
+            "apiUrl": "https://api.ashbyhq.com/posting-api/job-board/tekion",
+            "listPath": "jobs",
+            "fields": {
+                "title": "title",
+                "location": "location",
+                "jobId": "id",
+                "department": "department",
+                "applyLink": "jobUrl",
+                "postedAt": "publishedAt",
+                "employmentType": "employmentType"
+            },
             "allowedLocations": [
                 "india",
                 "remote",
@@ -3558,13 +3754,14 @@ module.exports = [
                 "2+",
                 "3+"
             ]
-        }
+        },
+        "ats": "api"
     },
     {
         "name": "Darwinbox",
         "category": "Product",
         "industry": "Indian Product",
-        "active": true,
+        "active": false,
         "careerUrl": "https://careers.darwinbox.com/",
         "careerPage": "https://careers.darwinbox.com/",
         "logo": "https://logo.clearbit.com/careers.darwinbox.com",
@@ -3613,7 +3810,7 @@ module.exports = [
         "name": "Zoho",
         "category": "Product",
         "industry": "Indian Product",
-        "active": true,
+        "active": false,
         "careerUrl": "https://careers.zohocorp.com/",
         "careerPage": "https://careers.zohocorp.com/",
         "logo": "https://logo.clearbit.com/careers.zohocorp.com",
@@ -3662,7 +3859,7 @@ module.exports = [
         "name": "Chargebee",
         "category": "Product",
         "industry": "Indian Product",
-        "active": true,
+        "active": false,
         "careerUrl": "https://jobs.lever.co/chargebee",
         "careerPage": "https://jobs.lever.co/chargebee",
         "logo": "https://logo.clearbit.com/jobs.lever.co",
@@ -3711,7 +3908,7 @@ module.exports = [
         "name": "Juspay",
         "category": "Product",
         "industry": "Indian Product",
-        "active": true,
+        "active": false,
         "careerUrl": "https://juspay.in/careers",
         "careerPage": "https://juspay.in/careers",
         "logo": "https://logo.clearbit.com/juspay.in",
@@ -3760,7 +3957,7 @@ module.exports = [
         "name": "Ola",
         "category": "Product",
         "industry": "Indian Product",
-        "active": true,
+        "active": false,
         "careerUrl": "https://careers.olaelectric.com/",
         "careerPage": "https://careers.olaelectric.com/",
         "logo": "https://logo.clearbit.com/careers.olaelectric.com",
@@ -3809,7 +4006,7 @@ module.exports = [
         "name": "Delhivery",
         "category": "Product",
         "industry": "Indian Product",
-        "active": true,
+        "active": false,
         "careerUrl": "https://www.delhivery.com/careers/",
         "careerPage": "https://www.delhivery.com/careers/",
         "logo": "https://logo.clearbit.com/www.delhivery.com",
@@ -3858,7 +4055,7 @@ module.exports = [
         "name": "PolicyBazaar",
         "category": "Product",
         "industry": "Indian Product",
-        "active": true,
+        "active": false,
         "careerUrl": "https://www.policybazaar.com/careers/",
         "careerPage": "https://www.policybazaar.com/careers/",
         "logo": "https://logo.clearbit.com/www.policybazaar.com",
@@ -3907,7 +4104,7 @@ module.exports = [
         "name": "Unthinkable",
         "category": "Product",
         "industry": "Indian Product",
-        "active": true,
+        "active": false,
         "careerUrl": "https://www.unthinkable.co/career/",
         "careerPage": "https://www.unthinkable.co/career/",
         "logo": "https://logo.clearbit.com/unthinkable.co",

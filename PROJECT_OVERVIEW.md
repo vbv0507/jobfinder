@@ -126,6 +126,54 @@ RoleNova represents a perfect synergy between traditional web scraping and moder
 
 ---
 
+## 🔍 10. Company ATS Audit & Mass Fix (August 2026)
+
+### Problem
+Out of 65 active companies in `utils/companies.js`, only **7 had properly configured ATS adapters** with working `apiUrl` and `ats` fields. The remaining 58 companies had `scraperType: "api"` but no `apiUrl`, causing every scrape attempt to throw "Generic API URL missing".
+
+### Methodology
+A two-phase automated audit script (`scratch/audit-all-companies.js`) was built and executed:
+1. **Phase 1 — Online ATS probe:** For every active company, the script probed Greenhouse, Lever, Ashby, SmartRecruiters, and Workday APIs using ~30 common token patterns per company (derived from company name with known alias overrides).
+2. **Phase 2 — Adapter run:** For companies that already had `apiUrl` configured, the adapter was run and job counts cross-checked.
+
+### Results
+
+| Category | Count | Companies |
+|---|---|---|
+| ✅ Already working | 7 | Visa, Mastercard, PayPal, Stripe, Meesho, Razorpay, CRED |
+| ✅ Fixed (live API found + configured) | 32 | See below |
+| ❌ Deactivated (no accessible public API) | 26 | See below |
+
+### Fixed Companies (32)
+
+All fixed by adding `ats` + `apiUrl` (and `listPath`/`fields` for Ashby) to `scraperConfig`:
+
+**Greenhouse (19 companies):** Brex, GitLab, MongoDB, Datadog, Cloudflare, Elastic, Postman, Vercel, Netlify, Twilio, Okta, Anthropic, Scale AI, Together AI, PhonePe, Groww, InMobi, DigitalOcean, Razorpay (already working, confirmed)
+
+**Workday (5 companies):** Adobe, NVIDIA, Broadcom, Intel + previously: Visa, Mastercard, PayPal
+
+**Ashby via OfficialApiAdapter (9 companies):** Plaid, Snowflake, Confluent, Docker, Redis, Cohere, Perplexity AI, ElevenLabs, Tekion
+
+**SmartRecruiters (1 company):** Freshworks
+
+**Lever (2 companies):** Meesho, CRED (already working, confirmed)
+
+### Deactivated Companies (26)
+
+Companies where all standard ATS API probes failed across all token variations:
+
+- **Custom enterprise portals (no public API):** Google, Apple, Amazon, Microsoft, IBM, Oracle
+- **Workday with 422 (CSRF/anti-bot):** Salesforce, AMD, Qualcomm, Cisco
+- **All ATS probes 404:** Netflix, GitHub, HashiCorp, Hugging Face, BrowserStack, Chargebee, Mistral AI
+- **Indian companies with custom portals:** Revolut, Zomato, Darwinbox, Zoho, Juspay, Ola, Delhivery, PolicyBazaar, Unthinkable
+
+### Final Active Company Count: 39
+
+All 39 active companies have been verified to return live job listings through their configured adapters. The pipeline now covers: Finance (Visa, Mastercard, PayPal, Stripe, Brex, Plaid), Global Tech (Adobe, NVIDIA, Broadcom, Intel, GitLab, MongoDB, Datadog, Cloudflare, Snowflake, Confluent, Elastic, Postman, Docker, Redis, Vercel, Netlify, DigitalOcean, Twilio, Okta, Anthropic, Cohere, Scale AI, Perplexity AI, Together AI, ElevenLabs, Freshworks), Indian Tech (Meesho, Razorpay, PhonePe, Groww, CRED, InMobi, Tekion).
+
+
+---
+
 ## 🚀 9. LiteLLM Proxy — Azure Container Apps Deployment (August 2026)
 
 ### Overview
