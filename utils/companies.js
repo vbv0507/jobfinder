@@ -620,50 +620,15 @@ module.exports = [
         "name": "Wise",
         "category": "Service",
         "industry": "Finance",
-        "active": false,
+        "active": true,
         "careerUrl": "https://wise.jobs/roles",
         "careerPage": "https://wise.jobs/roles",
         "logo": "https://logo.clearbit.com/wise.jobs",
         "scraperType": "api",
         "scraperConfig": {
-            "allowedLocations": [
-                "india",
-                "remote",
-                "bengaluru",
-                "bangalore",
-                "hyderabad",
-                "pune",
-                "gurgaon",
-                "noida"
-            ],
-            "targetKeywords": [
-                "software engineer",
-                "software development engineer",
-                "sde",
-                "backend",
-                "developer",
-                "api",
-                "java",
-                "python",
-                "node",
-                "golang"
-            ],
-            "excludedKeywords": [
-                "senior",
-                "sr ",
-                "sr.",
-                "staff",
-                "principal",
-                "manager",
-                "director",
-                "lead",
-                "architect",
-                "1-3",
-                "1 to 3",
-                "2+",
-                "3+"
-            ]
-        }
+            "apiUrl": "https://boards-api.greenhouse.io/v1/boards/wise/jobs?content=true"
+        },
+        "ats": "greenhouse"
     },
     {
         "name": "Revolut",
@@ -769,7 +734,7 @@ module.exports = [
         "name": "Ramp",
         "category": "Service",
         "industry": "Finance",
-        "active": false,
+        "active": true,
         "ats": "api",
         "careerUrl": "https://ramp.com/careers",
         "careerPage": "https://ramp.com/careers",
@@ -777,7 +742,6 @@ module.exports = [
         "scraperType": "api",
         "scraperConfig": {
             "apiUrl": "https://api.ashbyhq.com/posting-api/job-board/ramp",
-            "apiMethod": "GET",
             "listPath": "jobs",
             "fields": {
                 "title": "title",
@@ -787,44 +751,7 @@ module.exports = [
                 "applyLink": "jobUrl",
                 "postedAt": "publishedAt",
                 "employmentType": "employmentType"
-            },
-            "allowedLocations": [
-                "india",
-                "remote",
-                "bengaluru",
-                "bangalore",
-                "hyderabad",
-                "pune",
-                "gurgaon",
-                "noida"
-            ],
-            "targetKeywords": [
-                "software engineer",
-                "software development engineer",
-                "sde",
-                "backend",
-                "developer",
-                "api",
-                "java",
-                "python",
-                "node",
-                "golang"
-            ],
-            "excludedKeywords": [
-                "senior",
-                "sr ",
-                "sr.",
-                "staff",
-                "principal",
-                "manager",
-                "director",
-                "lead",
-                "architect",
-                "1-3",
-                "1 to 3",
-                "2+",
-                "3+"
-            ]
+            }
         }
     },
     {
@@ -2630,50 +2557,25 @@ module.exports = [
         "name": "OpenAI",
         "category": "Product",
         "industry": "A I",
-        "active": false,
+        "active": true,
         "careerUrl": "https://openai.com/careers/search",
         "careerPage": "https://openai.com/careers/search",
         "logo": "https://logo.clearbit.com/openai.com",
         "scraperType": "api",
         "scraperConfig": {
-            "allowedLocations": [
-                "india",
-                "remote",
-                "bengaluru",
-                "bangalore",
-                "hyderabad",
-                "pune",
-                "gurgaon",
-                "noida"
-            ],
-            "targetKeywords": [
-                "software engineer",
-                "software development engineer",
-                "sde",
-                "backend",
-                "developer",
-                "api",
-                "java",
-                "python",
-                "node",
-                "golang"
-            ],
-            "excludedKeywords": [
-                "senior",
-                "sr ",
-                "sr.",
-                "staff",
-                "principal",
-                "manager",
-                "director",
-                "lead",
-                "architect",
-                "1-3",
-                "1 to 3",
-                "2+",
-                "3+"
-            ]
-        }
+            "apiUrl": "https://api.ashbyhq.com/posting-api/job-board/openai",
+            "listPath": "jobs",
+            "fields": {
+                "title": "title",
+                "location": "location",
+                "jobId": "id",
+                "department": "department",
+                "applyLink": "jobUrl",
+                "postedAt": "publishedAt",
+                "employmentType": "employmentType"
+            }
+        },
+        "ats": "api"
     },
     {
         "name": "Anthropic",
@@ -3517,50 +3419,15 @@ module.exports = [
         "name": "Swiggy",
         "category": "Product",
         "industry": "Indian Product",
-        "active": false,
+        "active": true,
         "careerUrl": "https://careers.swiggy.com/#/",
         "careerPage": "https://careers.swiggy.com/#/",
         "logo": "https://logo.clearbit.com/careers.swiggy.com",
         "scraperType": "api",
         "scraperConfig": {
-            "allowedLocations": [
-                "india",
-                "remote",
-                "bengaluru",
-                "bangalore",
-                "hyderabad",
-                "pune",
-                "gurgaon",
-                "noida"
-            ],
-            "targetKeywords": [
-                "software engineer",
-                "software development engineer",
-                "sde",
-                "backend",
-                "developer",
-                "api",
-                "java",
-                "python",
-                "node",
-                "golang"
-            ],
-            "excludedKeywords": [
-                "senior",
-                "sr ",
-                "sr.",
-                "staff",
-                "principal",
-                "manager",
-                "director",
-                "lead",
-                "architect",
-                "1-3",
-                "1 to 3",
-                "2+",
-                "3+"
-            ]
-        }
+            "apiUrl": "https://api.smartrecruiters.com/v1/companies/Swiggy/postings?limit=100"
+        },
+        "ats": "smartrecruiters"
     },
     {
         "name": "Zomato",
