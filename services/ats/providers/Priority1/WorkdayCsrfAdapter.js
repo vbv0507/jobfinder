@@ -3,126 +3,118 @@ const { normalizeDate } = require('../../../../utils/dateNormalizer');
 
 /**
  * WorkdayCsrfAdapter — Handles Workday endpoints that require session cookies
- * and CSRF tokens (returns 422 Unprocessable Entity otherwise).
- * 
- * First performs a GET to the career site page, extracts the session cookies
- * and X-CALYPSO-CSRF-TOKEN, then POSTs to the /wday/cxs/.../jobs endpoint.
+ * (returns 422 Unprocessable Entity otherwise). Workday caps limit at 20 per page.
+ *
+ * Step 1: GET the career site page to obtain session cookies + optional CSRF token.
+ * Step 2: POST to /wday/cxs/{tenant}/{board}/jobs with those cookies.
  */
 class WorkdayCsrfAdapter extends BaseAdapter {
-  get parserName() { return "Workday CSRF API"; }
-  get parserVersion() { return "1.0.0"; }
-  get parserRevisionDate() { return "2026-08-19"; }
+  get parserName() { return 'Workday CSRF API'; }
+  get parserVersion() { return '1.1.0'; }
+  get parserRevisionDate() { return '2026-08-20'; }
 
   async searchJobs() {
-    const config = this.company.scraperConfig || {};
-    const apiUrl = config.apiUrl;
-    const siteUrl = config.siteUrl; // The URL to GET first for cookies
-    const dataPayload = config.apiPayload || { appliedFacets: {}, limit: 50, offset: 0, searchText: 'software engineer' };
+    const config  = this.company.scraperConfig || {};
+    const apiUrl  = config.apiUrl;
+    const siteUrl = config.siteUrl;
 
     if (!apiUrl || !siteUrl) {
       const { ScraperError } = require('../../../../utils/errors');
-      throw new ScraperError('INVALID_ENDPOINT', 'WorkdayCsrfAdapter requires both apiUrl and siteUrl in scraperConfig');
+      throw new ScraperError('INVALID_ENDPOINT', 'WorkdayCsrfAdapter requires apiUrl and siteUrl');
     }
 
     const axios = require('axios');
-    
-    // Step 1: GET the page to get session cookies
+
+    // ── Step 1: GET career site page to obtain session cookies ──────────────
     let cookies = '';
     let csrfToken = '';
-    
+
     try {
       const pageRes = await axios.get(siteUrl, {
         timeout: 15000,
         headers: {
-          'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/126 Safari/537.36'
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36',
+          'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
+          'Accept-Language': 'en-US,en;q=0.9',
         }
       });
-      
-      const rawCookies = pageRes.headers && pageRes.headers['set-cookie'];
-      if (rawCookies && Array.isArray(rawCookies)) {
+
+      const rawCookies = pageRes.headers['set-cookie'];
+      if (Array.isArray(rawCookies)) {
         cookies = rawCookies.map(c => c.split(';')[0]).join('; ');
       }
 
+      // Extract CSRF token if Workday embeds it in the HTML
       const html = typeof pageRes.data === 'string' ? pageRes.data : '';
-      const patterns = [
+      const csrfPatterns = [
         /csrfToken["']?\s*:\s*["']([^"']+)["']/i,
         /X-CALYPSO-CSRF-TOKEN["']?\s*:\s*["']([^"']+)["']/i,
-        /"token"\s*:\s*"([a-f0-9-]{36})"/i,
         /calypso-csrf-token["']?\s*content=["']([^"']+)["']/i,
+        /"token"\s*:\s*"([a-f0-9-]{36})"/i,
       ];
-      for (const pat of patterns) {
+      for (const pat of csrfPatterns) {
         const m = html.match(pat);
         if (m) { csrfToken = m[1]; break; }
       }
     } catch (e) {
-      console.log(`[WorkdayCsrfAdapter] Failed to GET initial page for ${this.company.name}: ${e.message}`);
+      console.log(`[WorkdayCsrfAdapter][${this.company.name}] Page GET failed: ${e.message} — proceeding without cookies`);
     }
 
-    const limit = dataPayload.limit || 20;
-    let offset = dataPayload.offset || 0;
+    // ── Step 2: POST paginated jobs API ────────────────────────────────────
+    // Workday hard-caps limit at 20; higher values → HTTP 400
+    const LIMIT = 20;
+    let offset = 0;
     let allJobs = [];
-    let hasMore = true;
 
-    let applyBaseUrl = this.company.careerUrl;
-    const match = apiUrl.match(/https:\/\/(.+?)\/wday\/cxs\/[^\/]+\/([^\/]+)/);
-    if (match) {
-      applyBaseUrl = `https://${match[1]}/en-US/${match[2]}`;
+    let applyBaseUrl = this.company.careerUrl || '';
+    const urlMatch = apiUrl.match(/https:\/\/(.+?)\/wday\/cxs\/[^/]+\/([^/]+)/);
+    if (urlMatch) {
+      applyBaseUrl = `https://${urlMatch[1]}/en-US/${urlMatch[2]}`;
     }
 
-    const headers = {
+    const postHeaders = {
       'Content-Type': 'application/json',
       'Accept': 'application/json',
-      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/126 Safari/537.36',
+      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36',
+      'Accept-Language': 'en-US,en;q=0.9',
+      'Origin': siteUrl.replace(/\/[^/]+$/, ''),
       'Referer': siteUrl,
       ...(cookies ? { 'Cookie': cookies } : {}),
-      ...(csrfToken ? { 'X-CALYPSO-CSRF-TOKEN': csrfToken } : {})
+      ...(csrfToken ? { 'X-CALYPSO-CSRF-TOKEN': csrfToken } : {}),
     };
 
-    console.log('WD headers:', headers);
-    console.log('WD payload:', dataPayload);
+    while (offset < 200) {
+      const payload = { appliedFacets: {}, limit: LIMIT, offset, searchText: '' };
 
-    while (hasMore && offset < 200) {
       try {
-        dataPayload.limit = limit;
-        dataPayload.offset = offset;
+        const res = await axios.post(apiUrl, payload, { headers: postHeaders, timeout: 15000 });
+        const jobs = res.data?.jobPostings || res.data?.jobPostingsData || [];
 
-        const res = await axios.post(apiUrl, dataPayload, { headers, timeout: 15000 });
-        const data = res.data;
-
-        const jobsFromApi = data.jobPostings || data.jobPostingsData || [];
-        if (!jobsFromApi || jobsFromApi.length === 0) {
-          hasMore = false;
-          break;
-        }
-
-        allJobs = allJobs.concat(jobsFromApi);
-        offset += limit;
-
-        if (jobsFromApi.length < limit) {
-          hasMore = false;
-        }
+        if (!jobs.length) break;
+        allJobs = allJobs.concat(jobs);
+        offset += LIMIT;
+        if (jobs.length < LIMIT) break;
       } catch (err) {
         if (offset === 0) throw err;
-        console.log(`[WorkdayCsrfAdapter] Pagination failed at offset ${offset}. Returning ${allJobs.length} jobs.`);
+        console.log(`[WorkdayCsrfAdapter][${this.company.name}] Pagination stopped at offset ${offset}: ${err.message}`);
         break;
       }
     }
 
     return allJobs.map(item => {
-      const jobId = item.bulletFields?.[0] || item.externalPath || item.id;
-      let jobUrl = item.externalPath ? `${applyBaseUrl}${item.externalPath}` : "";
-      if (!jobUrl && jobId) {
-         jobUrl = `${applyBaseUrl}/job/${jobId}`;
-      }
+      const jobId = item.externalPath || item.bulletFields?.[0] || item.id;
+      const jobUrl = item.externalPath
+        ? `${applyBaseUrl}${item.externalPath}`
+        : (jobId ? `${applyBaseUrl}/job/${jobId}` : '');
+
       return this.normalizeJob({
-        title: item.title,
-        location: item.locationsText || item.location,
+        title      : item.title,
+        location   : item.locationsText || item.location || '',
         jobId,
-        description: item.title, 
-        url: jobUrl,
-        postedAt: item.postedOn,
-        source: 'workday'
+        description: item.title,
+        url        : jobUrl,
+        postedAt   : normalizeDate(item.postedOn),
+        source     : 'workday',
       });
     }).filter(Boolean);
   }
