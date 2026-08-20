@@ -261,3 +261,44 @@ The legacy `--enable-workload-profiles false` flag is obsolete. As of 2025+, Wor
 - **Security:** Protected by `LITELLM_MASTER_KEY` (HTTP 401 for any unauthenticated request). No IP allowlist (key-based auth is sufficient).
 - **Deployment scripts:** `deploy-aca-stage-a.ps1` (environment + bare image verification) and `deploy-aca-stage-b.ps1` (full production config).
 - **App `.env`:** `LITELLM_BASE_URL` set to the live ACA URL.
+
+---
+
+## ✅ 11. Final Fleet Audit — All Active Companies (August 2026)
+
+### Result: 47/47 ✅ — 100% pass rate, 0 failures
+
+A full automated audit was run across all 47 active companies, checking:
+1. **Site liveness** — HTTP HEAD request to the career page URL
+2. **Adapter output** — actual job count returned by the scraper
+
+| Metric | Result |
+|---|---|
+| Total active companies | 47 |
+| Adapters returning jobs | **47 (100%)** |
+| Adapters returning zero | 0 |
+| Adapters failing | 0 |
+
+### Top Companies by Job Count
+| Company | Jobs |
+|---|---|
+| OpenAI | 739 |
+| Stripe | 576 |
+| Anthropic | 483 |
+| Datadog | 434 |
+| MongoDB | 405 |
+| Snowflake | 386 |
+| Okta | 339 |
+| Cloudflare | 305 |
+| Brex | 295 |
+| Elastic | 263 |
+
+### Companies Added in This Round
+- **OpenAI** (Ashby — 739 jobs)
+- **Wise** (Greenhouse — 19 jobs)
+- **Ramp** (Ashby — 136 jobs)
+- **Swiggy** (SmartRecruiters — 53 jobs)
+- **Salesforce** (WorkdayCsrf — 200 jobs)
+- **Cisco** (WorkdayCsrf — 200 jobs)
+- **Amazon** (Custom adapter — 200 jobs)
+- **Netflix** (Custom adapter — 510 jobs)

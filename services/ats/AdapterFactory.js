@@ -6,6 +6,7 @@ const SmartRecruitersAdapter = require('./providers/Priority1/SmartRecruitersAda
 const NetflixAdapter = require('./providers/Priority1/NetflixAdapter');
 const AmazonAdapter = require('./providers/Priority1/AmazonAdapter');
 const EightfoldAdapter = require('./providers/Priority1/EightfoldAdapter');
+const PlaywrightNetworkAdapter = require('./providers/Priority2/PlaywrightNetworkAdapter');
 const OfficialApiAdapter = require('./providers/Fallback/OfficialApiAdapter');
 const LightweightHtmlAdapter = require('./providers/Fallback/LightweightHtmlAdapter');
 
@@ -41,6 +42,8 @@ class AdapterFactory {
         return new AmazonAdapter(company);
       case 'eightfold':
         return new EightfoldAdapter(company);
+      case 'playwright-network':
+        return new PlaywrightNetworkAdapter(company);
       case 'api':
       case 'officialapi':
         return new OfficialApiAdapter(company);
