@@ -302,3 +302,132 @@ A full automated audit was run across all 47 active companies, checking:
 - **Cisco** (WorkdayCsrf — 200 jobs)
 - **Amazon** (Custom adapter — 200 jobs)
 - **Netflix** (Custom adapter — 510 jobs)
+
+---
+
+## 🔧 Recent Changes & Bug Fixes
+
+### Bug Fix: Matched Jobs Not Appearing on `/jobs` Page (2026-08-24)
+
+**Root Cause:** The `/jobs` route in `frontendRoutes.js` had a MongoDB filter `provider: { $not: /^local/i }`. When `provider` is `null` or `undefined` (the case for all 88 existing matched jobs), MongoDB's `$not` regex **excludes them** instead of including them. This caused the route to return 0 jobs despite 88 being in the database.
+
+**Fix:** Removed the broken `provider` filter from the `/jobs` route. The `/jobs` route now queries:
+```js
+{ status: 'new', score: { $gte: 70 }, jobStatus: { $ne: 'Closed' } }
+```
+The local-vs-cloud separation is already handled correctly by the dedicated `/local-jobs` route.
+
+**File changed:** `routes/frontendRoutes.js`
+
+### UI Cleanup: Dashboard & Sidebar (2026-08-24)
+
+**Dashboard changes (`views/pages/dashboard.ejs`):**
+- Removed "AI Match Accuracy", "Cache Hit Rate", and "ATS Discovery Success" primary stat cards
+- Removed low-value Pipeline Execution Metric cards: Retry Count, Recovered Nodes, Cloudflare Blocks, Header Sanitized, Axios Success, Puppeteer Fallbacks, Cache Savings, Avg Co. Runtime
+
+**Sidebar changes (`views/partials/sidebar.ejs`):**
+- Removed Pipeline, Evidence Viewer, Cache, and Logs nav links
+- Diagnostics section now shows only Telegram monitoring
+
+### Scraper vs Website Comparison Audit (2026-08-24)
+
+Ran `scratch/compare-scraper.js` against 50 active companies — fetches live job counts from ATS APIs and compares with `RawJob` DB counts.
+
+**Key findings:**
+- 20 companies have significant gaps (Anthropic: 516 live vs 0 in DB, Netflix: 511 live vs 0, MongoDB: 404 live vs 0)
+- Workday companies return `undefined` job count (API response schema mismatch in parser)
+- 24 companies use non-standard APIs that require auth headers (Ashby, custom adapters)
+- Greenhouse companies consistently show 0 in DB despite large live counts — scrapers likely failing silently
+
+---
+
+## 🔧 Changelog
+
+### Major Scraper Engine Fixes (2026-08-24 — Session 2)
+
+Deep pipeline trace and root-cause analysis revealed 5 distinct issues. All fixed.
+
+#### Fix 1: City Alias Normalization in Location Validator
+**File:** `services/pipeline/validationService.js`
+
+Added alias normalization in `normalizeLocationString` so that official city spellings match the DB's `targetLocations` list:
+- `Gurugram` → `Gurgaon` (MongoDB, Okta, many others)
+- `Bengaluru` → `Bangalore`
+- `Bombay` → `Mumbai`, `Calcutta` → `Kolkata`, `Madras` → `Chennai`
+
+Previously, MongoDB jobs with `location: "Gurugram"` were dropped because `targetLocations` contained `gurgaon`, not `gurugram`.
+
+#### Fix 2: SmartRecruiters Adapter — Added Full Pagination
+**File:** `services/ats/providers/Priority1/SmartRecruitersAdapter.js`
+
+SmartRecruiters API caps at 100 results per page. The adapter was not paginating — it only ever fetched the first 100 jobs. Companies like Freshworks (165 total) or Nagarro (920 total) had their India-based jobs on later pages that were never fetched.
+
+Implemented offset-based pagination (`?limit=100&offset=N`) with `totalFound` tracking and a 1000-job safety cap.
+
+#### Fix 3: Netflix Adapter — Full Rebuild with Pagination and Multi-keyword Search
+**File:** `services/ats/providers/Priority1/NetflixAdapter.js`
+
+The old NetflixAdapter fetched exactly 50 jobs with a single hardcoded keyword. Rebuilt with:
+- Multi-keyword search (iterates through `software engineer`, `backend`, `developer`, `sde`)
+- Offset-based pagination per keyword term
+- Deduplication by `ats_job_id` across keyword results
+- Fixed `t_create` Unix timestamp normalization
+
+#### Fix 4: Netflix DB Record — Removed Wrong `adapter` Override
+The Netflix company document had `adapter: "LightweightHtmlAdapter"` explicitly set. The `AdapterFactory` checks this field first, so `LightweightHtmlAdapter` was being used instead of `NetflixAdapter` even though `ats: "netflix"` was set.
+- Removed the `adapter` field override with `$unset`
+
+#### Fix 5: Mass DB Migration — Populated Missing `apiUrl` + Removed 14 Wrong Adapter Overrides
+**Script:** `scratch/fix-company-configs.js`, `scratch/fix-adapter-overrides.js`
+
+**14 companies** had `adapter: "LightweightHtmlAdapter"` explicitly overriding their proper ATS-specific adapters. This caused them to use the HTML fallback scraper instead of the official APIs.
+
+Fixed companies (adapter override removed):
+- `HashiCorp`, `Okta`, `BrowserStack`, `Wise`, `Hugging Face`, `Together AI` → now use **GreenhouseAdapter**
+- `Meesho`, `Dream11`, `Chargebee` → now use **LeverAdapter**
+- `Cisco`, `Salesforce` → now use **WorkdayCsrfAdapter**
+- `Cadence`, `Micron`, `PwC India` → now use **WorkdayAdapter**
+
+Additionally, auto-populated missing `scraperConfig.apiUrl` for 12 more companies:
+- Thoughtworks, Databricks, HashiCorp, BrowserStack, Hugging Face (Greenhouse)
+- Zeta, Dream11, Mistral AI, Chargebee (Lever)
+- Western Digital (SmartRecruiters)
+- Cadence, Micron, PwC India (Workday — extracted from `careerUrl`)
+
+#### Note on Expected 0-result Companies
+- **Anthropic (515 jobs):** All jobs are US/UK/Singapore. No India presence. Correct behaviour.
+- **MongoDB (404 jobs):** Genuinely has no India-based SWE roles currently. Keyword/location filters working correctly.
+- **Meesho (50 jobs):** Only non-SWE roles posted right now (AM, Manager, Finance). No bug.
+- **Freshworks (165 jobs):** All 165 current openings are US/UK/EU. No India SWE roles posted.
+
+### Health Check Route Added (2026-08-24)
+
+**File:** `index.js`
+
+Added `GET /health` — publicly accessible, no auth required. Returns:
+- `status`: `ok` (HTTP 200) or `degraded` (HTTP 503) based on MongoDB connection
+- `uptime`: human-readable server uptime
+- `db`: MongoDB connection state
+- `memory`: heap used/total and RSS in MB
+- `version` and `node` runtime info
+
+Useful for uptime monitors (UptimeRobot, Render health checks, etc.).
+
+### Render Free Tier Migration (2026-08-24)
+
+Migrated from Azure to Render. Fixed Docker build failures:
+
+| Problem | Fix |
+|---------|-----|
+| `node:20` image — packages require `>=22` | Changed to `node:22-bookworm-slim` |
+| `--only=production` deprecated npm flag | Replaced with `--omit=dev` |
+| No `.dockerignore` — `node_modules` + `.env` copied into image | Created `.dockerignore` |
+| `postinstall` ran `playwright install` on every `npm install` | Removed; Dockerfile handles browser install explicitly |
+| Healthcheck hit `/` (auth-protected, returns redirect) | Changed to `/health` |
+| Missing `engines` field in `package.json` | Added `"node": ">=22.0.0"` |
+
+**New files:**
+- `Dockerfile` — updated to Node 22 with full Chromium deps
+- `.dockerignore` — excludes node_modules, .env, scratch/, logs/
+- `render.yaml` — Render service config (docker runtime, health check path)
+

@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: rolenova
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3000
+      # Set the rest in Render dashboard (Secrets):
+      # MONGO_URI, CLERK_SECRET_KEY, CLERK_PUBLISHABLE_KEY,
+      # GEMINI_API_KEY, EMAIL_USER, EMAIL_PASS, TELEGRAM_API_ID,
+      # TELEGRAM_API_HASH, TELEGRAM_STRING_SESSION, etc.

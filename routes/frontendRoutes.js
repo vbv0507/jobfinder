@@ -56,7 +56,6 @@ router.get('/jobs', requireExtendedViewer, async (req, res) => {
         const MatchedJob = require('../models/MatchedJob');
         const jobs = await MatchedJob.find({ 
             status: 'new', 
-            provider: { $not: /^local/i },
             score: { $gte: 70 },
             jobStatus: { $ne: 'Closed' }
         }).populate('company', 'name').sort({ score: -1 });

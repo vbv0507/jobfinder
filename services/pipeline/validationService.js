@@ -24,8 +24,20 @@ const hasAllowedLocation = (job, company) => {
     if (words.some(w => usStates.includes(w)) && !words.includes('us') && !words.includes('united') && !words.includes('states')) {
         str += " us";
     }
+    // City aliases: normalize common alternate spellings to canonical form
+    const cityAliases = {
+      'gurugram': 'gurgaon',
+      'bengaluru': 'bangalore',
+      'bombay': 'mumbai',
+      'calcutta': 'kolkata',
+      'madras': 'chennai',
+    };
+    for (const [alias, canonical] of Object.entries(cityAliases)) {
+      str = str.replace(new RegExp(`\\b${alias}\\b`, 'g'), canonical);
+    }
     return str.trim();
   };
+
   
   const normalizedJobLocation = normalizeLocationString(rawText);
   

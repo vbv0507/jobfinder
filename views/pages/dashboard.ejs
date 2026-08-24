@@ -234,55 +234,8 @@ async function requestExtendedAccess() {
         </div>
     </div>
 
-    <!-- AI Evaluation Accuracy -->
-    <div class="bg-surface border border-border rounded-xl p-5 shadow-sm hover:border-border/80 transition-colors">
-        <div class="flex items-center justify-between mb-4">
-            <h3 class="text-sm font-medium text-textMuted">AI Match Accuracy</h3>
-            <div class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary">
-                <i class="fa-solid fa-brain"></i>
-            </div>
-        </div>
-        <div class="flex items-end justify-between">
-            <div>
-                <p class="text-3xl font-bold text-textMain" id="stat-ai-accuracy">--%</p>
-                <p class="text-xs text-textMuted mt-1">Gemini & Groq Evaluators</p>
-            </div>
-        </div>
-    </div>
-
-    <!-- Cache Hit Rate -->
-    <div class="bg-surface border border-border rounded-xl p-5 shadow-sm hover:border-border/80 transition-colors">
-        <div class="flex items-center justify-between mb-4">
-            <h3 class="text-sm font-medium text-textMuted">Cache Hit Rate</h3>
-            <div class="w-8 h-8 rounded-full bg-warning/10 flex items-center justify-center text-warning">
-                <i class="fa-solid fa-bolt"></i>
-            </div>
-        </div>
-        <div class="flex items-end justify-between">
-            <div>
-                <p class="text-3xl font-bold text-textMain" id="stat-cache-hit">--%</p>
-                <p class="text-xs text-textMuted mt-1">Efficiency savings</p>
-            </div>
-        </div>
-    </div>
-
-    <!-- Discovery Success -->
-    <div class="bg-surface border border-border rounded-xl p-5 shadow-sm hover:border-border/80 transition-colors">
-        <div class="flex items-center justify-between mb-4">
-            <h3 class="text-sm font-medium text-textMuted">ATS Discovery Success</h3>
-            <div class="w-8 h-8 rounded-full bg-[#8b5cf6]/10 flex items-center justify-center text-[#8b5cf6]">
-                <i class="fa-solid fa-network-wired"></i>
-            </div>
-        </div>
-        <div class="flex items-end justify-between">
-            <div>
-                <p class="text-3xl font-bold text-textMain" id="stat-discovery-success">--%</p>
-                <p class="text-xs text-textMuted mt-1">Interceptor Auto-Healing</p>
-            </div>
-        </div>
-    </div>
-
 </div>
+
 
 <!-- Digest & Verification Overview -->
 <div class="mb-8">
@@ -304,7 +257,6 @@ async function requestExtendedAccess() {
     <h2 class="text-lg font-semibold text-textMain mb-4">Pipeline Execution Metrics</h2>
     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
         
-        <!-- Standard Metric Component -->
         <%- include('../components/metric-card', { id: 'metric-companies', title: 'Companies Monitored', icon: 'fa-building', color: 'text-primary' }) %>
         <%- include('../components/metric-card', { id: 'metric-jobs', title: 'Jobs Found Today', icon: 'fa-briefcase', color: 'text-success' }) %>
         <%- include('../components/metric-card', { id: 'metric-matched', title: 'Matched Jobs', icon: 'fa-check-double', color: 'text-success' }) %>
@@ -315,19 +267,7 @@ async function requestExtendedAccess() {
         <%- include('../components/metric-card', { id: 'metric-parser-err', title: 'Parser Errors', icon: 'fa-code', color: 'text-warning' }) %>
         <%- include('../components/metric-card', { id: 'metric-ats-changed', title: 'ATS Changed', icon: 'fa-random', color: 'text-warning' }) %>
         
-        <%- include('../components/metric-card', { id: 'metric-cached', title: 'Cached Companies', icon: 'fa-database', color: 'text-primary' }) %>
-        <%- include('../components/metric-card', { id: 'metric-scraped', title: 'Actually Scraped', icon: 'fa-spider', color: 'text-primary' }) %>
-        <%- include('../components/metric-card', { id: 'metric-retry', title: 'Retry Count', icon: 'fa-redo-alt', color: 'text-warning' }) %>
-        <%- include('../components/metric-card', { id: 'metric-recovered', title: 'Recovered Nodes', icon: 'fa-heartbeat', color: 'text-success' }) %>
-        
-        <%- include('../components/metric-card', { id: 'metric-cf-blocks', title: 'Cloudflare Blocks', icon: 'fa-shield-alt', color: 'text-error' }) %>
-        <%- include('../components/metric-card', { id: 'metric-headers', title: 'Header Sanitized', icon: 'fa-broom', color: 'text-[#8b5cf6]' }) %>
-        <%- include('../components/metric-card', { id: 'metric-axios', title: 'Axios Success', icon: 'fa-check', color: 'text-success' }) %>
-        <%- include('../components/metric-card', { id: 'metric-puppeteer', title: 'Puppeteer Fallbacks', icon: 'fa-robot', color: 'text-warning' }) %>
-        
-        <%- include('../components/metric-card', { id: 'metric-savings', title: 'Cache Savings', icon: 'fa-stopwatch', color: 'text-success' }) %>
         <%- include('../components/metric-card', { id: 'metric-avg-run', title: 'Average Runtime', icon: 'fa-clock', color: 'text-primary' }) %>
-        <%- include('../components/metric-card', { id: 'metric-avg-comp', title: 'Avg Co. Runtime', icon: 'fa-hourglass-half', color: 'text-primary' }) %>
         
     </div>
 </div>

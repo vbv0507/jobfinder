@@ -97,6 +97,31 @@ app.use("/api/telegram", telegramRoutes);
 app.use("/api/system", systemRoutes);
 app.use("/admin", adminRoutes);
 
+// Health Check Route — no auth required
+app.get("/health", (req, res) => {
+    const mongoose = require("mongoose");
+    const dbState = ["disconnected", "connected", "connecting", "disconnecting"];
+    const uptime = process.uptime();
+    const mem = process.memoryUsage();
+
+    const status = mongoose.connection.readyState === 1 ? "ok" : "degraded";
+
+    res.status(status === "ok" ? 200 : 503).json({
+        status,
+        timestamp: new Date().toISOString(),
+        uptime: `${Math.floor(uptime / 3600)}h ${Math.floor((uptime % 3600) / 60)}m ${Math.floor(uptime % 60)}s`,
+        db: dbState[mongoose.connection.readyState] || "unknown",
+        memory: {
+            heapUsed: `${Math.round(mem.heapUsed / 1024 / 1024)} MB`,
+            heapTotal: `${Math.round(mem.heapTotal / 1024 / 1024)} MB`,
+            rss: `${Math.round(mem.rss / 1024 / 1024)} MB`,
+        },
+        version: process.env.npm_package_version || "1.0.0",
+        node: process.version,
+    });
+});
+
+
 // New Frontend Routes
 const frontendRoutes = require("./routes/frontendRoutes");
 app.use("/", frontendRoutes);

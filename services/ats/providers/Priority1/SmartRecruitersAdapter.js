@@ -3,7 +3,7 @@ const { normalizeDate } = require('../../../../utils/dateNormalizer');
 
 class SmartRecruitersAdapter extends BaseAdapter {
   get parserName() { return "SmartRecruiters API"; }
-  get parserVersion() { return "1.1.0"; }
+  get parserVersion() { return "1.2.0"; }
 
   static get NetworkSignatures() {
     return [
@@ -15,7 +15,7 @@ class SmartRecruitersAdapter extends BaseAdapter {
     ];
   }
 
-  get parserRevisionDate() { return "2024-01-01"; }
+  get parserRevisionDate() { return "2026-08-24"; }
 
   getCountryName(country = "") {
     const value = country.toLowerCase();
@@ -27,7 +27,6 @@ class SmartRecruitersAdapter extends BaseAdapter {
     let url = this.company.scraperConfig?.apiUrl;
     const method = this.company.scraperConfig?.apiMethod || 'GET';
     let headers = this.company.scraperConfig?.apiHeaders ? Object.fromEntries(this.company.scraperConfig.apiHeaders) : {};
-    const data = this.company.scraperConfig?.apiPayload || null;
 
     if (!url) {
       const match = this.company.careerUrl.match(/careers\.smartrecruiters\.com\/([^/?]+)/i) || 
@@ -39,10 +38,31 @@ class SmartRecruitersAdapter extends BaseAdapter {
       }
     }
 
-    const response = await this.fetch(url, { method, headers, data });
-    const jobsFromApi = response.data?.content || [];
+    // Paginate: SmartRecruiters caps at 100 per page
+    const PAGE_SIZE = 100;
+    let offset = 0;
+    let allJobs = [];
+    let totalFound = null;
 
-    return jobsFromApi.map(item => this.normalizeJob({
+    while (true) {
+      const pageUrl = `${url}?limit=${PAGE_SIZE}&offset=${offset}`;
+      const response = await this.fetch(pageUrl, { method, headers, data: null });
+      const page = response.data?.content || [];
+
+      if (totalFound === null) {
+        totalFound = response.data?.totalFound ?? null;
+      }
+
+      allJobs = allJobs.concat(page);
+      offset += PAGE_SIZE;
+
+      // Stop if: partial page (last page), all fetched, or safety cap
+      if (page.length < PAGE_SIZE) break;
+      if (totalFound !== null && allJobs.length >= totalFound) break;
+      if (offset >= 1000) break;
+    }
+
+    return allJobs.map(item => this.normalizeJob({
       title: item.name,
       location: [
         item.location?.city,
