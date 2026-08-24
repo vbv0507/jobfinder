@@ -1,8 +1,9 @@
 FROM node:22-bookworm-slim
 
-# Install system dependencies for Playwright/Puppeteer (Chromium)
+# Install system dependencies for Playwright/Puppeteer (Chromium) + unzip for Puppeteer browser download
 RUN apt-get update && apt-get install -y --no-install-recommends \
     wget \
+    unzip \
     gnupg \
     ca-certificates \
     procps \
@@ -28,10 +29,14 @@ WORKDIR /usr/src/app
 
 COPY package*.json ./
 
-# Install production deps (--omit=dev replaces deprecated --only=production)
+# Skip Puppeteer's own Chrome download — we use Playwright's Chromium instead
+ENV PUPPETEER_SKIP_DOWNLOAD=true
+ENV PLAYWRIGHT_BROWSERS_PATH=/ms-playwright
+
+# Install production deps
 RUN npm ci --omit=dev
 
-# Install Playwright Chromium browser (skip on Render if not needed)
+# Install Playwright Chromium browser
 RUN npx playwright install --with-deps chromium
 
 COPY . .
