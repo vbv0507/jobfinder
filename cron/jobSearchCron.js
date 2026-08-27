@@ -174,6 +174,8 @@ const runSearch = async (triggerSource = "Unknown", forceRefresh = false) => {
   const aiState = {
     gemini: { available: true, reason: null, disabledAt: null, requests: 0, success: 0, failed: 0 },
     groq: { available: true, reason: null, disabledAt: null, requests: 0, success: 0, failed: 0 },
+    openrouter: { available: true, reason: null, disabledAt: null, requests: 0, success: 0, failed: 0 },
+    litellm: { available: true, reason: null, disabledAt: null, requests: 0, success: 0, failed: 0 },
     zai: { available: true, reason: null, disabledAt: null, requests: 0, success: 0, failed: 0 },
     local: { requests: 0, success: 0, failed: 0 },
     calls: 0
@@ -190,6 +192,12 @@ const runSearch = async (triggerSource = "Unknown", forceRefresh = false) => {
   pipelineState.groqRequests = 0;
   pipelineState.groqFallbacks = 0;
   pipelineState.groqDisabledAt = null;
+
+  pipelineState.openrouterStatus = "Ready";
+  pipelineState.openrouterReason = null;
+  pipelineState.openrouterRequests = 0;
+  pipelineState.openrouterFallbacks = 0;
+  pipelineState.openrouterDisabledAt = null;
   
   pipelineState.zaiStatus = "Ready";
   pipelineState.zaiReason = null;
@@ -362,7 +370,9 @@ const runSearch = async (triggerSource = "Unknown", forceRefresh = false) => {
                 adapter.trail.forEach(t => logEvent(t.stage, t.severity, t.message, t.httpCode, t.durationMs));
             }
             
-            if (jobs.length === 0 && !(adapter instanceof LightweightHtmlAdapter)) {
+            const isAuthoritativeApi = ["GreenhouseAdapter", "OfficialApiAdapter", "LeverAdapter", "SmartRecruitersAdapter", "WorkdayAdapter", "WorkdayCsrfAdapter"].includes(adapter.constructor?.name);
+            
+            if (jobs.length === 0 && !isAuthoritativeApi && !(adapter instanceof LightweightHtmlAdapter)) {
               logEvent("Recovery", "WARN", "Zero jobs from primary adapter; trying universal rendered fallback");
               console.log(chalk.yellow(`[Recovery] ${company.name}: Zero jobs from primary adapter; trying universal rendered fallback`));
 
@@ -885,6 +895,14 @@ const runSearch = async (triggerSource = "Unknown", forceRefresh = false) => {
     stats.groqSuccess = aiState.groq.success || 0;
     stats.groqFailed = aiState.groq.failed || 0;
     stats.groqFallbacks = aiState.groqFallbacks || 0;
+
+    stats.openrouterCount = aiState.openrouter?.requests || 0;
+    stats.openrouterSuccess = aiState.openrouter?.success || 0;
+    stats.openrouterFailed = aiState.openrouter?.failed || 0;
+    
+    stats.litellmCount = aiState.litellm?.requests || 0;
+    stats.litellmSuccess = aiState.litellm?.success || 0;
+    stats.litellmFailed = aiState.litellm?.failed || 0;
     
     stats.zaiCount = aiState.zai.requests || 0;
     stats.zaiSuccess = aiState.zai.success || 0;

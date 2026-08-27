@@ -21,19 +21,19 @@ class WorkdayAdapter extends BaseAdapter {
     const apiUrl = this.company.scraperConfig?.apiUrl;
     const method = this.company.scraperConfig?.apiMethod || 'POST';
     const headers = this.company.scraperConfig?.apiHeaders ? Object.fromEntries(this.company.scraperConfig.apiHeaders) : { "Content-Type": "application/json" };
-    let dataPayload = this.company.scraperConfig?.apiPayload || { appliedFacets: {}, limit: 50, offset: 0 };
+    let dataPayload = Object.assign({ appliedFacets: {}, limit: 20, offset: 0, searchText: "" }, this.company.scraperConfig?.apiPayload);
     
     if (!apiUrl) {
        const { ScraperError } = require('../../../../utils/errors');
        throw new ScraperError('INVALID_ENDPOINT', 'Workday API endpoint not configured');
     }
 
-    const limit = dataPayload.limit || 50;
+    const limit = dataPayload.limit || 20;
     let offset = dataPayload.offset || 0;
     let allJobs = [];
     let hasMore = true;
 
-    let applyBaseUrl = this.company.careerUrl;
+    let applyBaseUrl = this.company.careerUrl || "";
     const match = apiUrl.match(/https:\/\/(.+?)\/wday\/cxs\/[^\/]+\/([^\/]+)/);
     if (match) {
       applyBaseUrl = `https://${match[1]}/en-US/${match[2]}`;
@@ -71,10 +71,13 @@ class WorkdayAdapter extends BaseAdapter {
       if (!jobUrl && jobId) {
          jobUrl = `${applyBaseUrl}/job/${jobId}`;
       }
+      if (!jobUrl) {
+         jobUrl = this.company.careerUrl || apiUrl;
+      }
       return this.normalizeJob({
         title: item.title,
-        location: item.locationsText || item.location,
-        jobId,
+        location: item.locationsText || item.location || 'Remote / Global',
+        jobId: jobId || `${this.company.name.toLowerCase()}-${Buffer.from(item.title || '').toString('hex').slice(0, 10)}`,
         description: item.title, 
         url: jobUrl,
         postedAt: item.postedOn,

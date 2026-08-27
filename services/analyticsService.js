@@ -175,10 +175,10 @@ const getAnalyticsData = async () => {
             }
         });
 
-        const verifiedGemini = await MatchedJob.countDocuments({ provider: 'gemini', verificationStatus: 'verified' });
-        const verifiedGroq = await MatchedJob.countDocuments({ provider: 'groq', verificationStatus: 'verified' });
+        const verifiedGemini = await MatchedJob.countDocuments({ provider: 'gemini', needsReEvaluation: { $ne: true } });
+        const verifiedGroq = await MatchedJob.countDocuments({ provider: 'groq', needsReEvaluation: { $ne: true } });
 
-        const pendingLocal = await MatchedJob.countDocuments({ provider: { $regex: /^local/i }, needsReEvaluation: true });
+        const pendingLocal = await MatchedJob.countDocuments({ $or: [{ provider: { $regex: /^local/i } }, { needsReEvaluation: true }] });
         
         const lastSentJob = await MatchedJob.findOne({ emailSent: true }).sort({ emailSentAt: -1 }).lean();
         const dailyDigestSent = lastSentJob && lastSentJob.emailSentAt && new Date(lastSentJob.emailSentAt) >= startOfDay;

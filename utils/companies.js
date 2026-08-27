@@ -3425,7 +3425,7 @@ module.exports = [
         "logo": "https://logo.clearbit.com/careers.swiggy.com",
         "scraperType": "api",
         "scraperConfig": {
-            "apiUrl": "https://api.smartrecruiters.com/v1/companies/Swiggy/postings?limit=100"
+            "apiUrl": "https://api.smartrecruiters.com/v1/companies/Swiggy/postings"
         },
         "ats": "smartrecruiters"
     },
@@ -4029,6 +4029,306 @@ module.exports = [
                 "2+",
                 "3+"
             ]
+        }
+    },
+    {
+        "name": "Databricks",
+        "category": "Product",
+        "industry": "Data & AI",
+        "active": true,
+        "careerUrl": "https://www.databricks.com/company/careers",
+        "careerPage": "https://boards.greenhouse.io/databricks",
+        "logo": "https://logo.clearbit.com/databricks.com",
+        "ats": "greenhouse",
+        "scraperType": "api",
+        "scraperConfig": {
+            "apiUrl": "https://boards-api.greenhouse.io/v1/boards/databricks/jobs?content=true"
+        }
+    },
+    {
+        "name": "Thoughtworks",
+        "category": "Service",
+        "industry": "Consulting & Tech",
+        "active": true,
+        "careerUrl": "https://www.thoughtworks.com/careers",
+        "careerPage": "https://boards.greenhouse.io/thoughtworks",
+        "logo": "https://logo.clearbit.com/thoughtworks.com",
+        "ats": "greenhouse",
+        "scraperType": "api",
+        "scraperConfig": {
+            "apiUrl": "https://boards-api.greenhouse.io/v1/boards/thoughtworks/jobs?content=true"
+        }
+    },
+    {
+        "name": "Zeta",
+        "category": "Product",
+        "industry": "Fintech",
+        "active": true,
+        "careerUrl": "https://jobs.lever.co/zeta",
+        "careerPage": "https://jobs.lever.co/zeta",
+        "logo": "https://logo.clearbit.com/zeta.tech",
+        "ats": "lever",
+        "scraperType": "api",
+        "scraperConfig": {
+            "apiUrl": "https://api.lever.co/v0/postings/zeta?mode=json"
+        }
+    },
+    {
+        "name": "Figma",
+        "category": "Product",
+        "industry": "Design Tech",
+        "active": true,
+        "careerUrl": "https://www.figma.com/careers",
+        "careerPage": "https://boards.greenhouse.io/figma",
+        "logo": "https://logo.clearbit.com/figma.com",
+        "ats": "greenhouse",
+        "scraperType": "api",
+        "scraperConfig": {
+            "apiUrl": "https://boards-api.greenhouse.io/v1/boards/figma/jobs?content=true"
+        }
+    },
+    {
+        "name": "Linear",
+        "category": "Product",
+        "industry": "Developer Tools",
+        "active": true,
+        "careerUrl": "https://linear.app/careers",
+        "careerPage": "https://jobs.ashbyhq.com/linear",
+        "logo": "https://logo.clearbit.com/linear.app",
+        "ats": "api",
+        "scraperType": "api",
+        "scraperConfig": {
+            "apiUrl": "https://api.ashbyhq.com/posting-api/job-board/linear",
+            "listPath": "jobs",
+            "fields": {
+                "title": "title",
+                "location": "location",
+                "jobId": "id",
+                "department": "department",
+                "applyLink": "jobUrl",
+                "postedAt": "publishedAt",
+                "employmentType": "employmentType"
+            }
+        }
+    },
+    {
+        "name": "Resend",
+        "category": "Product",
+        "industry": "Developer Tools",
+        "active": true,
+        "careerUrl": "https://resend.com/careers",
+        "careerPage": "https://jobs.ashbyhq.com/resend",
+        "logo": "https://logo.clearbit.com/resend.com",
+        "ats": "api",
+        "scraperType": "api",
+        "scraperConfig": {
+            "apiUrl": "https://api.ashbyhq.com/posting-api/job-board/resend",
+            "listPath": "jobs",
+            "fields": {
+                "title": "title",
+                "location": "location",
+                "jobId": "id",
+                "department": "department",
+                "applyLink": "jobUrl",
+                "postedAt": "publishedAt",
+                "employmentType": "employmentType"
+            }
+        }
+    },
+    {
+        "name": "Airtable",
+        "category": "Product",
+        "industry": "Productivity & Low-Code",
+        "active": true,
+        "careerUrl": "https://airtable.com/careers",
+        "careerPage": "https://boards.greenhouse.io/airtable",
+        "logo": "https://logo.clearbit.com/airtable.com",
+        "ats": "greenhouse",
+        "scraperType": "api",
+        "scraperConfig": {
+            "apiUrl": "https://boards-api.greenhouse.io/v1/boards/airtable/jobs?content=true"
+        }
+    },
+    {
+        "name": "Roblox",
+        "category": "Product",
+        "industry": "Gaming & Meta",
+        "active": true,
+        "careerUrl": "https://careers.roblox.com/",
+        "careerPage": "https://boards.greenhouse.io/roblox",
+        "logo": "https://logo.clearbit.com/roblox.com",
+        "ats": "greenhouse",
+        "scraperType": "api",
+        "scraperConfig": {
+            "apiUrl": "https://boards-api.greenhouse.io/v1/boards/roblox/jobs?content=true"
+        }
+    },
+    {
+        "name": "Lyft",
+        "category": "Product",
+        "industry": "Transportation & Tech",
+        "active": true,
+        "careerUrl": "https://www.lyft.com/careers",
+        "careerPage": "https://boards.greenhouse.io/lyft",
+        "logo": "https://logo.clearbit.com/lyft.com",
+        "ats": "greenhouse",
+        "scraperType": "api",
+        "scraperConfig": {
+            "apiUrl": "https://boards-api.greenhouse.io/v1/boards/lyft/jobs?content=true"
+        }
+    },
+    {
+        "name": "Airbnb",
+        "category": "Product",
+        "industry": "Travel & Tech",
+        "active": true,
+        "careerUrl": "https://careers.airbnb.com/",
+        "careerPage": "https://boards.greenhouse.io/airbnb",
+        "logo": "https://logo.clearbit.com/airbnb.com",
+        "ats": "greenhouse",
+        "scraperType": "api",
+        "scraperConfig": {
+            "apiUrl": "https://boards-api.greenhouse.io/v1/boards/airbnb/jobs?content=true"
+        }
+    },
+    {
+        "name": "Coinbase",
+        "category": "Product",
+        "industry": "Crypto & Fintech",
+        "active": true,
+        "careerUrl": "https://www.coinbase.com/careers",
+        "careerPage": "https://boards.greenhouse.io/coinbase",
+        "logo": "https://logo.clearbit.com/coinbase.com",
+        "ats": "greenhouse",
+        "scraperType": "api",
+        "scraperConfig": {
+            "apiUrl": "https://boards-api.greenhouse.io/v1/boards/coinbase/jobs?content=true"
+        }
+    },
+    {
+        "name": "Robinhood",
+        "category": "Product",
+        "industry": "Fintech",
+        "active": true,
+        "careerUrl": "https://robinhood.com/careers",
+        "careerPage": "https://boards.greenhouse.io/robinhood",
+        "logo": "https://logo.clearbit.com/robinhood.com",
+        "ats": "greenhouse",
+        "scraperType": "api",
+        "scraperConfig": {
+            "apiUrl": "https://boards-api.greenhouse.io/v1/boards/robinhood/jobs?content=true"
+        }
+    },
+    {
+        "name": "Discord",
+        "category": "Product",
+        "industry": "Communication & Gaming",
+        "active": true,
+        "careerUrl": "https://discord.com/careers",
+        "careerPage": "https://boards.greenhouse.io/discord",
+        "logo": "https://logo.clearbit.com/discord.com",
+        "ats": "greenhouse",
+        "scraperType": "api",
+        "scraperConfig": {
+            "apiUrl": "https://boards-api.greenhouse.io/v1/boards/discord/jobs?content=true"
+        }
+    },
+    {
+        "name": "Reddit",
+        "category": "Product",
+        "industry": "Social & Community",
+        "active": true,
+        "careerUrl": "https://www.redditinc.com/careers",
+        "careerPage": "https://boards.greenhouse.io/reddit",
+        "logo": "https://logo.clearbit.com/reddit.com",
+        "ats": "greenhouse",
+        "scraperType": "api",
+        "scraperConfig": {
+            "apiUrl": "https://boards-api.greenhouse.io/v1/boards/reddit/jobs?content=true"
+        }
+    },
+    {
+        "name": "Pinterest",
+        "category": "Product",
+        "industry": "Social & Discovery",
+        "active": true,
+        "careerUrl": "https://www.pinterestcareers.com/",
+        "careerPage": "https://boards.greenhouse.io/pinterest",
+        "logo": "https://logo.clearbit.com/pinterest.com",
+        "ats": "greenhouse",
+        "scraperType": "api",
+        "scraperConfig": {
+            "apiUrl": "https://boards-api.greenhouse.io/v1/boards/pinterest/jobs?content=true"
+        }
+    },
+    {
+        "name": "Cadence",
+        "category": "Product",
+        "industry": "Semiconductors & EDA",
+        "active": true,
+        "careerUrl": "https://cadence.wd1.myworkdayjobs.com/External_Careers",
+        "careerPage": "https://cadence.wd1.myworkdayjobs.com/External_Careers",
+        "logo": "https://logo.clearbit.com/cadence.com",
+        "ats": "workday",
+        "scraperType": "api",
+        "scraperConfig": {
+            "apiUrl": "https://cadence.wd1.myworkdayjobs.com/wday/cxs/cadence/External_Careers/jobs"
+        }
+    },
+    {
+        "name": "Western Digital",
+        "category": "Product",
+        "industry": "Hardware & Storage",
+        "active": true,
+        "careerUrl": "https://jobs.smartrecruiters.com/WesternDigital",
+        "careerPage": "https://jobs.smartrecruiters.com/WesternDigital",
+        "logo": "https://logo.clearbit.com/westerndigital.com",
+        "ats": "smartrecruiters",
+        "scraperType": "api",
+        "scraperConfig": {
+            "apiUrl": "https://api.smartrecruiters.com/v1/companies/westerndigital/postings"
+        }
+    },
+    {
+        "name": "Palantir",
+        "category": "Product",
+        "industry": "Big Data & Defense",
+        "active": true,
+        "careerUrl": "https://jobs.lever.co/palantir",
+        "careerPage": "https://jobs.lever.co/palantir",
+        "logo": "https://logo.clearbit.com/palantir.com",
+        "ats": "lever",
+        "scraperType": "api",
+        "scraperConfig": {
+            "apiUrl": "https://api.lever.co/v0/postings/palantir?mode=json"
+        }
+    },
+    {
+        "name": "ServiceNow",
+        "category": "Product",
+        "industry": "Enterprise Cloud",
+        "active": true,
+        "careerUrl": "https://jobs.smartrecruiters.com/ServiceNow",
+        "careerPage": "https://jobs.smartrecruiters.com/ServiceNow",
+        "logo": "https://logo.clearbit.com/servicenow.com",
+        "ats": "smartrecruiters",
+        "scraperType": "api",
+        "scraperConfig": {
+            "apiUrl": "https://api.smartrecruiters.com/v1/companies/servicenow/postings"
+        }
+    },
+    {
+        "name": "PwC India",
+        "category": "Service",
+        "industry": "Consulting & Tech",
+        "active": true,
+        "careerUrl": "https://pwc.wd3.myworkdayjobs.com/Global_Experienced_Careers",
+        "careerPage": "https://pwc.wd3.myworkdayjobs.com/Global_Experienced_Careers",
+        "logo": "https://logo.clearbit.com/pwc.in",
+        "ats": "workday",
+        "scraperType": "api",
+        "scraperConfig": {
+            "apiUrl": "https://pwc.wd3.myworkdayjobs.com/wday/cxs/pwc/Global_Experienced_Careers/jobs"
         }
     }
 ];

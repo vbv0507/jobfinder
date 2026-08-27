@@ -28,6 +28,7 @@ module.exports = {
         "Software Development Engineer",
         "Software Development Engineer I",
         "SDE I",
+        "SDE 1",
         "SDE",
         "Backend Software Engineer",
         "Backend Developer",
@@ -35,7 +36,10 @@ module.exports = {
         "API Developer",
         "Junior Software Engineer",
         "Associate Software Engineer",
-        "Software Engineer"
+        "Software Engineer",
+        "Graduate Engineer Trainee",
+        "SDE Intern",
+        "Software Engineering Intern"
     ],
 
     preferredLocations: [
@@ -45,16 +49,20 @@ module.exports = {
         "Bangalore",
         "Noida",
         "Hyderabad",
-        "Pune"
+        "Pune",
+        "Gurgaon",
+        "Gurugram",
+        "Delhi NCR",
+        "Mumbai"
     ],
     
     careerStage: "Entry Level / New Grad",
     
     yearsOfExperience: 0,
     
-    preferredDomains: ["BACKEND"],
+    preferredDomains: ["BACKEND", "FULLSTACK"],
     
-    excludedDomains: ["MOBILE", "AI_ML", "DATA_ENG", "FRONTEND"],
+    excludedDomains: ["MOBILE"],
     
     preferredEmploymentLevels: ["Internship", "Entry Level", "Junior", "Associate"],
     

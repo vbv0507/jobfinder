@@ -61,8 +61,14 @@ const hasAllowedEmploymentType = (job) => {
 const hasAllowedExperience = (job) => {
   const titleText = [job.title, job.experience].filter(Boolean).join(" ").toLowerCase();
   
+  const isFresherSignal = /\b(intern|internship|fresher|new grad|entry level|campus|trainee|junior|associate|sde-?1|sde-?i|software development engineer i\b)\b/i.test(titleText);
+  
+  if (isFresherSignal) {
+      return { passed: true };
+  }
+
   const expMatch = [...titleText.matchAll(/(\d+)\s*(?:\+|-|to)\s*(?:\d+)?\s*(?:years?|yrs?)/g)];
-  if (expMatch.some((match) => Number(match[1]) >= 2)) {
+  if (expMatch.some((match) => Number(match[1]) >= 3)) {
       const highest = Math.max(...expMatch.map(m => Number(m[1])));
       return { passed: false, reason: `Requires ${highest}+ years experience` };
   }

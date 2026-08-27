@@ -181,7 +181,7 @@ const saveMatchedJob = async (rawJob, company, job, analysis) => {
           experienceMatch: analysis.experienceMatch,
           recommendation: analysis.recommendation,
           applyLink: job.applyLink,
-          postedAt: job.postedAt,
+          postedAt: normalizeDate(job.postedAt),
           evaluatedBy: analysis.evaluatedBy || "Gemini",
           provider: analysis.provider || "gemini",
           model: analysis.model || "unknown",
@@ -239,7 +239,7 @@ const saveMatchedJob = async (rawJob, company, job, analysis) => {
         experienceMatch: analysis.experienceMatch,
         recommendation: analysis.recommendation,
         applyLink: job.applyLink,
-        postedAt: job.postedAt,
+        postedAt: normalizeDate(job.postedAt),
         evaluatedBy: analysis.evaluatedBy || "Gemini",
         provider: analysis.provider || "gemini",
         model: analysis.model || "unknown",
@@ -259,7 +259,8 @@ const saveMatchedJob = async (rawJob, company, job, analysis) => {
         providerChain: analysis.providerChain || [],
         isDuplicate: !!existingJob,
         needsReEvaluation: (analysis.provider || "gemini").toLowerCase() === "local",
-        emailEligible: (analysis.provider || "gemini").toLowerCase() !== "local"
+        emailEligible: (analysis.provider || "gemini").toLowerCase() !== "local",
+        verificationStatus: (analysis.provider || "gemini").toLowerCase() === "local" ? "none" : "verified"
       },
       $push: {
         evaluationHistory: {

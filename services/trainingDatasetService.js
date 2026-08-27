@@ -1,5 +1,6 @@
 const TrainingDataset = require('../models/TrainingDataset');
 const { extractFeatures } = require('./featureExtractionService');
+const { normalizeDate } = require('../utils/dateNormalizer');
 
 const mapRecommendationToLabel = (recommendation) => {
   if (!recommendation) return 1;
@@ -42,7 +43,7 @@ const saveTrainingSample = async (job, company, analysis, pipelineId, triggerSou
       department: job.department,
       source: job.sourceName || job.sourceChannel || 'Unknown',
       originalJobUrl: job.applyLink,
-      postedDate: job.postedAt,
+      postedDate: normalizeDate(job.postedAt),
       scrapedAt: new Date(),
       pipelineId: pipelineId || 'Unknown',
       triggerSource: triggerSource || 'Unknown',

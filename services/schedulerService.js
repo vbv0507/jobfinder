@@ -282,7 +282,14 @@ const verifyLocalJobs = async () => {
                             stats.approved++;
                             console.log(`[Re-Evaluation] Job ${mJob._id} APPROVED by ${newProvider}. Provider updated.`);
                             // Ensure it's email eligible again since the original script hid it
-                            await MatchedJob.findByIdAndUpdate(mJob._id, { emailEligible: true, needsReEvaluation: false, verifiedAt: new Date() });
+                            await MatchedJob.findByIdAndUpdate(mJob._id, { 
+                                emailEligible: true, 
+                                needsReEvaluation: false, 
+                                verifiedAt: new Date(),
+                                verificationStatus: "verified",
+                                provider: newProvider,
+                                score: result.analysis.score
+                            });
                         } else {
                             stats.rejected++;
                             console.log(`[Re-Evaluation] Job ${mJob._id} REJECTED by ${newProvider}. Moved to RejectedJobs.`);
