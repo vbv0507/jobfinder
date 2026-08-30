@@ -14,8 +14,12 @@ router.get('/discovery', requireExtendedViewer, (req, res) => {
 
 router.get('/ai-rejected', requireExtendedViewer, async (req, res) => {
     try {
+        const cached = getCachedView('ai_rejected_jobs');
+        if (cached) return res.render('pages/rejected-jobs', { jobs: cached, title: 'AI Rejected Jobs' });
+
         const RejectedJob = require('../models/RejectedJob');
-        const jobs = await RejectedJob.find().populate('company', 'name').sort({ createdAt: -1 });
+        const jobs = await RejectedJob.find().populate('company', 'name logo').sort({ createdAt: -1 }).lean();
+        setCachedView('ai_rejected_jobs', jobs);
         res.render('pages/rejected-jobs', { jobs, title: 'AI Rejected Jobs' });
     } catch(e) {
         res.render('pages/rejected-jobs', { jobs: [], title: 'AI Rejected Jobs' });
@@ -51,14 +55,32 @@ router.get('/', async (req, res, next) => {
     }
 });
 
+const CacheManager = require('../services/cacheManager');
+
+function getCachedView(key) {
+    return CacheManager.get(key, 10000);
+}
+
+function setCachedView(key, data) {
+    CacheManager.set(key, data);
+}
+
 router.get('/jobs', requireExtendedViewer, async (req, res) => {
     try {
+        const cached = getCachedView('matched_jobs');
+        if (cached) return res.render('pages/jobs', { jobs: cached, title: 'Matched Jobs (AI Evaluated)' });
+
         const MatchedJob = require('../models/MatchedJob');
         const jobs = await MatchedJob.find({ 
             status: 'new', 
             score: { $gte: 70 },
             jobStatus: { $ne: 'Closed' }
-        }).populate('company', 'name').sort({ score: -1 });
+        })
+        .populate('company', 'name logo')
+        .sort({ score: -1 })
+        .lean();
+
+        setCachedView('matched_jobs', jobs);
         res.render('pages/jobs', { jobs, title: 'Matched Jobs (AI Evaluated)' });
     } catch (error) {
         res.render('pages/jobs', { jobs: [], title: 'Matched Jobs (AI Evaluated)' });
@@ -67,6 +89,9 @@ router.get('/jobs', requireExtendedViewer, async (req, res) => {
 
 router.get(['/closed-jobs', '/expired'], requireExtendedViewer, async (req, res) => {
     try {
+        const cached = getCachedView('closed_jobs');
+        if (cached) return res.render('pages/closed-jobs', { jobs: cached, title: 'Expired & Closed Jobs' });
+
         const MatchedJob = require('../models/MatchedJob');
         require('../models/Company');
         require('../models/RawJob');
@@ -77,10 +102,12 @@ router.get(['/closed-jobs', '/expired'], requireExtendedViewer, async (req, res)
                 { closedAt: { $exists: true, $ne: null } }
             ]
         })
-        .populate('company', 'name')
+        .populate('company', 'name logo')
         .populate('rawJob', 'scrapedAt postedAt')
-        .sort({ closedAt: -1, updatedAt: -1 });
+        .sort({ closedAt: -1, updatedAt: -1 })
+        .lean();
 
+        setCachedView('closed_jobs', jobs);
         res.render('pages/closed-jobs', { jobs, title: 'Expired & Closed Jobs' });
     } catch (error) {
         console.error('[ClosedJobs Route Error]:', error.message);
@@ -90,8 +117,16 @@ router.get(['/closed-jobs', '/expired'], requireExtendedViewer, async (req, res)
 
 router.get('/local-jobs', requireExtendedViewer, async (req, res) => {
     try {
+        const cached = getCachedView('local_jobs');
+        if (cached) return res.render('pages/local-jobs', { jobs: cached, title: 'Local Pending Jobs' });
+
         const MatchedJob = require('../models/MatchedJob');
-        const jobs = await MatchedJob.find({ status: 'new', provider: /^local/i }).populate('company', 'name').sort({ score: -1 });
+        const jobs = await MatchedJob.find({ status: 'new', provider: /^local/i })
+            .populate('company', 'name logo')
+            .sort({ score: -1 })
+            .lean();
+
+        setCachedView('local_jobs', jobs);
         res.render('pages/local-jobs', { jobs, title: 'Local Pending Jobs' });
     } catch (error) {
         res.render('pages/local-jobs', { jobs: [], title: 'Local Pending Jobs' });
@@ -100,8 +135,16 @@ router.get('/local-jobs', requireExtendedViewer, async (req, res) => {
 
 router.get('/saved', requireExtendedViewer, async (req, res) => {
     try {
+        const cached = getCachedView('saved_jobs');
+        if (cached) return res.render('pages/jobs', { jobs: cached, title: 'Saved Jobs' });
+
         const MatchedJob = require('../models/MatchedJob');
-        const jobs = await MatchedJob.find({ status: 'saved' }).populate('company', 'name').sort({ score: -1 });
+        const jobs = await MatchedJob.find({ status: 'saved' })
+            .populate('company', 'name logo')
+            .sort({ score: -1 })
+            .lean();
+
+        setCachedView('saved_jobs', jobs);
         res.render('pages/jobs', { jobs, title: 'Saved Jobs' });
     } catch (error) {
         res.render('pages/jobs', { jobs: [], title: 'Saved Jobs' });
@@ -110,8 +153,16 @@ router.get('/saved', requireExtendedViewer, async (req, res) => {
 
 router.get('/applied', requireExtendedViewer, async (req, res) => {
     try {
+        const cached = getCachedView('applied_jobs');
+        if (cached) return res.render('pages/jobs', { jobs: cached, title: 'Applied Jobs' });
+
         const MatchedJob = require('../models/MatchedJob');
-        const jobs = await MatchedJob.find({ status: 'applied' }).populate('company', 'name').sort({ appliedAt: -1 });
+        const jobs = await MatchedJob.find({ status: 'applied' })
+            .populate('company', 'name logo')
+            .sort({ appliedAt: -1 })
+            .lean();
+
+        setCachedView('applied_jobs', jobs);
         res.render('pages/jobs', { jobs, title: 'Applied Jobs' });
     } catch (error) {
         res.render('pages/jobs', { jobs: [], title: 'Applied Jobs' });
@@ -120,8 +171,16 @@ router.get('/applied', requireExtendedViewer, async (req, res) => {
 
 router.get('/rejected', requireExtendedViewer, async (req, res) => {
     try {
+        const cached = getCachedView('rejected_jobs');
+        if (cached) return res.render('pages/jobs', { jobs: cached, title: 'Rejected Jobs' });
+
         const MatchedJob = require('../models/MatchedJob');
-        const jobs = await MatchedJob.find({ status: 'rejected' }).populate('company', 'name').sort({ updatedAt: -1 });
+        const jobs = await MatchedJob.find({ status: 'rejected' })
+            .populate('company', 'name logo')
+            .sort({ updatedAt: -1 })
+            .lean();
+
+        setCachedView('rejected_jobs', jobs);
         res.render('pages/jobs', { jobs, title: 'Rejected Jobs' });
     } catch (error) {
         res.render('pages/jobs', { jobs: [], title: 'Rejected Jobs' });

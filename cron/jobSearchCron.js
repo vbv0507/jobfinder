@@ -1067,6 +1067,13 @@ const runSearch = async (triggerSource = "Unknown", forceRefresh = false) => {
 
     console.log(chalk.blue(`[Pipeline] Lock Released. Owner: ${runnerName}.`));
 
+    try {
+        const CacheManager = require("../services/cacheManager");
+        const { invalidateAnalyticsCache } = require("../services/analyticsService");
+        CacheManager.invalidate();
+        invalidateAnalyticsCache();
+    } catch (e) {}
+
     // Step 3: Transition pipelineState — this triggers the socket broadcast.
     // Runs LAST so the DB is fully consistent before the dashboard snapshot fires.
     if (pipelineState.running) {

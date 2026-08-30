@@ -169,6 +169,11 @@ const updateJobStatus = async (req, res) => {
             return res.status(404).json({ success: false, message: "Job not found" });
         }
 
+        const CacheManager = require("../services/cacheManager");
+        const { invalidateAnalyticsCache } = require("../services/analyticsService");
+        CacheManager.invalidate();
+        invalidateAnalyticsCache();
+
         res.status(200).json({ success: true, job });
     } catch (error) {
         sendError(res, error);

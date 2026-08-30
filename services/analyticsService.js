@@ -5,8 +5,20 @@ const pipelineState = require("./pipelineState");
 const SearchLog = require("../models/SearchLog");
 const { getLifetimeStats } = require("./jobStatsService");
 
-const getAnalyticsData = async () => {
+let cachedAnalyticsData = null;
+let lastAnalyticsCacheTime = 0;
+const ANALYTICS_CACHE_TTL = 30 * 1000; // 30 seconds
+
+function invalidateAnalyticsCache() {
+    cachedAnalyticsData = null;
+    lastAnalyticsCacheTime = 0;
+}
+
+const getAnalyticsData = async (force = false) => {
     try {
+        if (!force && cachedAnalyticsData && (Date.now() - lastAnalyticsCacheTime < ANALYTICS_CACHE_TTL)) {
+            return cachedAnalyticsData;
+        }
         
         const getISTStartOfDay = () => {
             const now = new Date();
@@ -246,7 +258,7 @@ const getAnalyticsData = async () => {
             { _id: "Other Tech", count: lifetimeStats.userMatchedNonSde }
         ];
 
-        return {
+        const analyticsResult = {
             stats: {
                 companiesMonitored,
                 rawJobsCount,
@@ -325,12 +337,19 @@ const getAnalyticsData = async () => {
             },
             aiMetrics
         };
+
+        cachedAnalyticsData = analyticsResult;
+        lastAnalyticsCacheTime = Date.now();
+
+        return analyticsResult;
     } catch (error) {
         console.error("Analytics Error:", error);
+        if (cachedAnalyticsData) return cachedAnalyticsData;
         throw error;
     }
 };
 
 module.exports = {
-    getAnalyticsData
+    getAnalyticsData,
+    invalidateAnalyticsCache
 };
