@@ -6,6 +6,74 @@
 </div>
 
 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+    <!-- All-Time SDE & Scraped Intelligence Overview Cards -->
+    <div class="bg-surface border border-border rounded-xl shadow-sm p-6 lg:col-span-2">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
+            <div>
+                <h3 class="text-lg font-semibold text-textMain flex items-center gap-2">
+                    <i class="fa-solid fa-database text-primary"></i> All-Time Job Database & SDE Intelligence
+                </h3>
+                <p class="text-xs text-textMuted mt-0.5">Cumulative metrics since project creation — SDE fresher vs experienced opportunities and profile match conversion.</p>
+            </div>
+            <span class="text-xs font-semibold px-2.5 py-1 rounded-full bg-primary/10 text-primary border border-primary/20 flex items-center gap-1.5 self-start sm:self-auto">
+                <i class="fa-solid fa-sparkles"></i> Lifetime DB Stats
+            </span>
+        </div>
+
+        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+            <div class="bg-background border border-border rounded-lg p-3.5">
+                <p class="text-xs text-textMuted font-medium uppercase mb-1">Total Scraped</p>
+                <p class="text-2xl font-bold text-textMain" id="analytic-total-scraped">--</p>
+                <p class="text-xs text-primary mt-0.5">All-time processed</p>
+            </div>
+            <div class="bg-background border border-border rounded-lg p-3.5">
+                <p class="text-xs text-textMuted font-medium uppercase mb-1">Matched to You</p>
+                <p class="text-2xl font-bold text-success" id="analytic-matched-user">--</p>
+                <p class="text-xs text-success/80 mt-0.5" id="analytic-match-rate">--% rate</p>
+            </div>
+            <div class="bg-background border border-border rounded-lg p-3.5">
+                <p class="text-xs text-textMuted font-medium uppercase mb-1">SDE Fresher</p>
+                <p class="text-2xl font-bold text-[#8b5cf6]" id="analytic-sde-fresher">--</p>
+                <p class="text-xs text-textMuted mt-0.5">0-2 yrs / Intern</p>
+            </div>
+            <div class="bg-background border border-border rounded-lg p-3.5">
+                <p class="text-xs text-textMuted font-medium uppercase mb-1">SDE Experienced</p>
+                <p class="text-2xl font-bold text-warning" id="analytic-sde-exp">--</p>
+                <p class="text-xs text-textMuted mt-0.5">2+ yrs / Senior</p>
+            </div>
+            <div class="bg-background border border-border rounded-lg p-3.5">
+                <p class="text-xs text-textMuted font-medium uppercase mb-1">Non-SDE Roles</p>
+                <p class="text-2xl font-bold text-textMuted" id="analytic-non-sde">--</p>
+                <p class="text-xs text-textMuted mt-0.5">Other domains</p>
+            </div>
+            <div class="bg-background border border-border rounded-lg p-3.5">
+                <p class="text-xs text-textMuted font-medium uppercase mb-1">In Raw Queue</p>
+                <p class="text-2xl font-bold text-primary" id="analytic-raw-queue">--</p>
+                <p class="text-xs text-textMuted mt-0.5">Awaiting pipeline</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- SDE Market Breakdown Chart -->
+    <div class="bg-surface border border-border rounded-xl shadow-sm p-6">
+        <h3 class="text-lg font-semibold text-textMain mb-4 flex items-center gap-2">
+            <i class="fa-solid fa-chart-pie text-primary"></i> SDE Market Distribution (All Jobs)
+        </h3>
+        <div class="relative w-full flex justify-center h-64">
+            <canvas id="sdeMarketChart"></canvas>
+        </div>
+    </div>
+
+    <!-- User Matched Distribution Chart -->
+    <div class="bg-surface border border-border rounded-xl shadow-sm p-6">
+        <h3 class="text-lg font-semibold text-textMain mb-4 flex items-center gap-2">
+            <i class="fa-solid fa-user-gear text-success"></i> Your Profile Matched Roles
+        </h3>
+        <div class="relative w-full flex justify-center h-64">
+            <canvas id="userMatchedChart"></canvas>
+        </div>
+    </div>
+
     <div class="bg-surface border border-border rounded-xl shadow-sm p-6 lg:col-span-2">
         <h3 class="text-lg font-semibold text-textMain mb-4">Daily Pipeline Activity (Last 7 Days)</h3>
         <div class="relative w-full h-72">
@@ -20,6 +88,13 @@
         </div>
     </div>
     
+    <div class="bg-surface border border-border rounded-xl shadow-sm p-6">
+        <h3 class="text-lg font-semibold text-textMain mb-4">Match Score Distribution</h3>
+        <div class="relative w-full flex justify-center h-64">
+            <canvas id="scoreChart"></canvas>
+        </div>
+    </div>
+
     <div class="bg-surface border border-border rounded-xl shadow-sm p-6 lg:col-span-2">
         <h3 class="text-lg font-semibold text-textMain mb-4 flex items-center gap-2"><i class="fa-solid fa-microchip text-primary"></i> AI Provider Statistics</h3>
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-4" id="aiStatsContainer">
@@ -27,14 +102,7 @@
         </div>
     </div>
     
-    <div class="bg-surface border border-border rounded-xl shadow-sm p-6">
-        <h3 class="text-lg font-semibold text-textMain mb-4">Match Score Distribution</h3>
-        <div class="relative w-full flex justify-center h-64">
-            <canvas id="scoreChart"></canvas>
-        </div>
-    </div>
-    
-    <div class="bg-surface border border-border rounded-xl shadow-sm p-6">
+    <div class="bg-surface border border-border rounded-xl shadow-sm p-6 lg:col-span-2">
         <h3 class="text-lg font-semibold text-textMain mb-4">Jobs by Domain</h3>
         <div class="relative w-full h-64">
             <canvas id="domainChart"></canvas>
@@ -62,12 +130,32 @@
             : '<p class="text-textMuted text-sm">No AI provider data yet.</p>';
     }
 
+    function renderLifetimeStats(stats = {}) {
+        const elTotal = document.getElementById('analytic-total-scraped');
+        const elMatched = document.getElementById('analytic-matched-user');
+        const elMatchRate = document.getElementById('analytic-match-rate');
+        const elFresher = document.getElementById('analytic-sde-fresher');
+        const elExp = document.getElementById('analytic-sde-exp');
+        const elNonSde = document.getElementById('analytic-non-sde');
+        const elRaw = document.getElementById('analytic-raw-queue');
+
+        if (elTotal && stats.totalScrapedLifetime !== undefined) elTotal.innerText = Number(stats.totalScrapedLifetime).toLocaleString();
+        if (elMatched && stats.totalMatchedToUser !== undefined) elMatched.innerText = Number(stats.totalMatchedToUser).toLocaleString();
+        if (elMatchRate && stats.userMatchRate !== undefined) elMatchRate.innerText = `${stats.userMatchRate}% rate`;
+        if (elFresher && stats.totalSdeFresher !== undefined) elFresher.innerText = Number(stats.totalSdeFresher).toLocaleString();
+        if (elExp && stats.totalSdeExp !== undefined) elExp.innerText = Number(stats.totalSdeExp).toLocaleString();
+        if (elNonSde && stats.totalNonSde !== undefined) elNonSde.innerText = Number(stats.totalNonSde).toLocaleString();
+        if (elRaw && stats.rawJobsCount !== undefined) elRaw.innerText = Number(stats.rawJobsCount).toLocaleString();
+    }
+
     function ensureCharts() {
         if (!window.Chart) return;
         const trend = document.getElementById('trendChart');
         const company = document.getElementById('companyChart');
         const score = document.getElementById('scoreChart');
         const domain = document.getElementById('domainChart');
+        const sdeMarket = document.getElementById('sdeMarketChart');
+        const userMatched = document.getElementById('userMatchedChart');
 
         if (trend && !charts.trend) {
             charts.trend = new Chart(trend, { type: 'line', data: { labels: [], datasets: [{ label: 'Jobs Found', data: [], borderColor: '#3b82f6', tension: 0.35 }] }, options: { responsive: true, maintainAspectRatio: false } });
@@ -80,6 +168,26 @@
         }
         if (domain && !charts.domain) {
             charts.domain = new Chart(domain, { type: 'bar', data: { labels: [], datasets: [{ label: 'Jobs', data: [], backgroundColor: '#3b82f6' }] }, options: { responsive: true, maintainAspectRatio: false } });
+        }
+        if (sdeMarket && !charts.sdeMarket) {
+            charts.sdeMarket = new Chart(sdeMarket, {
+                type: 'doughnut',
+                data: {
+                    labels: ['SDE Fresher', 'SDE Experienced', 'Non-SDE / Other'],
+                    datasets: [{ data: [0, 0, 0], backgroundColor: ['#8b5cf6', '#f59e0b', '#64748b'], borderWidth: 2, borderColor: 'rgba(30, 41, 59, 0.8)' }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { color: '#94a3b8', boxWidth: 12, padding: 12 } } } }
+            });
+        }
+        if (userMatched && !charts.userMatched) {
+            charts.userMatched = new Chart(userMatched, {
+                type: 'doughnut',
+                data: {
+                    labels: ['SDE Fresher', 'SDE Experienced', 'Other Tech'],
+                    datasets: [{ data: [0, 0, 0], backgroundColor: ['#22c55e', '#3b82f6', '#06b6d4'], borderWidth: 2, borderColor: 'rgba(30, 41, 59, 0.8)' }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { color: '#94a3b8', boxWidth: 12, padding: 12 } } } }
+            });
         }
     }
 
@@ -97,7 +205,16 @@
         updateChart(charts.company, (chartsData.companyDistribution || []).map(item => item._id), (chartsData.companyDistribution || []).map(item => item.count || 0));
         updateChart(charts.score, (chartsData.scoreDistribution || []).map(item => String(item._id)), (chartsData.scoreDistribution || []).map(item => item.count || 0));
         updateChart(charts.domain, (chartsData.domainDistribution || []).map(item => item._id), (chartsData.domainDistribution || []).map(item => item.count || 0));
+        
+        if (charts.sdeMarket && chartsData.sdeMarketDistribution) {
+            updateChart(charts.sdeMarket, chartsData.sdeMarketDistribution.map(item => item._id), chartsData.sdeMarketDistribution.map(item => item.count || 0));
+        }
+        if (charts.userMatched && chartsData.userMatchDistribution) {
+            updateChart(charts.userMatched, chartsData.userMatchDistribution.map(item => item._id), chartsData.userMatchDistribution.map(item => item.count || 0));
+        }
+
         renderProviderStats(data.aiMetrics);
+        renderLifetimeStats(data.stats || data.lifetime || {});
     }
 
     document.addEventListener("DOMContentLoaded", async () => {

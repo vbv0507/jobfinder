@@ -262,6 +262,9 @@ const saveMatchedJob = async (rawJob, company, job, analysis) => {
         emailEligible: (analysis.provider || "gemini").toLowerCase() !== "local",
         verificationStatus: (analysis.provider || "gemini").toLowerCase() === "local" ? "none" : "verified"
       },
+      $setOnInsert: {
+        status: "new"
+      },
       $push: {
         evaluationHistory: {
           provider: analysis.provider || "gemini",

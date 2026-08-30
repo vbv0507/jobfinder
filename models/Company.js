@@ -2,13 +2,8 @@ const mongoose = require("mongoose");
 
 const companySchema = new mongoose.Schema({
     scraperConfig: {
-      ats: String,
-      apiUrl: String,
-      apiMethod: { type: String, default: "GET", enum: ["GET", "POST"] },
-      apiHeaders: { type: Map, of: String },
-      apiPayload: { type: mongoose.Schema.Types.Mixed },
-      lastVerified: Date,
-      version: String
+      type: mongoose.Schema.Types.Mixed,
+      default: {}
     },
     // Core Configuration
     name: {

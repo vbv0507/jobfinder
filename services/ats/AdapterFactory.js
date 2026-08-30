@@ -1,5 +1,6 @@
 const GreenhouseAdapter = require('./providers/Priority1/GreenhouseAdapter');
 const LeverAdapter = require('./providers/Priority1/LeverAdapter');
+const AshbyAdapter = require('./providers/Priority1/AshbyAdapter');
 const WorkdayAdapter = require('./providers/Priority1/WorkdayAdapter');
 const WorkdayCsrfAdapter = require('./providers/Priority1/WorkdayCsrfAdapter');
 const SmartRecruitersAdapter = require('./providers/Priority1/SmartRecruitersAdapter');
@@ -30,6 +31,8 @@ class AdapterFactory {
         return new GreenhouseAdapter(company);
       case 'lever':
         return new LeverAdapter(company);
+      case 'ashby':
+        return new AshbyAdapter(company);
       case 'workday':
         return new WorkdayAdapter(company);
       case 'workday-csrf':
@@ -58,6 +61,7 @@ class AdapterFactory {
     return [
       ...GreenhouseAdapter.NetworkSignatures,
       ...LeverAdapter.NetworkSignatures,
+      ...AshbyAdapter.NetworkSignatures,
       ...WorkdayAdapter.NetworkSignatures,
       ...SmartRecruitersAdapter.NetworkSignatures
     ];

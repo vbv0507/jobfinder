@@ -161,6 +161,16 @@ function updateDOM(data) {
         statsMap['metric-pending-local'] = data.stats.pendingLocal || 0;
         statsMap['metric-digest-sent'] = data.stats.dailyDigestSent ? `Yes (${formatTime(data.stats.dailyDigestSentTime)})` : "No";
         statsMap['metric-next-digest'] = "20:00:00 IST"; // Static as per schedule
+
+        // Lifetime Scraped & SDE Stats
+        if (data.stats.totalScrapedLifetime !== undefined) {
+            statsMap['metric-lifetime-scraped'] = Number(data.stats.totalScrapedLifetime).toLocaleString();
+            statsMap['metric-lifetime-matched'] = Number(data.stats.totalMatchedToUser).toLocaleString();
+            statsMap['metric-lifetime-sde-fresher'] = Number(data.stats.totalSdeFresher).toLocaleString();
+            statsMap['metric-lifetime-sde-exp'] = Number(data.stats.totalSdeExp).toLocaleString();
+            statsMap['metric-lifetime-non-sde'] = Number(data.stats.totalNonSde).toLocaleString();
+            statsMap['metric-lifetime-match-rate'] = (data.stats.userMatchRate || 0) + '%';
+        }
     }
 
     for (const [id, val] of Object.entries(statsMap)) {
@@ -279,6 +289,58 @@ function initCharts() {
             }
         });
     }
+
+    const ctxSde = document.getElementById('chart-sde-market');
+    if (ctxSde && window.Chart) {
+        charts.sdeMarket = new Chart(ctxSde, {
+            type: 'doughnut',
+            data: {
+                labels: ['SDE Fresher', 'SDE Experienced', 'Non-SDE / Other'],
+                datasets: [{
+                    data: [0, 0, 0],
+                    backgroundColor: ['#8b5cf6', '#f59e0b', '#64748b'],
+                    borderWidth: 2,
+                    borderColor: 'rgba(30, 41, 59, 0.8)'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: { color: '#94a3b8', boxWidth: 12, padding: 12 }
+                    }
+                }
+            }
+        });
+    }
+
+    const ctxUserMatch = document.getElementById('chart-user-matched-distribution');
+    if (ctxUserMatch && window.Chart) {
+        charts.userMatched = new Chart(ctxUserMatch, {
+            type: 'doughnut',
+            data: {
+                labels: ['SDE Fresher', 'SDE Experienced', 'Other Tech'],
+                datasets: [{
+                    data: [0, 0, 0],
+                    backgroundColor: ['#22c55e', '#3b82f6', '#06b6d4'],
+                    borderWidth: 2,
+                    borderColor: 'rgba(30, 41, 59, 0.8)'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: { color: '#94a3b8', boxWidth: 12, padding: 12 }
+                    }
+                }
+            }
+        });
+    }
 }
 
 function updateCharts(chartData) {
@@ -292,6 +354,18 @@ function updateCharts(chartData) {
         charts.cache.data.datasets[0].data = [currentMetrics["Cached Companies"] || 0];
         charts.cache.data.datasets[1].data = [currentMetrics["Actually Scraped"] || 0];
         charts.cache.update();
+    }
+
+    if (charts.sdeMarket && chartData.sdeMarketDistribution) {
+        charts.sdeMarket.data.labels = chartData.sdeMarketDistribution.map(d => d._id);
+        charts.sdeMarket.data.datasets[0].data = chartData.sdeMarketDistribution.map(d => d.count || 0);
+        charts.sdeMarket.update();
+    }
+
+    if (charts.userMatched && chartData.userMatchDistribution) {
+        charts.userMatched.data.labels = chartData.userMatchDistribution.map(d => d._id);
+        charts.userMatched.data.datasets[0].data = chartData.userMatchDistribution.map(d => d.count || 0);
+        charts.userMatched.update();
     }
 }
 

@@ -4,6 +4,7 @@ const { GoogleGenerativeAI } = require("@google/generative-ai");
 const { classifyDomain } = require("../utils/domains");
 const { buildEvaluationPrompt, parseJsonResponse, analyzeError, validateAiResponse } = require("./aiHelpers");
 const { withLogContext } = require("../utils/logger");
+const RedisCacheService = require("./redis/redisCacheService");
 
 // Initialize Gemini Client
 let geminiClient = null;
@@ -217,6 +218,20 @@ const evaluateJob = async (job, profile, aiState = {}) => {
         };
     }
     const prompt = buildEvaluationPrompt(jobForPrompt, profile);
+    
+    // Check Redis AI Cache (< 2ms)
+    try {
+        const cached = await RedisCacheService.getCachedEvaluation(job, profile);
+        if (cached && typeof cached.score === "number") {
+            console.log(chalk.green(`⚡ [Redis AI Cache] Hit for ${job.title || job.role} (Score: ${cached.score}/100)`));
+            return {
+                ...cached,
+                evaluationTimeMs: Date.now() - startTime,
+                provider: cached.provider || "cache",
+                providerChain: ["RedisCache"]
+            };
+        }
+    } catch (e) {}
 
     // ==========================================
     // TIER 1: Google Gemini Flash (Primary)

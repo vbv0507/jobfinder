@@ -5,9 +5,11 @@ const { withLogContext } = require("../utils/logger");
 const Company = require("../models/Company");
 const RawJob = require("../models/RawJob");
 const MatchedJob = require("../models/MatchedJob");
+const RejectedJob = require("../models/RejectedJob");
 const SearchLog = require("../models/SearchLog");
 const CandidateProfile = require("../models/CandidateProfile");
 const PipelineLock = require("../models/PipelineLock");
+const { normalizeDate } = require("../utils/dateNormalizer");
 
 const AdapterFactory = require("../services/ats/AdapterFactory");
 const LightweightHtmlAdapter = require("../services/ats/providers/Fallback/LightweightHtmlAdapter");
@@ -621,8 +623,39 @@ const runSearch = async (triggerSource = "Unknown", forceRefresh = false) => {
               pipelineState.jobsEvaluated++;
 
               if (result.skipped) {
-                console.log(chalk.gray(`Skipped Gemini analysis for ${job.title}: ${result.reason}`));
+                console.log(chalk.gray(`Skipped analysis for ${job.title}: ${result.reason}`));
                 logEvent("AI Evaluation", "INFO", `Skipped ${job.title}: ${result.reason}`);
+                
+                rawJob.aiEvaluated = true;
+                rawJob.aiMatched = false;
+                rawJob.aiEvaluatedAt = new Date();
+                await rawJob.save();
+
+                await RejectedJob.findOneAndUpdate(
+                  { rawJob: rawJob._id },
+                  {
+                    $set: {
+                      rawJob: rawJob._id,
+                      company: company._id,
+                      role: job.title,
+                      location: job.location,
+                      score: 0,
+                      suitable: false,
+                      reason: `Heuristic Pre-Filter: ${result.reason}`,
+                      primaryReasons: [result.reason],
+                      evaluatedBy: "HeuristicFilter",
+                      provider: "pre-filter",
+                      model: "heuristic",
+                      applyLink: job.applyLink,
+                      postedAt: normalizeDate(job.postedAt),
+                      lastScrapedAt: new Date(),
+                      lastAIEvaluation: new Date(),
+                      jobStatus: "Open",
+                      isActive: true
+                    }
+                  },
+                  { upsert: true }
+                );
                 return;
               }
               

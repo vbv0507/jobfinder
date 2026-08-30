@@ -237,6 +237,59 @@ async function requestExtendedAccess() {
 </div>
 
 
+<!-- Lifetime Scraped & SDE Market Intelligence -->
+<div class="mb-8">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
+        <div>
+            <h2 class="text-lg font-semibold text-textMain flex items-center gap-2">
+                <i class="fa-solid fa-database text-primary"></i>
+                All-Time Scraped & SDE Market Intelligence
+            </h2>
+            <p class="text-xs text-textMuted mt-0.5">Cumulative metrics since project creation — SDE fresher vs experienced opportunities and profile match conversion.</p>
+        </div>
+        <span class="text-xs font-semibold px-2.5 py-1 rounded-full bg-primary/10 text-primary border border-primary/20 flex items-center gap-1.5 self-start sm:self-auto">
+            <i class="fa-solid fa-sparkles"></i> Lifetime DB Aggregate
+        </span>
+    </div>
+
+    <!-- Lifetime Metric Cards Grid -->
+    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 md:gap-4 mb-6">
+        <%- include('../components/metric-card', { id: 'metric-lifetime-scraped', title: 'Total Jobs Scraped', icon: 'fa-globe', color: 'text-primary' }) %>
+        <%- include('../components/metric-card', { id: 'metric-lifetime-matched', title: 'Matched to Profile', icon: 'fa-user-check', color: 'text-success' }) %>
+        <%- include('../components/metric-card', { id: 'metric-lifetime-sde-fresher', title: 'SDE Fresher / 0 Exp', icon: 'fa-graduation-cap', color: 'text-[#8b5cf6]' }) %>
+        <%- include('../components/metric-card', { id: 'metric-lifetime-sde-exp', title: 'SDE Experienced (2+y)', icon: 'fa-user-tie', color: 'text-warning' }) %>
+        <%- include('../components/metric-card', { id: 'metric-lifetime-non-sde', title: 'Non-SDE / Other Roles', icon: 'fa-briefcase', color: 'text-textMuted' }) %>
+        <%- include('../components/metric-card', { id: 'metric-lifetime-match-rate', title: 'Profile Match Rate', icon: 'fa-percent', color: 'text-success' }) %>
+    </div>
+
+    <!-- SDE Career Market Breakdown & Match Charts -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div class="bg-surface border border-border rounded-xl p-5 shadow-sm">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-sm font-semibold text-textMain flex items-center gap-2">
+                    <i class="fa-solid fa-chart-pie text-primary"></i> SDE vs Non-SDE Market Breakdown
+                </h3>
+                <span class="text-xs text-textMuted">All Scraped Jobs</span>
+            </div>
+            <div class="h-60 relative flex justify-center items-center">
+                <canvas id="chart-sde-market"></canvas>
+            </div>
+        </div>
+
+        <div class="bg-surface border border-border rounded-xl p-5 shadow-sm">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-sm font-semibold text-textMain flex items-center gap-2">
+                    <i class="fa-solid fa-user-gear text-success"></i> Your Profile Matched Roles
+                </h3>
+                <span class="text-xs text-textMuted">95 Matched Jobs</span>
+            </div>
+            <div class="h-60 relative flex justify-center items-center">
+                <canvas id="chart-user-matched-distribution"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Digest & Verification Overview -->
 <div class="mb-8">
     <h2 class="text-lg font-semibold text-textMain mb-4">Daily Digest & Verification Status</h2>

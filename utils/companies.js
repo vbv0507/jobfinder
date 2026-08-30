@@ -735,23 +735,13 @@ module.exports = [
         "category": "Service",
         "industry": "Finance",
         "active": true,
-        "ats": "api",
+        "ats": "ashby",
         "careerUrl": "https://ramp.com/careers",
         "careerPage": "https://ramp.com/careers",
         "logo": "https://logo.clearbit.com/ramp.com",
         "scraperType": "api",
         "scraperConfig": {
-            "apiUrl": "https://api.ashbyhq.com/posting-api/job-board/ramp",
-            "listPath": "jobs",
-            "fields": {
-                "title": "title",
-                "location": "location",
-                "jobId": "id",
-                "department": "department",
-                "applyLink": "jobUrl",
-                "postedAt": "publishedAt",
-                "employmentType": "employmentType"
-            }
+            "apiUrl": "https://api.ashbyhq.com/posting-api/job-board/ramp"
         }
     },
     {
@@ -764,56 +754,9 @@ module.exports = [
         "logo": "https://logo.clearbit.com/plaid.com",
         "scraperType": "api",
         "scraperConfig": {
-            "apiUrl": "https://api.ashbyhq.com/posting-api/job-board/plaid",
-            "listPath": "jobs",
-            "fields": {
-                "title": "title",
-                "location": "location",
-                "jobId": "id",
-                "department": "department",
-                "applyLink": "jobUrl",
-                "postedAt": "publishedAt",
-                "employmentType": "employmentType"
-            },
-            "allowedLocations": [
-                "india",
-                "remote",
-                "bengaluru",
-                "bangalore",
-                "hyderabad",
-                "pune",
-                "gurgaon",
-                "noida"
-            ],
-            "targetKeywords": [
-                "software engineer",
-                "software development engineer",
-                "sde",
-                "backend",
-                "developer",
-                "api",
-                "java",
-                "python",
-                "node",
-                "golang"
-            ],
-            "excludedKeywords": [
-                "senior",
-                "sr ",
-                "sr.",
-                "staff",
-                "principal",
-                "manager",
-                "director",
-                "lead",
-                "architect",
-                "1-3",
-                "1 to 3",
-                "2+",
-                "3+"
-            ]
+            "apiUrl": "https://api.ashbyhq.com/posting-api/job-board/plaid"
         },
-        "ats": "api"
+        "ats": "ashby"
     },
     {
         "name": "Google",
@@ -1760,44 +1703,7 @@ module.exports = [
         "logo": "https://logo.clearbit.com/boards.greenhouse.io",
         "scraperType": "api",
         "scraperConfig": {
-            "apiUrl": "https://boards-api.greenhouse.io/v1/boards/mongodb/jobs?content=true",
-            "allowedLocations": [
-                "india",
-                "remote",
-                "bengaluru",
-                "bangalore",
-                "hyderabad",
-                "pune",
-                "gurgaon",
-                "noida"
-            ],
-            "targetKeywords": [
-                "software engineer",
-                "software development engineer",
-                "sde",
-                "backend",
-                "developer",
-                "api",
-                "java",
-                "python",
-                "node",
-                "golang"
-            ],
-            "excludedKeywords": [
-                "senior",
-                "sr ",
-                "sr.",
-                "staff",
-                "principal",
-                "manager",
-                "director",
-                "lead",
-                "architect",
-                "1-3",
-                "1 to 3",
-                "2+",
-                "3+"
-            ]
+            "apiUrl": "https://boards-api.greenhouse.io/v1/boards/mongodb/jobs?content=true"
         },
         "ats": "greenhouse"
     },
@@ -1811,44 +1717,7 @@ module.exports = [
         "logo": "https://logo.clearbit.com/www.datadoghq.com",
         "scraperType": "api",
         "scraperConfig": {
-            "apiUrl": "https://boards-api.greenhouse.io/v1/boards/datadog/jobs?content=true",
-            "allowedLocations": [
-                "india",
-                "remote",
-                "bengaluru",
-                "bangalore",
-                "hyderabad",
-                "pune",
-                "gurgaon",
-                "noida"
-            ],
-            "targetKeywords": [
-                "software engineer",
-                "software development engineer",
-                "sde",
-                "backend",
-                "developer",
-                "api",
-                "java",
-                "python",
-                "node",
-                "golang"
-            ],
-            "excludedKeywords": [
-                "senior",
-                "sr ",
-                "sr.",
-                "staff",
-                "principal",
-                "manager",
-                "director",
-                "lead",
-                "architect",
-                "1-3",
-                "1 to 3",
-                "2+",
-                "3+"
-            ]
+            "apiUrl": "https://boards-api.greenhouse.io/v1/boards/datadog/jobs?content=true"
         },
         "ats": "greenhouse"
     },
@@ -1911,44 +1780,7 @@ module.exports = [
         "logo": "https://logo.clearbit.com/boards.greenhouse.io",
         "scraperType": "api",
         "scraperConfig": {
-            "apiUrl": "https://boards-api.greenhouse.io/v1/boards/cloudflare/jobs?content=true",
-            "allowedLocations": [
-                "india",
-                "remote",
-                "bengaluru",
-                "bangalore",
-                "hyderabad",
-                "pune",
-                "gurgaon",
-                "noida"
-            ],
-            "targetKeywords": [
-                "software engineer",
-                "software development engineer",
-                "sde",
-                "backend",
-                "developer",
-                "api",
-                "java",
-                "python",
-                "node",
-                "golang"
-            ],
-            "excludedKeywords": [
-                "senior",
-                "sr ",
-                "sr.",
-                "staff",
-                "principal",
-                "manager",
-                "director",
-                "lead",
-                "architect",
-                "1-3",
-                "1 to 3",
-                "2+",
-                "3+"
-            ]
+            "apiUrl": "https://boards-api.greenhouse.io/v1/boards/cloudflare/jobs?content=true"
         },
         "ats": "greenhouse"
     },
@@ -2084,44 +1916,7 @@ module.exports = [
         "logo": "https://logo.clearbit.com/boards.greenhouse.io",
         "scraperType": "api",
         "scraperConfig": {
-            "apiUrl": "https://boards-api.greenhouse.io/v1/boards/elastic/jobs?content=true",
-            "allowedLocations": [
-                "india",
-                "remote",
-                "bengaluru",
-                "bangalore",
-                "hyderabad",
-                "pune",
-                "gurgaon",
-                "noida"
-            ],
-            "targetKeywords": [
-                "software engineer",
-                "software development engineer",
-                "sde",
-                "backend",
-                "developer",
-                "api",
-                "java",
-                "python",
-                "node",
-                "golang"
-            ],
-            "excludedKeywords": [
-                "senior",
-                "sr ",
-                "sr.",
-                "staff",
-                "principal",
-                "manager",
-                "director",
-                "lead",
-                "architect",
-                "1-3",
-                "1 to 3",
-                "2+",
-                "3+"
-            ]
+            "apiUrl": "https://boards-api.greenhouse.io/v1/boards/elastic/jobs?content=true"
         },
         "ats": "greenhouse"
     },
@@ -2135,44 +1930,7 @@ module.exports = [
         "logo": "https://logo.clearbit.com/boards.greenhouse.io",
         "scraperType": "api",
         "scraperConfig": {
-            "apiUrl": "https://boards-api.greenhouse.io/v1/boards/postman/jobs?content=true",
-            "allowedLocations": [
-                "india",
-                "remote",
-                "bengaluru",
-                "bangalore",
-                "hyderabad",
-                "pune",
-                "gurgaon",
-                "noida"
-            ],
-            "targetKeywords": [
-                "software engineer",
-                "software development engineer",
-                "sde",
-                "backend",
-                "developer",
-                "api",
-                "java",
-                "python",
-                "node",
-                "golang"
-            ],
-            "excludedKeywords": [
-                "senior",
-                "sr ",
-                "sr.",
-                "staff",
-                "principal",
-                "manager",
-                "director",
-                "lead",
-                "architect",
-                "1-3",
-                "1 to 3",
-                "2+",
-                "3+"
-            ]
+            "apiUrl": "https://boards-api.greenhouse.io/v1/boards/postman/jobs?content=true"
         },
         "ats": "greenhouse"
     },
@@ -2181,122 +1939,28 @@ module.exports = [
         "category": "Product",
         "industry": "Developer Tools",
         "active": true,
-        "careerUrl": "https://boards.greenhouse.io/docker",
-        "careerPage": "https://boards.greenhouse.io/docker",
+        "careerUrl": "https://www.docker.com/careers/",
+        "careerPage": "https://www.docker.com/careers/",
         "logo": "https://logo.clearbit.com/boards.greenhouse.io",
         "scraperType": "api",
         "scraperConfig": {
-            "apiUrl": "https://api.ashbyhq.com/posting-api/job-board/docker",
-            "listPath": "jobs",
-            "fields": {
-                "title": "title",
-                "location": "location",
-                "jobId": "id",
-                "department": "department",
-                "applyLink": "jobUrl",
-                "postedAt": "publishedAt",
-                "employmentType": "employmentType"
-            },
-            "allowedLocations": [
-                "india",
-                "remote",
-                "bengaluru",
-                "bangalore",
-                "hyderabad",
-                "pune",
-                "gurgaon",
-                "noida"
-            ],
-            "targetKeywords": [
-                "software engineer",
-                "software development engineer",
-                "sde",
-                "backend",
-                "developer",
-                "api",
-                "java",
-                "python",
-                "node",
-                "golang"
-            ],
-            "excludedKeywords": [
-                "senior",
-                "sr ",
-                "sr.",
-                "staff",
-                "principal",
-                "manager",
-                "director",
-                "lead",
-                "architect",
-                "1-3",
-                "1 to 3",
-                "2+",
-                "3+"
-            ]
+            "apiUrl": "https://api.ashbyhq.com/posting-api/job-board/docker"
         },
-        "ats": "api"
+        "ats": "ashby"
     },
     {
         "name": "Redis",
         "category": "Product",
         "industry": "Developer Tools",
         "active": true,
-        "careerUrl": "https://boards.greenhouse.io/redis",
-        "careerPage": "https://boards.greenhouse.io/redis",
+        "careerUrl": "https://redis.io/careers/",
+        "careerPage": "https://redis.io/careers/",
         "logo": "https://logo.clearbit.com/boards.greenhouse.io",
         "scraperType": "api",
         "scraperConfig": {
-            "apiUrl": "https://api.ashbyhq.com/posting-api/job-board/redis",
-            "listPath": "jobs",
-            "fields": {
-                "title": "title",
-                "location": "location",
-                "jobId": "id",
-                "department": "department",
-                "applyLink": "jobUrl",
-                "postedAt": "publishedAt",
-                "employmentType": "employmentType"
-            },
-            "allowedLocations": [
-                "india",
-                "remote",
-                "bengaluru",
-                "bangalore",
-                "hyderabad",
-                "pune",
-                "gurgaon",
-                "noida"
-            ],
-            "targetKeywords": [
-                "software engineer",
-                "software development engineer",
-                "sde",
-                "backend",
-                "developer",
-                "api",
-                "java",
-                "python",
-                "node",
-                "golang"
-            ],
-            "excludedKeywords": [
-                "senior",
-                "sr ",
-                "sr.",
-                "staff",
-                "principal",
-                "manager",
-                "director",
-                "lead",
-                "architect",
-                "1-3",
-                "1 to 3",
-                "2+",
-                "3+"
-            ]
+            "apiUrl": "https://api.ashbyhq.com/posting-api/job-board/redis"
         },
-        "ats": "api"
+        "ats": "ashby"
     },
     {
         "name": "Vercel",
@@ -2308,44 +1972,7 @@ module.exports = [
         "logo": "https://logo.clearbit.com/vercel.com",
         "scraperType": "api",
         "scraperConfig": {
-            "apiUrl": "https://boards-api.greenhouse.io/v1/boards/vercel/jobs?content=true",
-            "allowedLocations": [
-                "india",
-                "remote",
-                "bengaluru",
-                "bangalore",
-                "hyderabad",
-                "pune",
-                "gurgaon",
-                "noida"
-            ],
-            "targetKeywords": [
-                "software engineer",
-                "software development engineer",
-                "sde",
-                "backend",
-                "developer",
-                "api",
-                "java",
-                "python",
-                "node",
-                "golang"
-            ],
-            "excludedKeywords": [
-                "senior",
-                "sr ",
-                "sr.",
-                "staff",
-                "principal",
-                "manager",
-                "director",
-                "lead",
-                "architect",
-                "1-3",
-                "1 to 3",
-                "2+",
-                "3+"
-            ]
+            "apiUrl": "https://boards-api.greenhouse.io/v1/boards/vercel/jobs?content=true"
         },
         "ats": "greenhouse"
     },
@@ -2359,44 +1986,7 @@ module.exports = [
         "logo": "https://logo.clearbit.com/boards.greenhouse.io",
         "scraperType": "api",
         "scraperConfig": {
-            "apiUrl": "https://boards-api.greenhouse.io/v1/boards/netlify/jobs?content=true",
-            "allowedLocations": [
-                "india",
-                "remote",
-                "bengaluru",
-                "bangalore",
-                "hyderabad",
-                "pune",
-                "gurgaon",
-                "noida"
-            ],
-            "targetKeywords": [
-                "software engineer",
-                "software development engineer",
-                "sde",
-                "backend",
-                "developer",
-                "api",
-                "java",
-                "python",
-                "node",
-                "golang"
-            ],
-            "excludedKeywords": [
-                "senior",
-                "sr ",
-                "sr.",
-                "staff",
-                "principal",
-                "manager",
-                "director",
-                "lead",
-                "architect",
-                "1-3",
-                "1 to 3",
-                "2+",
-                "3+"
-            ]
+            "apiUrl": "https://boards-api.greenhouse.io/v1/boards/netlify/jobs?content=true"
         },
         "ats": "greenhouse"
     },
@@ -2410,44 +2000,7 @@ module.exports = [
         "logo": "https://logo.clearbit.com/boards.greenhouse.io",
         "scraperType": "api",
         "scraperConfig": {
-            "apiUrl": "https://boards-api.greenhouse.io/v1/boards/digitalocean98/jobs?content=true",
-            "allowedLocations": [
-                "india",
-                "remote",
-                "bengaluru",
-                "bangalore",
-                "hyderabad",
-                "pune",
-                "gurgaon",
-                "noida"
-            ],
-            "targetKeywords": [
-                "software engineer",
-                "software development engineer",
-                "sde",
-                "backend",
-                "developer",
-                "api",
-                "java",
-                "python",
-                "node",
-                "golang"
-            ],
-            "excludedKeywords": [
-                "senior",
-                "sr ",
-                "sr.",
-                "staff",
-                "principal",
-                "manager",
-                "director",
-                "lead",
-                "architect",
-                "1-3",
-                "1 to 3",
-                "2+",
-                "3+"
-            ]
+            "apiUrl": "https://boards-api.greenhouse.io/v1/boards/digitalocean98/jobs?content=true"
         },
         "ats": "greenhouse"
     },
@@ -2461,44 +2014,7 @@ module.exports = [
         "logo": "https://logo.clearbit.com/boards.greenhouse.io",
         "scraperType": "api",
         "scraperConfig": {
-            "apiUrl": "https://boards-api.greenhouse.io/v1/boards/twilio/jobs?content=true",
-            "allowedLocations": [
-                "india",
-                "remote",
-                "bengaluru",
-                "bangalore",
-                "hyderabad",
-                "pune",
-                "gurgaon",
-                "noida"
-            ],
-            "targetKeywords": [
-                "software engineer",
-                "software development engineer",
-                "sde",
-                "backend",
-                "developer",
-                "api",
-                "java",
-                "python",
-                "node",
-                "golang"
-            ],
-            "excludedKeywords": [
-                "senior",
-                "sr ",
-                "sr.",
-                "staff",
-                "principal",
-                "manager",
-                "director",
-                "lead",
-                "architect",
-                "1-3",
-                "1 to 3",
-                "2+",
-                "3+"
-            ]
+            "apiUrl": "https://boards-api.greenhouse.io/v1/boards/twilio/jobs?content=true"
         },
         "ats": "greenhouse"
     },
@@ -2563,19 +2079,9 @@ module.exports = [
         "logo": "https://logo.clearbit.com/openai.com",
         "scraperType": "api",
         "scraperConfig": {
-            "apiUrl": "https://api.ashbyhq.com/posting-api/job-board/openai",
-            "listPath": "jobs",
-            "fields": {
-                "title": "title",
-                "location": "location",
-                "jobId": "id",
-                "department": "department",
-                "applyLink": "jobUrl",
-                "postedAt": "publishedAt",
-                "employmentType": "employmentType"
-            }
+            "apiUrl": "https://api.ashbyhq.com/posting-api/job-board/openai"
         },
-        "ats": "api"
+        "ats": "ashby"
     },
     {
         "name": "Anthropic",
@@ -2587,44 +2093,7 @@ module.exports = [
         "logo": "https://logo.clearbit.com/boards.greenhouse.io",
         "scraperType": "api",
         "scraperConfig": {
-            "apiUrl": "https://boards-api.greenhouse.io/v1/boards/anthropic/jobs?content=true",
-            "allowedLocations": [
-                "india",
-                "remote",
-                "bengaluru",
-                "bangalore",
-                "hyderabad",
-                "pune",
-                "gurgaon",
-                "noida"
-            ],
-            "targetKeywords": [
-                "software engineer",
-                "software development engineer",
-                "sde",
-                "backend",
-                "developer",
-                "api",
-                "java",
-                "python",
-                "node",
-                "golang"
-            ],
-            "excludedKeywords": [
-                "senior",
-                "sr ",
-                "sr.",
-                "staff",
-                "principal",
-                "manager",
-                "director",
-                "lead",
-                "architect",
-                "1-3",
-                "1 to 3",
-                "2+",
-                "3+"
-            ]
+            "apiUrl": "https://boards-api.greenhouse.io/v1/boards/anthropic/jobs?content=true"
         },
         "ats": "greenhouse"
     },
@@ -2633,61 +2102,14 @@ module.exports = [
         "category": "Product",
         "industry": "A I",
         "active": true,
-        "careerUrl": "https://jobs.lever.co/cohere",
-        "careerPage": "https://jobs.lever.co/cohere",
+        "careerUrl": "https://cohere.com/careers",
+        "careerPage": "https://cohere.com/careers",
         "logo": "https://logo.clearbit.com/jobs.lever.co",
         "scraperType": "api",
         "scraperConfig": {
-            "apiUrl": "https://api.ashbyhq.com/posting-api/job-board/cohere",
-            "listPath": "jobs",
-            "fields": {
-                "title": "title",
-                "location": "location",
-                "jobId": "id",
-                "department": "department",
-                "applyLink": "jobUrl",
-                "postedAt": "publishedAt",
-                "employmentType": "employmentType"
-            },
-            "allowedLocations": [
-                "india",
-                "remote",
-                "bengaluru",
-                "bangalore",
-                "hyderabad",
-                "pune",
-                "gurgaon",
-                "noida"
-            ],
-            "targetKeywords": [
-                "software engineer",
-                "software development engineer",
-                "sde",
-                "backend",
-                "developer",
-                "api",
-                "java",
-                "python",
-                "node",
-                "golang"
-            ],
-            "excludedKeywords": [
-                "senior",
-                "sr ",
-                "sr.",
-                "staff",
-                "principal",
-                "manager",
-                "director",
-                "lead",
-                "architect",
-                "1-3",
-                "1 to 3",
-                "2+",
-                "3+"
-            ]
+            "apiUrl": "https://api.ashbyhq.com/posting-api/job-board/cohere"
         },
-        "ats": "api"
+        "ats": "ashby"
     },
     {
         "name": "Hugging Face",
@@ -2797,44 +2219,7 @@ module.exports = [
         "logo": "https://logo.clearbit.com/boards.greenhouse.io",
         "scraperType": "api",
         "scraperConfig": {
-            "apiUrl": "https://boards-api.greenhouse.io/v1/boards/scaleai/jobs?content=true",
-            "allowedLocations": [
-                "india",
-                "remote",
-                "bengaluru",
-                "bangalore",
-                "hyderabad",
-                "pune",
-                "gurgaon",
-                "noida"
-            ],
-            "targetKeywords": [
-                "software engineer",
-                "software development engineer",
-                "sde",
-                "backend",
-                "developer",
-                "api",
-                "java",
-                "python",
-                "node",
-                "golang"
-            ],
-            "excludedKeywords": [
-                "senior",
-                "sr ",
-                "sr.",
-                "staff",
-                "principal",
-                "manager",
-                "director",
-                "lead",
-                "architect",
-                "1-3",
-                "1 to 3",
-                "2+",
-                "3+"
-            ]
+            "apiUrl": "https://boards-api.greenhouse.io/v1/boards/scaleai/jobs?content=true"
         },
         "ats": "greenhouse"
     },
@@ -2904,49 +2289,12 @@ module.exports = [
         "category": "Product",
         "industry": "A I",
         "active": true,
-        "careerUrl": "https://jobs.lever.co/together",
-        "careerPage": "https://jobs.lever.co/together",
+        "careerUrl": "https://boards.greenhouse.io/togetherai",
+        "careerPage": "https://boards.greenhouse.io/togetherai",
         "logo": "https://logo.clearbit.com/jobs.lever.co",
         "scraperType": "api",
         "scraperConfig": {
-            "apiUrl": "https://boards-api.greenhouse.io/v1/boards/togetherai/jobs?content=true",
-            "allowedLocations": [
-                "india",
-                "remote",
-                "bengaluru",
-                "bangalore",
-                "hyderabad",
-                "pune",
-                "gurgaon",
-                "noida"
-            ],
-            "targetKeywords": [
-                "software engineer",
-                "software development engineer",
-                "sde",
-                "backend",
-                "developer",
-                "api",
-                "java",
-                "python",
-                "node",
-                "golang"
-            ],
-            "excludedKeywords": [
-                "senior",
-                "sr ",
-                "sr.",
-                "staff",
-                "principal",
-                "manager",
-                "director",
-                "lead",
-                "architect",
-                "1-3",
-                "1 to 3",
-                "2+",
-                "3+"
-            ]
+            "apiUrl": "https://boards-api.greenhouse.io/v1/boards/togetherai/jobs?content=true"
         },
         "ats": "greenhouse"
     },
@@ -2955,61 +2303,14 @@ module.exports = [
         "category": "Product",
         "industry": "A I",
         "active": true,
-        "careerUrl": "https://boards.greenhouse.io/elevenlabs",
-        "careerPage": "https://boards.greenhouse.io/elevenlabs",
+        "careerUrl": "https://elevenlabs.io/careers",
+        "careerPage": "https://elevenlabs.io/careers",
         "logo": "https://logo.clearbit.com/boards.greenhouse.io",
         "scraperType": "api",
         "scraperConfig": {
-            "apiUrl": "https://api.ashbyhq.com/posting-api/job-board/elevenlabs",
-            "listPath": "jobs",
-            "fields": {
-                "title": "title",
-                "location": "location",
-                "jobId": "id",
-                "department": "department",
-                "applyLink": "jobUrl",
-                "postedAt": "publishedAt",
-                "employmentType": "employmentType"
-            },
-            "allowedLocations": [
-                "india",
-                "remote",
-                "bengaluru",
-                "bangalore",
-                "hyderabad",
-                "pune",
-                "gurgaon",
-                "noida"
-            ],
-            "targetKeywords": [
-                "software engineer",
-                "software development engineer",
-                "sde",
-                "backend",
-                "developer",
-                "api",
-                "java",
-                "python",
-                "node",
-                "golang"
-            ],
-            "excludedKeywords": [
-                "senior",
-                "sr ",
-                "sr.",
-                "staff",
-                "principal",
-                "manager",
-                "director",
-                "lead",
-                "architect",
-                "1-3",
-                "1 to 3",
-                "2+",
-                "3+"
-            ]
+            "apiUrl": "https://api.ashbyhq.com/posting-api/job-board/elevenlabs"
         },
-        "ats": "api"
+        "ats": "ashby"
     },
     {
         "name": "Flipkart",
@@ -3170,44 +2471,8 @@ module.exports = [
         "logo": "https://logo.clearbit.com/careers.freshworks.com",
         "scraperType": "api",
         "scraperConfig": {
-            "apiUrl": "https://api.smartrecruiters.com/v1/companies/freshworks/postings",
-            "allowedLocations": [
-                "india",
-                "remote",
-                "bengaluru",
-                "bangalore",
-                "hyderabad",
-                "pune",
-                "gurgaon",
-                "noida"
-            ],
-            "targetKeywords": [
-                "software engineer",
-                "software development engineer",
-                "sde",
-                "backend",
-                "developer",
-                "api",
-                "java",
-                "python",
-                "node",
-                "golang"
-            ],
-            "excludedKeywords": [
-                "senior",
-                "sr ",
-                "sr.",
-                "staff",
-                "principal",
-                "manager",
-                "director",
-                "lead",
-                "architect",
-                "1-3",
-                "1 to 3",
-                "2+",
-                "3+"
-            ]
+            "apiUrl": "https://api.smartrecruiters.com/v1/companies/Freshworks/postings",
+            "companyIdentifier": "Freshworks"
         },
         "ats": "smartrecruiters"
     },
@@ -3323,44 +2588,7 @@ module.exports = [
         "logo": "https://logo.clearbit.com/boards.greenhouse.io",
         "scraperType": "api",
         "scraperConfig": {
-            "apiUrl": "https://boards-api.greenhouse.io/v1/boards/groww/jobs?content=true",
-            "allowedLocations": [
-                "india",
-                "remote",
-                "bengaluru",
-                "bangalore",
-                "hyderabad",
-                "pune",
-                "gurgaon",
-                "noida"
-            ],
-            "targetKeywords": [
-                "software engineer",
-                "software development engineer",
-                "sde",
-                "backend",
-                "developer",
-                "api",
-                "java",
-                "python",
-                "node",
-                "golang"
-            ],
-            "excludedKeywords": [
-                "senior",
-                "sr ",
-                "sr.",
-                "staff",
-                "principal",
-                "manager",
-                "director",
-                "lead",
-                "architect",
-                "1-3",
-                "1 to 3",
-                "2+",
-                "3+"
-            ]
+            "apiUrl": "https://boards-api.greenhouse.io/v1/boards/groww/jobs?content=true"
         },
         "ats": "greenhouse"
     },
@@ -3425,7 +2653,8 @@ module.exports = [
         "logo": "https://logo.clearbit.com/careers.swiggy.com",
         "scraperType": "api",
         "scraperConfig": {
-            "apiUrl": "https://api.smartrecruiters.com/v1/companies/Swiggy/postings"
+            "apiUrl": "https://api.smartrecruiters.com/v1/companies/Swiggy/postings",
+            "companyIdentifier": "Swiggy"
         },
         "ats": "smartrecruiters"
     },
@@ -3537,44 +2766,7 @@ module.exports = [
         "logo": "https://logo.clearbit.com/boards.greenhouse.io",
         "scraperType": "api",
         "scraperConfig": {
-            "apiUrl": "https://boards-api.greenhouse.io/v1/boards/inmobi/jobs?content=true",
-            "allowedLocations": [
-                "india",
-                "remote",
-                "bengaluru",
-                "bangalore",
-                "hyderabad",
-                "pune",
-                "gurgaon",
-                "noida"
-            ],
-            "targetKeywords": [
-                "software engineer",
-                "software development engineer",
-                "sde",
-                "backend",
-                "developer",
-                "api",
-                "java",
-                "python",
-                "node",
-                "golang"
-            ],
-            "excludedKeywords": [
-                "senior",
-                "sr ",
-                "sr.",
-                "staff",
-                "principal",
-                "manager",
-                "director",
-                "lead",
-                "architect",
-                "1-3",
-                "1 to 3",
-                "2+",
-                "3+"
-            ]
+            "apiUrl": "https://boards-api.greenhouse.io/v1/boards/inmobi/jobs?content=true"
         },
         "ats": "greenhouse"
     },
@@ -4037,7 +3229,7 @@ module.exports = [
         "industry": "Data & AI",
         "active": true,
         "careerUrl": "https://www.databricks.com/company/careers",
-        "careerPage": "https://boards.greenhouse.io/databricks",
+        "careerPage": "https://www.databricks.com/company/careers",
         "logo": "https://logo.clearbit.com/databricks.com",
         "ats": "greenhouse",
         "scraperType": "api",
@@ -4051,7 +3243,7 @@ module.exports = [
         "industry": "Consulting & Tech",
         "active": true,
         "careerUrl": "https://www.thoughtworks.com/careers",
-        "careerPage": "https://boards.greenhouse.io/thoughtworks",
+        "careerPage": "https://www.thoughtworks.com/careers",
         "logo": "https://logo.clearbit.com/thoughtworks.com",
         "ats": "greenhouse",
         "scraperType": "api",
@@ -4079,7 +3271,7 @@ module.exports = [
         "industry": "Design Tech",
         "active": true,
         "careerUrl": "https://www.figma.com/careers",
-        "careerPage": "https://boards.greenhouse.io/figma",
+        "careerPage": "https://www.figma.com/careers",
         "logo": "https://logo.clearbit.com/figma.com",
         "ats": "greenhouse",
         "scraperType": "api",
@@ -4093,22 +3285,12 @@ module.exports = [
         "industry": "Developer Tools",
         "active": true,
         "careerUrl": "https://linear.app/careers",
-        "careerPage": "https://jobs.ashbyhq.com/linear",
+        "careerPage": "https://linear.app/careers",
         "logo": "https://logo.clearbit.com/linear.app",
-        "ats": "api",
+        "ats": "ashby",
         "scraperType": "api",
         "scraperConfig": {
-            "apiUrl": "https://api.ashbyhq.com/posting-api/job-board/linear",
-            "listPath": "jobs",
-            "fields": {
-                "title": "title",
-                "location": "location",
-                "jobId": "id",
-                "department": "department",
-                "applyLink": "jobUrl",
-                "postedAt": "publishedAt",
-                "employmentType": "employmentType"
-            }
+            "apiUrl": "https://api.ashbyhq.com/posting-api/job-board/linear"
         }
     },
     {
@@ -4117,22 +3299,12 @@ module.exports = [
         "industry": "Developer Tools",
         "active": true,
         "careerUrl": "https://resend.com/careers",
-        "careerPage": "https://jobs.ashbyhq.com/resend",
+        "careerPage": "https://resend.com/careers",
         "logo": "https://logo.clearbit.com/resend.com",
-        "ats": "api",
+        "ats": "ashby",
         "scraperType": "api",
         "scraperConfig": {
-            "apiUrl": "https://api.ashbyhq.com/posting-api/job-board/resend",
-            "listPath": "jobs",
-            "fields": {
-                "title": "title",
-                "location": "location",
-                "jobId": "id",
-                "department": "department",
-                "applyLink": "jobUrl",
-                "postedAt": "publishedAt",
-                "employmentType": "employmentType"
-            }
+            "apiUrl": "https://api.ashbyhq.com/posting-api/job-board/resend"
         }
     },
     {
@@ -4141,7 +3313,7 @@ module.exports = [
         "industry": "Productivity & Low-Code",
         "active": true,
         "careerUrl": "https://airtable.com/careers",
-        "careerPage": "https://boards.greenhouse.io/airtable",
+        "careerPage": "https://airtable.com/careers",
         "logo": "https://logo.clearbit.com/airtable.com",
         "ats": "greenhouse",
         "scraperType": "api",
@@ -4155,7 +3327,7 @@ module.exports = [
         "industry": "Gaming & Meta",
         "active": true,
         "careerUrl": "https://careers.roblox.com/",
-        "careerPage": "https://boards.greenhouse.io/roblox",
+        "careerPage": "https://careers.roblox.com/",
         "logo": "https://logo.clearbit.com/roblox.com",
         "ats": "greenhouse",
         "scraperType": "api",
@@ -4169,7 +3341,7 @@ module.exports = [
         "industry": "Transportation & Tech",
         "active": true,
         "careerUrl": "https://www.lyft.com/careers",
-        "careerPage": "https://boards.greenhouse.io/lyft",
+        "careerPage": "https://www.lyft.com/careers",
         "logo": "https://logo.clearbit.com/lyft.com",
         "ats": "greenhouse",
         "scraperType": "api",
@@ -4197,7 +3369,7 @@ module.exports = [
         "industry": "Crypto & Fintech",
         "active": true,
         "careerUrl": "https://www.coinbase.com/careers",
-        "careerPage": "https://boards.greenhouse.io/coinbase",
+        "careerPage": "https://www.coinbase.com/careers",
         "logo": "https://logo.clearbit.com/coinbase.com",
         "ats": "greenhouse",
         "scraperType": "api",
@@ -4211,7 +3383,7 @@ module.exports = [
         "industry": "Fintech",
         "active": true,
         "careerUrl": "https://robinhood.com/careers",
-        "careerPage": "https://boards.greenhouse.io/robinhood",
+        "careerPage": "https://robinhood.com/careers",
         "logo": "https://logo.clearbit.com/robinhood.com",
         "ats": "greenhouse",
         "scraperType": "api",
@@ -4225,7 +3397,7 @@ module.exports = [
         "industry": "Communication & Gaming",
         "active": true,
         "careerUrl": "https://discord.com/careers",
-        "careerPage": "https://boards.greenhouse.io/discord",
+        "careerPage": "https://discord.com/careers",
         "logo": "https://logo.clearbit.com/discord.com",
         "ats": "greenhouse",
         "scraperType": "api",
@@ -4239,7 +3411,7 @@ module.exports = [
         "industry": "Social & Community",
         "active": true,
         "careerUrl": "https://www.redditinc.com/careers",
-        "careerPage": "https://boards.greenhouse.io/reddit",
+        "careerPage": "https://www.redditinc.com/careers",
         "logo": "https://logo.clearbit.com/reddit.com",
         "ats": "greenhouse",
         "scraperType": "api",
@@ -4253,7 +3425,7 @@ module.exports = [
         "industry": "Social & Discovery",
         "active": true,
         "careerUrl": "https://www.pinterestcareers.com/",
-        "careerPage": "https://boards.greenhouse.io/pinterest",
+        "careerPage": "https://www.pinterestcareers.com/",
         "logo": "https://logo.clearbit.com/pinterest.com",
         "ats": "greenhouse",
         "scraperType": "api",
@@ -4286,7 +3458,8 @@ module.exports = [
         "ats": "smartrecruiters",
         "scraperType": "api",
         "scraperConfig": {
-            "apiUrl": "https://api.smartrecruiters.com/v1/companies/westerndigital/postings"
+            "apiUrl": "https://api.smartrecruiters.com/v1/companies/WesternDigital/postings",
+            "companyIdentifier": "WesternDigital"
         }
     },
     {
@@ -4314,7 +3487,8 @@ module.exports = [
         "ats": "smartrecruiters",
         "scraperType": "api",
         "scraperConfig": {
-            "apiUrl": "https://api.smartrecruiters.com/v1/companies/servicenow/postings"
+            "apiUrl": "https://api.smartrecruiters.com/v1/companies/ServiceNow/postings",
+            "companyIdentifier": "ServiceNow"
         }
     },
     {

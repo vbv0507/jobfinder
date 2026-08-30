@@ -96,6 +96,10 @@ const init = () => {
     emailCronTask = cron.schedule(EMAIL_SCHEDULE_EXPRESSION, async () => {
         console.log(chalk.blue(`[Scheduler] Email Batch trigger activated at ${new Date().toLocaleString('en-US', { timeZone: TIMEZONE })} IST`));
         try {
+            const { runRawQueuePipeline } = require('./pipeline/rawQueueService');
+            console.log(chalk.blue(`[Scheduler] Auto-draining pending Raw Queue jobs before daily digest...`));
+            await runRawQueuePipeline();
+
             await verifyLocalJobs();
 
             const { processBatchEmail } = require('./emailService');

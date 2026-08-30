@@ -65,13 +65,26 @@ router.get('/jobs', requireExtendedViewer, async (req, res) => {
     }
 });
 
-router.get('/closed-jobs', requireExtendedViewer, async (req, res) => {
+router.get(['/closed-jobs', '/expired'], requireExtendedViewer, async (req, res) => {
     try {
         const MatchedJob = require('../models/MatchedJob');
-        const jobs = await MatchedJob.find({ jobStatus: 'Closed' }).populate('company', 'name').sort({ closedAt: -1, updatedAt: -1 });
-        res.render('pages/jobs', { jobs, title: 'Closed / Filled Jobs' });
+        require('../models/Company');
+        require('../models/RawJob');
+        const jobs = await MatchedJob.find({
+            $or: [
+                { jobStatus: 'Closed' },
+                { isActive: false },
+                { closedAt: { $exists: true, $ne: null } }
+            ]
+        })
+        .populate('company', 'name')
+        .populate('rawJob', 'scrapedAt postedAt')
+        .sort({ closedAt: -1, updatedAt: -1 });
+
+        res.render('pages/closed-jobs', { jobs, title: 'Expired & Closed Jobs' });
     } catch (error) {
-        res.render('pages/jobs', { jobs: [], title: 'Closed / Filled Jobs' });
+        console.error('[ClosedJobs Route Error]:', error.message);
+        res.render('pages/closed-jobs', { jobs: [], title: 'Expired & Closed Jobs' });
     }
 });
 

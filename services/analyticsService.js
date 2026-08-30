@@ -3,6 +3,7 @@ const RawJob = require("../models/RawJob");
 const Company = require("../models/Company");
 const pipelineState = require("./pipelineState");
 const SearchLog = require("../models/SearchLog");
+const { getLifetimeStats } = require("./jobStatsService");
 
 const getAnalyticsData = async () => {
     try {
@@ -185,6 +186,20 @@ const getAnalyticsData = async () => {
         const dailyDigestSentTime = lastSentJob ? lastSentJob.emailSentAt : null;
         // -------------------------------------------
 
+        const lifetimeStats = await getLifetimeStats();
+
+        const sdeMarketDistribution = [
+            { _id: "SDE Fresher", count: lifetimeStats.totalSdeFresher },
+            { _id: "SDE Experienced", count: lifetimeStats.totalSdeExp },
+            { _id: "Non-SDE / Other", count: lifetimeStats.totalNonSde }
+        ];
+
+        const userMatchDistribution = [
+            { _id: "SDE Fresher", count: lifetimeStats.userMatchedSdeFresher },
+            { _id: "SDE Experienced", count: lifetimeStats.userMatchedSdeExp },
+            { _id: "Other Tech", count: lifetimeStats.userMatchedNonSde }
+        ];
+
         return {
             stats: {
                 companiesMonitored,
@@ -216,8 +231,23 @@ const getAnalyticsData = async () => {
 
                 pendingLocal,
                 dailyDigestSent,
-                dailyDigestSentTime
+                dailyDigestSentTime,
+
+                // Lifetime & SDE Market Stats
+                totalScrapedLifetime: lifetimeStats.totalScrapedLifetime,
+                cumulativeScrapedRuns: lifetimeStats.cumulativeScrapedRuns,
+                totalMatchedToUser: lifetimeStats.totalMatchedToUser,
+                totalSdeFresher: lifetimeStats.totalSdeFresher,
+                totalSdeExp: lifetimeStats.totalSdeExp,
+                totalNonSde: lifetimeStats.totalNonSde,
+                userMatchedSdeFresher: lifetimeStats.userMatchedSdeFresher,
+                userMatchedSdeExp: lifetimeStats.userMatchedSdeExp,
+                userMatchedNonSde: lifetimeStats.userMatchedNonSde,
+                sdeMarketShare: lifetimeStats.sdeMarketShare,
+                fresherPercentageOfSde: lifetimeStats.fresherPercentageOfSde,
+                userMatchRate: lifetimeStats.userMatchRate
             },
+            lifetime: lifetimeStats,
             metrics: {
                 "Actually Scraped": latestCompaniesScanned,
                 "Cached Companies": latestCachedCompanies,
@@ -243,7 +273,9 @@ const getAnalyticsData = async () => {
                 statusDistribution,
                 evaluationDistribution,
                 domainDistribution,
-                dailyTrend
+                dailyTrend,
+                sdeMarketDistribution,
+                userMatchDistribution
             },
             aiMetrics
         };
