@@ -3504,5 +3504,65 @@ module.exports = [
         "scraperConfig": {
             "apiUrl": "https://pwc.wd3.myworkdayjobs.com/wday/cxs/pwc/Global_Experienced_Careers/jobs"
         }
+    },
+    {
+        "name": "Tower Research Capital",
+        "category": "Fintech / HFT",
+        "industry": "High-Frequency Trading",
+        "active": true,
+        "careerUrl": "https://boards.greenhouse.io/towerresearchcapital",
+        "careerPage": "https://boards.greenhouse.io/towerresearchcapital",
+        "logo": "https://logo.clearbit.com/tower-research.com",
+        "ats": "greenhouse",
+        "scraperType": "api",
+        "scraperConfig": {
+            "ats": "greenhouse",
+            "apiUrl": "https://boards-api.greenhouse.io/v1/boards/towerresearchcapital/jobs?content=true"
+        }
+    },
+    {
+        "name": "Rubrik",
+        "category": "Product",
+        "industry": "Zero Trust Data Security",
+        "active": true,
+        "careerUrl": "https://boards.greenhouse.io/rubrik",
+        "careerPage": "https://boards.greenhouse.io/rubrik",
+        "logo": "https://logo.clearbit.com/rubrik.com",
+        "ats": "greenhouse",
+        "scraperType": "api",
+        "scraperConfig": {
+            "ats": "greenhouse",
+            "apiUrl": "https://boards-api.greenhouse.io/v1/boards/rubrik/jobs?content=true"
+        }
+    },
+    {
+        "name": "Supabase",
+        "category": "Product",
+        "industry": "Developer Infrastructure",
+        "active": true,
+        "careerUrl": "https://jobs.ashbyhq.com/supabase",
+        "careerPage": "https://jobs.ashbyhq.com/supabase",
+        "logo": "https://logo.clearbit.com/supabase.com",
+        "ats": "ashby",
+        "scraperType": "api",
+        "scraperConfig": {
+            "ats": "ashby",
+            "apiUrl": "https://api.ashbyhq.com/posting-api/job-board/supabase"
+        }
+    },
+    {
+        "name": "Slice",
+        "category": "Fintech",
+        "industry": "Payments / Banking Tech",
+        "active": true,
+        "careerUrl": "https://boards.greenhouse.io/slice",
+        "careerPage": "https://boards.greenhouse.io/slice",
+        "logo": "https://logo.clearbit.com/sliceit.com",
+        "ats": "greenhouse",
+        "scraperType": "api",
+        "scraperConfig": {
+            "ats": "greenhouse",
+            "apiUrl": "https://boards-api.greenhouse.io/v1/boards/slice/jobs?content=true"
+        }
     }
 ];
