@@ -144,6 +144,7 @@
         if (elMatchRate && stats.userMatchRate !== undefined) elMatchRate.innerText = `${stats.userMatchRate}% rate`;
         if (elFresher && stats.totalSdeFresher !== undefined) elFresher.innerText = Number(stats.totalSdeFresher).toLocaleString();
         if (elExp && stats.totalSdeExp !== undefined) elExp.innerText = Number(stats.totalSdeExp).toLocaleString();
+        if (elNonSde && stats.totalNonSde !== undefined) elNonSde.innerText = Number(stats.totalNonSde).toLocaleString();
         if (elRaw && (stats.rawJobsCount !== undefined || stats.rawQueueCount !== undefined)) {
             elRaw.innerText = Number(stats.rawQueueCount !== undefined ? stats.rawQueueCount : stats.rawJobsCount).toLocaleString();
         }
