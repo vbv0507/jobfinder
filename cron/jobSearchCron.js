@@ -261,9 +261,9 @@ const runSearch = async (triggerSource = "Unknown", forceRefresh = false) => {
     stats.companiesScanned = companiesToScrape.length;
     pipelineState.cachedCompanies = stats.cachedCompanies;
 
-    // Use p-limit for concurrent scraping (limit to 2 concurrent workers to protect 512MB RAM ceiling on Render)
+    // High-Performance Parallel Scraping Engine (8 concurrent worker pool)
     const { default: pLimit } = await import('p-limit');
-    const limit = pLimit(2);
+    const limit = pLimit(8);
 
     let completedCompanies = 0;
     stats.workersFailed = 0;

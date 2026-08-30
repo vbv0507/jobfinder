@@ -2,7 +2,7 @@ const { client } = require('../../config/redis');
 const pLimit = require('p-limit');
 
 const RAW_QUEUE_KEY = "queue:raw_jobs";
-const MAX_CONCURRENCY = Number(process.env.QUEUE_CONCURRENCY || 5);
+const MAX_CONCURRENCY = Number(process.env.QUEUE_CONCURRENCY || 8);
 
 class RedisQueueService {
     /**

@@ -543,9 +543,24 @@ Provides dedicated tracking for historical and expired/closed AI-matched jobs, d
 - **Enhanced Profile UI (`views/pages/profile.ejs`)**: Integrated authenticated `apiCall` wrapper with Clerk Bearer authorization, instant save status spinners, and animated success feedback toasts.
 - **Extended Field Configuration**: Added inputs for Full Name, Graduation Year, Career Stage, Years of Experience, Preferred Roles, Preferred Locations, Core Technical Skills, Preferred Domains, and Excluded Domains.
 
-### 2. Render 512MB RAM Ceiling Optimization
-- **V8 Heap Ceiling (`package.json`)**: Configured `"start": "node --max-old-space-size=384 --expose-gc index.js"`, restricting V8 heap to 384MB and ensuring Node triggers proactive garbage collection well before reaching Render's 512MB hard limit.
-- **Proactive Garbage Collection (`cron/jobSearchCron.js`)**: Added periodic `global.gc()` invocations during scraper batch finalization to immediately free parsed HTML and JSON buffers.
+### 2. Ground-Truth Analytics & Daily Trend
+- **Continuous 7-Day History (`services/analyticsService.js`, `services/jobStatsService.js`)**: Upgraded `dailyTrend` to aggregate from ground-truth `RawJob` and `MatchedJob` collections rather than transient runtime logs, ensuring accurate lifetime counts and non-SDE role visibility.
+
+---
+
+## ⚡ 18. High-Performance Cloud Scaling (Azure 1.75GB RAM / 1024MB V8 Heap) (2026-08-30)
+
+### Feature Overview
+Unleashed RoleNova to maximum computing throughput for scalable cloud environments (Azure App Service B1 Linux with 1.75 GB RAM).
+
+### Key Architectural Upgrades
+1. **1024MB Node.js V8 Memory Ceiling (`package.json`)**:
+   - Upgraded start script to `"start": "node --max-old-space-size=1024 index.js"`, unlocking full memory headroom for concurrent operations.
+2. **High-Concurrency Scraper Pool (`cron/jobSearchCron.js`)**:
+   - Scaled `pLimit` concurrency to **8 parallel worker threads**, allowing 47+ seeded tech companies to be discovered, parsed, and evaluated simultaneously in seconds.
+3. **Async Queue & AI Evaluation Throughput (`services/redis/redisQueueService.js`)**:
+   - Increased Redis & in-memory async worker pool concurrency to **8 parallel tasks** (`QUEUE_CONCURRENCY=8`).
+
 
 
 

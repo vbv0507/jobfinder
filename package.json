@@ -3,7 +3,7 @@
     "node": ">=22.0.0"
   },
   "scripts": {
-    "start": "node --max-old-space-size=384 --expose-gc index.js",
+    "start": "node --max-old-space-size=1024 index.js",
     "dev": "node --watch index.js",
     "test": "echo \"No tests configured\""
   },
