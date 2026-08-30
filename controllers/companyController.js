@@ -78,8 +78,76 @@ const seedCompanyList = async (req, res) => {
     }
 };
 
+const toggleCompanyStatus = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const company = await Company.findById(id);
+        if (!company) {
+            return res.status(404).json({ success: false, message: "Company not found" });
+        }
+
+        company.active = req.body.active !== undefined ? req.body.active : !company.active;
+        await company.save();
+
+        await logAuditAction(req, 'Company Status Toggle', `${company.name} set to ${company.active ? 'Active' : 'Inactive'}`);
+
+        const CacheManager = require("../services/cacheManager");
+        const { invalidateAnalyticsCache } = require("../services/analyticsService");
+        CacheManager.invalidate();
+        invalidateAnalyticsCache();
+
+        const socketService = require("../services/socketService");
+        socketService.emitCompanySnapshot().catch(e => console.error("[Socket] Update error:", e.message));
+
+        res.status(200).json({
+            success: true,
+            message: `${company.name} is now ${company.active ? 'active' : 'inactive'}`,
+            company
+        });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+const scrapeCompanyDirectly = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const company = await Company.findById(id);
+        if (!company) {
+            return res.status(404).json({ success: false, message: "Company not found" });
+        }
+
+        const AdapterFactory = require("../services/ats/AdapterFactory");
+        const adapter = AdapterFactory.getAdapter(company);
+        const startTime = Date.now();
+        const rawJobs = await adapter.searchJobs();
+        const durationMs = Date.now() - startTime;
+
+        const storageService = require("../services/pipeline/storageService");
+        const storedResult = await storageService.storeScrapedJobs(company, rawJobs);
+
+        const CacheManager = require("../services/cacheManager");
+        const { invalidateAnalyticsCache } = require("../services/analyticsService");
+        CacheManager.invalidate();
+        invalidateAnalyticsCache();
+
+        res.status(200).json({
+            success: true,
+            company: company.name,
+            ats: adapter.parserName || company.ats,
+            rawJobsFound: rawJobs.length,
+            storedResult,
+            durationMs
+        });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
 module.exports = {
     addCompany,
     getCompanies,
     seedCompanyList,
+    toggleCompanyStatus,
+    scrapeCompanyDirectly
 };

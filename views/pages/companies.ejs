@@ -75,7 +75,7 @@
                     }
                     
                     return `
-                    <div class="bg-surface border border-border rounded-xl p-5 hover:border-border/80 transition-colors shadow-sm flex flex-col">
+                    <div class="bg-surface border border-border rounded-xl p-5 hover:border-border/80 transition-colors shadow-sm flex flex-col ${c.active === false ? 'opacity-60 bg-surface/40' : ''}">
                         <div class="flex justify-between items-start mb-4">
                             <div class="flex items-center gap-4">
                                 <div class="w-12 h-12 rounded-lg bg-background border border-border flex items-center justify-center shrink-0 overflow-hidden">
@@ -83,16 +83,22 @@
                                 </div>
                                 <div>
                                     <h3 class="font-bold text-textMain text-lg truncate" title="${c.name}">${c.name}</h3>
-                                    <div class="flex gap-2 mt-1">
+                                    <div class="flex items-center gap-2 mt-1">
                                       <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-primary/10 text-primary uppercase">${c.ats || 'Auto-Detect'}</span>
                                       ${runBadge}
                                     </div>
                                 </div>
                             </div>
-                            <span class="flex h-3 w-3 relative shrink-0">
-                              ${dotPing ? `<span class="animate-ping absolute inline-flex h-full w-full rounded-full ${dotColor} opacity-50"></span>` : ''}
-                              <span class="relative inline-flex rounded-full h-3 w-3 ${dotColor}"></span>
-                            </span>
+                            <div class="flex items-center gap-3">
+                                <label class="relative inline-flex items-center cursor-pointer select-none" title="${c.active !== false ? 'Active (Monitored)' : 'Inactive (Paused)'}">
+                                    <input type="checkbox" class="sr-only peer" ${c.active !== false ? 'checked' : ''} onchange="toggleCompanyStatus('${c._id}', '${c.name}', this.checked)">
+                                    <div class="w-8 h-4 bg-border peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-success"></div>
+                                </label>
+                                <span class="flex h-3 w-3 relative shrink-0">
+                                  ${dotPing ? `<span class="animate-ping absolute inline-flex h-full w-full rounded-full ${dotColor} opacity-50"></span>` : ''}
+                                  <span class="relative inline-flex rounded-full h-3 w-3 ${dotColor}"></span>
+                                </span>
+                            </div>
                         </div>
                         
                         <div class="mt-auto pt-4 border-t border-border">
@@ -108,13 +114,16 @@
                                 <span>Last Scan</span>
                                 <span class="font-medium text-textMain">${timeAgo(c.lastScan)}</span>
                             </div>
-                            <div class="grid grid-cols-2 gap-3 mt-2 mb-3">
-                              <a href="${c.careerUrl}" target="_blank" class="w-full flex items-center justify-center bg-surfaceHover hover:bg-border text-textMain font-medium py-2 rounded-md transition-colors text-xs border border-border">
-                                  Careers <i class="fa-solid fa-arrow-up-right-from-square ml-2 text-[10px]"></i>
+                            <div class="grid grid-cols-3 gap-2 mt-2 mb-3">
+                              <a href="${c.careerUrl}" target="_blank" class="flex items-center justify-center bg-surfaceHover hover:bg-border text-textMain font-medium py-2 rounded-md transition-colors text-xs border border-border truncate px-1">
+                                  Careers <i class="fa-solid fa-arrow-up-right-from-square ml-1 text-[9px]"></i>
                               </a>
-                              <a href="/jobs?company=${c.name}" class="w-full flex items-center justify-center bg-primary/10 hover:bg-primary text-primary hover:text-white font-medium py-2 rounded-md transition-colors text-xs">
-                                  View Jobs <i class="fa-solid fa-search ml-2 text-[10px]"></i>
+                              <a href="/jobs?company=${encodeURIComponent(c.name)}" class="flex items-center justify-center bg-primary/10 hover:bg-primary text-primary hover:text-white font-medium py-2 rounded-md transition-colors text-xs truncate px-1">
+                                  Jobs <i class="fa-solid fa-search ml-1 text-[9px]"></i>
                               </a>
+                              <button onclick="scrapeCompanySingle('${c._id}', '${c.name}', this)" class="flex items-center justify-center bg-emerald-500/10 hover:bg-emerald-500 text-emerald-400 hover:text-white font-medium py-2 rounded-md transition-colors text-xs truncate px-1 border border-emerald-500/20">
+                                  <i class="fa-solid fa-play text-[9px] mr-1"></i> Scrape
+                              </button>
                             </div>
 
                             <details class="mt-4 text-xs group">
@@ -143,6 +152,43 @@
             } else {
                 container.innerHTML = '<div class="col-span-full p-12 text-center text-textMuted">No companies monitored yet.</div>';
             }
+    }
+
+    async function toggleCompanyStatus(id, name, active) {
+        try {
+            const data = await apiCall(`/api/companies/${id}/toggle`, 'PATCH', { active });
+            if (data.success) {
+                console.log(`[Company] ${name} is now ${active ? 'Active' : 'Inactive'}`);
+            } else {
+                alert(`Failed to update ${name}: ` + (data.message || 'Unknown error'));
+            }
+        } catch (e) {
+            console.error('Toggle error:', e);
+            alert(`Error: ${e.message}`);
+        }
+    }
+
+    async function scrapeCompanySingle(id, name, btn) {
+        if (!btn) return;
+        const originalHtml = btn.innerHTML;
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin text-[9px]"></i>';
+        
+        try {
+            const data = await apiCall(`/api/companies/${id}/scrape`, 'POST');
+            if (data.success) {
+                alert(`✓ [${data.company}] Scraped ${data.rawJobsFound} jobs successfully in ${data.durationMs}ms!`);
+                if (typeof loadCompaniesOnce === 'function') loadCompaniesOnce();
+            } else {
+                alert(`✗ Error scraping ${name}: ` + (data.message || 'Scraper failed'));
+            }
+        } catch (e) {
+            console.error('Scrape error:', e);
+            alert(`Scrape error for ${name}: ${e.message}`);
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = originalHtml;
+        }
     }
 
     async function loadCompaniesOnce() {

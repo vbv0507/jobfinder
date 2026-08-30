@@ -4,6 +4,8 @@ const {
     addCompany,
     getCompanies,
     seedCompanyList,
+    toggleCompanyStatus,
+    scrapeCompanyDirectly
 } = require("../controllers/companyController");
 
 const router = express.Router();
@@ -20,5 +22,9 @@ router.post("/", requireAdmin, addCompany);
 
 
 router.get("/", requireExtendedViewer, getCompanies);
+
+router.patch("/:id/toggle", requireAdmin, toggleCompanyStatus);
+
+router.post("/:id/scrape", requireAdmin, scrapeCompanyDirectly);
 
 module.exports = router;
