@@ -110,20 +110,64 @@ const getAnalyticsData = async () => {
 
         
         const sevenDaysAgo = getISTStartOfDay();
-        sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-        const dailyTrend = await SearchLog.aggregate([
-            { $match: { createdAt: { $gte: sevenDaysAgo } } },
-            {
-                $group: {
-                    _id: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } },
-                    jobsFound: { $sum: "$jobsFound" },
-                    jobsMatched: { $sum: "$jobsMatched" },
-                    jobsArchived: { $sum: "$jobsArchived" },
-                    jobsRefreshed: { $sum: "$jobsRefreshed" }
-                }
-            },
-            { $sort: { _id: 1 } }
+        sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 6);
+
+        const [rawDaily, matchedDaily, searchLogDaily] = await Promise.all([
+            RawJob.aggregate([
+                { $match: { scrapedAt: { $gte: sevenDaysAgo } } },
+                {
+                    $group: {
+                        _id: { $dateToString: { format: "%Y-%m-%d", date: "$scrapedAt", timezone: "+05:30" } },
+                        jobsFound: { $sum: 1 }
+                    }
+                },
+                { $sort: { _id: 1 } }
+            ]),
+            MatchedJob.aggregate([
+                { $match: { createdAt: { $gte: sevenDaysAgo } } },
+                {
+                    $group: {
+                        _id: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt", timezone: "+05:30" } },
+                        jobsMatched: { $sum: 1 }
+                    }
+                },
+                { $sort: { _id: 1 } }
+            ]),
+            SearchLog.aggregate([
+                { $match: { createdAt: { $gte: sevenDaysAgo } } },
+                {
+                    $group: {
+                        _id: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt", timezone: "+05:30" } },
+                        jobsFound: { $sum: { $ifNull: ["$jobsFound", 0] } },
+                        jobsMatched: { $sum: { $ifNull: ["$jobsMatched", 0] } }
+                    }
+                },
+                { $sort: { _id: 1 } }
+            ])
         ]);
+
+        const rawMap = new Map(rawDaily.map(d => [d._id, d.jobsFound]));
+        const matchMap = new Map(matchedDaily.map(d => [d._id, d.jobsMatched]));
+        const logMap = new Map(searchLogDaily.map(d => [d._id, d.jobsFound]));
+
+        const dailyTrend = [];
+        for (let i = 6; i >= 0; i--) {
+            const d = new Date(startOfDay);
+            d.setDate(d.getDate() - i);
+            const istDate = new Date(d.getTime() + (5.5 * 60 * 60 * 1000));
+            const dateStr = istDate.toISOString().split('T')[0];
+            
+            const rawCount = rawMap.get(dateStr) || 0;
+            const logCount = logMap.get(dateStr) || 0;
+            const foundCount = Math.max(rawCount, logCount);
+            const matchedCount = matchMap.get(dateStr) || 0;
+
+            dailyTrend.push({
+                _id: dateStr,
+                jobsFound: foundCount,
+                jobsMatched: matchedCount
+            });
+        }
         
         const globalSearchLogStats = await SearchLog.aggregate([
             {
