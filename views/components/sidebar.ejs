@@ -110,35 +110,13 @@
             <% } %>
 
             <% if (sidebarHasExtendedAccess) { %>
-            <!-- Diagnostics Section -->
+            <!-- Telegram Monitoring Section -->
             <div>
-                <p class="px-3 mb-2 text-[10px] font-semibold text-textMuted uppercase tracking-widest">Diagnostics</p>
+                <p class="px-3 mb-2 text-[10px] font-semibold text-textMuted uppercase tracking-widest">Telegram</p>
                 <div class="space-y-0.5">
-                    <a href="/discovery" class="nav-link flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium text-textMuted hover:text-textMain hover:bg-surface transition-colors">
-                        <i class="fa-solid fa-network-wired w-4 text-center"></i>
-                        ATS Discovery
-                    </a>
-                    <a href="/ai-dashboard" class="nav-link flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium text-textMuted hover:text-textMain hover:bg-surface transition-colors">
-                        <i class="fa-solid fa-brain w-4 text-center"></i>
-                        AI Evaluation
-                    </a>
-                    <% if (sidebarIsAdmin) { %>
-                    <a href="/cache" class="nav-link flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium text-textMuted hover:text-textMain hover:bg-surface transition-colors">
-                        <i class="fa-solid fa-memory w-4 text-center"></i>
-                        Cache Layer
-                    </a>
-                    <a href="/logs" class="nav-link flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium text-textMuted hover:text-textMain hover:bg-surface transition-colors">
-                        <i class="fa-solid fa-terminal w-4 text-center"></i>
-                        Runtime Logs
-                    </a>
-                    <% } %>
                     <a href="/telegram-dashboard" class="nav-link flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium text-textMuted hover:text-textMain hover:bg-surface transition-colors">
-                        <i class="fa-brands fa-telegram w-4 text-center"></i>
-                        Telegram
-                    </a>
-                    <a href="/evidence" class="nav-link flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium text-textMuted hover:text-textMain hover:bg-surface transition-colors">
-                        <i class="fa-solid fa-microscope w-4 text-center"></i>
-                        Evidence Viewer
+                        <i class="fa-brands fa-telegram w-4 text-center text-[#229ED9]"></i>
+                        Telegram Channels
                     </a>
                 </div>
             </div>
