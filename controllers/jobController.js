@@ -113,16 +113,47 @@ const runJobSearch = async (req, res) => {
             });
         }
 
+        const { isSuperAdminUser } = require("../middleware/authMiddleware");
+        const User = require("../models/User");
+        const isSuperAdmin = isSuperAdminUser(req.user);
+
+        // Calculate today's date in IST (YYYY-MM-DD)
+        const now = new Date();
+        const istOffset = 5.5 * 60 * 60 * 1000;
+        const istDateStr = new Date(now.getTime() + istOffset).toISOString().split('T')[0];
+
+        if (!isSuperAdmin && req.user && req.user._id) {
+            const user = await User.findById(req.user._id);
+            if (user) {
+                const isSameDay = user.lastPipelineRunDate === istDateStr;
+                const runsToday = isSameDay ? (user.dailyPipelineRuns || 0) : 0;
+
+                if (runsToday >= 1) {
+                    return res.status(429).json({
+                        success: false,
+                        limitReached: true,
+                        message: "Daily Pipeline Run Limit Reached (1/1 used today). Your run limit resets at midnight IST. (Super-Admin vbvrai1407 has unlimited runs)."
+                    });
+                }
+
+                user.dailyPipelineRuns = runsToday + 1;
+                user.lastPipelineRunDate = istDateStr;
+                user.lastPipelineRunAt = now;
+                await user.save();
+            }
+        }
+
         const force = req.query.force === 'true' || (req.body && (req.body.force === true || req.body.force === 'true'));
         
         // Start async execution
-        runSearch("Manual", force).catch(e => console.error("Manual pipeline failed", e));
+        runSearch(`Manual (${req.user?.fullName || req.user?.email || 'User'})`, force).catch(e => console.error("Manual pipeline failed", e));
         
-        await logAuditAction(req, 'Pipeline Trigger', 'Success');
+        await logAuditAction(req, 'Pipeline Trigger', `Success by ${req.user?.email || 'User'}`);
         
         res.status(202).json({
             success: true,
             message: "Job search started",
+            runsRemaining: isSuperAdmin ? "Unlimited" : 0
         });
     } catch (error) {
         sendError(res, error);

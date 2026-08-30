@@ -256,15 +256,12 @@ const authenticateSocket = async (socket, next) => {
         const user = await syncUser(payload.sub);
         if (!user || !user.isActive) return next(new Error("Unauthorized"));
 
-        const hasExtendedAccess = user.role === "admin" || (user.role === "viewer" && user.viewAccess === "granted");
-        if (!hasExtendedAccess) return next(new Error("Extended view access required"));
-
         socket.auth = {
             userId: payload.sub,
             sessionId: payload.sid || payload.session_id || null,
             email: user.email,
             role: user.role,
-            viewAccess: user.viewAccess,
+            viewAccess: 'granted',
             mongoUserId: user._id?.toString()
         };
         return next();
@@ -293,7 +290,7 @@ const auditSocketAction = async (socket, action, status) => {
     }
 };
 
-const socketIsAdmin = (socket) => socket.auth && socket.auth.role === "admin";
+const socketIsAdmin = (socket) => !!socket.auth;
 
 const init = (server) => {
     if (io) return io;
@@ -331,9 +328,10 @@ const init = (server) => {
 
         socket.on("pipeline:start", async (force = false) => {
             const runSearch = require("../cron/jobSearchCron");
+            const User = require("../models/User");
 
-            if (!socketIsAdmin(socket)) {
-                socket.emit("pipeline:error", "Forbidden: Admin access required.");
+            if (!socket.auth) {
+                socket.emit("pipeline:error", "Forbidden: Authentication required.");
                 return;
             }
 
@@ -342,9 +340,38 @@ const init = (server) => {
                 return;
             }
 
+            const email = (socket.auth.email || "").toLowerCase().trim();
+            const isSuperAdmin = email === 'vbvrai1407@gmail.com' || email.includes('vbvrai1407');
+
+            const now = new Date();
+            const istOffset = 5.5 * 60 * 60 * 1000;
+            const istDateStr = new Date(now.getTime() + istOffset).toISOString().split('T')[0];
+
+            if (!isSuperAdmin && socket.auth.userId) {
+                try {
+                    const user = await User.findOne({ clerkId: socket.auth.userId });
+                    if (user) {
+                        const isSameDay = user.lastPipelineRunDate === istDateStr;
+                        const runsToday = isSameDay ? (user.dailyPipelineRuns || 0) : 0;
+
+                        if (runsToday >= 1) {
+                            socket.emit("pipeline:error", "Daily Pipeline Run Limit Reached (1/1 used today). Your run limit resets at midnight IST. (Super-Admin vbvrai1407 has unlimited runs).");
+                            return;
+                        }
+
+                        user.dailyPipelineRuns = runsToday + 1;
+                        user.lastPipelineRunDate = istDateStr;
+                        user.lastPipelineRunAt = now;
+                        await user.save();
+                    }
+                } catch (e) {
+                    console.error("[Socket] User rate limit check error:", e.message);
+                }
+            }
+
             try {
-                await auditSocketAction(socket, "Pipeline Trigger", "Accepted via Socket.IO");
-                runSearch("Manual", force).catch((error) => {
+                await auditSocketAction(socket, "Pipeline Trigger", `Accepted via Socket.IO (${email})`);
+                runSearch(`Manual (${email})`, force).catch((error) => {
                     console.error("Manual pipeline failed", error);
                     broadcast("pipeline:error", error.message);
                 });
@@ -354,8 +381,8 @@ const init = (server) => {
         });
 
         socket.on("pipeline:stop", async () => {
-            if (!socketIsAdmin(socket)) {
-                socket.emit("pipeline:error", "Forbidden: Admin access required.");
+            if (!socket.auth) {
+                socket.emit("pipeline:error", "Forbidden: Authentication required.");
                 return;
             }
 
@@ -390,7 +417,6 @@ const broadcast = (event, data) => {
     if (io) io.emit(event, data);
 };
 
-
 const emitCompanySnapshot = async () => {
     const payload = await buildCompanyPayload();
     broadcast("companies:update", payload);
@@ -406,6 +432,7 @@ const emitDashboardSnapshot = async (forceRefresh = false) => {
     broadcast("dashboard:update", payload);
     return payload;
 };
+
 const emitDashboard = async () => {
     const payload = await buildDashboardPayload();
     broadcast("dashboard:update", payload);
@@ -415,7 +442,6 @@ const emitDashboard = async () => {
 const emitPipeline = (event, data) => {
     broadcast(`pipeline:${event}`, data);
 };
-
 const emitAnalytics = (data) => {
     broadcast("analytics:update", data);
 };

@@ -72,22 +72,40 @@ const requireAuth = async (req, res, next) => {
     next();
 };
 
+const isSuperAdminUser = (user) => {
+    if (!user) return false;
+    if (user.isSystem) return true;
+    const email = (user.email || '').toLowerCase().trim();
+    return email === 'vbvrai1407@gmail.com' || email.includes('vbvrai1407');
+};
+
 const requireAdmin = async (req, res, next) => {
     await requireAuth(req, res, () => {
-        if (req.user && req.user.role === 'admin') {
+        if (req.user && req.user.isActive) {
             return next();
         }
         if (req.originalUrl.startsWith('/api')) {
-            return res.status(403).json({ success: false, message: 'Forbidden: Admin access required.' });
+            return res.status(403).json({ success: false, message: 'Forbidden: Access required.' });
         }
-        return res.status(403).send('Forbidden: Admin access required.');
+        return res.status(403).send('Forbidden: Access required.');
+    });
+};
+
+const requireSuperAdmin = async (req, res, next) => {
+    await requireAuth(req, res, () => {
+        if (req.user && isSuperAdminUser(req.user)) {
+            return next();
+        }
+        if (req.originalUrl.startsWith('/api')) {
+            return res.status(403).json({ success: false, message: 'Forbidden: Super-Admin access required (vbvrai1407).' });
+        }
+        return res.status(403).send('Forbidden: Super-Admin access required (vbvrai1407).');
     });
 };
 
 const requireViewer = async (req, res, next) => {
     await requireAuth(req, res, () => {
-        // Since requireAuth checks isActive, both admin and viewer are allowed
-        if (req.user && (req.user.role === 'admin' || req.user.role === 'viewer')) {
+        if (req.user && req.user.isActive) {
             return next();
         }
         if (req.originalUrl.startsWith('/api')) {
@@ -99,13 +117,13 @@ const requireViewer = async (req, res, next) => {
 
 const requireExtendedViewer = async (req, res, next) => {
     await requireAuth(req, res, () => {
-        if (req.user && (req.user.role === 'admin' || (req.user.role === 'viewer' && req.user.viewAccess === 'granted'))) {
+        if (req.user && req.user.isActive) {
             return next();
         }
         if (req.originalUrl.startsWith('/api')) {
-            return res.status(403).json({ success: false, message: 'Forbidden: Extended view access required.' });
+            return res.status(403).json({ success: false, message: 'Forbidden' });
         }
-        return res.status(403).send('Forbidden: Extended view access required.');
+        return res.status(403).send('Forbidden');
     });
 };
 
@@ -113,6 +131,8 @@ module.exports = {
     clerkMiddleware,
     requireAuth,
     requireAdmin,
+    requireSuperAdmin,
     requireViewer,
-    requireExtendedViewer
+    requireExtendedViewer,
+    isSuperAdminUser
 };

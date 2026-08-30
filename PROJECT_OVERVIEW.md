@@ -606,6 +606,26 @@ Added interactive active/inactive monitoring switches and instant on-demand scra
 3. **100% Verified Live Active Scraper Fleet**:
    - Audited all 70 active companies across Greenhouse, Ashby, Lever, SmartRecruiters, and Workday APIs, achieving 100% extraction success with 0 zero-job drops.
 
+---
+
+## 👥 22. Universal Live View Access & Daily Pipeline Rate Limiting (2026-08-30)
+
+### Feature Overview
+Eliminated the previous view-level approval gates so any user who creates an account or logs into RoleNova gets instant, 100% live access to all platform views (Dashboard, Analytics, Matched Jobs, Expired Jobs, Companies, Seed Companies, Telegram, and Candidate Profile). Enforces a 1-run-per-day quota for standard users while granting unlimited runs and super-admin controls to the main admin (`vbvrai1407`).
+
+### Key Architectural Upgrades
+1. **Universal Immediate Live Access**:
+   - Removed `viewer/welcome` screen barrier; every authenticated user lands immediately on the live real-time dashboard and has full access across all platform entities.
+   - User creation and sync default to `viewAccess: 'granted'` and `isActive: true`.
+2. **Super Admin Designation (`vbvrai1407`)**:
+   - Main admin (`vbvrai1407@gmail.com` / `vbvrai1407`) is designated as **👑 SUPER ADMIN** with unlimited manual pipeline triggers, system configurations, and user management capabilities.
+3. **Daily Pipeline Rate Limiting (1 Run / Day / User)**:
+   - Standard users are assigned `ADMIN (1 RUN/DAY)`.
+   - Pipeline triggers (via REST `POST /api/jobs/run` or WebSockets `pipeline:start`) track daily executions in MongoDB (`dailyPipelineRuns`, `lastPipelineRunDate` in IST).
+   - If a standard user triggers more than 1 run on the same calendar day, the system gracefully blocks the request with a 429 response: `"Daily Pipeline Run Limit Reached (1/1 used today). Your run limit resets at midnight IST."`
+   - Quotas automatically reset every day at midnight IST.
+
+
 
 
 

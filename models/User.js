@@ -35,6 +35,16 @@ const userSchema = new mongoose.Schema({
     },
     lastLoginAt: {
         type: Date
+    },
+    dailyPipelineRuns: {
+        type: Number,
+        default: 0
+    },
+    lastPipelineRunDate: {
+        type: String
+    },
+    lastPipelineRunAt: {
+        type: Date
     }
 }, {
     timestamps: true

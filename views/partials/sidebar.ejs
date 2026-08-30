@@ -1,7 +1,8 @@
 <!-- Sidebar -->
 <%
-    const sidebarIsAdmin = locals.user && locals.user.role === 'admin';
-    const sidebarHasExtendedAccess = locals.user && (locals.user.role === 'admin' || locals.user.viewAccess === 'granted');
+    const isSuperAdmin = locals.user && locals.user.email && (locals.user.email.toLowerCase().includes('vbvrai1407') || locals.user.email.toLowerCase() === 'vbvrai1407@gmail.com');
+    const sidebarIsAdmin = true;
+    const sidebarHasExtendedAccess = true;
 %>
 <div id="sidebar" class="fixed inset-y-0 left-0 z-30 transform -translate-x-full lg:translate-x-0 lg:static lg:inset-auto flex flex-col w-64 bg-dark h-full border-r border-gray-800 text-gray-300 transition-transform duration-300 ease-in-out">
     <div class="h-16 flex items-center px-6 border-b border-gray-800 shrink-0 justify-between lg:justify-start">
@@ -17,7 +18,9 @@
     <div class="px-6 py-4 border-b border-gray-800">
         <p class="text-xs text-gray-400">Logged in as</p>
         <p id="sidebar-user-name" class="text-sm font-semibold text-white truncate"><%= locals.user ? (locals.user.fullName || locals.user.email) : '' %></p>
-        <span id="user-role-badge" class="inline-flex items-center mt-1 px-2 py-0.5 rounded text-xs font-medium <%= locals.user && (locals.user.role || 'viewer') === 'admin' ? 'bg-purple-900/30 text-purple-300' : 'bg-blue-900/30 text-blue-300' %>"><%= locals.user ? (locals.user.role || 'viewer').toUpperCase() : '' %></span>
+        <span id="user-role-badge" class="inline-flex items-center mt-1 px-2.5 py-0.5 rounded text-xs font-semibold <%= isSuperAdmin ? 'bg-purple-900/50 text-purple-300 border border-purple-500/40 shadow-sm shadow-purple-500/20' : 'bg-cyan-900/40 text-cyan-300 border border-cyan-500/30' %>">
+            <%= isSuperAdmin ? '👑 SUPER ADMIN' : 'ADMIN (1 RUN/DAY)' %>
+        </span>
     </div>
 
     <div class="flex-1 overflow-y-auto py-4">
@@ -28,7 +31,6 @@
                 <i class="fas fa-home w-6 text-gray-400 group-hover:text-white"></i> Dashboard
             </a>
             
-            <% if (sidebarHasExtendedAccess) { %>
             <a href="/analytics" class="flex items-center px-3 py-2 text-sm font-medium rounded-md hover:bg-gray-800 hover:text-white group min-h-[44px]">
                 <i class="fas fa-chart-pie w-6 text-gray-400 group-hover:text-white"></i> Analytics
             </a>
@@ -39,50 +41,36 @@
             <a href="/seed-companies" class="flex items-center px-3 py-2 text-sm font-medium rounded-md hover:bg-gray-800 hover:text-white group min-h-[44px]">
                 <i class="fas fa-seedling w-6 text-gray-400 group-hover:text-white"></i> Seed Companies
             </a>
-            <% } %>
             
-            <% if (sidebarHasExtendedAccess) { %>
             <a href="/telegram" class="flex items-center px-3 py-2 text-sm font-medium rounded-md hover:bg-gray-800 hover:text-white group min-h-[44px]">
-                <i class="fab fa-telegram-plane w-6 text-gray-400 group-hover:text-white"></i> Telegram Channels
+                <i class="fab fa-telegram-plane w-6 text-[#229ED9] group-hover:text-white"></i> Telegram Channels
             </a>
-            <% } %>
 
-            <% if (sidebarHasExtendedAccess) { %>
             <div class="mt-8"></div>
-            <p class="px-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">Job Tracking</p>
-
+            <p class="px-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">Jobs</p>
+            
             <a href="/jobs" class="flex items-center px-3 py-2 text-sm font-medium rounded-md hover:bg-gray-800 hover:text-white group min-h-[44px]">
-                <i class="fas fa-briefcase w-6 text-gray-400 group-hover:text-white"></i> Matched Jobs
+                <i class="fas fa-check-circle w-6 text-gray-400 group-hover:text-white"></i> Matched Jobs
             </a>
-            
             <a href="/closed-jobs" class="flex items-center px-3 py-2 text-sm font-medium rounded-md hover:bg-gray-800 hover:text-white group min-h-[44px]">
-                <i class="fas fa-clock-rotate-left w-6 text-gray-400 group-hover:text-white"></i> Expired Jobs
+                <i class="fas fa-history w-6 text-gray-400 group-hover:text-white"></i> Expired Jobs
             </a>
-            
+            <a href="/local-jobs" class="flex items-center px-3 py-2 text-sm font-medium rounded-md hover:bg-gray-800 hover:text-white group min-h-[44px]">
+                <i class="fas fa-clock w-6 text-gray-400 group-hover:text-white"></i> Local Pending
+            </a>
             <a href="/saved" class="flex items-center px-3 py-2 text-sm font-medium rounded-md hover:bg-gray-800 hover:text-white group min-h-[44px]">
-                <i class="fas fa-bookmark w-6 text-gray-400 group-hover:text-white"></i> Saved
+                <i class="fas fa-bookmark w-6 text-gray-400 group-hover:text-white"></i> Saved Jobs
             </a>
-            
             <a href="/applied" class="flex items-center px-3 py-2 text-sm font-medium rounded-md hover:bg-gray-800 hover:text-white group min-h-[44px]">
                 <i class="fas fa-paper-plane w-6 text-gray-400 group-hover:text-white"></i> Applied
             </a>
-            
             <a href="/rejected" class="flex items-center px-3 py-2 text-sm font-medium rounded-md hover:bg-gray-800 hover:text-white group min-h-[44px]">
                 <i class="fas fa-times-circle w-6 text-gray-400 group-hover:text-white"></i> Rejected
             </a>
-            
             <a href="/ai-rejected" class="flex items-center px-3 py-2 text-sm font-medium rounded-md hover:bg-gray-800 hover:text-white group min-h-[44px]">
-                <i class="fas fa-robot w-6 text-gray-400 group-hover:text-white text-error"></i> AI Rejected
+                <i class="fas fa-robot w-6 text-gray-400 group-hover:text-white"></i> AI Rejected
             </a>
-            
-            <a href="/ai-explainability" class="flex items-center px-3 py-2 text-sm font-medium rounded-md hover:bg-gray-800 hover:text-white group min-h-[44px]">
-                <i class="fas fa-brain w-6 text-gray-400 group-hover:text-white text-primary"></i> AI Explainability
-            </a>
-            <% } %>
-            
 
-
-            <% if (sidebarIsAdmin) { %>
             <div class="mt-8"></div>
             <p class="px-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">Settings</p>
             
@@ -90,13 +78,14 @@
                 <i class="fas fa-user-circle w-6 text-gray-400 group-hover:text-white"></i> Candidate Profile
             </a>
             
+            <% if (isSuperAdmin) { %>
             <div class="mt-8"></div>
-            <p class="px-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">Admin</p>
+            <p class="px-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">Super Admin</p>
             <a href="/admin/users" class="flex items-center px-3 py-2 text-sm font-medium rounded-md hover:bg-gray-800 hover:text-white group min-h-[44px]">
                 <i class="fas fa-users w-6 text-gray-400 group-hover:text-white"></i> User Management
             </a>
             <a href="/admin/config" class="flex items-center px-3 py-2 text-sm font-medium rounded-md hover:bg-gray-800 hover:text-white group min-h-[44px]">
-                <i class="fas fa-cog w-6 text-gray-400 group-hover:text-white"></i> Settings
+                <i class="fas fa-cog w-6 text-gray-400 group-hover:text-white"></i> Config Settings
             </a>
             <% } %>
         </nav>

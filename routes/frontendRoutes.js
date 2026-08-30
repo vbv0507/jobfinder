@@ -28,16 +28,10 @@ router.get('/ai-rejected', requireExtendedViewer, async (req, res) => {
 
 router.get('/', async (req, res, next) => {
     try {
-        const hasExtendedAccess = req.user.role === 'admin' || req.user.viewAccess === 'granted';
-
-        if (!hasExtendedAccess) {
-            return res.render('viewer/welcome', { title: 'Welcome' });
-        }
-
         const CandidateProfile = require('../models/CandidateProfile');
         const hasProfile = await CandidateProfile.exists({ user: req.user._id });
         
-        console.log(`[Root Route] UserId: ${req.user._id} | SessionId: ${req.auth?.sessionId || 'N/A'} | Email: ${req.user.email} | DBUserExists: true | CandidateProfileExists: ${!!hasProfile} | RenderPath: index`);
+        console.log(`[Root Route] UserId: ${req.user._id} | SessionId: ${req.auth?.sessionId || 'N/A'} | Email: ${req.user.email} | DBUserExists: true | CandidateProfileExists: ${!!hasProfile} | RenderPath: dashboard`);
         
         const User = require('../models/User');
         const viewers = await User.find({ role: 'viewer' }, 'fullName email viewAccess isActive');

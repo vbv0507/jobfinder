@@ -70,8 +70,8 @@ async function syncUser(clerkId) {
                 return;
             }
 
-            const adminCount = await User.countDocuments({ role: 'admin' }).session(session);
-            const role = adminCount === 0 ? 'admin' : 'viewer';
+            const isSuper = email && (email.toLowerCase().includes('vbvrai1407') || email.toLowerCase() === 'vbvrai1407@gmail.com');
+            const role = isSuper ? 'admin' : 'viewer';
 
             newUser = new User({
                 clerkId,
@@ -79,6 +79,8 @@ async function syncUser(clerkId) {
                 fullName,
                 imageUrl,
                 role,
+                viewAccess: 'granted',
+                isActive: true,
                 lastLoginAt: now
             });
             await newUser.save({ session });
@@ -91,14 +93,16 @@ async function syncUser(clerkId) {
         // Fallback for standalone MongoDB instances without replica sets
         dbUser = await User.findOne({ clerkId });
         if (!dbUser) {
-            const adminCount = await User.countDocuments({ role: 'admin' });
-            const role = adminCount === 0 ? 'admin' : 'viewer';
+            const isSuper = email && (email.toLowerCase().includes('vbvrai1407') || email.toLowerCase() === 'vbvrai1407@gmail.com');
+            const role = isSuper ? 'admin' : 'viewer';
             dbUser = new User({
                 clerkId,
                 email,
                 fullName,
                 imageUrl,
                 role,
+                viewAccess: 'granted',
+                isActive: true,
                 lastLoginAt: now
             });
             try {

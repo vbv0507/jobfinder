@@ -1,7 +1,9 @@
 const express = require('express');
-const { requireAdmin, requireViewer } = require('../middleware/authMiddleware');
+const { requireAdmin, requireSuperAdmin, requireViewer } = require('../middleware/authMiddleware');
 const { getUsers, promoteUser, demoteUser, toggleUserStatus, grantViewAccess, revokeViewAccess } = require('../controllers/adminController');
 const { logAuditAction } = require('../services/auditService');
+const Company = require('../models/Company');
+const SearchLog = require('../models/SearchLog');
 
 const router = express.Router();
 
@@ -24,7 +26,7 @@ router.post('/api/users/request-access', requireViewer, async (req, res) => {
     }
 });
 
-// All admin routes require admin privileges
+// All admin routes require authenticated privileges
 router.use(requireAdmin);
 
 // Views
@@ -36,11 +38,11 @@ router.get('/ai', (req, res) => {
     res.render('admin/ai', { title: "AI Providers Dashboard" });
 });
 
-router.get('/config', (req, res) => {
+router.get('/config', requireSuperAdmin, (req, res) => {
     res.render('admin/config', { title: "Configuration Dashboard" });
 });
 
-router.get('/users', (req, res) => {
+router.get('/users', requireSuperAdmin, (req, res) => {
     res.render('admin/users', { title: "User Management" });
 });
 
@@ -48,17 +50,15 @@ router.get('/scraper', (req, res) => {
     res.render('admin/scraper-diagnostics', { title: "Scraper Diagnostics" });
 });
 
-// APIs
-router.get('/api/users', getUsers);
-router.post('/api/users/:id/promote', promoteUser);
-router.post('/api/users/:id/demote', demoteUser);
-router.post('/api/users/:id/toggle', toggleUserStatus);
-router.post('/api/users/:id/grant-access', grantViewAccess);
-router.post('/api/users/:id/revoke-access', revokeViewAccess);
+// User Management APIs (Super-Admin only: vbvrai1407)
+router.get('/api/users', requireSuperAdmin, getUsers);
+router.post('/api/users/:id/promote', requireSuperAdmin, promoteUser);
+router.post('/api/users/:id/demote', requireSuperAdmin, demoteUser);
+router.post('/api/users/:id/toggle', requireSuperAdmin, toggleUserStatus);
+router.post('/api/users/:id/grant-access', requireSuperAdmin, grantViewAccess);
+router.post('/api/users/:id/revoke-access', requireSuperAdmin, revokeViewAccess);
 
 // Scraper Diagnostics APIs
-const Company = require('../models/Company');
-const SearchLog = require('../models/SearchLog');
 router.get('/api/scraper/companies', async (req, res) => {
     try {
         const companies = await Company.find({}, 'name careerUrl scraperConfig healthScore successPercent runHistory').sort({ healthScore: 1 });
@@ -67,8 +67,6 @@ router.get('/api/scraper/companies', async (req, res) => {
         res.status(500).json({ error: e.message });
     }
 });
-
-
 
 router.get('/api/scraper/export/json', async (req, res) => {
     try {

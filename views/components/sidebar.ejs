@@ -1,7 +1,8 @@
 <!-- Sidebar -->
 <%
-    const sidebarIsAdmin = locals.user && locals.user.role === 'admin';
-    const sidebarHasExtendedAccess = locals.user && (locals.user.role === 'admin' || locals.user.viewAccess === 'granted');
+    const isSuperAdmin = locals.user && locals.user.email && (locals.user.email.toLowerCase().includes('vbvrai1407') || locals.user.email.toLowerCase() === 'vbvrai1407@gmail.com');
+    const sidebarIsAdmin = true;
+    const sidebarHasExtendedAccess = true;
 %>
 <aside id="sidebar" class="fixed inset-y-0 left-0 z-50 w-[260px] bg-background border-r border-border transform -translate-x-full lg:translate-x-0 lg:static transition-transform duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] flex flex-col h-screen">
     
@@ -18,14 +19,14 @@
     <!-- User / Workspace Info -->
     <div class="px-5 py-4 border-b border-border bg-surface/30 shrink-0">
         <div class="flex items-center gap-3">
-            <div class="w-8 h-8 rounded-full bg-surface border border-border flex items-center justify-center text-primary text-xs font-bold">
+            <div class="w-8 h-8 rounded-full <%= isSuperAdmin ? 'bg-purple-900/40 border-purple-500/40 text-purple-300' : 'bg-surface border-border text-primary' %> border flex items-center justify-center text-xs font-bold">
                 <%= locals.user ? (locals.user.fullName?.[0] || locals.user.email?.[0] || 'U').toUpperCase() : 'U' %>
             </div>
             <div class="flex-1 min-w-0">
                 <p class="text-sm font-medium text-textMain truncate"><%= locals.user ? (locals.user.fullName || locals.user.email) : 'User' %></p>
-                <p class="text-[10px] text-textMuted uppercase font-semibold tracking-wider flex items-center gap-1.5 mt-0.5">
-                    <span class="w-1.5 h-1.5 rounded-full bg-success"></span>
-                    <%= (locals.user && locals.user.role) || 'VIEWER' %>
+                <p class="text-[10px] <%= isSuperAdmin ? 'text-purple-400 font-bold' : 'text-cyan-400 font-semibold' %> uppercase tracking-wider flex items-center gap-1.5 mt-0.5">
+                    <span class="w-1.5 h-1.5 rounded-full <%= isSuperAdmin ? 'bg-purple-400 animate-pulse' : 'bg-cyan-400' %>"></span>
+                    <%= isSuperAdmin ? '👑 SUPER ADMIN' : 'ADMIN (1 RUN/DAY)' %>
                 </p>
             </div>
         </div>
