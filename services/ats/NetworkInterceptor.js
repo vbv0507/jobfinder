@@ -2,6 +2,20 @@ const { chromium } = require('playwright-extra');
 const stealth = require('puppeteer-extra-plugin-stealth')();
 chromium.use(stealth);
 
+const LEAN_CHROME_ARGS = [
+  '--no-sandbox',
+  '--disable-setuid-sandbox',
+  '--disable-blink-features=AutomationControlled',
+  '--disable-dev-shm-usage',
+  '--disable-gpu',
+  '--disable-software-rasterizer',
+  '--no-zygote',
+  '--single-process',
+  '--disable-extensions',
+  '--disable-background-networking',
+  '--js-flags=--max-old-space-size=128'
+];
+
 class NetworkInterceptor {
   static sanitizeHeaders(rawHeaders) {
     const headers = { ...rawHeaders };
@@ -39,7 +53,7 @@ class NetworkInterceptor {
 
     try {
       trail.push({ stage: "Network Interception", severity: "INFO", message: `Launching headless browser for ${url}` });
-      browser = await chromium.launch({ headless: true, args: ['--no-sandbox', '--disable-setuid-sandbox'] });
+      browser = await chromium.launch({ headless: true, args: LEAN_CHROME_ARGS });
       context = await browser.newContext({
          userAgent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36"
       });
@@ -122,6 +136,7 @@ class NetworkInterceptor {
     if (page) await page.close().catch(() => {});
     if (context) await context.close().catch(() => {});
     if (browser) await browser.close().catch(e => trail.push({ stage: "Network Interception", severity: "WARN", message: `Browser close warning: ${e.message}` }));
+    if (global.gc) global.gc();
     
     return result;
   }

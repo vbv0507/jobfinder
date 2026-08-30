@@ -79,12 +79,26 @@ const fetchAxios = async (url, config, isStealth = false) => {
     }
 };
 
+const LEAN_CHROME_ARGS = [
+    '--no-sandbox',
+    '--disable-setuid-sandbox',
+    '--disable-blink-features=AutomationControlled',
+    '--disable-dev-shm-usage',
+    '--disable-gpu',
+    '--disable-software-rasterizer',
+    '--no-zygote',
+    '--single-process',
+    '--disable-extensions',
+    '--disable-background-networking',
+    '--js-flags=--max-old-space-size=128'
+];
+
 const fetchPlaywright = async (url, stealthMode = false, slowNav = false) => {
     let browser = null;
     let context = null;
     let page = null;
     try {
-        browser = await chromium.launch({ headless: true, args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-blink-features=AutomationControlled'] });
+        browser = await chromium.launch({ headless: true, args: LEAN_CHROME_ARGS });
         
         context = await browser.newContext({
             userAgent: stealthMode ? getRandomUA() : "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/126.0.0.0 Safari/537.36",
@@ -138,6 +152,7 @@ const fetchPlaywright = async (url, stealthMode = false, slowNav = false) => {
         if (page) await page.close().catch(() => {});
         if (context) await context.close().catch(() => {});
         if (browser) await browser.close().catch(() => {});
+        if (global.gc) global.gc();
     }
 };
 
@@ -147,7 +162,7 @@ const fetchPuppeteer = async (url) => {
     try {
         browser = await puppeteer.launch({
             headless: "new",
-            args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-blink-features=AutomationControlled']
+            args: LEAN_CHROME_ARGS
         });
         page = await browser.newPage();
         const response = await page.goto(url, { waitUntil: 'networkidle2', timeout: 35000 });
@@ -165,6 +180,7 @@ const fetchPuppeteer = async (url) => {
     } finally {
         if (page) await page.close().catch(() => {});
         if (browser) await browser.close().catch(() => {});
+        if (global.gc) global.gc();
     }
 };
 
