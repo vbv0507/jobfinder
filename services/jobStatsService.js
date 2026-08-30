@@ -33,9 +33,10 @@ function classifyJob(job) {
 }
 
 async function computeLifetimeStats() {
-    const [matched, rejected, rawCount, searchLogAgg] = await Promise.all([
+    const [matched, rejected, pendingRawCount, totalRawCount, searchLogAgg] = await Promise.all([
         MatchedJob.find({}, "role jobDomain experienceMatch reason score").lean(),
         RejectedJob.find({}, "role jobDomain experienceMatch reason score").lean(),
+        RawJob.countDocuments({ aiEvaluated: { $ne: true } }),
         RawJob.countDocuments(),
         SearchLog.aggregate([
             {
@@ -100,7 +101,8 @@ async function computeLifetimeStats() {
         cumulativeScrapedRuns: cumulativeScraped,
         totalMatchedToUser: totalMatched,
         totalRejected: totalRejected,
-        rawQueueCount: rawCount,
+        rawQueueCount: pendingRawCount,
+        totalRawInDatabase: totalRawCount,
         
         // SDE Breakdown
         totalSde,

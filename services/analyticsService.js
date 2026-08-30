@@ -17,7 +17,9 @@ const getAnalyticsData = async () => {
         const startOfDay = getISTStartOfDay();
         
         const rawJobsToday = await RawJob.countDocuments({ scrapedAt: { $gte: startOfDay } });
-        const rawJobsCount = await RawJob.countDocuments();
+        const pendingRawQueue = await RawJob.countDocuments({ aiEvaluated: { $ne: true } });
+        const rawJobsCount = pendingRawQueue;
+        const totalRawArchive = await RawJob.countDocuments();
         
         const matchedJobsCount = await MatchedJob.countDocuments();
         
