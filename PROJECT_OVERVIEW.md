@@ -578,6 +578,20 @@ Eliminated slow MongoDB roundtrips on Dashboard, Analytics, and Job table views 
 4. **Automated Lifecycle Invalidation (`cron/jobSearchCron.js`, `controllers/jobController.js`)**:
    - All caches automatically flush when a new scrape finishes or when user modifies a job status (save/apply/reject).
 
+---
+
+## 🚀 20. Seed Expansion: High-CTC Startups & Tech Giants (2026-08-30)
+
+### Feature Overview
+Expanded the official company scraper pipeline to monitor Tier-1 high-CTC tech startups, quant/HFT firms, and enterprise giants with verified direct ATS APIs (Greenhouse & Ashby).
+
+### Newly Added & Verified Companies
+1. **Tower Research Capital** (`Greenhouse API`): High-frequency trading & quant engineering (30-50+ LPA fresher packages).
+2. **Rubrik** (`Greenhouse API`): Zero trust enterprise data security & cloud infrastructure unicorn (130+ active postings).
+3. **Supabase** (`Ashby API`): High-growth open-source developer platform & database infra (50+ active postings).
+4. **Slice** (`Greenhouse API`): Fast-growing fintech unicorn & high-CTC Indian consumer tech.
+
+
 
 
 
