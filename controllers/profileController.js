@@ -28,17 +28,23 @@ const getActiveProfile = async (req, res) => {
 
 const upsertProfile = async (req, res) => {
     try {
-        await CandidateProfile.updateMany({}, { active: false });
-
-        const profile = await CandidateProfile.create({
+        const updateData = {
             ...req.body,
             active: true,
-        });
+            updatedAt: new Date()
+        };
 
-        await logAuditAction(req, 'Candidate Edit', `Upserted profile ${profile._id}`);
+        let profile = await CandidateProfile.findOneAndUpdate(
+            { active: true },
+            { $set: updateData },
+            { upsert: true, returnDocument: "after" }
+        );
 
-        res.status(201).json({
+        await logAuditAction(req, 'Candidate Edit', `Upserted candidate profile for ${profile.name}`);
+
+        res.status(200).json({
             success: true,
+            message: "Profile updated successfully.",
             profile,
         });
     } catch (error) {

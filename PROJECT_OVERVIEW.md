@@ -534,6 +534,20 @@ Provides dedicated tracking for historical and expired/closed AI-matched jobs, d
 3. **Backend Route (`routes/frontendRoutes.js`)**:
    - Handles `/closed-jobs` and `/expired` with Mongoose population for `company` and `rawJob` data, sorting by latest expiration date.
 
+---
+
+## 🛠️ 17. Candidate Profile Configuration API Repair & Render 512MB RAM Optimization (2026-08-30)
+
+### 1. Candidate Profile Configuration Repair (`/profile`)
+- **Dual Method Support (`routes/profileRoutes.js`, `controllers/profileController.js`)**: Added explicit `PUT` and `POST` route handlers using atomic `findOneAndUpdate({ active: true })`, eliminating 404 method errors and duplicate orphaned profile records.
+- **Enhanced Profile UI (`views/pages/profile.ejs`)**: Integrated authenticated `apiCall` wrapper with Clerk Bearer authorization, instant save status spinners, and animated success feedback toasts.
+- **Extended Field Configuration**: Added inputs for Full Name, Graduation Year, Career Stage, Years of Experience, Preferred Roles, Preferred Locations, Core Technical Skills, Preferred Domains, and Excluded Domains.
+
+### 2. Render 512MB RAM Ceiling Optimization
+- **V8 Heap Ceiling (`package.json`)**: Configured `"start": "node --max-old-space-size=384 --expose-gc index.js"`, restricting V8 heap to 384MB and ensuring Node triggers proactive garbage collection well before reaching Render's 512MB hard limit.
+- **Proactive Garbage Collection (`cron/jobSearchCron.js`)**: Added periodic `global.gc()` invocations during scraper batch finalization to immediately free parsed HTML and JSON buffers.
+
+
 
 
 

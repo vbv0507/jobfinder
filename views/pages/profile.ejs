@@ -1,8 +1,14 @@
 <%- include('../layouts/header') %>
 
-<div class="mb-8">
-    <h1 class="text-2xl font-bold tracking-tight text-textMain mb-2">Candidate Profile Configuration</h1>
-    <p class="text-textMuted text-sm">Configure your AI recruiting agent. The matching engine uses these parameters to evaluate incoming jobs.</p>
+<div class="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
+    <div>
+        <h1 class="text-2xl font-bold tracking-tight text-textMain mb-2">Candidate Profile Configuration</h1>
+        <p class="text-textMuted text-sm">Configure your AI recruiting agent. The matching engine uses these parameters to score and filter incoming opportunities.</p>
+    </div>
+    <div id="saveToast" class="hidden items-center gap-2 px-4 py-2 bg-success/15 border border-success/30 text-success rounded-lg text-sm font-medium transition-all duration-300">
+        <i class="fa-solid fa-circle-check"></i>
+        <span>Profile configuration saved successfully!</span>
+    </div>
 </div>
 
 <div class="bg-surface border border-border rounded-xl shadow-sm p-8 max-w-4xl">
@@ -10,45 +16,83 @@
         
         <!-- Basic Info -->
         <div>
-            <h3 class="text-lg font-semibold text-textMain border-b border-border pb-2 mb-4">Basic Information</h3>
+            <h3 class="text-lg font-semibold text-textMain border-b border-border pb-2 mb-4 flex items-center gap-2">
+                <i class="fa-regular fa-id-card text-primary text-base"></i>
+                Basic Information
+            </h3>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                    <label class="block text-xs font-medium text-textMuted uppercase tracking-wider mb-2">Name</label>
-                    <input type="text" id="name" class="w-full bg-background border border-border rounded-md px-3 py-2 text-sm text-textMain focus:outline-none focus:border-primary">
+                    <label class="block text-xs font-medium text-textMuted uppercase tracking-wider mb-2">Full Name</label>
+                    <input type="text" id="name" required class="w-full bg-background border border-border rounded-md px-3 py-2 text-sm text-textMain focus:outline-none focus:border-primary transition-colors">
                 </div>
                 <div>
                     <label class="block text-xs font-medium text-textMuted uppercase tracking-wider mb-2">Graduation Year</label>
-                    <input type="number" id="graduationYear" class="w-full bg-background border border-border rounded-md px-3 py-2 text-sm text-textMain focus:outline-none focus:border-primary">
+                    <input type="number" id="graduationYear" placeholder="2027" class="w-full bg-background border border-border rounded-md px-3 py-2 text-sm text-textMain focus:outline-none focus:border-primary transition-colors">
                 </div>
                 <div>
                     <label class="block text-xs font-medium text-textMuted uppercase tracking-wider mb-2">Career Stage</label>
-                    <input type="text" id="careerStage" placeholder="e.g. Entry Level" class="w-full bg-background border border-border rounded-md px-3 py-2 text-sm text-textMain focus:outline-none focus:border-primary">
+                    <input type="text" id="careerStage" placeholder="e.g. Entry Level / Student / Fresher" class="w-full bg-background border border-border rounded-md px-3 py-2 text-sm text-textMain focus:outline-none focus:border-primary transition-colors">
                 </div>
                 <div>
                     <label class="block text-xs font-medium text-textMuted uppercase tracking-wider mb-2">Years of Experience</label>
-                    <input type="number" id="yearsOfExperience" class="w-full bg-background border border-border rounded-md px-3 py-2 text-sm text-textMain focus:outline-none focus:border-primary">
+                    <input type="number" id="yearsOfExperience" placeholder="0" min="0" max="50" class="w-full bg-background border border-border rounded-md px-3 py-2 text-sm text-textMain focus:outline-none focus:border-primary transition-colors">
                 </div>
             </div>
         </div>
 
-        <!-- Domains -->
+        <!-- Target Roles & Locations -->
         <div>
-            <h3 class="text-lg font-semibold text-textMain border-b border-border pb-2 mb-4">Domain Preferences</h3>
+            <h3 class="text-lg font-semibold text-textMain border-b border-border pb-2 mb-4 flex items-center gap-2">
+                <i class="fa-solid fa-briefcase text-primary text-base"></i>
+                Target Roles & Locations
+            </h3>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                    <label class="block text-xs font-medium text-textMuted uppercase tracking-wider mb-2">Preferred Domains</label>
-                    <textarea id="preferredDomains" rows="3" placeholder="e.g. BACKEND, PLATFORM" class="w-full bg-background border border-border rounded-md px-3 py-2 text-sm text-textMain focus:outline-none focus:border-primary"></textarea>
+                    <label class="block text-xs font-medium text-textMuted uppercase tracking-wider mb-2">Preferred Roles (Comma Separated)</label>
+                    <textarea id="preferredRoles" rows="3" placeholder="Software Engineer, Backend Engineer, SDE, Full Stack Developer, AI Engineer" class="w-full bg-background border border-border rounded-md px-3 py-2 text-sm text-textMain focus:outline-none focus:border-primary transition-colors"></textarea>
                 </div>
                 <div>
-                    <label class="block text-xs font-medium text-textMuted uppercase tracking-wider mb-2">Excluded Domains</label>
-                    <textarea id="excludedDomains" rows="3" placeholder="e.g. FRONTEND, DATA" class="w-full bg-background border border-border rounded-md px-3 py-2 text-sm text-textMain focus:outline-none focus:border-error"></textarea>
+                    <label class="block text-xs font-medium text-textMuted uppercase tracking-wider mb-2">Preferred Locations (Comma Separated)</label>
+                    <textarea id="preferredLocations" rows="3" placeholder="India, Remote, Bangalore, Pune, Hyderabad, Gurgaon, Mumbai" class="w-full bg-background border border-border rounded-md px-3 py-2 text-sm text-textMain focus:outline-none focus:border-primary transition-colors"></textarea>
+                </div>
+            </div>
+        </div>
+
+        <!-- Core Skills -->
+        <div>
+            <h3 class="text-lg font-semibold text-textMain border-b border-border pb-2 mb-4 flex items-center gap-2">
+                <i class="fa-solid fa-code text-primary text-base"></i>
+                Core Technical Skills
+            </h3>
+            <div>
+                <label class="block text-xs font-medium text-textMuted uppercase tracking-wider mb-2">Skills & Technologies (Comma Separated)</label>
+                <textarea id="skills" rows="3" placeholder="Node.js, Express, JavaScript, TypeScript, MongoDB, PostgreSQL, React, Docker, Python, Git" class="w-full bg-background border border-border rounded-md px-3 py-2 text-sm text-textMain focus:outline-none focus:border-primary transition-colors"></textarea>
+            </div>
+        </div>
+
+        <!-- Domain Preferences -->
+        <div>
+            <h3 class="text-lg font-semibold text-textMain border-b border-border pb-2 mb-4 flex items-center gap-2">
+                <i class="fa-solid fa-layer-group text-primary text-base"></i>
+                Domain Preferences
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label class="block text-xs font-medium text-textMuted uppercase tracking-wider mb-2">Preferred Domains (Comma Separated)</label>
+                    <textarea id="preferredDomains" rows="3" placeholder="BACKEND, FULL STACK, SOFTWARE ENGINEERING, PLATFORM ENGINEERING, CLOUD, DEVOPS, AI ENGINEERING" class="w-full bg-background border border-border rounded-md px-3 py-2 text-sm text-textMain focus:outline-none focus:border-primary transition-colors"></textarea>
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-textMuted uppercase tracking-wider mb-2">Excluded Domains (Comma Separated)</label>
+                    <textarea id="excludedDomains" rows="3" placeholder="SALES, MARKETING, HR, CUSTOMER SUPPORT, CONTENT WRITING, GRAPHIC DESIGN, UI UX DESIGN" class="w-full bg-background border border-border rounded-md px-3 py-2 text-sm text-textMain focus:outline-none focus:border-error transition-colors"></textarea>
                 </div>
             </div>
         </div>
         
-        <div class="flex justify-end pt-6 border-t border-border">
-            <button type="submit" class="bg-primary hover:bg-primaryHover text-white px-6 py-2 rounded-md text-sm font-medium transition-colors shadow-sm">
-                Save Configuration
+        <div class="flex items-center justify-between pt-6 border-t border-border">
+            <span id="saveStatusMessage" class="text-xs text-textMuted">Changes take effect immediately for all upcoming scraping runs.</span>
+            <button type="submit" id="saveProfileBtn" class="flex items-center gap-2 bg-primary hover:bg-primaryHover text-white px-6 py-2.5 rounded-md text-sm font-medium transition-colors shadow-sm min-h-[42px]">
+                <i id="saveBtnIcon" class="fa-solid fa-floppy-disk"></i>
+                <span id="saveBtnText">Save Configuration</span>
             </button>
         </div>
     </form>
@@ -57,41 +101,66 @@
 <script>
     async function loadProfile() {
         try {
-            const res = await fetch("/api/profile");
-            const data = await res.json();
-            if(data.success && data.profile) {
+            const data = await apiCall("/api/profile", "GET");
+            if (data && data.success && data.profile) {
                 const p = data.profile;
                 document.getElementById('name').value = p.name || '';
                 document.getElementById('graduationYear').value = p.graduationYear || '';
                 document.getElementById('careerStage').value = p.careerStage || '';
-                document.getElementById('yearsOfExperience').value = p.yearsOfExperience || 0;
+                document.getElementById('yearsOfExperience').value = (p.yearsOfExperience !== undefined) ? p.yearsOfExperience : 0;
+                document.getElementById('preferredRoles').value = (p.preferredRoles || []).join(', ');
+                document.getElementById('preferredLocations').value = (p.preferredLocations || []).join(', ');
+                document.getElementById('skills').value = (p.skills || []).join(', ');
                 document.getElementById('preferredDomains').value = (p.preferredDomains || []).join(', ');
                 document.getElementById('excludedDomains').value = (p.excludedDomains || []).join(', ');
             }
         } catch(e) {
-            console.error("Failed to load profile", e);
+            console.error("Failed to load candidate profile:", e);
         }
     }
 
     async function saveProfile(e) {
         e.preventDefault();
+        
+        const saveBtn = document.getElementById('saveProfileBtn');
+        const saveIcon = document.getElementById('saveBtnIcon');
+        const saveText = document.getElementById('saveBtnText');
+        const toast = document.getElementById('saveToast');
+
+        saveBtn.disabled = true;
+        saveIcon.className = "fa-solid fa-spinner fa-spin";
+        saveText.innerText = "Saving Configuration...";
+
         const profile = {
-            name: document.getElementById('name').value,
+            name: document.getElementById('name').value.trim(),
             graduationYear: parseInt(document.getElementById('graduationYear').value) || null,
-            careerStage: document.getElementById('careerStage').value,
+            careerStage: document.getElementById('careerStage').value.trim(),
             yearsOfExperience: parseInt(document.getElementById('yearsOfExperience').value) || 0,
+            preferredRoles: document.getElementById('preferredRoles').value.split(',').map(s=>s.trim()).filter(Boolean),
+            preferredLocations: document.getElementById('preferredLocations').value.split(',').map(s=>s.trim()).filter(Boolean),
+            skills: document.getElementById('skills').value.split(',').map(s=>s.trim()).filter(Boolean),
             preferredDomains: document.getElementById('preferredDomains').value.split(',').map(s=>s.trim()).filter(Boolean),
             excludedDomains: document.getElementById('excludedDomains').value.split(',').map(s=>s.trim()).filter(Boolean)
         };
+
         try {
-            const res = await fetch('/api/profile', {
-                method: 'PUT',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify(profile)
-            });
-            if(res.ok) alert("Profile saved.");
+            const result = await apiCall('/api/profile', 'POST', profile);
+            
+            if (result && result.success) {
+                toast.classList.remove('hidden');
+                toast.classList.add('flex');
+                setTimeout(() => {
+                    toast.classList.add('hidden');
+                    toast.classList.remove('flex');
+                }, 4500);
+            }
         } catch(err) {
-            console.error(err);
+            console.error("Profile Save Error:", err);
+            alert("Failed to save profile: " + (err.message || "Unknown error"));
+        } finally {
+            saveBtn.disabled = false;
+            saveIcon.className = "fa-solid fa-floppy-disk";
+            saveText.innerText = "Save Configuration";
         }
     }
 

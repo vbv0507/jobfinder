@@ -899,6 +899,10 @@ const runSearch = async (triggerSource = "Unknown", forceRefresh = false) => {
           pipelineState.updateElapsed();
           pipelineState.emitUpdate();
           socketService.emitDashboard().catch(err => console.error("[Socket] Failed to emit dashboard update:", err.message));
+
+          if (global.gc && completedCompanies % 5 === 0) {
+              global.gc();
+          }
       }
     })));
     
