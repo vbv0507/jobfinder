@@ -12,17 +12,21 @@ const isLinux = process.platform === 'linux';
 
 /**
  * Resolves Chrome executable path for the current OS.
- * On Linux (Azure App Service / AWS / Docker): Uses @sparticuz/chromium.
+ * On Linux (Azure App Service / AWS / Docker): Dynamically imports @sparticuz/chromium (ESM).
  * On Windows / macOS: Uses installed Chrome, Edge, or project cache.
  */
 async function getExecutablePath() {
     if (isLinux) {
         try {
-            const chromium = require('@sparticuz/chromium');
+            const chromiumModule = await import('@sparticuz/chromium');
+            const chromium = chromiumModule.default || chromiumModule;
             const execPath = await chromium.executablePath();
-            if (execPath) return execPath;
+            if (execPath) {
+                console.log(`[BrowserManager] Using @sparticuz/chromium on Linux: ${execPath}`);
+                return execPath;
+            }
         } catch (e) {
-            console.warn('[BrowserManager] @sparticuz/chromium path error:', e.message);
+            console.error('[BrowserManager] @sparticuz/chromium path error:', e.message);
         }
     }
 
@@ -80,7 +84,8 @@ async function launchBrowser(customArgs = []) {
 
     if (isLinux) {
         try {
-            const chromium = require('@sparticuz/chromium');
+            const chromiumModule = await import('@sparticuz/chromium');
+            const chromium = chromiumModule.default || chromiumModule;
             launchArgs = [
                 ...chromium.args,
                 '--no-sandbox',
