@@ -225,6 +225,42 @@ const deleteRawJobs = async (req, res) => {
     }
 };
 
+const exportJobsExcel = async (req, res) => {
+    try {
+        const { fetchJobsByScope, generateExcelBuffer } = require("../services/exportService");
+        const scope = (req.query.scope || 'all').toLowerCase();
+        const jobs = await fetchJobsByScope(scope, req.query);
+        const buffer = await generateExcelBuffer(jobs, scope);
+
+        const filename = `RoleNova_${scope}_jobs_${new Date().toISOString().slice(0, 10)}.xlsx`;
+        res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+        res.setHeader('Content-Length', buffer.length);
+        return res.status(200).send(buffer);
+    } catch (error) {
+        console.error("[Export Excel Error]:", error);
+        return res.status(500).json({ success: false, message: "Excel export failed: " + error.message });
+    }
+};
+
+const exportJobsPdf = async (req, res) => {
+    try {
+        const { fetchJobsByScope, generatePdfBuffer } = require("../services/exportService");
+        const scope = (req.query.scope || 'all').toLowerCase();
+        const jobs = await fetchJobsByScope(scope, req.query);
+        const buffer = await generatePdfBuffer(jobs, scope);
+
+        const filename = `RoleNova_${scope}_jobs_${new Date().toISOString().slice(0, 10)}.pdf`;
+        res.setHeader('Content-Type', 'application/pdf');
+        res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+        res.setHeader('Content-Length', buffer.length);
+        return res.status(200).send(buffer);
+    } catch (error) {
+        console.error("[Export PDF Error]:", error);
+        return res.status(500).json({ success: false, message: "PDF export failed: " + error.message });
+    }
+};
+
 module.exports = {
     getRawJobs,
     getMatchedJobs,
@@ -236,4 +272,6 @@ module.exports = {
     stopJobSearch,
     updateJobStatus,
     deleteRawJobs,
+    exportJobsExcel,
+    exportJobsPdf,
 };

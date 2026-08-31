@@ -1,14 +1,46 @@
 <%- include('../layouts/header') %>
 
+<%
+    let currentScope = 'matched';
+    if (typeof title !== 'undefined') {
+        if (title.toLowerCase().includes('applied')) currentScope = 'applied';
+        else if (title.toLowerCase().includes('saved')) currentScope = 'saved';
+        else if (title.toLowerCase().includes('rejected')) currentScope = 'rejected';
+        else if (title.toLowerCase().includes('expired') || title.toLowerCase().includes('closed')) currentScope = 'all';
+    }
+%>
+
 <div class="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
     <div>
         <h1 class="text-2xl font-bold tracking-tight text-textMain mb-2"><%= title %></h1>
-        <p class="text-textMuted text-sm">Review AI-matched roles and their evaluation scores.</p>
+        <p class="text-textMuted text-sm">Review AI-evaluated roles, evaluation metrics, and export data.</p>
     </div>
     
-    <div class="relative min-w-[300px]">
-        <i class="fa-solid fa-search absolute left-3 top-1/2 -translate-y-1/2 text-textMuted text-xs"></i>
-        <input type="text" id="searchInput" onkeyup="filterJobs()" placeholder="Search roles or companies..." class="w-full bg-background border border-border rounded-md pl-8 pr-3 py-2 text-sm text-textMain focus:outline-none focus:border-primary transition-colors">
+    <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+        <div class="relative min-w-[240px]">
+            <i class="fa-solid fa-search absolute left-3 top-1/2 -translate-y-1/2 text-textMuted text-xs"></i>
+            <input type="text" id="searchInput" onkeyup="filterJobs()" placeholder="Search roles or companies..." class="w-full bg-background border border-border rounded-lg pl-8 pr-3 py-2 text-sm text-textMain focus:outline-none focus:border-primary transition-colors">
+        </div>
+        
+        <div class="flex items-center gap-2">
+            <!-- Export Excel Quick Button -->
+            <a href="/api/jobs/export/excel?scope=<%= currentScope %>" download class="inline-flex items-center gap-1.5 px-3 py-2 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 hover:text-emerald-300 border border-emerald-500/30 rounded-lg text-xs font-semibold transition-all shadow-sm" title="Export current view to Excel (.xlsx)">
+                <i class="fa-solid fa-file-excel text-emerald-400"></i>
+                <span class="hidden sm:inline">Excel</span>
+            </a>
+
+            <!-- Export PDF Quick Button -->
+            <a href="/api/jobs/export/pdf?scope=<%= currentScope %>" download class="inline-flex items-center gap-1.5 px-3 py-2 bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 hover:text-rose-300 border border-rose-500/30 rounded-lg text-xs font-semibold transition-all shadow-sm" title="Export current view to PDF (.pdf)">
+                <i class="fa-solid fa-file-pdf text-rose-400"></i>
+                <span class="hidden sm:inline">PDF</span>
+            </a>
+
+            <!-- Advanced Export Center Modal Trigger -->
+            <button type="button" onclick="openExportModal('<%= currentScope %>', 'excel')" class="inline-flex items-center gap-1.5 px-3 py-2 bg-primary/10 hover:bg-primary/20 text-primary hover:text-primaryHover border border-primary/30 rounded-lg text-xs font-semibold transition-all shadow-sm" title="Open Full Export Options">
+                <i class="fa-solid fa-sliders"></i>
+                <span class="hidden sm:inline">Options</span>
+            </button>
+        </div>
     </div>
 </div>
 

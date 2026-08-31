@@ -11,6 +11,8 @@ const {
     stopJobSearch,
     updateJobStatus,
     deleteRawJobs,
+    exportJobsExcel,
+    exportJobsPdf,
 } = require("../controllers/jobController");
 
 const { requireAdmin, requireExtendedViewer } = require("../middleware/authMiddleware");
@@ -23,6 +25,8 @@ router.get("/rejected", requireExtendedViewer, getRejectedJobs);
 router.get("/grouped", requireExtendedViewer, getGroupedJobs);
 router.get("/complete", requireExtendedViewer, getCompleteJobs);
 router.get("/report", requireExtendedViewer, getReport);
+router.get("/export/excel", requireExtendedViewer, exportJobsExcel);
+router.get("/export/pdf", requireExtendedViewer, exportJobsPdf);
 router.post("/run", requireAdmin, runJobSearch);
 router.post("/stop", requireAdmin, stopJobSearch);
 router.patch("/:id/status", requireAdmin, updateJobStatus);

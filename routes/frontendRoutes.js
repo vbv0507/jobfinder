@@ -191,6 +191,16 @@ router.get('/job/:id', requireExtendedViewer, async (req, res) => {
     }
 });
 
+router.get('/export/excel', requireExtendedViewer, async (req, res) => {
+    const { exportJobsExcel } = require('../controllers/jobController');
+    return exportJobsExcel(req, res);
+});
+
+router.get('/export/pdf', requireExtendedViewer, async (req, res) => {
+    const { exportJobsPdf } = require('../controllers/jobController');
+    return exportJobsPdf(req, res);
+});
+
 router.get('/telegram', requireExtendedViewer, (req, res) => {
     res.render('pages/telegram-channels', { title: 'Telegram Channels' });
 });

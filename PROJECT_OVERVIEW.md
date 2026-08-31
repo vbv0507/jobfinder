@@ -701,3 +701,55 @@ Eliminated the previous view-level approval gates so any user who creates an acc
    - Updated `utils/companies.js` and MongoDB `Company` collection with updated `ats`, `adapter`, `careerUrl`, and `scraperConfig` settings.
 5. **End-to-End Verification**:
    - Validated that scraper outputs match 100% with the real live website job listings for both companies (ADP: 50 live positions retrieved; Infineon: 18 live positions retrieved).
+
+---
+
+## 📊 26. Comprehensive Excel (.xlsx) & PDF (.pdf) Intelligence Export System (2026-08-31)
+
+### Feature Overview
+Built an enterprise-grade, multi-format Export Engine that allows users to export all job intelligence data across distinct scopes (`All Jobs`, `Matched Jobs`, `Applied Jobs`, `Saved Jobs`, `Rejected Jobs`, `Local Pending Jobs`) into formatted Microsoft Excel spreadsheets (`.xlsx`) and print-ready executive PDF briefing documents (`.pdf`).
+
+### User Requirements Met
+1. **Scoped & Universal Exports**:
+   - **Matched Jobs Export**: Exports only AI-approved roles with match breakdown, strengths, and fit rationales.
+   - **Applied Jobs Export**: Exports positions marked as applied, including applied timestamp, user notes, and JD.
+   - **Saved Jobs Export**: Exports bookmarked positions.
+   - **Rejected Jobs Export**: Exports AI and user disqualified roles with explicit rejection reasons, missing skills, and weaknesses.
+   - **Universal All Jobs Export**: Exports the entire database including accepted, rejected, raw scraped, and local heuristic evaluated positions (20,000+ jobs).
+2. **Comprehensive Metadata Fields Included**:
+   - Company Name & Domain
+   - Role Title & Job ID
+   - Job Location & Work Mode
+   - Category / Application Status (`Matched`, `Applied`, `Saved`, `Rejected (AI)`, `Rejected (User)`, `Local Pending`)
+   - AI Fit Score (0-100) & Score Category
+   - Full Scoring Breakdown (Domain Alignment, Required Skills, Experience, Education)
+   - Evaluator Engine & AI Model (`OpenRouter`, `Groq`, `Gemini`, `LiteLLM`, `Heuristic`)
+   - Job Posted Date (from source ATS)
+   - Scraped Date & Time
+   - Applied Date & Time
+   - Full Job Description / Requirements snippet
+   - AI Match Rationale & Candidate Strengths
+   - Disqualification / Rejection Reason & Missing Skills
+   - Direct Application Hyperlink
+3. **Format Engine Highlights**:
+   - **Microsoft Excel Engine (`services/exportService.js` via `exceljs`)**:
+     - Auto-filters enabled across all columns.
+     - Frozen header row with dark slate theme (`#1E293B`) and white bold text.
+     - Alternating row zebra banding (`#F8FAFC`).
+     - Dynamic color-coded status badges and score highlights (Green $\ge 70$, Amber $40-69$, Red $< 40$).
+     - Text wrapping for descriptions, match reasons, and rejection reasons.
+     - Live clickable hyperlinks for the `Apply Link` column.
+   - **Executive PDF Engine (`services/exportService.js` via Playwright Chromium)**:
+     - Landscape A4 layout with RoleNova branding.
+     - Metric cards summarizing Total Jobs, Applied, AI Matched, Saved, Rejected, and Average AI Score.
+     - Styled data table with colored status badges, AI score indicators, and clean pagination.
+     - Performance-optimized top-record preview rendering for instant generation.
+4. **UI Integration**:
+   - **Sidebar Navigation**: Added permanent `Export Center` action button in `views/components/sidebar.ejs`.
+   - **Topbar Header**: Added `Export` quick button in `views/layouts/header.ejs`.
+   - **Interactive Export Modal (`views/components/exportModal.ejs` & `views/partials/exportModal.ejs`)**: Dark glassmorphic modal with interactive scope selector cards, format selector cards, and instant download progress state.
+   - **Page-Level Quick Export Controls**: Added one-click `Excel`, `PDF`, and `Options` buttons in headers of `views/pages/jobs.ejs` (auto-detects Matched, Applied, Saved, Rejected scope) and `views/pages/local-jobs.ejs`.
+5. **API Endpoints**:
+   - `GET /api/jobs/export/excel?scope=all|matched|applied|saved|rejected|local`
+   - `GET /api/jobs/export/pdf?scope=all|matched|applied|saved|rejected|local`
+   - `GET /export/excel` & `GET /export/pdf`
