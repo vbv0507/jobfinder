@@ -227,61 +227,89 @@ async function generateExcelBuffer(jobs, scope = 'all') {
     workbook.creator = 'RoleNova Autonomous Job Platform';
     workbook.created = new Date();
 
-    const scopeTitle = scope.toUpperCase() + ' JOBS';
+    const scopeTitle = `${scope.toUpperCase()} JOBS`;
     const worksheet = workbook.addWorksheet(scopeTitle.slice(0, 30), {
         views: [{ state: 'frozen', ySplit: 2 }]
     });
 
-    // Title Row
-    worksheet.mergeCells('A1:O1');
-    const titleCell = worksheet.getCell('A1');
-    titleCell.value = `RoleNova — ${scope.toUpperCase()} JOBS AUDIT REPORT (${jobs.length} Total Records) • Generated: ${new Date().toLocaleString('en-IN')}`;
-    titleCell.font = { name: 'Segoe UI', size: 13, bold: true, color: { argb: 'FFFFFFFF' } };
-    titleCell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF0F172A' } };
-    titleCell.alignment = { vertical: 'middle', horizontal: 'left', indent: 1 };
-    worksheet.getRow(1).height = 32;
-
-    // Define Columns
+    // Column Definitions & Widths (16 Distinct Columns)
     worksheet.columns = [
-        { header: 'Company', key: 'companyName', width: 22 },
-        { header: 'Job Title / Role', key: 'title', width: 34 },
-        { header: 'Status / Category', key: 'categoryStatus', width: 20 },
-        { header: 'AI Score', key: 'score', width: 12 },
-        { header: 'Evaluated By / LLM', key: 'evaluatedBy', width: 20 },
-        { header: 'Location', key: 'location', width: 24 },
-        { header: 'Posted Date', key: 'postedDate', width: 16 },
-        { header: 'Discovered Date', key: 'scrapedDate', width: 20 },
-        { header: 'Applied Date', key: 'appliedDate', width: 20 },
-        { header: 'Match Reason / Key Strengths', key: 'matchReason', width: 45 },
-        { header: 'Rejection Reason / Disqualifiers', key: 'rejectionReason', width: 45 },
-        { header: 'Matched Skills', key: 'matchedSkills', width: 30 },
-        { header: 'Missing Skills', key: 'missingSkills', width: 30 },
-        { header: 'Requirements / JD Snippet', key: 'description', width: 50 },
-        { header: 'Apply Link', key: 'applyLink', width: 35 }
+        { key: 'companyName', width: 26 },
+        { key: 'title', width: 36 },
+        { key: 'categoryStatus', width: 22 },
+        { key: 'score', width: 15 },
+        { key: 'scoringBreakdown', width: 36 },
+        { key: 'evaluatedBy', width: 22 },
+        { key: 'location', width: 24 },
+        { key: 'postedDate', width: 18 },
+        { key: 'scrapedDate', width: 22 },
+        { key: 'appliedDate', width: 22 },
+        { key: 'matchReason', width: 45 },
+        { key: 'rejectionReason', width: 45 },
+        { key: 'matchedSkills', width: 30 },
+        { key: 'missingSkills', width: 30 },
+        { key: 'description', width: 50 },
+        { key: 'applyLink', width: 35 }
     ];
 
-    // Header Row Styling (Row 2)
+    // Row 1: Executive Title Banner
+    worksheet.mergeCells('A1:P1');
+    const titleCell = worksheet.getCell('A1');
+    titleCell.value = `🌟 RoleNova Job Intelligence — ${scope.toUpperCase()} JOBS AUDIT REPORT (${jobs.length} Total Records) • Generated: ${new Date().toLocaleString('en-IN')}`;
+    titleCell.font = { name: 'Segoe UI', size: 12, bold: true, color: { argb: 'FFFFFFFF' } };
+    titleCell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF0F172A' } }; // Dark Slate Navy #0F172A
+    titleCell.alignment = { vertical: 'middle', horizontal: 'left', indent: 1 };
+    worksheet.getRow(1).height = 36;
+
+    // Row 2: Prominent, Clearly Visible Column Headers
+    const headers = [
+        'Company Name & Domain',
+        'Role Title & Job ID',
+        'Application / Category Status',
+        'AI Fit Score (0-100)',
+        'Scoring Breakdown',
+        'AI Evaluator & Model',
+        'Location & Work Mode',
+        'Job Posted Date',
+        'When Scraped',
+        'When Applied',
+        'Reason Why Matched / Strengths',
+        'Reason for Rejection / Missing Skills',
+        'Matched Skills',
+        'Missing Skills',
+        'Job Description / Requirements',
+        'Direct Application Link'
+    ];
+
     const headerRow = worksheet.getRow(2);
-    headerRow.height = 28;
+    headerRow.values = headers;
+    headerRow.height = 32;
     headerRow.eachCell((cell) => {
-        cell.font = { name: 'Segoe UI', size: 10, bold: true, color: { argb: 'FFF8FAFC' } };
-        cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF1E293B' } };
+        cell.font = { name: 'Segoe UI', size: 10.5, bold: true, color: { argb: 'FFFFFFFF' } };
+        cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF1E293B' } }; // Dark Slate #1E293B
         cell.alignment = { vertical: 'middle', horizontal: 'center', wrapText: true };
         cell.border = {
-            top: { style: 'thin', color: { argb: 'FF334155' } },
+            top: { style: 'medium', color: { argb: 'FF3B82F6' } },
             bottom: { style: 'medium', color: { argb: 'FF3B82F6' } },
             left: { style: 'thin', color: { argb: 'FF334155' } },
             right: { style: 'thin', color: { argb: 'FF334155' } }
         };
     });
 
-    // Populate Data Rows
+    // Auto-filter on Row 2
+    worksheet.autoFilter = {
+        from: { row: 2, column: 1 },
+        to: { row: 2, column: 16 }
+    };
+
+    // Populate Data Rows (Row 3 onwards)
     jobs.forEach((job, index) => {
         const row = worksheet.addRow({
             companyName: job.companyName,
             title: job.title,
             categoryStatus: job.categoryStatus,
             score: typeof job.score === 'number' ? `${job.score}/100` : job.score,
+            scoringBreakdown: job.scoringBreakdown,
             evaluatedBy: job.evaluatedBy,
             location: job.location,
             postedDate: job.postedDate,
@@ -295,7 +323,7 @@ async function generateExcelBuffer(jobs, scope = 'all') {
             applyLink: job.applyLink
         });
 
-        row.height = 24;
+        row.height = 26;
         const isEven = index % 2 === 0;
         const bgArgb = isEven ? 'FFFFFFFF' : 'FFF8FAFC';
 
@@ -308,9 +336,9 @@ async function generateExcelBuffer(jobs, scope = 'all') {
                 left: { style: 'thin', color: { argb: 'FFE2E8F0' } },
                 right: { style: 'thin', color: { argb: 'FFE2E8F0' } }
             };
-            cell.alignment = { vertical: 'middle', horizontal: 'left', wrapText: [10, 11, 14].includes(colNumber) };
+            cell.alignment = { vertical: 'middle', horizontal: 'left', wrapText: [5, 11, 12, 15].includes(colNumber) };
 
-            // Status Column Badge Styling
+            // Status Column Badge Styling (Column 3)
             if (colNumber === 3) {
                 cell.alignment = { vertical: 'middle', horizontal: 'center' };
                 cell.font = { name: 'Segoe UI', size: 9.5, bold: true };
@@ -329,7 +357,7 @@ async function generateExcelBuffer(jobs, scope = 'all') {
                 }
             }
 
-            // Score Column Styling
+            // Score Column Styling (Column 4)
             if (colNumber === 4) {
                 cell.alignment = { vertical: 'middle', horizontal: 'center' };
                 if (typeof job.score === 'number') {
@@ -340,8 +368,8 @@ async function generateExcelBuffer(jobs, scope = 'all') {
                 }
             }
 
-            // Hyperlink on Apply Link
-            if (colNumber === 15 && job.applyLink) {
+            // Hyperlink on Apply Link (Column 16)
+            if (colNumber === 16 && job.applyLink) {
                 cell.value = {
                     text: 'Open Application Portal ↗',
                     hyperlink: job.applyLink,
