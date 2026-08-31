@@ -1,7 +1,6 @@
-
+// RoleNova Core Frontend Utilities
 
 const API_BASE = '';
-
 
 function showAlert(message, type = 'success') {
     const alertDiv = document.createElement('div');
@@ -9,11 +8,11 @@ function showAlert(message, type = 'success') {
     alertDiv.textContent = message;
     
     const container = document.querySelector('.container') || document.querySelector('main') || document.body;
-    container.insertBefore(alertDiv, container.firstChild);
-    
-    setTimeout(() => alertDiv.remove(), 5000);
+    if (container) {
+        container.insertBefore(alertDiv, container.firstChild);
+        setTimeout(() => alertDiv.remove(), 5000);
+    }
 }
-
 
 async function apiCall(endpoint, method = 'GET', data = null) {
     try {
@@ -55,9 +54,10 @@ async function apiCall(endpoint, method = 'GET', data = null) {
     }
 }
 
-
 function formatDate(dateString) {
+    if (!dateString) return 'N/A';
     const date = new Date(dateString);
+    if (isNaN(date.getTime())) return 'N/A';
     return date.toLocaleDateString('en-US', {
         year: 'numeric',
         month: 'short',
@@ -67,11 +67,15 @@ function formatDate(dateString) {
     });
 }
 
-
 function formatDescription(text, maxLength = 150) {
     if (!text) return 'No description';
     return text.length > maxLength ? text.substring(0, maxLength) + '...' : text;
 }
+
+window.apiCall = apiCall;
+window.showAlert = showAlert;
+window.formatDate = formatDate;
+window.formatDescription = formatDescription;
 
 window.toggleSidebar = function() {
     const sidebar = document.getElementById('sidebar');
@@ -92,7 +96,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const backdrop = document.getElementById('sidebar-backdrop');
     if (backdrop) {
         backdrop.addEventListener('click', () => {
-            toggleSidebar();
+            if (typeof toggleSidebar === 'function') toggleSidebar();
         });
     }
 });
