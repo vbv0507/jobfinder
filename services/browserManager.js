@@ -1,71 +1,72 @@
 const path = require('path');
 const fs = require('fs');
-const puppeteer = require('puppeteer-extra');
+const { addExtra } = require('puppeteer-extra');
+const puppeteerCore = addExtra(require('puppeteer-core'));
 const StealthPlugin = require('puppeteer-extra-plugin-stealth');
 
 try {
-    puppeteer.use(StealthPlugin());
+    puppeteerCore.use(StealthPlugin());
 } catch (_) {}
 
 const isLinux = process.platform === 'linux';
-const CACHE_DIR = path.join(process.cwd(), '.cache', 'puppeteer');
-process.env.PUPPETEER_CACHE_DIR = CACHE_DIR;
-
-let cachedExecutablePath = null;
 
 /**
- * Ensures Chromium browser binary exists in local project cache (.cache/puppeteer)
- * for Windows / macOS environments.
+ * Resolves Chrome executable path for the current OS.
+ * On Linux (Azure App Service / AWS / Docker): Uses @sparticuz/chromium.
+ * On Windows / macOS: Uses installed Chrome, Edge, or project cache.
  */
-async function getOrInstallBrowserPath() {
-    if (cachedExecutablePath && fs.existsSync(cachedExecutablePath)) {
-        return cachedExecutablePath;
+async function getExecutablePath() {
+    if (isLinux) {
+        try {
+            const chromium = require('@sparticuz/chromium');
+            const execPath = await chromium.executablePath();
+            if (execPath) return execPath;
+        } catch (e) {
+            console.warn('[BrowserManager] @sparticuz/chromium path error:', e.message);
+        }
     }
 
+    // Windows / macOS Local Chrome locations
+    const candidatePaths = [
+        // Windows Chrome
+        'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',
+        'C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe',
+        path.join(process.env.LOCALAPPDATA || '', 'Google', 'Chrome', 'Application', 'chrome.exe'),
+        // Windows Edge fallback
+        'C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe',
+        'C:\\Program Files\\Microsoft\\Edge\\Application\\msedge.exe',
+        // macOS Chrome
+        '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'
+    ];
+
+    for (const p of candidatePaths) {
+        if (p && fs.existsSync(p)) {
+            return p;
+        }
+    }
+
+    // Try @puppeteer/browsers cache if available
     try {
-        const { install, computeExecutablePath, Browser, detectBrowserPlatform } = require('@puppeteer/browsers');
+        const { computeExecutablePath, Browser, detectBrowserPlatform } = require('@puppeteer/browsers');
         const platform = detectBrowserPlatform();
-        const buildId = '131.0.6778.85';
-
-        if (!fs.existsSync(CACHE_DIR)) {
-            fs.mkdirSync(CACHE_DIR, { recursive: true });
-        }
-
-        const expectedPath = computeExecutablePath({
+        const cacheDir = path.join(process.cwd(), '.cache', 'puppeteer');
+        const localPath = computeExecutablePath({
             browser: Browser.CHROME,
-            buildId: buildId,
-            cacheDir: CACHE_DIR,
+            buildId: '131.0.6778.85',
+            cacheDir: cacheDir,
             platform: platform
         });
+        if (fs.existsSync(localPath)) return localPath;
+    } catch (_) {}
 
-        if (fs.existsSync(expectedPath)) {
-            cachedExecutablePath = expectedPath;
-            return expectedPath;
-        }
-
-        console.log(`[BrowserManager] Installing Chrome ${buildId} into ${CACHE_DIR}...`);
-        const installed = await install({
-            browser: Browser.CHROME,
-            buildId: buildId,
-            cacheDir: CACHE_DIR,
-            platform: platform
-        });
-
-        cachedExecutablePath = installed.executablePath;
-        return installed.executablePath;
-    } catch (e) {
-        console.warn(`[BrowserManager] Dynamic browser installation notice: ${e.message}`);
-        return undefined;
-    }
+    return undefined;
 }
 
 /**
- * Launches a cloud-safe, stealth-enabled Puppeteer browser instance.
- * On Linux (Azure App Service / AWS / Docker), uses @sparticuz/chromium which bundles all required .so shared libraries.
- * On Windows / macOS (local dev), uses local Chrome or @puppeteer/browsers.
+ * Launches a cloud-safe, stealth-enabled Puppeteer browser instance using puppeteer-core.
  */
 async function launchBrowser(customArgs = []) {
-    let executablePath = null;
+    const executablePath = await getExecutablePath();
     let launchArgs = [
         '--no-sandbox',
         '--disable-setuid-sandbox',
@@ -75,12 +76,11 @@ async function launchBrowser(customArgs = []) {
         '--window-size=1440,900',
         ...customArgs
     ];
-    let isHeadless = 'new';
+    let isHeadless = true;
 
     if (isLinux) {
         try {
             const chromium = require('@sparticuz/chromium');
-            executablePath = await chromium.executablePath();
             launchArgs = [
                 ...chromium.args,
                 '--no-sandbox',
@@ -90,13 +90,7 @@ async function launchBrowser(customArgs = []) {
                 ...customArgs
             ];
             isHeadless = chromium.headless;
-        } catch (linuxErr) {
-            console.warn("[BrowserManager] @sparticuz/chromium resolution failed, using fallback:", linuxErr.message);
-        }
-    }
-
-    if (!executablePath && !isLinux) {
-        executablePath = await getOrInstallBrowserPath();
+        } catch (_) {}
     }
 
     const launchOptions = {
@@ -108,10 +102,10 @@ async function launchBrowser(customArgs = []) {
         launchOptions.executablePath = executablePath;
     }
 
-    return await puppeteer.launch(launchOptions);
+    return await puppeteerCore.launch(launchOptions);
 }
 
 module.exports = {
-    getOrInstallBrowserPath,
+    getExecutablePath,
     launchBrowser
 };
