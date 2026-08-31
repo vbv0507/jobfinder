@@ -123,8 +123,12 @@ const scrapeCompanyDirectly = async (req, res) => {
         const rawJobs = await adapter.searchJobs();
         const durationMs = Date.now() - startTime;
 
-        const storageService = require("../services/pipeline/storageService");
-        const storedResult = await storageService.storeScrapedJobs(company, rawJobs);
+        const { saveRawJob } = require("../services/pipeline/storageService");
+        let savedCount = 0;
+        for (const job of rawJobs) {
+            const saved = await saveRawJob(company, job);
+            if (saved) savedCount++;
+        }
 
         const CacheManager = require("../services/cacheManager");
         const { invalidateAnalyticsCache } = require("../services/analyticsService");
@@ -136,7 +140,7 @@ const scrapeCompanyDirectly = async (req, res) => {
             company: company.name,
             ats: adapter.parserName || company.ats,
             rawJobsFound: rawJobs.length,
-            storedResult,
+            savedCount,
             durationMs
         });
     } catch (error) {

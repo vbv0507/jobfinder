@@ -680,14 +680,24 @@ Eliminated the previous view-level approval gates so any user who creates an acc
 3. **Database Cleansing (`scripts/clean_international_jobs.js`)**:
    - Moved all existing international location matches into `RejectedJobs` and cleared cache so the dashboard immediately displays only relevant jobs.
 
+---
 
+## 🛠️ 25. Dedicated ATS Adapters & Scraper Fixes for ADP & Infineon (2026-08-31)
 
+### Issue Identified
+1. **ADP Career Portal**: The generic HTML fallback scraper failed with anti-bot blocks on direct requests to `jobs.adp.com` and lacked parameterization to reach the search route (`/en/jobs/`), returning 0 jobs.
+2. **Infineon Technologies**: Infineon uses an **Eightfold.ai / PCSX** client-rendered Single Page Application. The generic fallback scraper hit the landing page and captured 29 navigation anchor items (e.g. *"Profile"*, *"Benefits"*, *"Join Talent Network"*) instead of live engineering positions.
 
-
-
-
-
-
-
-
-
+### Architectural Solutions & Implementations
+1. **`AdpAdapter` (`services/ats/providers/Priority1/AdpAdapter.js`)**:
+   - Uses Playwright to bypass WAF bot protections and navigate directly to ADP's paginated India tech listings (`/en/jobs/?orderby=0&pagesize=50&page=1&mylocation=India&radius=100&rType=0`).
+   - Extracts accurate job card titles (e.g., `Data Solutions Resource Pool F2C`, `EA DevOps`, `NAS Resource Pool F2C`), direct apply links (`/en/jobs/ind170884/...`), specific locations (Hyderabad, Pune, Bangalore, Chennai), and requisition IDs (`ind170884`).
+2. **`InfineonAdapter` (`services/ats/providers/Priority1/InfineonAdapter.js`)**:
+   - Uses Playwright to execute Eightfold PCSX client hydration on `https://jobs.infineon.com/careers?query=software&location=India&sort_by=relevance`.
+   - Accurately targets Eightfold job positions (`a[href*="/job/"]`), filtering out all navigational noise and extracting genuine titles (e.g. `Principal Engineer Software`, `Senior Staff Engineer Software`, `Staff Engineer Software`, `Senior Engineer Software`), locations (`Ahmedabad (India)`, `Bangalore BTP (India)`), and unique Eightfold IDs (`563808970320786`, `HRC1604994`).
+3. **`AdapterFactory` Integration (`services/ats/AdapterFactory.js`)**:
+   - Added explicit mappings for `ats: 'adp'` / `company.adapter: 'AdpAdapter'` and `ats: 'infineon'` / `company.adapter: 'InfineonAdapter'`.
+4. **Seed and Database Synchronization (`utils/companies.js`, `services/companyService.js`)**:
+   - Updated `utils/companies.js` and MongoDB `Company` collection with updated `ats`, `adapter`, `careerUrl`, and `scraperConfig` settings.
+5. **End-to-End Verification**:
+   - Validated that scraper outputs match 100% with the real live website job listings for both companies (ADP: 50 live positions retrieved; Infineon: 18 live positions retrieved).

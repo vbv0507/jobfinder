@@ -7,6 +7,8 @@ const SmartRecruitersAdapter = require('./providers/Priority1/SmartRecruitersAda
 const NetflixAdapter = require('./providers/Priority1/NetflixAdapter');
 const AmazonAdapter = require('./providers/Priority1/AmazonAdapter');
 const EightfoldAdapter = require('./providers/Priority1/EightfoldAdapter');
+const AdpAdapter = require('./providers/Priority1/AdpAdapter');
+const InfineonAdapter = require('./providers/Priority1/InfineonAdapter');
 const PlaywrightNetworkAdapter = require('./providers/Priority2/PlaywrightNetworkAdapter');
 const OfficialApiAdapter = require('./providers/Fallback/OfficialApiAdapter');
 const LightweightHtmlAdapter = require('./providers/Fallback/LightweightHtmlAdapter');
@@ -17,13 +19,23 @@ class AdapterFactory {
    * Priority: Official ATS -> Official API -> HTML Fallback
    */
   static getAdapter(company) {
-    const ats = (company.ats || 'custom').toLowerCase();
+    const ats = (company.ats || '').toLowerCase();
+    const companyName = (company.name || '').toLowerCase();
     
     // Allow explicit override
     if (company.adapter) {
+      if (company.adapter === 'AdpAdapter') return new AdpAdapter(company);
+      if (company.adapter === 'InfineonAdapter') return new InfineonAdapter(company);
       if (company.adapter === 'OfficialApiAdapter') return new OfficialApiAdapter(company);
       if (company.adapter === 'LightweightHtmlAdapter') return new LightweightHtmlAdapter(company);
       // Can add more explicit overrides as needed
+    }
+
+    if (ats === 'adp' || companyName === 'adp') {
+      return new AdpAdapter(company);
+    }
+    if (ats === 'infineon' || companyName.includes('infineon')) {
+      return new InfineonAdapter(company);
     }
 
     switch (ats) {
@@ -45,6 +57,10 @@ class AdapterFactory {
         return new AmazonAdapter(company);
       case 'eightfold':
         return new EightfoldAdapter(company);
+      case 'adp':
+        return new AdpAdapter(company);
+      case 'infineon':
+        return new InfineonAdapter(company);
       case 'playwright-network':
         return new PlaywrightNetworkAdapter(company);
       case 'api':
