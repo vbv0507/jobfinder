@@ -24,16 +24,16 @@
         
         <div class="flex items-center gap-2">
             <!-- Export Excel Quick Button -->
-            <a href="/api/jobs/export/excel?scope=<%= currentScope %>" download class="inline-flex items-center gap-1.5 px-3 py-2 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 hover:text-emerald-300 border border-emerald-500/30 rounded-lg text-xs font-semibold transition-all shadow-sm" title="Export current view to Excel (.xlsx)">
+            <button type="button" onclick="triggerBlobDownload('<%= currentScope %>', 'excel', this)" class="inline-flex items-center gap-1.5 px-3 py-2 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 hover:text-emerald-300 border border-emerald-500/30 rounded-lg text-xs font-semibold transition-all shadow-sm" title="Export current view to Excel (.xlsx)">
                 <i class="fa-solid fa-file-excel text-emerald-400"></i>
                 <span class="hidden sm:inline">Excel</span>
-            </a>
+            </button>
 
             <!-- Export PDF Quick Button -->
-            <a href="/api/jobs/export/pdf?scope=<%= currentScope %>" download class="inline-flex items-center gap-1.5 px-3 py-2 bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 hover:text-rose-300 border border-rose-500/30 rounded-lg text-xs font-semibold transition-all shadow-sm" title="Export current view to PDF (.pdf)">
+            <button type="button" onclick="triggerBlobDownload('<%= currentScope %>', 'pdf', this)" class="inline-flex items-center gap-1.5 px-3 py-2 bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 hover:text-rose-300 border border-rose-500/30 rounded-lg text-xs font-semibold transition-all shadow-sm" title="Export current view to PDF (.pdf)">
                 <i class="fa-solid fa-file-pdf text-rose-400"></i>
                 <span class="hidden sm:inline">PDF</span>
-            </a>
+            </button>
 
             <!-- Advanced Export Center Modal Trigger -->
             <button type="button" onclick="openExportModal('<%= currentScope %>', 'excel')" class="inline-flex items-center gap-1.5 px-3 py-2 bg-primary/10 hover:bg-primary/20 text-primary hover:text-primaryHover border border-primary/30 rounded-lg text-xs font-semibold transition-all shadow-sm" title="Open Full Export Options">

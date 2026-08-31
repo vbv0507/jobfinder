@@ -231,30 +231,90 @@
         const selectedScope = document.querySelector('input[name="exportScope"]:checked')?.value || 'all';
         const selectedFormat = document.querySelector('input[name="exportFormat"]:checked')?.value || 'excel';
 
-        const originalHtml = btn.innerHTML;
-        btn.disabled = true;
-        btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Generating ${selectedFormat.toUpperCase()}...`;
+        await triggerBlobDownload(selectedScope, selectedFormat, btn, true);
+    }
+
+    async function triggerBlobDownload(scope = 'all', format = 'excel', btnElement = null, isModal = false) {
+        const btn = btnElement || document.getElementById('triggerExportBtn');
+        const originalHtml = btn ? btn.innerHTML : '';
+        if (btn) {
+            btn.disabled = true;
+            btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin mr-1"></i> Generating ${format.toUpperCase()}...`;
+        }
+
+        const url = `/api/jobs/export/${format}?scope=${encodeURIComponent(scope)}`;
 
         try {
-            const url = `/api/jobs/export/${selectedFormat}?scope=${encodeURIComponent(selectedScope)}`;
-            
-            // Trigger browser download via invisible link
+            // Include Clerk Auth if available
+            const headers = {};
+            if (window.Clerk && window.Clerk.session) {
+                try {
+                    const token = await window.Clerk.session.getToken();
+                    if (token) headers['Authorization'] = `Bearer ${token}`;
+                } catch (e) {}
+            }
+
+            const response = await fetch(url, {
+                method: 'GET',
+                headers: headers
+            });
+
+            if (!response.ok) {
+                let errorMsg = `Server responded with ${response.status} ${response.statusText}`;
+                try {
+                    const json = await response.json();
+                    if (json && json.message) errorMsg = json.message;
+                } catch (_) {}
+                throw new Error(errorMsg);
+            }
+
+            const blob = await response.blob();
+            if (!blob || blob.size === 0) {
+                throw new Error("Received empty export file from server.");
+            }
+
+            const ext = format === 'excel' ? 'xlsx' : 'pdf';
+            const filename = `RoleNova_${scope}_jobs_${new Date().toISOString().slice(0, 10)}.${ext}`;
+
+            // Create Object URL and download
+            const blobUrl = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
-            a.href = url;
-            a.download = `RoleNova_${selectedScope}_jobs_${new Date().toISOString().slice(0, 10)}.${selectedFormat === 'excel' ? 'xlsx' : 'pdf'}`;
+            a.style.display = 'none';
+            a.href = blobUrl;
+            a.download = filename;
             document.body.appendChild(a);
             a.click();
-            document.body.removeChild(a);
 
             setTimeout(() => {
+                window.URL.revokeObjectURL(blobUrl);
+                if (document.body.contains(a)) document.body.removeChild(a);
+            }, 3000);
+
+            if (btn) {
+                btn.innerHTML = `<i class="fa-solid fa-check mr-1 text-success"></i> Downloaded!`;
+            }
+
+            setTimeout(() => {
+                if (btn) {
+                    btn.disabled = false;
+                    btn.innerHTML = originalHtml;
+                }
+                if (isModal) closeExportModal();
+            }, 1000);
+        } catch (err) {
+            console.error("[Export Download Error]:", err);
+            
+            // Fallback direct browser download in case of fetch/CORS blocks
+            try {
+                window.location.href = url;
+            } catch (navErr) {
+                alert('Export failed: ' + err.message);
+            }
+
+            if (btn) {
                 btn.disabled = false;
                 btn.innerHTML = originalHtml;
-                closeExportModal();
-            }, 1200);
-        } catch (e) {
-            alert('Export failed: ' + e.message);
-            btn.disabled = false;
-            btn.innerHTML = originalHtml;
+            }
         }
     }
 

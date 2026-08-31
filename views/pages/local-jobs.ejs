@@ -18,14 +18,14 @@
             <i class="fa-solid fa-stop"></i> Stop
         </button>
         <div class="flex items-center gap-1.5 shrink-0">
-            <a href="/api/jobs/export/excel?scope=local" download class="inline-flex items-center gap-1 px-2.5 py-2 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 rounded-lg text-xs font-semibold transition-all" title="Export to Excel">
+            <button type="button" onclick="triggerBlobDownload('local', 'excel', this)" class="inline-flex items-center gap-1 px-2.5 py-2 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 rounded-lg text-xs font-semibold transition-all" title="Export to Excel">
                 <i class="fa-solid fa-file-excel"></i>
                 <span class="hidden sm:inline">Excel</span>
-            </a>
-            <a href="/api/jobs/export/pdf?scope=local" download class="inline-flex items-center gap-1 px-2.5 py-2 bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/30 rounded-lg text-xs font-semibold transition-all" title="Export to PDF">
+            </button>
+            <button type="button" onclick="triggerBlobDownload('local', 'pdf', this)" class="inline-flex items-center gap-1 px-2.5 py-2 bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/30 rounded-lg text-xs font-semibold transition-all" title="Export to PDF">
                 <i class="fa-solid fa-file-pdf"></i>
                 <span class="hidden sm:inline">PDF</span>
-            </a>
+            </button>
         </div>
     </div>
 </div>

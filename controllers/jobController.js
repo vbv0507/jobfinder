@@ -230,13 +230,18 @@ const exportJobsExcel = async (req, res) => {
         const { fetchJobsByScope, generateExcelBuffer } = require("../services/exportService");
         const scope = (req.query.scope || 'all').toLowerCase();
         const jobs = await fetchJobsByScope(scope, req.query);
-        const buffer = await generateExcelBuffer(jobs, scope);
+        const rawBuffer = await generateExcelBuffer(jobs, scope);
+        const buffer = Buffer.isBuffer(rawBuffer) ? rawBuffer : Buffer.from(rawBuffer);
 
         const filename = `RoleNova_${scope}_jobs_${new Date().toISOString().slice(0, 10)}.xlsx`;
         res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
         res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
         res.setHeader('Content-Length', buffer.length);
-        return res.status(200).send(buffer);
+        res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+        res.setHeader('Pragma', 'no-cache');
+        res.setHeader('Expires', '0');
+        res.setHeader('Access-Control-Expose-Headers', 'Content-Disposition');
+        return res.status(200).end(buffer);
     } catch (error) {
         console.error("[Export Excel Error]:", error);
         return res.status(500).json({ success: false, message: "Excel export failed: " + error.message });
@@ -248,13 +253,18 @@ const exportJobsPdf = async (req, res) => {
         const { fetchJobsByScope, generatePdfBuffer } = require("../services/exportService");
         const scope = (req.query.scope || 'all').toLowerCase();
         const jobs = await fetchJobsByScope(scope, req.query);
-        const buffer = await generatePdfBuffer(jobs, scope);
+        const rawBuffer = await generatePdfBuffer(jobs, scope);
+        const buffer = Buffer.isBuffer(rawBuffer) ? rawBuffer : Buffer.from(rawBuffer);
 
         const filename = `RoleNova_${scope}_jobs_${new Date().toISOString().slice(0, 10)}.pdf`;
         res.setHeader('Content-Type', 'application/pdf');
         res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
         res.setHeader('Content-Length', buffer.length);
-        return res.status(200).send(buffer);
+        res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+        res.setHeader('Pragma', 'no-cache');
+        res.setHeader('Expires', '0');
+        res.setHeader('Access-Control-Expose-Headers', 'Content-Disposition');
+        return res.status(200).end(buffer);
     } catch (error) {
         console.error("[Export PDF Error]:", error);
         return res.status(500).json({ success: false, message: "PDF export failed: " + error.message });
