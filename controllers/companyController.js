@@ -130,10 +130,19 @@ const scrapeCompanyDirectly = async (req, res) => {
             if (saved) savedCount++;
         }
 
+        // Update company scrape metadata in MongoDB
+        company.lastScrapedAt = new Date();
+        company.lastScrapeStatus = rawJobs.length > 0 ? 'success' : 'failed';
+        company.jobsFound = rawJobs.length;
+        await company.save();
+
         const CacheManager = require("../services/cacheManager");
         const { invalidateAnalyticsCache } = require("../services/analyticsService");
         CacheManager.invalidate();
         invalidateAnalyticsCache();
+
+        const socketService = require("../services/socketService");
+        socketService.emitCompanySnapshot().catch(e => console.error("[Socket] Snapshot error:", e.message));
 
         res.status(200).json({
             success: true,
@@ -144,6 +153,12 @@ const scrapeCompanyDirectly = async (req, res) => {
             durationMs
         });
     } catch (error) {
+        try {
+            await Company.findByIdAndUpdate(req.params.id, {
+                lastScrapedAt: new Date(),
+                lastScrapeStatus: 'failed'
+            });
+        } catch (_) {}
         res.status(500).json({ success: false, message: error.message });
     }
 };
