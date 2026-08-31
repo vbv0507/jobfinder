@@ -132,13 +132,12 @@ async function fetchJobsByScope(scope = 'all', filters = {}) {
     // 2. Fetch Rejected Jobs
     if (['all', 'rejected'].includes(scopeLower)) {
         const rejectedDocs = await RejectedJob.find({})
-            .populate('company', 'name logo careerUrl')
-            .populate('rawJob', 'description scrapedAt postedAt experience salary jobId')
+            .select('role company score reason missingSkills weaknesses applyLink postedAt createdAt location provider model scoringBreakdown mandatoryRequirements notes')
+            .populate('company', 'name')
             .sort({ createdAt: -1 })
             .lean();
 
         for (const r of rejectedDocs) {
-            const raw = r.rawJob || {};
             const breakdown = r.scoringBreakdown || {};
             const breakdownStr = [
                 breakdown.roleMatch != null ? `Role: ${breakdown.roleMatch}%` : null,
@@ -150,18 +149,18 @@ async function fetchJobsByScope(scope = 'all', filters = {}) {
 
             normalizedList.push({
                 id: r._id.toString(),
-                jobId: raw.jobId || r.jobId || 'N/A',
+                jobId: r.jobId || 'N/A',
                 companyName: getCompanyName(r),
-                title: r.role || raw.title || 'Untitled Role',
-                location: r.location || raw.location || 'Remote / India',
+                title: r.role || 'Untitled Role',
+                location: r.location || 'Remote / India',
                 categoryStatus: 'Rejected (AI)',
                 score: typeof r.score === 'number' ? r.score : 'N/A',
                 scoringBreakdown: breakdownStr,
                 evaluatedBy: r.evaluatedBy || (r.provider ? r.provider.toUpperCase() : 'AI Filter'),
                 provider: r.provider || r.evaluatedBy || 'AI Filter',
                 model: r.model || 'N/A',
-                postedDate: formatDateShort(r.postedAt || raw.postedAt),
-                scrapedDate: formatDate(r.createdAt || r.lastScrapedAt || raw.scrapedAt),
+                postedDate: formatDateShort(r.postedAt),
+                scrapedDate: formatDate(r.createdAt || r.lastScrapedAt),
                 appliedDate: 'Not Applied',
                 isApplied: false,
                 matchReason: 'N/A (Disqualified)',
@@ -171,8 +170,8 @@ async function fetchJobsByScope(scope = 'all', filters = {}) {
                 strengths: (r.strengths && r.strengths.length) ? r.strengths.join('; ') : 'N/A',
                 weaknesses: (r.weaknesses && r.weaknesses.length) ? r.weaknesses.join('; ') : 'N/A',
                 mandatoryRequirements: (r.mandatoryRequirements && r.mandatoryRequirements.length) ? r.mandatoryRequirements.join('; ') : 'N/A',
-                description: (raw.description || r.description || r.role || '').slice(0, 1500),
-                applyLink: r.applyLink || raw.applyLink || '',
+                description: (r.description || r.role || '').slice(0, 1500),
+                applyLink: r.applyLink || '',
                 notes: r.notes || ''
             });
         }
@@ -660,23 +659,42 @@ async function generatePdfBuffer(jobs, scope = 'all') {
 
     let browser = null;
     try {
-        browser = await chromium.launch({
-            headless: true,
-            args: ['--no-sandbox', '--disable-setuid-sandbox']
-        });
-        const page = await browser.newPage();
-        await page.setContent(htmlContent, { waitUntil: 'domcontentloaded' });
-        await page.waitForTimeout(500);
+        try {
+            browser = await chromium.launch({
+                headless: true,
+                args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage']
+            });
+            const page = await browser.newPage();
+            await page.setContent(htmlContent, { waitUntil: 'domcontentloaded' });
+            await page.waitForTimeout(400);
 
-        const pdfBuffer = await page.pdf({
-            format: 'A4',
-            landscape: true,
-            printBackground: true,
-            margin: { top: '10mm', right: '8mm', bottom: '10mm', left: '8mm' }
-        });
+            const pdfBuffer = await page.pdf({
+                format: 'A4',
+                landscape: true,
+                printBackground: true,
+                margin: { top: '10mm', right: '8mm', bottom: '10mm', left: '8mm' }
+            });
 
-        await page.close().catch(() => {});
-        return pdfBuffer;
+            await page.close().catch(() => {});
+            return pdfBuffer;
+        } catch (pwErr) {
+            console.warn("[PDF Export] Playwright launch failed, trying Puppeteer fallback:", pwErr.message);
+            const puppeteer = require('puppeteer');
+            const pBrowser = await puppeteer.launch({
+                headless: 'new',
+                args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage']
+            });
+            const pPage = await pBrowser.newPage();
+            await pPage.setContent(htmlContent, { waitUntil: 'domcontentloaded' });
+            const pdfBuffer = await pPage.pdf({
+                format: 'A4',
+                landscape: true,
+                printBackground: true,
+                margin: { top: '10mm', right: '8mm', bottom: '10mm', left: '8mm' }
+            });
+            await pBrowser.close().catch(() => {});
+            return pdfBuffer;
+        }
     } finally {
         if (browser) await browser.close().catch(() => {});
     }
