@@ -7,6 +7,7 @@ CANDIDATE PROFILE
 
 Career Stage: ${profile.careerStage || "Not specified"}
 Years of Experience: ${profile.yearsOfExperience || 0}
+Preferred Locations: ${(profile.preferredLocations || ["India", "Remote"]).join(", ")}
 Preferred Domains: ${(profile.preferredDomains || []).join(", ")}
 Excluded Domains: ${(profile.excludedDomains || []).join(", ")}
 
@@ -42,6 +43,10 @@ EVALUATION RULES (MULTI-STAGE)
 STAGE 0: CLOSED/FILLED/REMOVED DETECTION (HARD CONSTRAINT)
 - If the job description explicitly states that the role is 'closed', 'filled', 'no longer accepting applications', or 'removed', set 'isClosed': true.
 - If it is closed, set the score to 0, recommendationLevel to 'Reject', and reason to 'Job is closed or filled'. Reject immediately.
+
+STAGE 0.5: LOCATION MISMATCH (HARD CONSTRAINT)
+- Candidate Preferred Locations: ${(profile.preferredLocations || ["India", "Remote"]).join(", ")}.
+- If the Job Location is in a foreign country (e.g. Mexico, United States, Canada, UK, Europe, Singapore, etc.) and is NOT remote or located in India, the candidate cannot work there without authorization. Set score <= 30, recommendationLevel to 'Reject', and reason to 'Location Mismatch: Role is located in a foreign country/territory'. Reject immediately.
 
 STAGE 1: EXPERIENCE MISMATCH (HARD CONSTRAINT)
 - Experience must be treated as a HARD CONSTRAINT.

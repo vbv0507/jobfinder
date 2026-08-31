@@ -19,24 +19,54 @@ const hasEntryLevelSignal = (text) =>
 
 
 
+const isLocationMatching = (job, profile) => {
+  if (!STRICT_LOCATION_MATCH) return true;
+  const preferred = (profile.preferredLocations || []).map(l => l.toLowerCase().trim()).filter(Boolean);
+  if (preferred.length === 0) return true;
+
+  const locStr = (job.location || "").toLowerCase().trim();
+  const titleStr = (job.title || "").toLowerCase().trim();
+  const fullLocText = `${locStr} ${titleStr}`;
+
+  // 1. Explicit foreign / international country check (Disqualify non-India/non-Remote foreign roles)
+  const isExplicitForeign = /\b(mexico|united states|usa|us|uk|united kingdom|london|canada|singapore|australia|germany|poland|netherlands|ireland|france|spain|sweden|switzerland|japan|dubai|uae|abu dhabi|brazil|israel|philippines|vietnam|taiwan|austria|nz|new zealand)\b/i.test(locStr);
+  const isUsState = /\b(ca|ny|wa|tx|va|dc|fl|ma|il|co|nc|ga|nj|pa|oh|mi|az)\b/i.test(locStr);
+
+  const isExplicitIndia = /\b(india|ind\b|in\b|bengaluru|bangalore|hyderabad|pune|noida|gurgaon|gurugram|delhi|mumbai|chennai|kolkata|ahmedabad|chandigarh|jaipur|raipur|kochi|cochin|indore)\b/i.test(fullLocText);
+  const isGlobalOrIndiaRemote = /\b(remote\s*-\s*india|india,\s*remote|remote\s*\(india\)|remote,\s*india|india\s*remote|anywhere|global\s*remote)\b/i.test(fullLocText) || (locStr === 'remote');
+
+  if (isExplicitIndia || isGlobalOrIndiaRemote) {
+    return true;
+  }
+
+  if (isExplicitForeign || isUsState) {
+    // If it's located in foreign territory (e.g. US, Mexico, UK) and not explicitly India or global remote, reject
+    return false;
+  }
+
+  // Check candidate preferred location list
+  const matchesPreferred = preferred.some(p => {
+    if (p === 'india') return /\b(india|ind\b|in\b)\b/i.test(fullLocText);
+    if (p === 'remote') return /\b(remote|wfh|work from home|anywhere)\b/i.test(fullLocText);
+    const regex = new RegExp(`\\b${p}\\b`, 'i');
+    return regex.test(fullLocText);
+  });
+
+  if (matchesPreferred) return true;
+
+  // Fallback to description check with strict word boundaries
+  const desc = (job.description || "").toLowerCase();
+  const descIndia = /\b(location:\s*india|based in india|bengaluru|bangalore|hyderabad|pune|noida|gurugram|delhi|mumbai|chennai)\b/i.test(desc);
+  const descRemote = /\b(100%\s*remote|fully\s*remote|work from anywhere)\b/i.test(desc);
+
+  return descIndia || descRemote;
+};
+
 const getSkipReason = (job, profile) => {
   const text = getJobText(job);
-  const preferredLocations = profile.preferredLocations || [];
   const preferredRoles = profile.preferredRoles || [];
 
-  const locationMatches =
-    !STRICT_LOCATION_MATCH ||
-    preferredLocations.length === 0 ||
-    preferredLocations.some((location) => {
-      const value = location.toLowerCase();
-      return (
-        text.includes(value) ||
-        (value === "india" && text.includes("ind")) ||
-        (value === "remote" && text.includes("remote"))
-      );
-    });
-
-  if (!locationMatches) {
+  if (!isLocationMatching(job, profile)) {
     return "location not preferred";
   }
 

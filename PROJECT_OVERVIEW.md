@@ -664,6 +664,23 @@ Eliminated the previous view-level approval gates so any user who creates an acc
   - **Infineon Technologies** (`https://jobs.infineon.com/` - Semiconductor / Embedded Tech)
 - Both companies added to `utils/companies.js` seed catalog and upserted/activated in MongoDB.
 
+---
+
+## 🌍 24. Strict Location Constraint & International Job Filtering (2026-08-31)
+
+### Issue Identified
+- International jobs located in foreign territories (e.g. Mexico City, Mexico, Palo Alto, CA, Washington D.C.) were occasionally passing through to Matched Jobs due to a substring matching bug where common English words in descriptions (such as `industry`, `individual`, `independence`) matched the `ind` substring for India.
+
+### Architectural Fixes
+1. **Accurate Word-Boundary Location Matching (`aiEvaluationService.js`)**:
+   - Replaced substring matching with strict word boundaries and explicit country/city matching (`india`, `bengaluru`, `pune`, `hyderabad`, `noida`, `delhi`, `mumbai`, `chennai`, etc.).
+   - Disqualifies foreign territory locations (Mexico, US states `CA`, `NY`, `DC`, `WA`, UK, Europe, Singapore, etc.) unless the role is explicitly marked as India or Global Remote.
+2. **AI Prompt Location Constraints (`aiHelpers.js`)**:
+   - Added `Preferred Locations` to the evaluation prompt and introduced `STAGE 0.5: LOCATION MISMATCH (HARD CONSTRAINT)` so the LLM automatically rejects non-remote foreign positions.
+3. **Database Cleansing (`scripts/clean_international_jobs.js`)**:
+   - Moved all existing international location matches into `RejectedJobs` and cleared cache so the dashboard immediately displays only relevant jobs.
+
+
 
 
 
