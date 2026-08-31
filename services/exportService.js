@@ -1,5 +1,5 @@
 const ExcelJS = require('exceljs');
-const { chromium } = require('playwright');
+const { launchBrowser } = require('./browserManager');
 const MatchedJob = require('../models/MatchedJob');
 const RejectedJob = require('../models/RejectedJob');
 const RawJob = require('../models/RawJob');
@@ -687,42 +687,20 @@ async function generatePdfBuffer(jobs, scope = 'all') {
 
     let browser = null;
     try {
-        try {
-            browser = await chromium.launch({
-                headless: true,
-                args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage']
-            });
-            const page = await browser.newPage();
-            await page.setContent(htmlContent, { waitUntil: 'domcontentloaded' });
-            await page.waitForTimeout(400);
+        browser = await launchBrowser();
+        const page = await browser.newPage();
+        await page.setContent(htmlContent, { waitUntil: 'domcontentloaded' });
+        await new Promise(r => setTimeout(r, 400));
 
-            const pdfBuffer = await page.pdf({
-                format: 'A4',
-                landscape: true,
-                printBackground: true,
-                margin: { top: '10mm', right: '8mm', bottom: '10mm', left: '8mm' }
-            });
+        const pdfBuffer = await page.pdf({
+            format: 'A4',
+            landscape: true,
+            printBackground: true,
+            margin: { top: '10mm', right: '8mm', bottom: '10mm', left: '8mm' }
+        });
 
-            await page.close().catch(() => {});
-            return pdfBuffer;
-        } catch (pwErr) {
-            console.warn("[PDF Export] Playwright launch failed, trying Puppeteer fallback:", pwErr.message);
-            const puppeteer = require('puppeteer');
-            const pBrowser = await puppeteer.launch({
-                headless: 'new',
-                args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage']
-            });
-            const pPage = await pBrowser.newPage();
-            await pPage.setContent(htmlContent, { waitUntil: 'domcontentloaded' });
-            const pdfBuffer = await pPage.pdf({
-                format: 'A4',
-                landscape: true,
-                printBackground: true,
-                margin: { top: '10mm', right: '8mm', bottom: '10mm', left: '8mm' }
-            });
-            await pBrowser.close().catch(() => {});
-            return pdfBuffer;
-        }
+        await page.close().catch(() => {});
+        return pdfBuffer;
     } finally {
         if (browser) await browser.close().catch(() => {});
     }
