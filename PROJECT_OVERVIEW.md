@@ -753,3 +753,19 @@ Built an enterprise-grade, multi-format Export Engine that allows users to expor
    - `GET /api/jobs/export/excel?scope=all|matched|applied|saved|rejected|local`
    - `GET /api/jobs/export/pdf?scope=all|matched|applied|saved|rejected|local`
    - `GET /export/excel` & `GET /export/pdf`
+
+---
+
+## 27. Cloud-Resilient Browser Manager & Zero-Configuration Scraping Engine
+
+### Architecture & Capabilities:
+1. **Self-Healing Dynamic Browser Lifecycle (`services/browserManager.js`)**:
+   - Manages Puppeteer-Extra and Chromium binaries across local environments and cloud containers (Azure App Service Linux).
+   - Dynamically inspects local project cache (`.cache/puppeteer`) and invokes `@puppeteer/browsers.install()` on-the-fly if binaries are missing in fresh runtime containers.
+   - Enforces headless stealth mode with anti-bot evasion (`puppeteer-extra-plugin-stealth`), `--no-sandbox`, `--disable-dev-shm-usage`, and realistic user-agent / viewport emulation.
+2. **Priority 1 Adapters Cloud Migration**:
+   - **ADP Adapter (`services/ats/providers/Priority1/AdpAdapter.js`)**: Integrated with `BrowserManager` to scrape 50+ live career portal jobs without external binary dependencies.
+   - **Infineon Adapter (`services/ats/providers/Priority1/InfineonAdapter.js`)**: Integrated with `BrowserManager` to hydrate Eightfold SPA postings in real-time.
+3. **Automated Status & Real-time Broadcast**:
+   - On-demand scraping (`POST /api/companies/:id/scrape`) immediately persists `lastScrapeStatus: 'success'`, `jobsFound: N`, and `lastScrapedAt: new Date()` in MongoDB and broadcasts a live WebSocket snapshot to update company cards instantly.
+
