@@ -50,10 +50,29 @@ The `geminiService.js` and `aiEvaluationService.js` evaluate candidate fit again
 4. **Tier 4: LiteLLM ACA Proxy**: Backup proxy layer on Azure Container Apps.
 5. **Tier 5: Local Heuristic Evaluator**: Safe local fallback if all cloud AI providers are exhausted or offline, saving jobs to the `/local-jobs` queue for later verification.
 
-### The "Local Pending" Feature
+### LLM API Health & Credit Tester (Sidebar Feature)
+- **Aim**: Allow administrators and users to test whether AI API keys are valid, active, have available quota/credits, and verify live roundtrip latency before launching heavy pipeline scrapes.
+- **Location**: Accessible globally from the sidebar navigation (`Diagnostics & AI -> LLM Health & Ping`) without cluttering the main dashboard.
+- **Capabilities**:
+  - **Single & Batch Ping**: Pings Google Gemini, Groq pool keys, Cerebras, OpenRouter, DeepSeek, Z.ai, and LiteLLM simultaneously or individually.
+  - **Credit Availability Analysis**: Accurately categorizes HTTP 200 (Active & Credits Available), HTTP 429/402 (Quota Exhausted / Out of Credits), HTTP 401/403 (Invalid Key / Unauthorized), and unconfigured providers.
+  - **Custom Ping Prompt**: Supports testing with custom messages (e.g. `hello`, `ping`) and displays live AI text responses alongside response latency in milliseconds.
+- **Service & Routes**:
+  - Service: `services/llmPingService.js`
+  - Routes: `GET /api/system/llm/providers` & `POST /api/system/llm/ping`
+  - UI Modal: `views/partials/llmTesterModal.ejs`
+
+### The "Local Pending" Feature & LLM Re-Evaluation
 - **Aim**: To ensure no job is lost due to temporary cloud outages, but also to prevent false-positives from spamming the user.
-- **Implementation**: Jobs evaluated by the "Local" engine are saved as `MatchedJob`s but are flagged with `provider: "local"`. They are **hidden** from the main dashboard and placed in a dedicated `/local-jobs` dashboard.
-- **Nightly Verification**: At 8:00 PM IST every day, a background script (`verifyLocalJobs` in `schedulerService.js`) scoops up all "Local" jobs and re-evaluates them using the cloud AI chain before the daily email digest is sent.
+- **Implementation**: Jobs evaluated by the "Local" heuristic engine are saved as `MatchedJob`s but are flagged with `provider: "local"`. They are **hidden** from the main dashboard and placed in a dedicated `/local-jobs` dashboard.
+- **LLM Verification Engine (`services/schedulerService.js` & `scripts/re_evaluate_all_local_jobs.js`)**:
+  - Re-evaluates local heuristic matches against the active `CandidateProfile` using the cloud AI LLM chain (Gemini / Groq / OpenRouter).
+  - Calculates real AI match scores, full breakdown, domain alignment, and strengths/weaknesses.
+  - Genuine matches meeting the `MATCH_THRESHOLD` (>=70) are updated with real LLM scores, assigned to verified providers (e.g. `groq`, `gemini`), and marked `emailEligible: true`.
+  - Non-matching jobs or false positives (e.g. Senior/PhD roles, excluded domains, mismatched tech stacks) are removed from `MatchedJob` and moved to `RejectedJob`.
+- **Automated & Manual Execution**:
+  - Nightly at 8:00 PM IST via `schedulerService.js` before daily email digest dispatch.
+  - On-demand via `POST /api/system/verify-local` or via CLI script `scripts/re_evaluate_all_local_jobs.js`.
 
 ---
 
@@ -624,6 +643,27 @@ Eliminated the previous view-level approval gates so any user who creates an acc
    - Pipeline triggers (via REST `POST /api/jobs/run` or WebSockets `pipeline:start`) track daily executions in MongoDB (`dailyPipelineRuns`, `lastPipelineRunDate` in IST).
    - If a standard user triggers more than 1 run on the same calendar day, the system gracefully blocks the request with a 429 response: `"Daily Pipeline Run Limit Reached (1/1 used today). Your run limit resets at midnight IST."`
    - Quotas automatically reset every day at midnight IST.
+
+---
+
+## ⚡ 23. LLM API Credit Tester, Local Match Re-Evaluation & Seed Expansions (2026-08-31)
+
+### 1. Sidebar LLM API Health & Credit Tester
+- **Sidebar Integration**: Added a dedicated `Diagnostics & AI` section in `sidebar.ejs` launching an interactive dark glassmorphic modal (`llmTesterModal.ejs`) globally across all views without cluttering the main dashboard.
+- **Provider Coverage**: Simultaneously tests Google Gemini, Groq pool keys, Cerebras, OpenRouter, DeepSeek, Z.ai, and LiteLLM.
+- **Diagnostics**: Differentiates active credits (HTTP 200), quota exhaustion (HTTP 429/402), and invalid auth (HTTP 401) with sub-second execution (<5s full batch).
+
+### 2. Local Matched Jobs Cloud LLM Re-Evaluation Engine
+- **Automated Verification**: Re-evaluated 79 legacy local/unverified matches using rotating cloud LLMs against the candidate profile.
+- **Precision Cleansing**: 76 inaccurate matches (Senior/Lead 5+ yr roles, PhD prerequisites, non-technical marketing/sales roles) were automatically filtered into `RejectedJobs`, while genuine matches were updated with real LLM scores, breakdown, and verified provider tags.
+- **Database Status**: 100% of matched jobs are now verified by Cloud LLMs (`groq`, `openrouter`, `gemini`, `litellm`).
+
+### 3. Company Catalog Seed Expansion
+- **Newly Added & Active Seed Companies**:
+  - **ADP** (`https://jobs.adp.com/` - FinTech / HR Tech)
+  - **Infineon Technologies** (`https://jobs.infineon.com/` - Semiconductor / Embedded Tech)
+- Both companies added to `utils/companies.js` seed catalog and upserted/activated in MongoDB.
+
 
 
 

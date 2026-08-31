@@ -205,8 +205,11 @@ const verifyLocalJobs = async () => {
 
     try {
         const MatchedJob = require('../models/MatchedJob');
+        const RejectedJob = require('../models/RejectedJob');
         const { getActiveProfile, runEvaluationPipeline } = require('./pipeline/aiEvaluationService');
         const { saveMatchedJob } = require('./pipeline/storageService');
+        const CacheManager = require('./cacheManager');
+
         const localJobs = await MatchedJob.find({
             $or: [
                 { provider: { $regex: /local/i } },
@@ -215,17 +218,18 @@ const verifyLocalJobs = async () => {
                 { provider: null },
                 { evaluatedBy: { $regex: /local/i } }
             ]
-        }).populate('rawJob').exec();
+        }).populate('rawJob').populate('company').exec();
 
         let stats = { processed: 0, approved: 0, rejected: 0, failed: 0 };
 
         if (localJobs.length > 0) {
-            console.log(chalk.blue(`[Scheduler] Re-evaluating ${localJobs.length} Local matches...`));
+            console.log(chalk.blue(`[Scheduler] Re-evaluating ${localJobs.length} Local matches with AI LLM...`));
             const profile = await getActiveProfile();
             const aiState = { 
-                gemini: { available: true }, 
-                groq: { available: true },
-                openrouter: { available: true },
+                gemini: { available: true, requests: 0, success: 0, failed: 0 }, 
+                groq: { available: true, requests: 0, success: 0, failed: 0 },
+                openrouter: { available: true, requests: 0, success: 0, failed: 0 },
+                litellm: { available: true, requests: 0, success: 0, failed: 0 },
                 local: { disabled: true },
                 calls: 0
             };
@@ -236,85 +240,144 @@ const verifyLocalJobs = async () => {
             for (const mJob of localJobs) {
                 index++;
                 stats.processed++;
-                if (!mJob.rawJob) {
-                    stats.failed++;
-                    continue;
-                }
+
                 if (shouldStopVerifyLocal) {
                     console.log(chalk.yellow(`[Scheduler] Re-evaluation stopped by user request.`));
                     stats.stopped = true;
                     break;
                 }
 
+                const raw = mJob.rawJob;
+                const jobToEvaluate = {
+                    title: raw?.title || mJob.role,
+                    location: raw?.location || mJob.location,
+                    company: mJob.company?.name || raw?.companyName || "Unknown Company",
+                    description: raw?.description || mJob.reason || mJob.role,
+                    experience: raw?.experience || "",
+                    employmentType: raw?.employmentType || "Full-Time",
+                    applyLink: raw?.applyLink || mJob.applyLink
+                };
+
                 try {
-                    const originalProvider = mJob.provider;
-                    const result = await runEvaluationPipeline(mJob.rawJob, profile, aiState);
+                    const result = await runEvaluationPipeline(jobToEvaluate, profile, aiState);
 
-                    // Graceful pause: if all providers are now disabled/unavailable, wait 60s and reset instead of failing
-                    const groqActuallyAvailable = aiState.groq.available && process.env.ENABLE_GROQ_FALLBACK !== 'false' && !!process.env.GROQ_API_KEY;
-                    const openRouterActuallyAvailable = aiState.openrouter.available && process.env.ENABLE_OPENROUTER_FALLBACK !== 'false' && !!process.env.OPENROUTER_API_KEY;
-                    const allDown = !aiState.gemini.available && !groqActuallyAvailable && !openRouterActuallyAvailable;
-                    
-                    if (allDown && (!result || !result.analysis)) {
-                        console.log(chalk.yellow(`[Scheduler] All AI providers rate-limited. Pausing for 60 seconds before retrying...`));
-                        await new Promise(resolve => setTimeout(resolve, 60000));
+                    if (result && result.skipped) {
+                        // Pre-filter rejected
+                        stats.rejected++;
+                        console.log(`[Re-Evaluation] Job ${mJob._id} REJECTED by Pre-Filter (${result.reason}).`);
                         
-                        // Reset availability for the next attempt
-                        aiState.gemini.available = true;
-                        aiState.groq.available = true;
-                        aiState.openrouter.available = true;
-                        
-                        // Push the current job back to the end of the queue so we don't skip it
-                        localJobs.push(mJob);
-                        continue;
-                    }
-
-                    if (result && !result.skipped && result.analysis) {
+                        const rawJobId = mJob.rawJob?._id || mJob.rawJob;
+                        if (rawJobId) {
+                            await RejectedJob.findOneAndUpdate(
+                                { rawJob: rawJobId },
+                                {
+                                    $set: {
+                                        rawJob: rawJobId,
+                                        company: mJob.company?._id || mJob.company,
+                                        role: jobToEvaluate.title,
+                                        location: jobToEvaluate.location,
+                                        score: 30,
+                                        reason: `Pre-filter rejection: ${result.reason}`,
+                                        primaryReasons: [`Pre-filter rejection: ${result.reason}`],
+                                        recommendation: "Reject",
+                                        applyLink: jobToEvaluate.applyLink,
+                                        evaluatedBy: "AI Pre-Filter",
+                                        provider: "filter",
+                                        verifiedAt: new Date(),
+                                        verificationStatus: "rejected"
+                                    }
+                                },
+                                { upsert: true }
+                            );
+                        }
+                        await MatchedJob.findByIdAndDelete(mJob._id);
+                    } else if (result && result.analysis) {
                         const newProvider = (result.analysis.provider || "gemini").toLowerCase();
-                        const isApproved = result.analysis.suitable === true && result.analysis.score >= MATCH_THRESHOLD;
+                        const isApproved = result.analysis.suitable === true && result.analysis.score >= MATCH_THRESHOLD && !result.analysis.isClosed;
                         
-                        const jobShape = {
-                            title: mJob.role,
-                            location: mJob.location,
-                            applyLink: mJob.rawJob.applyLink,
-                            postedAt: mJob.rawJob.postedAt
-                        };
-                        
-                        await saveMatchedJob(mJob.rawJob, { _id: mJob.company }, jobShape, result.analysis);
-
                         if (isApproved) {
                             stats.approved++;
-                            console.log(`[Re-Evaluation] Job ${mJob._id} APPROVED by ${newProvider}. Provider updated.`);
-                            // Ensure it's email eligible again since the original script hid it
+                            console.log(`[Re-Evaluation] Job ${mJob._id} APPROVED by ${newProvider} (Score: ${result.analysis.score}/100).`);
+                            
                             await MatchedJob.findByIdAndUpdate(mJob._id, { 
+                                score: result.analysis.score,
+                                scoringBreakdown: result.analysis.scoringBreakdown || {},
+                                confidence: result.analysis.confidence || "High",
+                                suitable: true,
+                                reason: result.analysis.reason,
+                                primaryReasons: result.analysis.primaryReasons || [],
+                                matchedSkills: result.analysis.matchedSkills || [],
+                                missingSkills: result.analysis.missingSkills || [],
+                                strengths: result.analysis.strengths || [],
+                                weaknesses: result.analysis.weaknesses || [],
+                                mandatoryRequirements: result.analysis.mandatoryRequirements || [],
+                                optionalRequirements: result.analysis.optionalRequirements || [],
+                                domainMismatch: result.analysis.domainMismatch || false,
+                                domainExplanation: result.analysis.domainExplanation || "",
+                                experienceMismatch: result.analysis.experienceMismatch || false,
+                                roleMatch: result.analysis.roleMatch || result.analysis.recommendationLevel || "Strong",
+                                recommendation: result.analysis.recommendation || "Consider applying",
+                                evaluatedBy: result.analysis.evaluatedBy || "Groq",
+                                provider: newProvider,
+                                model: result.analysis.model || "qwen/qwen3.8-27b",
+                                evaluationTimeMs: result.analysis.evaluationTimeMs || 0,
                                 emailEligible: true, 
                                 needsReEvaluation: false, 
                                 verifiedAt: new Date(),
-                                verificationStatus: "verified",
-                                provider: newProvider,
-                                score: result.analysis.score
+                                verificationStatus: "verified"
                             });
                         } else {
                             stats.rejected++;
-                            console.log(`[Re-Evaluation] Job ${mJob._id} REJECTED by ${newProvider}. Moved to RejectedJobs.`);
+                            console.log(`[Re-Evaluation] Job ${mJob._id} REJECTED by ${newProvider} (Score: ${result.analysis.score}/100). Moved to RejectedJobs.`);
+                            
+                            const rawJobId = mJob.rawJob?._id || mJob.rawJob;
+                            if (rawJobId) {
+                                await RejectedJob.findOneAndUpdate(
+                                    { rawJob: rawJobId },
+                                    {
+                                        $set: {
+                                            rawJob: rawJobId,
+                                            company: mJob.company?._id || mJob.company,
+                                            role: jobToEvaluate.title,
+                                            location: jobToEvaluate.location,
+                                            score: result.analysis.score,
+                                            reason: result.analysis.reason,
+                                            primaryReasons: result.analysis.primaryReasons || [result.analysis.reason],
+                                            matchedSkills: result.analysis.matchedSkills || [],
+                                            missingSkills: result.analysis.missingSkills || [],
+                                            domainMismatch: result.analysis.domainMismatch || false,
+                                            experienceMismatch: result.analysis.experienceMismatch || false,
+                                            recommendation: "Reject",
+                                            applyLink: jobToEvaluate.applyLink,
+                                            evaluatedBy: result.analysis.evaluatedBy || "AI",
+                                            provider: newProvider,
+                                            model: result.analysis.model,
+                                            verifiedAt: new Date(),
+                                            verificationStatus: "rejected"
+                                        }
+                                    },
+                                    { upsert: true }
+                                );
+                            }
                             await MatchedJob.findByIdAndDelete(mJob._id);
                         }
                     } else {
                         stats.failed++;
-                        console.log(`[Re-Evaluation] Job ${mJob._id} FAILED evaluation (Skipped or no analysis).`);
+                        console.log(`[Re-Evaluation] Job ${mJob._id} FAILED evaluation.`);
                     }
                 } catch (e) {
                     stats.failed++;
                     console.error(chalk.red(`[Scheduler] Re-evaluation failed for job ${mJob._id}: ${e.message}`));
                 }
                 
-                // Batch pause logic (Wait 15 seconds every 5 jobs)
+                // Batch pause logic (Wait 2 seconds every 5 jobs)
                 if (index % 5 === 0 && index < localJobs.length) {
-                    console.log(chalk.gray(`[Scheduler] Batch complete. Waiting 5 seconds before processing the next batch to respect AI rate limits...`));
-                    await new Promise(resolve => setTimeout(resolve, 5000));
+                    await new Promise(resolve => setTimeout(resolve, 2000));
                 }
             }
         }
+        
+        CacheManager.invalidate();
         return stats;
     } finally {
         isVerifyLocalRunning = false;

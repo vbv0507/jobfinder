@@ -201,4 +201,37 @@ router.post('/verify-local/stop', requireAdmin, (req, res) => {
     res.json({ success: true, message: "Requested to stop local verification." });
 });
 
+// ==========================================
+// LLM API Health & Credit Tester Routes
+// ==========================================
+router.get('/llm/providers', requireAdmin, (req, res) => {
+    try {
+        const { getProvidersMetadata } = require('../services/llmPingService');
+        const providers = getProvidersMetadata();
+        res.json({ success: true, providers });
+    } catch (e) {
+        res.status(500).json({ success: false, error: e.message });
+    }
+});
+
+router.post('/llm/ping', requireAdmin, async (req, res) => {
+    try {
+        const { provider = 'all', prompt } = req.body || {};
+        const { pingProviderById } = require('../services/llmPingService');
+        const startTime = Date.now();
+        const results = await pingProviderById(provider, prompt);
+        const totalDurationMs = Date.now() - startTime;
+
+        res.json({
+            success: true,
+            totalDurationMs,
+            timestamp: new Date().toISOString(),
+            results
+        });
+    } catch (e) {
+        res.status(500).json({ success: false, error: e.message });
+    }
+});
+
 module.exports = router;
+

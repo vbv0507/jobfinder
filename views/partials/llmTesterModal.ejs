@@ -1,0 +1,472 @@
+<!-- LLM Health & Credit Tester Modal -->
+<div id="llmTesterModal" class="fixed inset-0 z-50 hidden overflow-y-auto" aria-labelledby="llm-modal-title" role="dialog" aria-modal="true">
+    <!-- Backdrop -->
+    <div id="llmModalBackdrop" class="fixed inset-0 bg-gray-950/80 backdrop-blur-sm transition-opacity duration-300 opacity-0" onclick="closeLlmTesterModal()"></div>
+
+    <div class="flex min-h-full items-center justify-center p-3 sm:p-4 md:p-6 text-center">
+        <!-- Modal Card -->
+        <div id="llmModalContainer" class="relative transform overflow-hidden rounded-2xl bg-gray-900 border border-gray-800 text-left shadow-2xl transition-all duration-300 scale-95 opacity-0 w-full max-w-4xl max-h-[90vh] flex flex-col">
+            
+            <!-- Modal Header -->
+            <div class="flex items-center justify-between px-6 py-4 border-b border-gray-800 bg-gray-900/90 backdrop-blur shrink-0">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-purple-500 flex items-center justify-center shadow-lg shadow-indigo-500/20 text-white">
+                        <i class="fas fa-brain text-lg"></i>
+                    </div>
+                    <div>
+                        <h2 id="llm-modal-title" class="text-lg font-bold text-white flex items-center gap-2">
+                            LLM API Health & Credit Tester
+                            <span id="llmTestingPulse" class="hidden inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 animate-pulse">
+                                Pinging Engines...
+                            </span>
+                        </h2>
+                        <p class="text-xs text-gray-400">Ping AI models live to test active connection, response speed & available API credits</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button type="button" onclick="closeLlmTesterModal()" class="text-gray-400 hover:text-white p-2 rounded-lg hover:bg-gray-800 transition min-w-[36px] min-h-[36px] flex items-center justify-center" aria-label="Close modal">
+                        <i class="fas fa-times text-lg"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Controls & Test Prompt -->
+            <div class="p-6 bg-gray-900/60 border-b border-gray-800/80 shrink-0 space-y-4">
+                <div class="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center justify-between">
+                    <div class="flex-1 relative">
+                        <label for="llmCustomPrompt" class="block text-xs font-semibold text-gray-400 mb-1.5 uppercase tracking-wider">
+                            Test Ping Prompt / Message
+                        </label>
+                        <div class="relative">
+                            <input 
+                                type="text" 
+                                id="llmCustomPrompt" 
+                                value="Hello! Reply with 'OK - Connected' and confirm your status." 
+                                placeholder="Enter custom message to ping AI..." 
+                                class="w-full bg-gray-800/80 border border-gray-700 rounded-xl px-4 py-2.5 text-sm text-gray-100 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition pr-24"
+                                onkeydown="if(event.key === 'Enter') pingAllLlmEngines();"
+                            />
+                            <div class="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1">
+                                <button type="button" onclick="setPromptPreset('Hello! Are you active?')" class="text-[11px] px-2 py-1 bg-gray-700 hover:bg-gray-600 text-gray-300 rounded transition hidden sm:inline-block">
+                                    "Hello"
+                                </button>
+                                <button type="button" onclick="setPromptPreset('Ping test: Reply OK')" class="text-[11px] px-2 py-1 bg-gray-700 hover:bg-gray-600 text-gray-300 rounded transition hidden sm:inline-block">
+                                    "Ping"
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="sm:self-end">
+                        <button 
+                            id="btnPingAllLlm" 
+                            type="button" 
+                            onclick="pingAllLlmEngines()" 
+                            class="w-full sm:w-auto flex items-center justify-center gap-2 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-medium px-5 py-2.5 rounded-xl shadow-lg shadow-indigo-600/30 hover:shadow-indigo-600/50 transition-all min-h-[42px] active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                        >
+                            <i id="btnPingAllIcon" class="fas fa-satellite-dish"></i>
+                            <span id="btnPingAllText">Ping All LLMs</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Stats summary banner -->
+                <div id="llmStatsBanner" class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
+                    <div class="bg-gray-800/60 border border-gray-700/50 rounded-lg p-2.5 flex items-center justify-between">
+                        <span class="text-gray-400">Total Configured</span>
+                        <span id="statConfiguredCount" class="font-bold text-white">0</span>
+                    </div>
+                    <div class="bg-gray-800/60 border border-gray-700/50 rounded-lg p-2.5 flex items-center justify-between">
+                        <span class="text-green-400 flex items-center gap-1.5">
+                            <span class="w-2 h-2 rounded-full bg-green-400 inline-block"></span> Credits Ready
+                        </span>
+                        <span id="statHealthyCount" class="font-bold text-green-400">0</span>
+                    </div>
+                    <div class="bg-gray-800/60 border border-gray-700/50 rounded-lg p-2.5 flex items-center justify-between">
+                        <span class="text-red-400 flex items-center gap-1.5">
+                            <span class="w-2 h-2 rounded-full bg-red-400 inline-block"></span> Quota / Out
+                        </span>
+                        <span id="statExhaustedCount" class="font-bold text-red-400">0</span>
+                    </div>
+                    <div class="bg-gray-800/60 border border-gray-700/50 rounded-lg p-2.5 flex items-center justify-between">
+                        <span class="text-gray-400">Fastest Latency</span>
+                        <span id="statFastestLatency" class="font-bold text-indigo-300">-</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Provider Results List (Scrollable) -->
+            <div class="p-6 overflow-y-auto flex-1 space-y-3" id="llmProviderResultsContainer">
+                <div class="text-center py-10 text-gray-500">
+                    <i class="fas fa-satellite-dish text-4xl mb-3 text-gray-600 animate-pulse"></i>
+                    <p class="text-sm font-medium text-gray-400">Ready to test LLM endpoints</p>
+                    <p class="text-xs text-gray-500 mt-1">Click "Ping All LLMs" to verify connectivity and API credits for Gemini, Groq, Cerebras, OpenRouter & more.</p>
+                </div>
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="px-6 py-3.5 bg-gray-900 border-t border-gray-800 shrink-0 flex items-center justify-between text-xs text-gray-400">
+                <div class="flex items-center gap-2">
+                    <i class="fas fa-info-circle text-indigo-400"></i>
+                    <span>Tests live tokens without consuming rate limit quotas</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span id="llmLastTestedAt" class="text-gray-500">Not tested yet</span>
+                    <button type="button" onclick="closeLlmTesterModal()" class="px-3 py-1.5 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-lg transition">
+                        Close
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script>
+    let isLlmPinging = false;
+    let cachedLlmProviders = null;
+
+    function setPromptPreset(text) {
+        const input = document.getElementById('llmCustomPrompt');
+        if (input) {
+            input.value = text;
+            input.focus();
+        }
+    }
+
+    async function openLlmTesterModal() {
+        const modal = document.getElementById('llmTesterModal');
+        const backdrop = document.getElementById('llmModalBackdrop');
+        const container = document.getElementById('llmModalContainer');
+        if (!modal) return;
+
+        modal.classList.remove('hidden');
+        document.body.classList.add('overflow-hidden');
+
+        setTimeout(() => {
+            backdrop.classList.remove('opacity-0');
+            backdrop.classList.add('opacity-100');
+            container.classList.remove('scale-95', 'opacity-0');
+            container.classList.add('scale-100', 'opacity-100');
+        }, 10);
+
+        // Load initial providers if not tested yet
+        if (!cachedLlmProviders) {
+            await loadLlmProvidersList();
+        }
+    }
+
+    function closeLlmTesterModal() {
+        const modal = document.getElementById('llmTesterModal');
+        const backdrop = document.getElementById('llmModalBackdrop');
+        const container = document.getElementById('llmModalContainer');
+        if (!modal) return;
+
+        backdrop.classList.remove('opacity-100');
+        backdrop.classList.add('opacity-0');
+        container.classList.remove('scale-100', 'opacity-100');
+        container.classList.add('scale-95', 'opacity-0');
+
+        setTimeout(() => {
+            modal.classList.add('hidden');
+            document.body.classList.remove('overflow-hidden');
+        }, 300);
+    }
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            const modal = document.getElementById('llmTesterModal');
+            if (modal && !modal.classList.contains('hidden')) {
+                closeLlmTesterModal();
+            }
+        }
+    });
+
+    async function loadLlmProvidersList() {
+        try {
+            const res = await apiCall('/api/system/llm/providers', 'GET');
+            if (res && res.success && Array.isArray(res.providers)) {
+                cachedLlmProviders = res.providers;
+                renderInitialProviderCards(res.providers);
+            }
+        } catch (e) {
+            console.error('Failed to load LLM providers:', e);
+        }
+    }
+
+    function renderInitialProviderCards(providers) {
+        const container = document.getElementById('llmProviderResultsContainer');
+        if (!container) return;
+
+        let totalConfigured = 0;
+        providers.forEach(p => { if (p.configured) totalConfigured++; });
+        document.getElementById('statConfiguredCount').innerText = totalConfigured;
+
+        container.innerHTML = providers.map(p => {
+            const isConfigured = p.configured;
+            return `
+                <div id="llm-card-${p.id}" class="bg-gray-800/40 border border-gray-700/60 rounded-xl p-4 transition-all hover:border-gray-600">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 rounded-lg ${isConfigured ? 'bg-gray-700 text-indigo-400' : 'bg-gray-800 text-gray-500'} flex items-center justify-center font-bold text-sm shrink-0">
+                                <i class="${getProviderIcon(p.id)}"></i>
+                            </div>
+                            <div>
+                                <div class="flex items-center gap-2">
+                                    <h4 class="text-sm font-bold text-white">${p.name}</h4>
+                                    <span class="text-[10px] px-2 py-0.5 rounded bg-gray-700 text-gray-300 font-mono">${p.model || 'default'}</span>
+                                    <span class="text-[10px] text-gray-500 font-medium">${p.category || ''}</span>
+                                </div>
+                                <p class="text-xs text-gray-400 mt-0.5">${isConfigured ? 'Configured and ready to ping' : 'API Key not configured in .env'}</p>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center gap-2 self-end sm:self-auto">
+                            <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold ${isConfigured ? 'bg-gray-700 text-gray-300' : 'bg-gray-800 text-gray-500'}">
+                                ${isConfigured ? '⚪ Ready' : '⚪ Not Set'}
+                            </span>
+                            ${isConfigured ? `
+                                <button type="button" onclick="pingSingleLlmEngine('${p.id}')" class="px-3 py-1 bg-indigo-600/30 hover:bg-indigo-600 text-indigo-300 hover:text-white rounded-lg text-xs font-medium transition flex items-center gap-1.5">
+                                    <i class="fas fa-play text-[10px]"></i> Ping
+                                </button>
+                            ` : ''}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    function getProviderIcon(id) {
+        if (id.includes('gemini')) return 'fab fa-google text-blue-400';
+        if (id.includes('groq')) return 'fas fa-bolt text-orange-400';
+        if (id.includes('cerebras')) return 'fas fa-microchip text-rose-400';
+        if (id.includes('openrouter')) return 'fas fa-network-wired text-purple-400';
+        if (id.includes('deepseek')) return 'fas fa-compass text-cyan-400';
+        if (id.includes('zai')) return 'fas fa-cube text-emerald-400';
+        if (id.includes('litellm')) return 'fas fa-server text-teal-400';
+        return 'fas fa-brain text-indigo-400';
+    }
+
+    async function pingAllLlmEngines() {
+        if (isLlmPinging) return;
+        isLlmPinging = true;
+
+        const btn = document.getElementById('btnPingAllLlm');
+        const icon = document.getElementById('btnPingAllIcon');
+        const text = document.getElementById('btnPingAllText');
+        const pulse = document.getElementById('llmTestingPulse');
+        const promptInput = document.getElementById('llmCustomPrompt');
+        const customPrompt = promptInput ? promptInput.value : '';
+
+        if (btn) btn.disabled = true;
+        if (icon) icon.className = 'fas fa-spinner fa-spin';
+        if (text) text.innerText = 'Pinging...';
+        if (pulse) pulse.classList.remove('hidden');
+
+        // Mark visible cards as loading
+        document.querySelectorAll('[id^="llm-card-"]').forEach(card => {
+            card.classList.add('opacity-70', 'animate-pulse');
+        });
+
+        try {
+            const res = await apiCall('/api/system/llm/ping', 'POST', {
+                provider: 'all',
+                prompt: customPrompt
+            });
+
+            if (res && res.success && Array.isArray(res.results)) {
+                renderLlmResults(res.results);
+                document.getElementById('llmLastTestedAt').innerText = 'Last tested: ' + new Date().toLocaleTimeString();
+            } else {
+                alert(res.error || 'Failed to ping LLM engines.');
+            }
+        } catch (err) {
+            console.error('Ping LLM error:', err);
+            alert('Error testing LLM engines: ' + err.message);
+        } finally {
+            isLlmPinging = false;
+            if (btn) btn.disabled = false;
+            if (icon) icon.className = 'fas fa-satellite-dish';
+            if (text) text.innerText = 'Ping All LLMs';
+            if (pulse) pulse.classList.add('hidden');
+            document.querySelectorAll('[id^="llm-card-"]').forEach(card => {
+                card.classList.remove('opacity-70', 'animate-pulse');
+            });
+        }
+    }
+
+    async function pingSingleLlmEngine(providerId) {
+        if (isLlmPinging) return;
+        
+        const card = document.getElementById(`llm-card-${providerId}`);
+        if (card) {
+            card.classList.add('opacity-70', 'animate-pulse');
+        }
+
+        const promptInput = document.getElementById('llmCustomPrompt');
+        const customPrompt = promptInput ? promptInput.value : '';
+
+        try {
+            const res = await apiCall('/api/system/llm/ping', 'POST', {
+                provider: providerId,
+                prompt: customPrompt
+            });
+
+            if (res && res.success && Array.isArray(res.results) && res.results.length > 0) {
+                const singleRes = res.results[0];
+                updateSingleCard(singleRes);
+            }
+        } catch (err) {
+            console.error(`Single ping failed for ${providerId}:`, err);
+            alert(`Error pinging ${providerId}: ${err.message}`);
+        } finally {
+            if (card) {
+                card.classList.remove('opacity-70', 'animate-pulse');
+            }
+        }
+    }
+
+    function renderLlmResults(results) {
+        const container = document.getElementById('llmProviderResultsContainer');
+        if (!container) return;
+
+        let totalConfigured = 0;
+        let totalHealthy = 0;
+        let totalExhausted = 0;
+        let fastestMs = Infinity;
+
+        results.forEach(r => {
+            if (r.configured) totalConfigured++;
+            if (r.status === 'healthy') {
+                totalHealthy++;
+                if (r.latencyMs > 0 && r.latencyMs < fastestMs) {
+                    fastestMs = r.latencyMs;
+                }
+            } else if (r.status === 'quota_exceeded' || r.status === 'invalid_key') {
+                totalExhausted++;
+            }
+        });
+
+        document.getElementById('statConfiguredCount').innerText = totalConfigured;
+        document.getElementById('statHealthyCount').innerText = totalHealthy;
+        document.getElementById('statExhaustedCount').innerText = totalExhausted;
+        document.getElementById('statFastestLatency').innerText = (fastestMs !== Infinity) ? `${fastestMs}ms` : '-';
+
+        container.innerHTML = results.map(r => generateCardHtml(r)).join('');
+    }
+
+    function updateSingleCard(r) {
+        const existingCard = document.getElementById(`llm-card-${r.id}`);
+        if (existingCard) {
+            const temp = document.createElement('div');
+            temp.innerHTML = generateCardHtml(r);
+            existingCard.replaceWith(temp.firstElementChild);
+        }
+    }
+
+    function generateCardHtml(r) {
+        let statusBadge = '';
+        let borderClass = 'border-gray-800';
+        let bgClass = 'bg-gray-800/40';
+
+        if (!r.configured) {
+            statusBadge = `
+                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-gray-800 text-gray-400 border border-gray-700">
+                    <span class="w-2 h-2 rounded-full bg-gray-500"></span> Not Configured
+                </span>`;
+            borderClass = 'border-gray-800/80';
+        } else if (r.status === 'healthy') {
+            statusBadge = `
+                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-950/70 text-emerald-300 border border-emerald-500/40 shadow-sm shadow-emerald-500/20">
+                    <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> Active & Credits Available
+                </span>`;
+            borderClass = 'border-emerald-500/30';
+            bgClass = 'bg-emerald-950/10';
+        } else if (r.status === 'quota_exceeded') {
+            statusBadge = `
+                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-rose-950/70 text-rose-300 border border-rose-500/40 shadow-sm shadow-rose-500/20">
+                    <span class="w-2 h-2 rounded-full bg-rose-400"></span> Quota Exhausted / Rate Limit
+                </span>`;
+            borderClass = 'border-rose-500/30';
+            bgClass = 'bg-rose-950/10';
+        } else if (r.status === 'invalid_key') {
+            statusBadge = `
+                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-950/70 text-amber-300 border border-amber-500/40 shadow-sm shadow-amber-500/20">
+                    <span class="w-2 h-2 rounded-full bg-amber-400"></span> Invalid Key / 401
+                </span>`;
+            borderClass = 'border-amber-500/30';
+            bgClass = 'bg-amber-950/10';
+        } else {
+            statusBadge = `
+                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-red-950/70 text-red-300 border border-red-500/40">
+                    <span class="w-2 h-2 rounded-full bg-red-400"></span> Unavailable (${r.status})
+                </span>`;
+            borderClass = 'border-red-500/30';
+            bgClass = 'bg-red-950/10';
+        }
+
+        const latencyColor = r.latencyMs < 600 ? 'text-emerald-400 bg-emerald-950/50 border-emerald-700/50' : (r.latencyMs < 1800 ? 'text-amber-400 bg-amber-950/50 border-amber-700/50' : 'text-rose-400 bg-rose-950/50 border-rose-700/50');
+
+        return `
+            <div id="llm-card-${r.id}" class="${bgClass} border ${borderClass} rounded-xl p-4 transition-all duration-200 hover:shadow-lg">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                    <div class="flex items-center gap-3">
+                        <div class="w-9 h-9 rounded-xl ${r.status === 'healthy' ? 'bg-indigo-600/20 text-indigo-300 border border-indigo-500/30' : 'bg-gray-800 text-gray-400 border border-gray-700'} flex items-center justify-center font-bold text-sm shrink-0">
+                            <i class="${getProviderIcon(r.id)}"></i>
+                        </div>
+                        <div>
+                            <div class="flex flex-wrap items-center gap-2">
+                                <h4 class="text-sm font-bold text-white">${r.name}</h4>
+                                <span class="text-[10px] px-2 py-0.5 rounded bg-gray-800 text-gray-300 font-mono border border-gray-700">${r.model}</span>
+                                <span class="text-[10px] text-gray-500 font-medium">${r.category || ''}</span>
+                            </div>
+                            <p class="text-xs ${r.status === 'healthy' ? 'text-emerald-400/90' : 'text-gray-400'} mt-0.5">${r.message || ''}</p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center gap-2.5 self-end sm:self-auto shrink-0">
+                        ${r.configured && r.latencyMs > 0 ? `
+                            <span class="text-[11px] font-mono font-semibold px-2 py-0.5 rounded border ${latencyColor}">
+                                ⚡ ${r.latencyMs}ms
+                            </span>
+                        ` : ''}
+                        ${statusBadge}
+                        ${r.configured ? `
+                            <button type="button" onclick="pingSingleLlmEngine('${r.id}')" class="px-2.5 py-1 bg-gray-800 hover:bg-gray-700 text-gray-300 hover:text-white rounded-lg text-xs font-medium transition border border-gray-700 flex items-center gap-1" title="Re-test this engine">
+                                <i class="fas fa-sync-alt text-[10px]"></i>
+                            </button>
+                        ` : ''}
+                    </div>
+                </div>
+
+                ${r.reply ? `
+                    <div class="mt-3 pt-2.5 border-t border-gray-800/80 text-xs">
+                        <span class="text-gray-500 text-[11px] uppercase tracking-wider font-semibold">Response Reply:</span>
+                        <div class="mt-1 p-2.5 rounded-lg bg-gray-950/60 border border-gray-800 text-gray-300 font-mono text-[11px] whitespace-pre-wrap break-words">
+                            🤖 "${escapeHtml(r.reply)}"
+                        </div>
+                    </div>
+                ` : ''}
+
+                ${r.error ? `
+                    <div class="mt-3 pt-2.5 border-t border-rose-900/30 text-xs">
+                        <span class="text-rose-400 text-[11px] uppercase tracking-wider font-semibold">Error Details:</span>
+                        <div class="mt-1 p-2.5 rounded-lg bg-rose-950/30 border border-rose-800/40 text-rose-300 font-mono text-[11px] break-words">
+                            ⚠️ ${escapeHtml(r.error)}
+                        </div>
+                    </div>
+                ` : ''}
+            </div>
+        `;
+    }
+
+    function escapeHtml(str) {
+        if (!str) return '';
+        return String(str)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;');
+    }
+</script>

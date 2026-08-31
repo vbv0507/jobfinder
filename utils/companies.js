@@ -1,5 +1,106 @@
 module.exports = [
     {
+        "name": "ADP",
+        "category": "Product",
+        "industry": "FinTech / HR Tech",
+        "active": true,
+        "careerUrl": "https://jobs.adp.com/",
+        "careerPage": "https://jobs.adp.com/",
+        "logo": "https://logo.clearbit.com/adp.com",
+        "scraperType": "api",
+        "scraperConfig": {
+            "allowedLocations": [
+                "india",
+                "remote",
+                "bengaluru",
+                "bangalore",
+                "hyderabad",
+                "pune",
+                "chennai",
+                "gurgaon",
+                "noida"
+            ],
+            "targetKeywords": [
+                "software engineer",
+                "software development engineer",
+                "sde",
+                "backend",
+                "developer",
+                "api",
+                "java",
+                "python",
+                "node",
+                "golang",
+                "full stack",
+                "react",
+                "javascript"
+            ],
+            "excludedKeywords": [
+                "senior",
+                "sr ",
+                "sr.",
+                "staff",
+                "principal",
+                "manager",
+                "director",
+                "lead",
+                "architect",
+                "1-3",
+                "1 to 3",
+                "2+",
+                "3+"
+            ]
+        }
+    },
+    {
+        "name": "Infineon Technologies",
+        "category": "Product",
+        "industry": "Semiconductor / Tech",
+        "active": true,
+        "careerUrl": "https://jobs.infineon.com/",
+        "careerPage": "https://jobs.infineon.com/",
+        "logo": "https://logo.clearbit.com/infineon.com",
+        "scraperType": "api",
+        "scraperConfig": {
+            "allowedLocations": [
+                "india",
+                "remote",
+                "bengaluru",
+                "bangalore",
+                "hyderabad",
+                "pune"
+            ],
+            "targetKeywords": [
+                "software engineer",
+                "software development engineer",
+                "sde",
+                "developer",
+                "c++",
+                "c",
+                "python",
+                "embedded",
+                "firmware",
+                "backend",
+                "java"
+            ],
+            "excludedKeywords": [
+                "senior",
+                "sr ",
+                "sr.",
+                "staff",
+                "principal",
+                "manager",
+                "director",
+                "lead",
+                "architect",
+                "1-3",
+                "1 to 3",
+                "2+",
+                "3+"
+            ]
+        }
+    },
+    {
         "name": "American Express",
         "category": "Service",
         "industry": "Finance",

@@ -1,51 +1,55 @@
 <%- include('../partials/header', { title: 'AI Providers Dashboard' }) %>
 
-<div class="mb-6">
-    <h2 class="text-2xl font-bold text-gray-900 dark:text-gray-100">AI Providers Dashboard</h2>
-    <p class="text-gray-500 dark:text-gray-400 text-sm mt-1">Status and performance of AI evaluation engines.</p>
+<div class="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div>
+        <h2 class="text-2xl font-bold text-gray-900 dark:text-gray-100">AI Providers Dashboard</h2>
+        <p class="text-gray-500 dark:text-gray-400 text-sm mt-1">Status, diagnostics, and credit availability of AI evaluation engines.</p>
+    </div>
+    <button type="button" onclick="openLlmTesterModal()" class="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2.5 rounded-xl font-medium text-sm transition shadow-lg shadow-indigo-600/20">
+        <i class="fas fa-brain"></i> Open LLM Credit Tester
+    </button>
 </div>
 
 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6" id="aiCards">
-    <!-- Populated via JS -->
+    <div class="col-span-full py-12 text-center text-gray-500">
+        <i class="fas fa-spinner fa-spin text-2xl text-indigo-500 mb-2"></i>
+        <p>Loading AI diagnostics...</p>
+    </div>
 </div>
 
 <script>
     async function loadAI() {
         try {
-            const res = await apiCall('/api/system/health');
-            const data = res;
-            
-                
-                let color = 'gray';
-                if (p.status === 'Ready' || p.status === 'Working') color = 'green';
-                if (p.status === 'Rate Limited') color = 'yellow';
-                if (p.status === 'Unavailable' || p.status === 'Down') color = 'red';
+            const res = await apiCall('/api/system/llm/providers', 'GET');
+            const container = document.getElementById('aiCards');
+            if (!container) return;
 
-                return `
-                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
-                    <div class="flex items-center justify-between mb-4">
-                        <h3 class="text-lg font-bold text-gray-900 dark:text-gray-100">${p.name}</h3>
-                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-${color}-100 text-${color}-800">
-                            ${p.status}
-                        </span>
+            if (res && res.success && Array.isArray(res.providers)) {
+                container.innerHTML = res.providers.map(p => {
+                    return `
+                    <div class="bg-surface rounded-xl shadow-sm border border-border p-6 flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-center justify-between mb-3">
+                                <h3 class="text-base font-bold text-text">${p.name}</h3>
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${p.configured ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300' : 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-400'}">
+                                    ${p.configured ? 'Configured' : 'Not Set'}
+                                </span>
+                            </div>
+                            <p class="text-xs text-textMuted font-mono mb-4">${p.model || 'Default model'}</p>
+                            <p class="text-xs text-textMuted">${p.category || 'AI Tier'}</p>
+                        </div>
+                        <div class="mt-4 pt-4 border-t border-border flex items-center justify-between">
+                            <span class="text-xs text-textMuted">${p.configured ? 'Ready for live tests' : 'Missing API Key'}</span>
+                            ${p.configured ? `
+                                <button type="button" onclick="openLlmTesterModal(); pingSingleLlmEngine('${p.id}');" class="text-xs text-primary hover:underline font-semibold flex items-center gap-1">
+                                    <i class="fas fa-play text-[10px]"></i> Ping
+                                </button>
+                            ` : ''}
+                        </div>
                     </div>
-                    <dl class="space-y-2">
-                        <div class="flex justify-between">
-                            <dt class="text-sm text-gray-500 dark:text-gray-400">Evaluations</dt>
-                            <dd class="text-sm font-medium text-gray-900 dark:text-gray-100">${stat.count}</dd>
-                        </div>
-                        <div class="flex justify-between">
-                            <dt class="text-sm text-gray-500 dark:text-gray-400">Avg Latency (ms)</dt>
-                            <dd class="text-sm font-medium text-gray-900 dark:text-gray-100">${Math.round(stat.avgTime)}</dd>
-                        </div>
-                        <div class="flex justify-between">
-                            <dt class="text-sm text-gray-500 dark:text-gray-400">Failures / Fallbacks</dt>
-                            <dd class="text-sm font-medium text-gray-900 dark:text-gray-100">${stat.fallbacks}</dd>
-                        </div>
-                    </dl>
-                </div>
-                `;
-            }).join('');
+                    `;
+                }).join('');
+            }
         } catch (e) {
             console.error(e);
         }
