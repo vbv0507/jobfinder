@@ -825,7 +825,7 @@ Updated the candidate profile across the application (`profile.js`, `models/Cand
    - **Experience**: Backend Developer (Contract) at Network18 (Aug 2025 – Dec 2025, Remote)
 4. **Targeting & Evaluation Preferences**:
    - **Preferred Roles**: SDE, SDE 1 / SDE I, Full-Stack Developer, Backend Software Engineer, Node.js Developer, API Developer, Associate Software Engineer, Software Engineer, Graduate Engineer Trainee, SDE Intern, AI Engineer
-   - **Preferred Locations**: India, Remote, Bengaluru, Bangalore, Noida, Hyderabad, Pune, Gurgaon, Gurugram, Delhi NCR, Mumbai, Chennai, Ahmedabad, Vadodara
+   - **Preferred Locations (Pan-India Coverage)**: All 28 States of India (Andhra Pradesh, Arunachal Pradesh, Assam, Bihar, Chhattisgarh, Goa, Gujarat, Haryana, Himachal Pradesh, Jharkhand, Karnataka, Kerala, Madhya Pradesh, Maharashtra, Manipur, Meghalaya, Mizoram, Nagaland, Odisha, Punjab, Rajasthan, Sikkim, Tamil Nadu, Telangana, Tripura, Uttar Pradesh, Uttarakhand, West Bengal), All 8 Union Territories (Delhi / Delhi NCR, Chandigarh, Jammu & Kashmir, Ladakh, Puducherry, Andaman & Nicobar, Dadra & Nagar Haveli and Daman & Diu, Lakshadweep), Remote, Work from Home, and all major tech hubs.
    - **Preferred Domains**: `BACKEND`, `FULLSTACK`, `SOFTWARE_ENGINEERING`, `AI_ENGINEERING`, `DISTRIBUTED_SYSTEMS`, `CLOUD`, `PLATFORM_ENGINEERING`, `API_DEVELOPMENT`, `DEVOPS`
    - **Excluded Domains**: `SALES`, `MARKETING`, `HR`, `CUSTOMER_SUPPORT`, `CONTENT_WRITING`, `GRAPHIC_DESIGN`, `UI_UX_DESIGN`, `BUSINESS_DEVELOPMENT`, `ACCOUNTING`, `FINANCE`, `LEGAL`, `MECHANICAL`, `CIVIL`, `ELECTRICAL`, `MOBILE`
 
