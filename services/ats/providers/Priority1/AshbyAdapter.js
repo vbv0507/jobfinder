@@ -3,8 +3,8 @@ const { normalizeDate } = require('../../../../utils/dateNormalizer');
 
 class AshbyAdapter extends BaseAdapter {
   get parserName() { return "Ashby API"; }
-  get parserVersion() { return "1.0.0"; }
-  get parserRevisionDate() { return "2026-08-30"; }
+  get parserVersion() { return "1.1.0"; }
+  get parserRevisionDate() { return "2026-09-01"; }
 
   static get NetworkSignatures() {
     return [
@@ -18,12 +18,17 @@ class AshbyAdapter extends BaseAdapter {
 
   async searchJobs() {
     let url = this.company.scraperConfig?.apiUrl;
+    const board = this.company.scraperConfig?.boardToken || this.company.scraperConfig?.board;
+    if (!url && board) {
+      url = `https://api.ashbyhq.com/posting-api/job-board/${board}`;
+    }
     if (!url) {
-      const match = this.company.careerUrl.match(/ashbyhq\.com\/([^/?]+)/i);
+      const match = this.company.careerUrl.match(/ashbyhq\.com\/([^/?]+)/i) ||
+                    this.company.careerUrl.match(/jobs\.ashbyhq\.com\/([^/?]+)/i);
       if (match && match[1]) {
         url = `https://api.ashbyhq.com/posting-api/job-board/${match[1]}`;
       } else {
-        throw new Error("Unable to build Ashby API URL");
+        throw new Error(`Unable to build Ashby API URL for ${this.company.name}`);
       }
     }
 

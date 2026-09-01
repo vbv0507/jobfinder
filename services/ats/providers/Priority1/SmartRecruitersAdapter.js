@@ -3,7 +3,8 @@ const { normalizeDate } = require('../../../../utils/dateNormalizer');
 
 class SmartRecruitersAdapter extends BaseAdapter {
   get parserName() { return "SmartRecruiters API"; }
-  get parserVersion() { return "1.2.0"; }
+  get parserVersion() { return "1.3.0"; }
+  get parserRevisionDate() { return "2026-09-01"; }
 
   static get NetworkSignatures() {
     return [
@@ -15,8 +16,6 @@ class SmartRecruitersAdapter extends BaseAdapter {
     ];
   }
 
-  get parserRevisionDate() { return "2026-08-24"; }
-
   getCountryName(country = "") {
     const value = country.toLowerCase();
     if (value === "in") return "India";
@@ -25,16 +24,22 @@ class SmartRecruitersAdapter extends BaseAdapter {
 
   async searchJobs() {
     let url = this.company.scraperConfig?.apiUrl;
+    const board = this.company.scraperConfig?.boardToken || this.company.scraperConfig?.board;
     const method = this.company.scraperConfig?.apiMethod || 'GET';
     let headers = this.company.scraperConfig?.apiHeaders ? Object.fromEntries(this.company.scraperConfig.apiHeaders) : {};
 
+    if (!url && board) {
+      url = `https://api.smartrecruiters.com/v1/companies/${board}/postings`;
+    }
+
     if (!url) {
       const match = this.company.careerUrl.match(/careers\.smartrecruiters\.com\/([^/?]+)/i) || 
+                    this.company.careerUrl.match(/jobs\.smartrecruiters\.com\/([^/?]+)/i) ||
                     this.company.careerUrl.match(/smartrecruiters\.com\/([^/?]+)/i);
       if (match && match[1]) {
         url = `https://api.smartrecruiters.com/v1/companies/${match[1]}/postings`;
       } else {
-        throw new Error("Unable to build SmartRecruiters API URL");
+        throw new Error(`Unable to build SmartRecruiters API URL for ${this.company.name}`);
       }
     }
 

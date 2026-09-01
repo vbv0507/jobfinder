@@ -1,0 +1,1009 @@
+[
+  {
+    "index": 1,
+    "name": "ADP",
+    "ats": "adp",
+    "rawCount": 50,
+    "validCount": 49,
+    "droppedCount": 1,
+    "dropReasons": [
+      "Duplicate job within same scrape"
+    ],
+    "dbRaw": 0,
+    "dbMatched": 0,
+    "error": null
+  },
+  {
+    "index": 2,
+    "name": "Infineon Technologies",
+    "ats": "infineon",
+    "rawCount": 19,
+    "validCount": 19,
+    "droppedCount": 0,
+    "dropReasons": [],
+    "dbRaw": 0,
+    "dbMatched": 0,
+    "error": null
+  },
+  {
+    "index": 3,
+    "name": "Visa",
+    "ats": "workday",
+    "rawCount": 175,
+    "validCount": 142,
+    "droppedCount": 33,
+    "dropReasons": [
+      "Duplicate job within same scrape",
+      "Requires 3+ years experience",
+      "Requires 10+ years experience",
+      "Requires 8+ years experience",
+      "Seniority mismatch: mid-level",
+      "Requires 11+ years experience",
+      "Requires 7+ years experience",
+      "Requires 4+ years experience",
+      "Requires 18+ years experience",
+      "Requires 14+ years experience",
+      "Requires 6+ years experience",
+      "Requires 15+ years experience"
+    ],
+    "dbRaw": 0,
+    "dbMatched": 0,
+    "error": null
+  },
+  {
+    "index": 4,
+    "name": "Mastercard",
+    "ats": "workday",
+    "rawCount": 0,
+    "validCount": 0,
+    "droppedCount": 0,
+    "dropReasons": [],
+    "dbRaw": 0,
+    "dbMatched": 0,
+    "error": "Timeout 15s"
+  },
+  {
+    "index": 5,
+    "name": "PayPal",
+    "ats": "workday",
+    "rawCount": 7,
+    "validCount": 5,
+    "droppedCount": 2,
+    "dropReasons": [
+      "Duplicate job within same scrape",
+      "Seniority mismatch: software engineer 3"
+    ],
+    "dbRaw": 0,
+    "dbMatched": 0,
+    "error": null
+  },
+  {
+    "index": 6,
+    "name": "Stripe",
+    "ats": "greenhouse",
+    "rawCount": 587,
+    "validCount": 580,
+    "droppedCount": 7,
+    "dropReasons": [
+      "Duplicate job within same scrape"
+    ],
+    "dbRaw": 0,
+    "dbMatched": 0,
+    "error": null
+  },
+  {
+    "index": 7,
+    "name": "Wise",
+    "ats": "greenhouse",
+    "rawCount": 21,
+    "validCount": 21,
+    "droppedCount": 0,
+    "dropReasons": [],
+    "dbRaw": 0,
+    "dbMatched": 0,
+    "error": null
+  },
+  {
+    "index": 8,
+    "name": "Brex",
+    "ats": "greenhouse",
+    "rawCount": 289,
+    "validCount": 284,
+    "droppedCount": 5,
+    "dropReasons": [
+      "Seniority mismatch: software engineer ii"
+    ],
+    "dbRaw": 0,
+    "dbMatched": 0,
+    "error": null
+  },
+  {
+    "index": 9,
+    "name": "Ramp",
+    "ats": "ashby",
+    "rawCount": 137,
+    "validCount": 137,
+    "droppedCount": 0,
+    "dropReasons": [],
+    "dbRaw": 0,
+    "dbMatched": 0,
+    "error": null
+  },
+  {
+    "index": 10,
+    "name": "Plaid",
+    "ats": "ashby",
+    "rawCount": 100,
+    "validCount": 99,
+    "droppedCount": 1,
+    "dropReasons": [
+      "Duplicate job within same scrape"
+    ],
+    "dbRaw": 0,
+    "dbMatched": 0,
+    "error": null
+  },
+  {
+    "index": 11,
+    "name": "Amazon",
+    "ats": "amazon",
+    "rawCount": 200,
+    "validCount": 179,
+    "droppedCount": 21,
+    "dropReasons": [
+      "Duplicate job within same scrape",
+      "Seniority mismatch: engineer ii",
+      "Seniority mismatch: engineer iii"
+    ],
+    "dbRaw": 0,
+    "dbMatched": 0,
+    "error": null
+  },
+  {
+    "index": 12,
+    "name": "Netflix",
+    "ats": "netflix",
+    "rawCount": 10,
+    "validCount": 9,
+    "droppedCount": 1,
+    "dropReasons": [
+      "Seniority mismatch: engineer 6"
+    ],
+    "dbRaw": 0,
+    "dbMatched": 0,
+    "error": null
+  },
+  {
+    "index": 13,
+    "name": "Adobe",
+    "ats": "workday",
+    "rawCount": 200,
+    "validCount": 158,
+    "droppedCount": 42,
+    "dropReasons": [
+      "Duplicate job within same scrape",
+      "Seniority mismatch: software engineer 3",
+      "Seniority mismatch: software engineer 2",
+      "Seniority mismatch: software engineer 4",
+      "Seniority mismatch: engineer 4",
+      "Seniority mismatch: engineer 3",
+      "Seniority mismatch: engineer 5"
+    ],
+    "dbRaw": 0,
+    "dbMatched": 0,
+    "error": null
+  },
+  {
+    "index": 14,
+    "name": "Salesforce",
+    "ats": "workday-csrf",
+    "rawCount": 200,
+    "validCount": 196,
+    "droppedCount": 4,
+    "dropReasons": [
+      "Duplicate job within same scrape"
+    ],
+    "dbRaw": 0,
+    "dbMatched": 0,
+    "error": null
+  },
+  {
+    "index": 15,
+    "name": "Cisco",
+    "ats": "workday-csrf",
+    "rawCount": 200,
+    "validCount": 175,
+    "droppedCount": 25,
+    "dropReasons": [
+      "Duplicate job within same scrape",
+      "Requires 8+ years experience",
+      "Requires 11+ years experience",
+      "Requires 4+ years experience",
+      "Requires 10+ years experience",
+      "Requires 13+ years experience",
+      "Requires 12+ years experience",
+      "Seniority mismatch: software engineer ii"
+    ],
+    "dbRaw": 0,
+    "dbMatched": 0,
+    "error": null
+  },
+  {
+    "index": 16,
+    "name": "Intel",
+    "ats": "workday",
+    "rawCount": 199,
+    "validCount": 185,
+    "droppedCount": 14,
+    "dropReasons": [
+      "Duplicate job within same scrape"
+    ],
+    "dbRaw": 0,
+    "dbMatched": 0,
+    "error": null
+  },
+  {
+    "index": 17,
+    "name": "NVIDIA",
+    "ats": "workday",
+    "rawCount": 0,
+    "validCount": 0,
+    "droppedCount": 0,
+    "dropReasons": [],
+    "dbRaw": 0,
+    "dbMatched": 0,
+    "error": "Timeout 15s"
+  },
+  {
+    "index": 18,
+    "name": "Broadcom",
+    "ats": "workday",
+    "rawCount": 112,
+    "validCount": 86,
+    "droppedCount": 26,
+    "dropReasons": [
+      "Duplicate job within same scrape",
+      "Seniority mismatch: engineer 5",
+      "Seniority mismatch: software engineer 2",
+      "Seniority mismatch: software engineer 4"
+    ],
+    "dbRaw": 0,
+    "dbMatched": 0,
+    "error": null
+  },
+  {
+    "index": 19,
+    "name": "GitLab",
+    "ats": "greenhouse",
+    "rawCount": 223,
+    "validCount": 214,
+    "droppedCount": 9,
+    "dropReasons": [
+      "Duplicate job within same scrape",
+      "Seniority mismatch: intermediate"
+    ],
+    "dbRaw": 0,
+    "dbMatched": 0,
+    "error": null
+  },
+  {
+    "index": 20,
+    "name": "MongoDB",
+    "ats": "greenhouse",
+    "rawCount": 404,
+    "validCount": 366,
+    "droppedCount": 38,
+    "dropReasons": [
+      "Duplicate job within same scrape",
+      "Seniority mismatch: engineer 3",
+      "Seniority mismatch: engineer iii",
+      "Seniority mismatch: software engineer 2",
+      "Seniority mismatch: software engineer 3"
+    ],
+    "dbRaw": 0,
+    "dbMatched": 0,
+    "error": null
+  },
+  {
+    "index": 21,
+    "name": "Datadog",
+    "ats": "greenhouse",
+    "rawCount": 449,
+    "validCount": 412,
+    "droppedCount": 37,
+    "dropReasons": [
+      "Duplicate job within same scrape",
+      "Seniority mismatch: engineer 2",
+      "Seniority mismatch: engineer 3"
+    ],
+    "dbRaw": 0,
+    "dbMatched": 0,
+    "error": null
+  },
+  {
+    "index": 22,
+    "name": "Cloudflare",
+    "ats": "greenhouse",
+    "rawCount": 319,
+    "validCount": 317,
+    "droppedCount": 2,
+    "dropReasons": [
+      "Duplicate job within same scrape"
+    ],
+    "dbRaw": 0,
+    "dbMatched": 0,
+    "error": null
+  },
+  {
+    "index": 23,
+    "name": "Snowflake",
+    "ats": "api",
+    "rawCount": 383,
+    "validCount": 370,
+    "droppedCount": 13,
+    "dropReasons": [
+      "Duplicate job within same scrape",
+      "Seniority mismatch: software engineer ii",
+      "Seniority mismatch: intermediate"
+    ],
+    "dbRaw": 0,
+    "dbMatched": 0,
+    "error": null
+  },
+  {
+    "index": 24,
+    "name": "Confluent",
+    "ats": "api",
+    "rawCount": 23,
+    "validCount": 19,
+    "droppedCount": 4,
+    "dropReasons": [
+      "Duplicate job within same scrape",
+      "Seniority mismatch: software engineer ii"
+    ],
+    "dbRaw": 0,
+    "dbMatched": 0,
+    "error": null
+  },
+  {
+    "index": 25,
+    "name": "Elastic",
+    "ats": "greenhouse",
+    "rawCount": 345,
+    "validCount": 332,
+    "droppedCount": 13,
+    "dropReasons": [
+      "Duplicate job within same scrape",
+      "Seniority mismatch: software engineer ii"
+    ],
+    "dbRaw": 0,
+    "dbMatched": 0,
+    "error": null
+  },
+  {
+    "index": 26,
+    "name": "Postman",
+    "ats": "greenhouse",
+    "rawCount": 64,
+    "validCount": 64,
+    "droppedCount": 0,
+    "dropReasons": [],
+    "dbRaw": 0,
+    "dbMatched": 0,
+    "error": null
+  },
+  {
+    "index": 27,
+    "name": "Docker",
+    "ats": "ashby",
+    "rawCount": 61,
+    "validCount": 61,
+    "droppedCount": 0,
+    "dropReasons": [],
+    "dbRaw": 0,
+    "dbMatched": 0,
+    "error": null
+  },
+  {
+    "index": 28,
+    "name": "Redis",
+    "ats": "ashby",
+    "rawCount": 17,
+    "validCount": 17,
+    "droppedCount": 0,
+    "dropReasons": [],
+    "dbRaw": 0,
+    "dbMatched": 0,
+    "error": null
+  },
+  {
+    "index": 29,
+    "name": "Vercel",
+    "ats": "greenhouse",
+    "rawCount": 0,
+    "validCount": 0,
+    "droppedCount": 0,
+    "dropReasons": [],
+    "dbRaw": 0,
+    "dbMatched": 0,
+    "error": "Timeout 15s"
+  },
+  {
+    "index": 30,
+    "name": "Netlify",
+    "ats": "greenhouse",
+    "rawCount": 2,
+    "validCount": 2,
+    "droppedCount": 0,
+    "dropReasons": [],
+    "dbRaw": 0,
+    "dbMatched": 0,
+    "error": null
+  },
+  {
+    "index": 31,
+    "name": "DigitalOcean",
+    "ats": "greenhouse",
+    "rawCount": 146,
+    "validCount": 127,
+    "droppedCount": 19,
+    "dropReasons": [
+      "Duplicate job within same scrape",
+      "Seniority mismatch: engineer ii",
+      "Seniority mismatch: software engineer ii"
+    ],
+    "dbRaw": 0,
+    "dbMatched": 0,
+    "error": null
+  },
+  {
+    "index": 32,
+    "name": "Twilio",
+    "ats": "greenhouse",
+    "rawCount": 136,
+    "validCount": 127,
+    "droppedCount": 9,
+    "dropReasons": [
+      "Duplicate job within same scrape",
+      "Seniority mismatch: engineer 2"
+    ],
+    "dbRaw": 0,
+    "dbMatched": 0,
+    "error": null
+  },
+  {
+    "index": 33,
+    "name": "Okta",
+    "ats": "greenhouse",
+    "rawCount": 340,
+    "validCount": 315,
+    "droppedCount": 25,
+    "dropReasons": [
+      "Duplicate job within same scrape",
+      "Seniority mismatch: software engineer ii"
+    ],
+    "dbRaw": 0,
+    "dbMatched": 0,
+    "error": null
+  },
+  {
+    "index": 34,
+    "name": "OpenAI",
+    "ats": "ashby",
+    "rawCount": 768,
+    "validCount": 768,
+    "droppedCount": 0,
+    "dropReasons": [],
+    "dbRaw": 0,
+    "dbMatched": 0,
+    "error": null
+  },
+  {
+    "index": 35,
+    "name": "Anthropic",
+    "ats": "greenhouse",
+    "rawCount": 576,
+    "validCount": 576,
+    "droppedCount": 0,
+    "dropReasons": [],
+    "dbRaw": 0,
+    "dbMatched": 0,
+    "error": null
+  },
+  {
+    "index": 36,
+    "name": "Cohere",
+    "ats": "ashby",
+    "rawCount": 144,
+    "validCount": 144,
+    "droppedCount": 0,
+    "dropReasons": [],
+    "dbRaw": 0,
+    "dbMatched": 0,
+    "error": null
+  },
+  {
+    "index": 37,
+    "name": "Scale AI",
+    "ats": "greenhouse",
+    "rawCount": 215,
+    "validCount": 215,
+    "droppedCount": 0,
+    "dropReasons": [],
+    "dbRaw": 0,
+    "dbMatched": 0,
+    "error": null
+  },
+  {
+    "index": 38,
+    "name": "Perplexity AI",
+    "ats": "api",
+    "rawCount": 97,
+    "validCount": 97,
+    "droppedCount": 0,
+    "dropReasons": [],
+    "dbRaw": 0,
+    "dbMatched": 0,
+    "error": null
+  },
+  {
+    "index": 39,
+    "name": "Together AI",
+    "ats": "greenhouse",
+    "rawCount": 59,
+    "validCount": 59,
+    "droppedCount": 0,
+    "dropReasons": [],
+    "dbRaw": 0,
+    "dbMatched": 0,
+    "error": null
+  },
+  {
+    "index": 40,
+    "name": "ElevenLabs",
+    "ats": "ashby",
+    "rawCount": 248,
+    "validCount": 248,
+    "droppedCount": 0,
+    "dropReasons": [],
+    "dbRaw": 0,
+    "dbMatched": 0,
+    "error": null
+  },
+  {
+    "index": 41,
+    "name": "Meesho",
+    "ats": "lever",
+    "rawCount": 45,
+    "validCount": 42,
+    "droppedCount": 3,
+    "dropReasons": [
+      "Seniority mismatch: engineer iii"
+    ],
+    "dbRaw": 0,
+    "dbMatched": 0,
+    "error": null
+  },
+  {
+    "index": 42,
+    "name": "Freshworks",
+    "ats": "smartrecruiters",
+    "rawCount": 162,
+    "validCount": 158,
+    "droppedCount": 4,
+    "dropReasons": [
+      "Duplicate job within same scrape"
+    ],
+    "dbRaw": 0,
+    "dbMatched": 0,
+    "error": null
+  },
+  {
+    "index": 43,
+    "name": "Razorpay",
+    "ats": "greenhouse",
+    "rawCount": 24,
+    "validCount": 24,
+    "droppedCount": 0,
+    "dropReasons": [],
+    "dbRaw": 0,
+    "dbMatched": 0,
+    "error": null
+  },
+  {
+    "index": 44,
+    "name": "Groww",
+    "ats": "greenhouse",
+    "rawCount": 5,
+    "validCount": 5,
+    "droppedCount": 0,
+    "dropReasons": [],
+    "dbRaw": 0,
+    "dbMatched": 0,
+    "error": null
+  },
+  {
+    "index": 45,
+    "name": "CRED",
+    "ats": "lever",
+    "rawCount": 14,
+    "validCount": 14,
+    "droppedCount": 0,
+    "dropReasons": [],
+    "dbRaw": 0,
+    "dbMatched": 0,
+    "error": null
+  },
+  {
+    "index": 46,
+    "name": "Swiggy",
+    "ats": "smartrecruiters",
+    "rawCount": 71,
+    "validCount": 60,
+    "droppedCount": 11,
+    "dropReasons": [
+      "Duplicate job within same scrape",
+      "Seniority mismatch: engineer iii"
+    ],
+    "dbRaw": 0,
+    "dbMatched": 0,
+    "error": null
+  },
+  {
+    "index": 47,
+    "name": "InMobi",
+    "ats": "greenhouse",
+    "rawCount": 62,
+    "validCount": 52,
+    "droppedCount": 10,
+    "dropReasons": [
+      "Duplicate job within same scrape",
+      "Seniority mismatch: sde 2",
+      "Seniority mismatch: sde ii",
+      "Seniority mismatch: sde iii",
+      "Seniority mismatch: sde iv"
+    ],
+    "dbRaw": 0,
+    "dbMatched": 0,
+    "error": null
+  },
+  {
+    "index": 48,
+    "name": "Tekion",
+    "ats": "api",
+    "rawCount": 98,
+    "validCount": 73,
+    "droppedCount": 25,
+    "dropReasons": [
+      "Duplicate job within same scrape",
+      "Seniority mismatch: engineer ii",
+      "Seniority mismatch: software engineer ii"
+    ],
+    "dbRaw": 0,
+    "dbMatched": 0,
+    "error": null
+  },
+  {
+    "index": 49,
+    "name": "Databricks",
+    "ats": "greenhouse",
+    "rawCount": 857,
+    "validCount": 844,
+    "droppedCount": 13,
+    "dropReasons": [
+      "Duplicate job within same scrape"
+    ],
+    "dbRaw": 0,
+    "dbMatched": 0,
+    "error": null
+  },
+  {
+    "index": 50,
+    "name": "Thoughtworks",
+    "ats": "greenhouse",
+    "rawCount": 51,
+    "validCount": 51,
+    "droppedCount": 0,
+    "dropReasons": [],
+    "dbRaw": 0,
+    "dbMatched": 0,
+    "error": null
+  },
+  {
+    "index": 51,
+    "name": "Zeta",
+    "ats": "lever",
+    "rawCount": 21,
+    "validCount": 17,
+    "droppedCount": 4,
+    "dropReasons": [
+      "Duplicate job within same scrape",
+      "Seniority mismatch: engineer ii"
+    ],
+    "dbRaw": 0,
+    "dbMatched": 0,
+    "error": null
+  },
+  {
+    "index": 52,
+    "name": "Figma",
+    "ats": "greenhouse",
+    "rawCount": 161,
+    "validCount": 161,
+    "droppedCount": 0,
+    "dropReasons": [],
+    "dbRaw": 0,
+    "dbMatched": 0,
+    "error": null
+  },
+  {
+    "index": 53,
+    "name": "Linear",
+    "ats": "ashby",
+    "rawCount": 28,
+    "validCount": 28,
+    "droppedCount": 0,
+    "dropReasons": [],
+    "dbRaw": 0,
+    "dbMatched": 0,
+    "error": null
+  },
+  {
+    "index": 54,
+    "name": "Resend",
+    "ats": "ashby",
+    "rawCount": 11,
+    "validCount": 11,
+    "droppedCount": 0,
+    "dropReasons": [],
+    "dbRaw": 0,
+    "dbMatched": 0,
+    "error": null
+  },
+  {
+    "index": 55,
+    "name": "Airtable",
+    "ats": "greenhouse",
+    "rawCount": 16,
+    "validCount": 16,
+    "droppedCount": 0,
+    "dropReasons": [],
+    "dbRaw": 0,
+    "dbMatched": 0,
+    "error": null
+  },
+  {
+    "index": 56,
+    "name": "Roblox",
+    "ats": "greenhouse",
+    "rawCount": 226,
+    "validCount": 217,
+    "droppedCount": 9,
+    "dropReasons": [
+      "Duplicate job within same scrape"
+    ],
+    "dbRaw": 0,
+    "dbMatched": 0,
+    "error": null
+  },
+  {
+    "index": 57,
+    "name": "Lyft",
+    "ats": "greenhouse",
+    "rawCount": 169,
+    "validCount": 169,
+    "droppedCount": 0,
+    "dropReasons": [],
+    "dbRaw": 0,
+    "dbMatched": 0,
+    "error": null
+  },
+  {
+    "index": 58,
+    "name": "Airbnb",
+    "ats": "greenhouse",
+    "rawCount": 168,
+    "validCount": 165,
+    "droppedCount": 3,
+    "dropReasons": [
+      "Duplicate job within same scrape"
+    ],
+    "dbRaw": 0,
+    "dbMatched": 0,
+    "error": null
+  },
+  {
+    "index": 59,
+    "name": "Coinbase",
+    "ats": "greenhouse",
+    "rawCount": 191,
+    "validCount": 188,
+    "droppedCount": 3,
+    "dropReasons": [
+      "Duplicate job within same scrape"
+    ],
+    "dbRaw": 0,
+    "dbMatched": 0,
+    "error": null
+  },
+  {
+    "index": 60,
+    "name": "Robinhood",
+    "ats": "greenhouse",
+    "rawCount": 127,
+    "validCount": 127,
+    "droppedCount": 0,
+    "dropReasons": [],
+    "dbRaw": 0,
+    "dbMatched": 0,
+    "error": null
+  },
+  {
+    "index": 61,
+    "name": "Discord",
+    "ats": "greenhouse",
+    "rawCount": 51,
+    "validCount": 51,
+    "droppedCount": 0,
+    "dropReasons": [],
+    "dbRaw": 0,
+    "dbMatched": 0,
+    "error": null
+  },
+  {
+    "index": 62,
+    "name": "Reddit",
+    "ats": "greenhouse",
+    "rawCount": 156,
+    "validCount": 156,
+    "droppedCount": 0,
+    "dropReasons": [],
+    "dbRaw": 0,
+    "dbMatched": 0,
+    "error": null
+  },
+  {
+    "index": 63,
+    "name": "Pinterest",
+    "ats": "greenhouse",
+    "rawCount": 206,
+    "validCount": 194,
+    "droppedCount": 12,
+    "dropReasons": [
+      "Seniority mismatch: engineer ii",
+      "Seniority mismatch: software engineer ii"
+    ],
+    "dbRaw": 0,
+    "dbMatched": 0,
+    "error": null
+  },
+  {
+    "index": 64,
+    "name": "Cadence",
+    "ats": "workday",
+    "rawCount": 200,
+    "validCount": 160,
+    "droppedCount": 40,
+    "dropReasons": [
+      "Duplicate job within same scrape",
+      "Seniority mismatch: engineer ii",
+      "Seniority mismatch: software engineer ii"
+    ],
+    "dbRaw": 0,
+    "dbMatched": 0,
+    "error": null
+  },
+  {
+    "index": 65,
+    "name": "Western Digital",
+    "ats": "smartrecruiters",
+    "rawCount": 372,
+    "validCount": 250,
+    "droppedCount": 122,
+    "dropReasons": [
+      "Duplicate job within same scrape",
+      "Requires 8+ years experience",
+      "Seniority mismatch: engineer 3"
+    ],
+    "dbRaw": 0,
+    "dbMatched": 0,
+    "error": null
+  },
+  {
+    "index": 66,
+    "name": "Palantir",
+    "ats": "lever",
+    "rawCount": 306,
+    "validCount": 306,
+    "droppedCount": 0,
+    "dropReasons": [],
+    "dbRaw": 0,
+    "dbMatched": 0,
+    "error": null
+  },
+  {
+    "index": 67,
+    "name": "ServiceNow",
+    "ats": "smartrecruiters",
+    "rawCount": 565,
+    "validCount": 543,
+    "droppedCount": 22,
+    "dropReasons": [
+      "Duplicate job within same scrape"
+    ],
+    "dbRaw": 0,
+    "dbMatched": 0,
+    "error": null
+  },
+  {
+    "index": 68,
+    "name": "PwC India",
+    "ats": "workday",
+    "rawCount": 200,
+    "validCount": 124,
+    "droppedCount": 76,
+    "dropReasons": [
+      "Duplicate job within same scrape"
+    ],
+    "dbRaw": 0,
+    "dbMatched": 0,
+    "error": null
+  },
+  {
+    "index": 69,
+    "name": "Tower Research Capital",
+    "ats": "greenhouse",
+    "rawCount": 81,
+    "validCount": 75,
+    "droppedCount": 6,
+    "dropReasons": [
+      "Duplicate job within same scrape",
+      "Seniority mismatch: engineer iii",
+      "Seniority mismatch: software engineer ii",
+      "Seniority mismatch: software engineer iii"
+    ],
+    "dbRaw": 0,
+    "dbMatched": 0,
+    "error": null
+  },
+  {
+    "index": 70,
+    "name": "Rubrik",
+    "ats": "greenhouse",
+    "rawCount": 136,
+    "validCount": 134,
+    "droppedCount": 2,
+    "dropReasons": [
+      "Duplicate job within same scrape"
+    ],
+    "dbRaw": 0,
+    "dbMatched": 0,
+    "error": null
+  },
+  {
+    "index": 71,
+    "name": "Supabase",
+    "ats": "ashby",
+    "rawCount": 57,
+    "validCount": 57,
+    "droppedCount": 0,
+    "dropReasons": [],
+    "dbRaw": 0,
+    "dbMatched": 0,
+    "error": null
+  },
+  {
+    "index": 72,
+    "name": "Slice",
+    "ats": "greenhouse",
+    "rawCount": 26,
+    "validCount": 25,
+    "droppedCount": 1,
+    "dropReasons": [
+      "Duplicate job within same scrape"
+    ],
+    "dbRaw": 0,
+    "dbMatched": 0,
+    "error": null
+  }
+]

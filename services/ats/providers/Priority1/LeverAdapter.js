@@ -3,7 +3,8 @@ const { normalizeDate } = require('../../../../utils/dateNormalizer');
 
 class LeverAdapter extends BaseAdapter {
   get parserName() { return "Lever API"; }
-  get parserVersion() { return "1.1.0"; }
+  get parserVersion() { return "1.2.0"; }
+  get parserRevisionDate() { return "2026-09-01"; }
 
   static get NetworkSignatures() {
     return [
@@ -15,20 +16,23 @@ class LeverAdapter extends BaseAdapter {
     ];
   }
 
-  get parserRevisionDate() { return "2024-01-01"; }
-
   async searchJobs() {
     let url = this.company.scraperConfig?.apiUrl;
+    const board = this.company.scraperConfig?.boardToken || this.company.scraperConfig?.board;
     const method = this.company.scraperConfig?.apiMethod || 'GET';
     let headers = this.company.scraperConfig?.apiHeaders ? Object.fromEntries(this.company.scraperConfig.apiHeaders) : {};
     const data = this.company.scraperConfig?.apiPayload || null;
     
+    if (!url && board) {
+      url = `https://api.lever.co/v0/postings/${board}?mode=json`;
+    }
+
     if (!url) {
       const match = this.company.careerUrl.match(/jobs\.lever\.co\/([^/?]+)/i);
       if (match && match[1]) {
         url = `https://api.lever.co/v0/postings/${match[1]}?mode=json`;
       } else {
-        throw new Error("Unable to build Lever API URL");
+        throw new Error(`Unable to build Lever API URL for ${this.company.name}`);
       }
     }
 

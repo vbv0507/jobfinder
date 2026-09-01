@@ -1,96 +1,94 @@
 const BaseAdapter = require('../../BaseAdapter');
 const { normalizeDate } = require('../../../../utils/dateNormalizer');
-const { launchBrowser } = require('../../../browserManager');
+const axios = require('axios');
 
 /**
- * InfineonAdapter — Scrapes live jobs from Infineon's Eightfold PCSX career portal
- * using the cloud-resilient BrowserManager.
+ * InfineonAdapter — Scrapes live jobs from Infineon's official Eightfold PCSX career portal
+ * using high-performance direct REST API calls.
  */
 class InfineonAdapter extends BaseAdapter {
-  get parserName() { return 'Infineon Eightfold Parser'; }
-  get parserVersion() { return '1.1.0'; }
-  get parserRevisionDate() { return '2026-08-31'; }
+  get parserName() { return 'Infineon Eightfold PCSX API'; }
+  get parserVersion() { return '2.0.0'; }
+  get parserRevisionDate() { return '2026-09-01'; }
 
   async searchJobs() {
     const config = this.company.scraperConfig || {};
-    const keywords = config.keywords || 'software';
+    const domain = config.domain || 'infineon.com';
     const location = config.location || 'India';
-    
-    const targetUrl = config.searchUrl || 
-      `https://jobs.infineon.com/careers?query=${encodeURIComponent(keywords)}&location=${encodeURIComponent(location)}&sort_by=relevance`;
+    const query = config.keywords || '';
+    const baseUrl = 'https://jobs.infineon.com/api/pcsx/search';
 
-    let browser = null;
-    const rawJobs = [];
+    const PAGE_SIZE = 10;
+    const MAX_POSITIONS = 150;
+    let start = 0;
+    let totalCount = null;
+    const allPositions = [];
+    const seenIds = new Set();
+
+    const headers = {
+      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36',
+      'Accept': 'application/json, text/plain, */*',
+      'Accept-Language': 'en-US,en;q=0.9',
+      'Referer': 'https://jobs.infineon.com/careers'
+    };
 
     try {
-      browser = await launchBrowser();
-      const page = await browser.newPage();
-      await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36');
-      await page.setViewport({ width: 1440, height: 900 });
-
-      await page.goto(targetUrl, { waitUntil: 'domcontentloaded', timeout: 45000 });
-      await page.waitForSelector('a[href*="/job/"]', { timeout: 15000 }).catch(() => {});
-      await new Promise(r => setTimeout(r, 2000));
-
-      const extracted = await page.evaluate(() => {
-        const results = [];
-        const links = Array.from(document.querySelectorAll('a[href*="/job/"]'));
+      while (start < MAX_POSITIONS) {
+        const url = `${baseUrl}?domain=${encodeURIComponent(domain)}&query=${encodeURIComponent(query)}&location=${encodeURIComponent(location)}&start=${start}&num=${PAGE_SIZE}`;
+        const response = await axios.get(url, { headers, timeout: 15000 });
         
-        links.forEach(a => {
-          const url = a.href;
-          const text = a.innerText.trim();
-          const card = a.closest('[class*="card"], [class*="position"], [class*="job"], li, div') || a;
-          const cardText = card.innerText.replace(/\s+/g, ' ').trim();
+        const dataObj = response.data?.data || response.data || {};
+        const positions = dataObj.positions || [];
+        if (totalCount === null && typeof dataObj.count === 'number') {
+          totalCount = dataObj.count;
+        }
 
-          const lines = a.innerText.split('\n').map(s => s.trim()).filter(Boolean);
-          const title = lines[0] || text;
-          const loc = lines[1] || 'India';
-          const refId = lines[2] || '';
+        if (!Array.isArray(positions) || positions.length === 0) {
+          break;
+        }
 
-          const urlMatch = url.match(/\/job\/([0-9a-zA-Z]+)/);
-          const jobId = urlMatch ? urlMatch[1] : (refId || '');
-
-          if (title && title.length > 3 && !title.toLowerCase().includes('job search') && !title.toLowerCase().includes('join talent')) {
-            results.push({
-              title,
-              url,
-              location: loc.includes('India') ? loc : `${loc}, India`,
-              jobId,
-              description: cardText || `${title} - ${loc} ${refId}`
-            });
+        for (const pos of positions) {
+          const id = String(pos.id || pos.displayJobId || '');
+          if (id && !seenIds.has(id)) {
+            seenIds.add(id);
+            allPositions.push(pos);
           }
-        });
-        return results;
-      });
+        }
 
-      rawJobs.push(...extracted);
-      await page.close().catch(() => {});
-    } finally {
-      if (browser) await browser.close().catch(() => {});
-    }
-
-    const seenUrls = new Set();
-    const uniqueJobs = [];
-    for (const item of rawJobs) {
-      if (!seenUrls.has(item.url)) {
-        seenUrls.add(item.url);
-        uniqueJobs.push(item);
+        start += PAGE_SIZE;
+        if (positions.length < PAGE_SIZE) break;
+        if (totalCount !== null && allPositions.length >= totalCount) break;
+      }
+    } catch (apiError) {
+      console.warn(`[InfineonAdapter] PCSX search API failed: ${apiError.message}`);
+      if (allPositions.length === 0) {
+        throw apiError;
       }
     }
 
-    return uniqueJobs.map(item =>
-      this.normalizeJob({
-        title: item.title,
-        location: item.location,
-        jobId: item.jobId,
-        description: item.description,
-        url: item.url,
-        postedAt: normalizeDate(new Date().toISOString()),
-        postedDate: new Date(),
-        employmentType: 'Full-Time',
+    return allPositions.map(item => {
+      const jobId = String(item.id || item.displayJobId || '');
+      const jobUrl = item.canonicalPositionUrl || `https://jobs.infineon.com/careers/job/${jobId}`;
+      const locationStr = (item.standardizedLocations && item.standardizedLocations.length > 0)
+        ? item.standardizedLocations.join(', ')
+        : (item.locations ? item.locations.join(', ') : 'India');
+
+      const postedIso = item.postedTs 
+        ? new Date(item.postedTs * 1000).toISOString() 
+        : (item.creationTs ? new Date(item.creationTs * 1000).toISOString() : new Date().toISOString());
+
+      return this.normalizeJob({
+        title: (item.name || '').trim(),
+        location: locationStr,
+        jobId: jobId,
+        description: [item.name, item.department, locationStr, item.displayJobId].filter(Boolean).join(' - '),
+        url: jobUrl,
+        postedAt: normalizeDate(postedIso),
+        postedDate: new Date(postedIso),
+        employmentType: item.workLocationOption || 'Full-Time',
         source: 'infineon'
-      })
-    ).filter(Boolean);
+      });
+    }).filter(Boolean);
   }
 }
 

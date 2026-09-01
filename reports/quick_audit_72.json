@@ -1,0 +1,650 @@
+[
+  {
+    "index": 1,
+    "name": "ADP",
+    "ats": "adp",
+    "adapter": "AdpAdapter",
+    "jobs": 50,
+    "status": "OK",
+    "duration": 5012
+  },
+  {
+    "index": 2,
+    "name": "Infineon Technologies",
+    "ats": "infineon",
+    "adapter": "InfineonAdapter",
+    "jobs": 19,
+    "status": "OK",
+    "duration": 6612
+  },
+  {
+    "index": 3,
+    "name": "Visa",
+    "ats": "workday",
+    "adapter": "WorkdayAdapter",
+    "jobs": 176,
+    "status": "OK",
+    "duration": 11816
+  },
+  {
+    "index": 4,
+    "name": "Mastercard",
+    "ats": "workday",
+    "adapter": "WorkdayAdapter",
+    "jobs": 200,
+    "status": "OK",
+    "duration": 13418
+  },
+  {
+    "index": 5,
+    "name": "PayPal",
+    "ats": "workday",
+    "adapter": "WorkdayAdapter",
+    "jobs": 7,
+    "status": "OK",
+    "duration": 1678
+  },
+  {
+    "index": 6,
+    "name": "Stripe",
+    "ats": "greenhouse",
+    "adapter": "GreenhouseAdapter",
+    "jobs": 587,
+    "status": "OK",
+    "duration": 560
+  },
+  {
+    "index": 7,
+    "name": "Wise",
+    "ats": "greenhouse",
+    "adapter": "GreenhouseAdapter",
+    "jobs": 21,
+    "status": "OK",
+    "duration": 277
+  },
+  {
+    "index": 8,
+    "name": "Brex",
+    "ats": "greenhouse",
+    "adapter": "GreenhouseAdapter",
+    "jobs": 289,
+    "status": "OK",
+    "duration": 341
+  },
+  {
+    "index": 9,
+    "name": "Ramp",
+    "ats": "ashby",
+    "adapter": "AshbyAdapter",
+    "jobs": 137,
+    "status": "OK",
+    "duration": 433
+  },
+  {
+    "index": 10,
+    "name": "Plaid",
+    "ats": "ashby",
+    "adapter": "AshbyAdapter",
+    "jobs": 100,
+    "status": "OK",
+    "duration": 364
+  },
+  {
+    "index": 11,
+    "name": "Amazon",
+    "ats": "amazon",
+    "adapter": "AmazonAdapter",
+    "jobs": 200,
+    "status": "OK",
+    "duration": 9895
+  },
+  {
+    "index": 12,
+    "name": "Netflix",
+    "ats": "netflix",
+    "adapter": "NetflixAdapter",
+    "jobs": 10,
+    "status": "OK",
+    "duration": 2107
+  },
+  {
+    "index": 13,
+    "name": "Adobe",
+    "ats": "workday",
+    "adapter": "WorkdayAdapter",
+    "jobs": 200,
+    "status": "OK",
+    "duration": 9793
+  },
+  {
+    "index": 14,
+    "name": "Salesforce",
+    "ats": "workday-csrf",
+    "adapter": "WorkdayCsrfAdapter",
+    "jobs": 198,
+    "status": "OK",
+    "duration": 9742
+  },
+  {
+    "index": 15,
+    "name": "Cisco",
+    "ats": "workday-csrf",
+    "adapter": "WorkdayCsrfAdapter",
+    "jobs": 200,
+    "status": "OK",
+    "duration": 6597
+  },
+  {
+    "index": 16,
+    "name": "Intel",
+    "ats": "workday",
+    "adapter": "WorkdayAdapter",
+    "jobs": 200,
+    "status": "OK",
+    "duration": 11990
+  },
+  {
+    "index": 17,
+    "name": "NVIDIA",
+    "ats": "workday",
+    "adapter": "WorkdayAdapter",
+    "jobs": 199,
+    "status": "OK",
+    "duration": 11637
+  },
+  {
+    "index": 18,
+    "name": "Broadcom",
+    "ats": "workday",
+    "adapter": "WorkdayAdapter",
+    "jobs": 112,
+    "status": "OK",
+    "duration": 3946
+  },
+  {
+    "index": 19,
+    "name": "GitLab",
+    "ats": "greenhouse",
+    "adapter": "GreenhouseAdapter",
+    "jobs": 223,
+    "status": "OK",
+    "duration": 564
+  },
+  {
+    "index": 20,
+    "name": "MongoDB",
+    "ats": "greenhouse",
+    "adapter": "GreenhouseAdapter",
+    "jobs": 404,
+    "status": "OK",
+    "duration": 532
+  },
+  {
+    "index": 21,
+    "name": "Datadog",
+    "ats": "greenhouse",
+    "adapter": "GreenhouseAdapter",
+    "jobs": 449,
+    "status": "OK",
+    "duration": 2382
+  },
+  {
+    "index": 22,
+    "name": "Cloudflare",
+    "ats": "greenhouse",
+    "adapter": "GreenhouseAdapter",
+    "jobs": 319,
+    "status": "OK",
+    "duration": 462
+  },
+  {
+    "index": 23,
+    "name": "Snowflake",
+    "ats": "api",
+    "adapter": "OfficialApiAdapter",
+    "jobs": 383,
+    "status": "OK",
+    "duration": 5140
+  },
+  {
+    "index": 24,
+    "name": "Confluent",
+    "ats": "api",
+    "adapter": "OfficialApiAdapter",
+    "jobs": 23,
+    "status": "OK",
+    "duration": 315
+  },
+  {
+    "index": 25,
+    "name": "Elastic",
+    "ats": "greenhouse",
+    "adapter": "GreenhouseAdapter",
+    "jobs": 345,
+    "status": "OK",
+    "duration": 514
+  },
+  {
+    "index": 26,
+    "name": "Postman",
+    "ats": "greenhouse",
+    "adapter": "GreenhouseAdapter",
+    "jobs": 64,
+    "status": "OK",
+    "duration": 296
+  },
+  {
+    "index": 27,
+    "name": "Docker",
+    "ats": "ashby",
+    "adapter": "AshbyAdapter",
+    "jobs": 61,
+    "status": "OK",
+    "duration": 4578
+  },
+  {
+    "index": 28,
+    "name": "Redis",
+    "ats": "ashby",
+    "adapter": "AshbyAdapter",
+    "jobs": 17,
+    "status": "OK",
+    "duration": 322
+  },
+  {
+    "index": 29,
+    "name": "Vercel",
+    "ats": "greenhouse",
+    "adapter": "GreenhouseAdapter",
+    "jobs": 89,
+    "status": "OK",
+    "duration": 301
+  },
+  {
+    "index": 30,
+    "name": "Netlify",
+    "ats": "greenhouse",
+    "adapter": "GreenhouseAdapter",
+    "jobs": 2,
+    "status": "OK",
+    "duration": 269
+  },
+  {
+    "index": 31,
+    "name": "DigitalOcean",
+    "ats": "greenhouse",
+    "adapter": "GreenhouseAdapter",
+    "jobs": 146,
+    "status": "OK",
+    "duration": 328
+  },
+  {
+    "index": 32,
+    "name": "Twilio",
+    "ats": "greenhouse",
+    "adapter": "GreenhouseAdapter",
+    "jobs": 136,
+    "status": "OK",
+    "duration": 341
+  },
+  {
+    "index": 33,
+    "name": "Okta",
+    "ats": "greenhouse",
+    "adapter": "GreenhouseAdapter",
+    "jobs": 339,
+    "status": "OK",
+    "duration": 407
+  },
+  {
+    "index": 34,
+    "name": "OpenAI",
+    "ats": "ashby",
+    "adapter": "AshbyAdapter",
+    "jobs": 768,
+    "status": "OK",
+    "duration": 727
+  },
+  {
+    "index": 35,
+    "name": "Anthropic",
+    "ats": "greenhouse",
+    "adapter": "GreenhouseAdapter",
+    "jobs": 576,
+    "status": "OK",
+    "duration": 696
+  },
+  {
+    "index": 36,
+    "name": "Cohere",
+    "ats": "ashby",
+    "adapter": "AshbyAdapter",
+    "jobs": 144,
+    "status": "OK",
+    "duration": 7026
+  },
+  {
+    "index": 37,
+    "name": "Scale AI",
+    "ats": "greenhouse",
+    "adapter": "GreenhouseAdapter",
+    "jobs": 215,
+    "status": "OK",
+    "duration": 616
+  },
+  {
+    "index": 38,
+    "name": "Perplexity AI",
+    "ats": "api",
+    "adapter": "OfficialApiAdapter",
+    "jobs": 97,
+    "status": "OK",
+    "duration": 343
+  },
+  {
+    "index": 39,
+    "name": "Together AI",
+    "ats": "greenhouse",
+    "adapter": "GreenhouseAdapter",
+    "jobs": 59,
+    "status": "OK",
+    "duration": 291
+  },
+  {
+    "index": 40,
+    "name": "ElevenLabs",
+    "ats": "ashby",
+    "adapter": "AshbyAdapter",
+    "jobs": 248,
+    "status": "OK",
+    "duration": 454
+  },
+  {
+    "index": 41,
+    "name": "Meesho",
+    "ats": "lever",
+    "adapter": "LeverAdapter",
+    "jobs": 45,
+    "status": "OK",
+    "duration": 5151
+  },
+  {
+    "index": 42,
+    "name": "Freshworks",
+    "ats": "smartrecruiters",
+    "adapter": "SmartRecruitersAdapter",
+    "jobs": 161,
+    "status": "OK",
+    "duration": 512
+  },
+  {
+    "index": 43,
+    "name": "Razorpay",
+    "ats": "greenhouse",
+    "adapter": "GreenhouseAdapter",
+    "jobs": 24,
+    "status": "OK",
+    "duration": 343
+  },
+  {
+    "index": 44,
+    "name": "Groww",
+    "ats": "greenhouse",
+    "adapter": "GreenhouseAdapter",
+    "jobs": 5,
+    "status": "OK",
+    "duration": 508
+  },
+  {
+    "index": 45,
+    "name": "CRED",
+    "ats": "lever",
+    "adapter": "LeverAdapter",
+    "jobs": 14,
+    "status": "OK",
+    "duration": 280
+  },
+  {
+    "index": 46,
+    "name": "Swiggy",
+    "ats": "smartrecruiters",
+    "adapter": "SmartRecruitersAdapter",
+    "jobs": 71,
+    "status": "OK",
+    "duration": 963
+  },
+  {
+    "index": 47,
+    "name": "InMobi",
+    "ats": "greenhouse",
+    "adapter": "GreenhouseAdapter",
+    "jobs": 62,
+    "status": "OK",
+    "duration": 321
+  },
+  {
+    "index": 48,
+    "name": "Tekion",
+    "ats": "api",
+    "adapter": "OfficialApiAdapter",
+    "jobs": 98,
+    "status": "OK",
+    "duration": 371
+  },
+  {
+    "index": 49,
+    "name": "Databricks",
+    "ats": "greenhouse",
+    "adapter": "GreenhouseAdapter",
+    "jobs": 857,
+    "status": "OK",
+    "duration": 1953
+  },
+  {
+    "index": 50,
+    "name": "Thoughtworks",
+    "ats": "greenhouse",
+    "adapter": "GreenhouseAdapter",
+    "jobs": 51,
+    "status": "OK",
+    "duration": 366
+  },
+  {
+    "index": 51,
+    "name": "Zeta",
+    "ats": "lever",
+    "adapter": "LeverAdapter",
+    "jobs": 21,
+    "status": "OK",
+    "duration": 2462
+  },
+  {
+    "index": 52,
+    "name": "Figma",
+    "ats": "greenhouse",
+    "adapter": "GreenhouseAdapter",
+    "jobs": 161,
+    "status": "OK",
+    "duration": 331
+  },
+  {
+    "index": 53,
+    "name": "Linear",
+    "ats": "ashby",
+    "adapter": "AshbyAdapter",
+    "jobs": 28,
+    "status": "OK",
+    "duration": 402
+  },
+  {
+    "index": 54,
+    "name": "Resend",
+    "ats": "ashby",
+    "adapter": "AshbyAdapter",
+    "jobs": 11,
+    "status": "OK",
+    "duration": 330
+  },
+  {
+    "index": 55,
+    "name": "Airtable",
+    "ats": "greenhouse",
+    "adapter": "GreenhouseAdapter",
+    "jobs": 16,
+    "status": "OK",
+    "duration": 290
+  },
+  {
+    "index": 56,
+    "name": "Roblox",
+    "ats": "greenhouse",
+    "adapter": "GreenhouseAdapter",
+    "jobs": 226,
+    "status": "OK",
+    "duration": 6075
+  },
+  {
+    "index": 57,
+    "name": "Lyft",
+    "ats": "greenhouse",
+    "adapter": "GreenhouseAdapter",
+    "jobs": 169,
+    "status": "OK",
+    "duration": 350
+  },
+  {
+    "index": 58,
+    "name": "Airbnb",
+    "ats": "greenhouse",
+    "adapter": "GreenhouseAdapter",
+    "jobs": 168,
+    "status": "OK",
+    "duration": 355
+  },
+  {
+    "index": 59,
+    "name": "Coinbase",
+    "ats": "greenhouse",
+    "adapter": "GreenhouseAdapter",
+    "jobs": 191,
+    "status": "OK",
+    "duration": 360
+  },
+  {
+    "index": 60,
+    "name": "Robinhood",
+    "ats": "greenhouse",
+    "adapter": "GreenhouseAdapter",
+    "jobs": 127,
+    "status": "OK",
+    "duration": 400
+  },
+  {
+    "index": 61,
+    "name": "Discord",
+    "ats": "greenhouse",
+    "adapter": "GreenhouseAdapter",
+    "jobs": 51,
+    "status": "OK",
+    "duration": 395
+  },
+  {
+    "index": 62,
+    "name": "Reddit",
+    "ats": "greenhouse",
+    "adapter": "GreenhouseAdapter",
+    "jobs": 156,
+    "status": "OK",
+    "duration": 348
+  },
+  {
+    "index": 63,
+    "name": "Pinterest",
+    "ats": "greenhouse",
+    "adapter": "GreenhouseAdapter",
+    "jobs": 206,
+    "status": "OK",
+    "duration": 480
+  },
+  {
+    "index": 64,
+    "name": "Cadence",
+    "ats": "workday",
+    "adapter": "WorkdayAdapter",
+    "jobs": 200,
+    "status": "OK",
+    "duration": 8871
+  },
+  {
+    "index": 65,
+    "name": "Western Digital",
+    "ats": "smartrecruiters",
+    "adapter": "SmartRecruitersAdapter",
+    "jobs": 372,
+    "status": "OK",
+    "duration": 1015
+  },
+  {
+    "index": 66,
+    "name": "Palantir",
+    "ats": "lever",
+    "adapter": "LeverAdapter",
+    "jobs": 306,
+    "status": "OK",
+    "duration": 7749
+  },
+  {
+    "index": 67,
+    "name": "ServiceNow",
+    "ats": "smartrecruiters",
+    "adapter": "SmartRecruitersAdapter",
+    "jobs": 565,
+    "status": "OK",
+    "duration": 1463
+  },
+  {
+    "index": 68,
+    "name": "PwC India",
+    "ats": "workday",
+    "adapter": "WorkdayAdapter",
+    "jobs": 200,
+    "status": "OK",
+    "duration": 8427
+  },
+  {
+    "index": 69,
+    "name": "Tower Research Capital",
+    "ats": "greenhouse",
+    "adapter": "GreenhouseAdapter",
+    "jobs": 81,
+    "status": "OK",
+    "duration": 474
+  },
+  {
+    "index": 70,
+    "name": "Rubrik",
+    "ats": "greenhouse",
+    "adapter": "GreenhouseAdapter",
+    "jobs": 136,
+    "status": "OK",
+    "duration": 568
+  },
+  {
+    "index": 71,
+    "name": "Supabase",
+    "ats": "ashby",
+    "adapter": "AshbyAdapter",
+    "jobs": 57,
+    "status": "OK",
+    "duration": 360
+  },
+  {
+    "index": 72,
+    "name": "Slice",
+    "ats": "greenhouse",
+    "adapter": "GreenhouseAdapter",
+    "jobs": 26,
+    "status": "OK",
+    "duration": 301
+  }
+]

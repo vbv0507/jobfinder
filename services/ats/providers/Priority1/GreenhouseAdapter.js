@@ -25,18 +25,24 @@ class GreenhouseAdapter extends BaseAdapter {
 
   async searchJobs() {
     let url = this.company.scraperConfig?.apiUrl;
+    const board = this.company.scraperConfig?.boardToken || this.company.scraperConfig?.board;
     const method = this.company.scraperConfig?.apiMethod || 'GET';
     let headers = this.company.scraperConfig?.apiHeaders ? Object.fromEntries(this.company.scraperConfig.apiHeaders) : {};
     const data = this.company.scraperConfig?.apiPayload || null;
 
+    if (!url && board) {
+      url = `https://boards-api.greenhouse.io/v1/boards/${board}/jobs?content=true`;
+    }
+
     if (!url) {
       // Fallback for legacy setups
       const match = this.company.careerUrl.match(/boards\.greenhouse\.io\/([^/?]+)/i) || 
+                    this.company.careerUrl.match(/job-boards\.greenhouse\.io\/([^/?]+)/i) ||
                     this.company.careerUrl.match(/for=([^&]+)/i);
       if (match && match[1] && match[1] !== 'embed') {
         url = `https://boards-api.greenhouse.io/v1/boards/${match[1]}/jobs?content=true`;
       } else {
-        throw new Error("Unable to build Greenhouse API URL");
+        throw new Error(`Unable to build Greenhouse API URL for ${this.company.name}`);
       }
     }
 

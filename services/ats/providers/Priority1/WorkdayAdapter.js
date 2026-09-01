@@ -1,9 +1,11 @@
 const BaseAdapter = require('../../BaseAdapter');
 const { normalizeDate } = require('../../../../utils/dateNormalizer');
+const axios = require('axios');
 
 class WorkdayAdapter extends BaseAdapter {
   get parserName() { return "Workday GraphQL/API"; }
-  get parserVersion() { return "2.1.0"; }
+  get parserVersion() { return "2.2.0"; }
+  get parserRevisionDate() { return "2026-09-01"; }
 
   static get NetworkSignatures() {
     return [
@@ -15,72 +17,95 @@ class WorkdayAdapter extends BaseAdapter {
     ];
   }
 
-  get parserRevisionDate() { return "2024-10-15"; }
-
   async searchJobs() {
-    const apiUrl = this.company.scraperConfig?.apiUrl;
-    const method = this.company.scraperConfig?.apiMethod || 'POST';
-    const headers = this.company.scraperConfig?.apiHeaders ? Object.fromEntries(this.company.scraperConfig.apiHeaders) : { "Content-Type": "application/json" };
-    let dataPayload = Object.assign({ appliedFacets: {}, limit: 20, offset: 0, searchText: "" }, this.company.scraperConfig?.apiPayload);
-    
+    const config = this.company.scraperConfig || {};
+    let careerUrl = this.company.careerUrl || '';
+    let apiUrl = config.apiUrl;
+    let siteUrl = config.siteUrl || careerUrl;
+
+    // Auto-derive Workday apiUrl from careerUrl if missing
     if (!apiUrl) {
-       const { ScraperError } = require('../../../../utils/errors');
-       throw new ScraperError('INVALID_ENDPOINT', 'Workday API endpoint not configured');
+      const match = careerUrl.match(/https:\/\/([^/]+)\.myworkdayjobs\.com\/([^/?#]+)/i);
+      if (match) {
+        const host = `${match[1]}.myworkdayjobs.com`;
+        const tenant = match[1].split('.')[0];
+        const board = match[2].replace(/^en-US\//i, '');
+        apiUrl = `https://${host}/wday/cxs/${tenant}/${board}/jobs`;
+      }
     }
 
-    const limit = dataPayload.limit || 20;
-    let offset = dataPayload.offset || 0;
-    let allJobs = [];
-    let hasMore = true;
-
-    let applyBaseUrl = this.company.careerUrl || "";
-    const match = apiUrl.match(/https:\/\/(.+?)\/wday\/cxs\/[^\/]+\/([^\/]+)/);
-    if (match) {
-      applyBaseUrl = `https://${match[1]}/en-US/${match[2]}`;
+    if (!apiUrl) {
+      const { ScraperError } = require('../../../../utils/errors');
+      throw new ScraperError('INVALID_ENDPOINT', `Unable to build Workday API URL for ${this.company.name}`);
     }
 
-    while (hasMore && offset < 200) { // Safety cap of 200 jobs max
-      try {
-        dataPayload.limit = limit;
-        dataPayload.offset = offset;
-
-        const { data } = await this.fetch(apiUrl, { method, headers, data: dataPayload });
-
-        const jobsFromApi = data.jobPostings || data.jobPostingsData || [];
-        if (!jobsFromApi || jobsFromApi.length === 0) {
-          hasMore = false;
-          break;
+    // Step 1: Pre-flight session cookies for zero 422 errors
+    let cookies = '';
+    let csrfToken = '';
+    try {
+      const pageRes = await axios.get(siteUrl, {
+        timeout: 10000,
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36',
+          'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+          'Accept-Language': 'en-US,en;q=0.9',
         }
+      });
+      const rawCookies = pageRes.headers['set-cookie'];
+      if (Array.isArray(rawCookies)) {
+        cookies = rawCookies.map(c => c.split(';')[0]).join('; ');
+      }
+    } catch (_) {}
+
+    // Compute base URL for apply links
+    let applyBaseUrl = careerUrl;
+    const urlMatch = apiUrl.match(/https:\/\/(.+?)\/wday\/cxs\/[^/]+\/([^/]+)/);
+    if (urlMatch) {
+      applyBaseUrl = `https://${urlMatch[1]}/en-US/${urlMatch[2]}`;
+    }
+
+    const postHeaders = {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36',
+      'Accept-Language': 'en-US,en;q=0.9',
+      ...(cookies ? { 'Cookie': cookies } : {}),
+    };
+
+    const LIMIT = 20;
+    let offset = 0;
+    let allJobs = [];
+
+    while (offset < 200) {
+      const payload = { appliedFacets: {}, limit: LIMIT, offset, searchText: '' };
+
+      try {
+        const res = await axios.post(apiUrl, payload, { headers: postHeaders, timeout: 15000 });
+        const jobsFromApi = res.data?.jobPostings || res.data?.jobPostingsData || [];
+        if (!jobsFromApi.length) break;
 
         allJobs = allJobs.concat(jobsFromApi);
-        offset += limit;
-
-        if (jobsFromApi.length < limit) {
-          hasMore = false;
-        }
+        offset += LIMIT;
+        if (jobsFromApi.length < LIMIT) break;
       } catch (err) {
-        if (offset === 0) throw err; 
-        console.log(`[Workday] Pagination failed at offset ${offset}. Returning ${allJobs.length} jobs.`);
+        if (offset === 0) throw err;
         break;
       }
     }
 
     return allJobs.map(item => {
-      const jobId = item.bulletFields?.[0] || item.externalPath || item.id;
-      let jobUrl = item.externalPath ? `${applyBaseUrl}${item.externalPath}` : "";
-      if (!jobUrl && jobId) {
-         jobUrl = `${applyBaseUrl}/job/${jobId}`;
-      }
-      if (!jobUrl) {
-         jobUrl = this.company.careerUrl || apiUrl;
-      }
+      const jobId = item.externalPath || item.bulletFields?.[0] || item.id;
+      const jobUrl = item.externalPath 
+        ? `${applyBaseUrl}${item.externalPath}` 
+        : (jobId ? `${applyBaseUrl}/job/${jobId}` : (this.company.careerUrl || apiUrl));
+
       return this.normalizeJob({
         title: item.title,
         location: item.locationsText || item.location || 'Remote / Global',
         jobId: jobId || `${this.company.name.toLowerCase()}-${Buffer.from(item.title || '').toString('hex').slice(0, 10)}`,
-        description: item.title, 
+        description: item.title,
         url: jobUrl,
-        postedAt: item.postedOn,
+        postedAt: normalizeDate(item.postedOn),
         source: 'workday'
       });
     }).filter(Boolean);
