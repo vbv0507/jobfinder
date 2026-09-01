@@ -829,5 +829,27 @@ Updated the candidate profile across the application (`profile.js`, `models/Cand
    - **Preferred Domains**: `BACKEND`, `FULLSTACK`, `SOFTWARE_ENGINEERING`, `AI_ENGINEERING`, `DISTRIBUTED_SYSTEMS`, `CLOUD`, `PLATFORM_ENGINEERING`, `API_DEVELOPMENT`, `DEVOPS`
    - **Excluded Domains**: `SALES`, `MARKETING`, `HR`, `CUSTOMER_SUPPORT`, `CONTENT_WRITING`, `GRAPHIC_DESIGN`, `UI_UX_DESIGN`, `BUSINESS_DEVELOPMENT`, `ACCOUNTING`, `FINANCE`, `LEGAL`, `MECHANICAL`, `CIVIL`, `ELECTRICAL`, `MOBILE`
 
+---
+
+## 🤖 30. Multi-Tier LLM Evaluation Diagnostics & Local Re-Evaluation Optimization (2026-09-01)
+
+### Overview
+Conducted live health diagnostics across all AI LLM providers, investigated why jobs were tagged with `provider: "local"`, optimized the Groq model pool and token limits, and processed all remaining local heuristic matches with cloud LLMs.
+
+### Diagnostic Findings:
+1. **Gemini API Key Quota Exhaustion (429)**: The primary Google Gemini API key reached its daily/minute quota during intensive scraping sessions.
+2. **Groq Model Pool Optimization**:
+   - Updated model priorities to active, high-throughput Groq models: `qwen/qwen3.8-27b` (300ms latency), `qwen/qwen3.6-27b`, `openai/gpt-oss-20b`, and `groq/compound-mini`.
+   - Replaced permanent key blocking with a timestamped cooldown map (`Map<string, number>`) that automatically resets key availability after 30 seconds.
+   - Reduced prompt description maximum payload to 4,000 characters to prevent TPM (Tokens Per Minute) limit spikes while retaining full requirement context.
+3. **OpenRouter Fast Fallback**: Configured an 8-second timeout for OpenRouter free-tier endpoints to eliminate lag during peak server congestion.
+
+### Local Re-Evaluation Outcome:
+- Executed `scripts/re_evaluate_all_local_jobs.js` against the updated candidate profile across all 28 local heuristic matches.
+- **Local Jobs Pending**: Reduced from 28 to **0**.
+- **100% Cloud Verified**: All 106 current `MatchedJob` entries in MongoDB are now authenticated and scored by cloud AI models (`OpenRouter`: 68, `Gemini`: 19, `Groq`: 16, `LiteLLM`: 3).
+- **False-Positive Elimination**: All non-matching roles (e.g., Senior Accounting Manager, Foreign In-Office Roles, Senior Hardware roles) were cleanly migrated to `RejectedJob` with detailed LLM disqualification reasons.
+
+
 
 

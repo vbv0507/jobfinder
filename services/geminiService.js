@@ -34,17 +34,20 @@ const getGroqKeys = () => {
 };
 
 let groqKeyIndex = 0;
-const exhaustedGroqKeys = new Set();
+const exhaustedGroqKeys = new Map(); // apiKey -> timestamp when exhausted
 
 const getNextGroqClient = () => {
     const keys = getGroqKeys();
     if (keys.length === 0) return null;
+    const now = Date.now();
     
-    // Find next non-exhausted key
+    // Find next non-exhausted key (auto-reset after 30s)
     for (let i = 0; i < keys.length; i++) {
         const idx = (groqKeyIndex + i) % keys.length;
         const key = keys[idx];
-        if (!exhaustedGroqKeys.has(key)) {
+        const exhaustedAt = exhaustedGroqKeys.get(key);
+        if (!exhaustedAt || (now - exhaustedAt > 30000)) {
+            if (exhaustedAt) exhaustedGroqKeys.delete(key);
             groqKeyIndex = (idx + 1) % keys.length;
             return {
                 client: new OpenAI({ apiKey: key, baseURL: "https://api.groq.com/openai/v1" }),
@@ -208,7 +211,7 @@ const evaluateJob = async (job, profile, aiState = {}) => {
     if (!aiState.litellm) aiState.litellm = { available: true, requests: 0, success: 0, failed: 0 };
     if (!aiState.local) aiState.local = { requests: 0, success: 0, failed: 0 };
 
-    const MAX_CHARS = 25000;
+    const MAX_CHARS = 4000;
     let originalDescription = job.description || "";
     let jobForPrompt = job;
     if (originalDescription.length > MAX_CHARS) {
@@ -303,7 +306,7 @@ const evaluateJob = async (job, profile, aiState = {}) => {
 
             const groqModels = [
                 process.env.GROQ_MODEL || "qwen/qwen3.8-27b",
-                "openai/gpt-oss-120b",
+                "qwen/qwen3.6-27b",
                 "openai/gpt-oss-20b",
                 "groq/compound-mini"
             ];
@@ -318,7 +321,7 @@ const evaluateJob = async (job, profile, aiState = {}) => {
                         ],
                         temperature: 0.1,
                         response_format: { type: "json_object" }
-                    }, { timeout: 15000 });
+                    }, { timeout: 8000 });
 
                     const content = response.choices?.[0]?.message?.content || "";
                     let parsedResult = parseJsonResponse(content);
@@ -340,7 +343,7 @@ const evaluateJob = async (job, profile, aiState = {}) => {
                     console.warn(`[AI] Groq (Key #${groqPoolEntry.keyIndex}, Model ${modelName}) failed:`, error.message);
                     const errorAnalysis = analyzeError(error);
                     if (errorAnalysis.permanent || error.status === 429) {
-                        exhaustedGroqKeys.add(groqPoolEntry.apiKey);
+                        exhaustedGroqKeys.set(groqPoolEntry.apiKey, Date.now());
                         break; // Try next key in pool
                     }
                 }
@@ -386,7 +389,7 @@ const evaluateJob = async (job, profile, aiState = {}) => {
                     ],
                     temperature: 0.1,
                     response_format: { type: "json_object" }
-                }, { timeout: 15000 });
+                }, { timeout: 8000 });
 
                 const content = response.choices?.[0]?.message?.content || "";
                 let parsedResult = parseJsonResponse(content);
