@@ -2,6 +2,11 @@ const mongoose = require("mongoose");
 
 const candidateProfileSchema = new mongoose.Schema({
     name: String,
+    email: String,
+    phone: String,
+    linkedin: String,
+    github: String,
+    education: String,
 
     graduationYear: Number,
 
@@ -12,6 +17,10 @@ const candidateProfileSchema = new mongoose.Schema({
     preferredLocations: [String],
 
     projects: [String],
+
+    experience: [String],
+
+    achievements: [String],
 
     careerPreferences: [String],
 

@@ -795,6 +795,39 @@ Conducted an exhaustive manual audit and automated scraper validation across all
 5. **Comprehensive Audit Tooling & Generated Reports**:
    - Script: `scripts/audit_72_companies.js`
    - Detailed JSON Report: `reports/audit-72-companies.json`
-   - Detailed Markdown Report: `reports/audit-72-companies.md` (Containing complete manual check verification, scraper execution details, and fix breakdowns for all 72 companies).
+ ---
+
+## 👤 29. Candidate Profile Resume Synchronization (2026-09-01)
+
+### Overview
+Updated the candidate profile across the application (`profile.js`, `models/CandidateProfile.js`, and MongoDB `CandidateProfile` collection) with complete, verified resume metadata for **Vaibhav Rai**.
+
+### Key Profile Metadata Integrated:
+1. **Candidate Identity & Contact**:
+   - **Name**: Vaibhav Rai
+   - **Email**: `vbvrai1407@gmail.com` | **Phone**: `+91 82900 41407`
+   - **LinkedIn**: `linkedin.com/in/vaibhav-rai` | **GitHub**: `github.com/vbv0507`
+   - **Education**: B.Tech – Information Technology, Parul University, Vadodara, Gujarat (2023 – 2027, CGPA: 7.19/10)
+   - **Graduation Year**: 2027
+   - **Career Stage**: Entry Level / New Grad (Expected 2027, 0 Years of Experience)
+2. **Technical Skills (47 Categories)**:
+   - **Languages**: JavaScript (ES6+), TypeScript, Python, C++ (DSA), Java (OOP)
+   - **Full-Stack & Backend**: Node.js, Express.js, React, Vite, Tailwind CSS, REST APIs, MVC Architecture
+   - **Databases & Caching**: PostgreSQL (Neon), Prisma ORM, MongoDB, Mongoose, MySQL, Redis (Caching, Distributed Locks, Job Queues), Vector Databases, Schema Design & Indexing, Query Optimization
+   - **AI & LLM**: LangChain, Multi-Provider LLM APIs (Gemini, Groq, Cerebras, OpenRouter, DeepSeek), AI Agents, Prompt Engineering
+   - **Real-Time & Auth**: Socket.io (Event-Driven Systems), Job Queues (node-cron, BullMQ), JWT Auth, RBAC/PBAC Authorization, Middleware Design
+   - **DevOps & Cloud**: Docker, Kubernetes, Containerization, Azure App Service, Azure Blob Storage, Render, Vercel, Git, GitHub Actions CI/CD
+   - **CS Fundamentals**: DSA (1,000+ problems solved across LeetCode, CodeChef, Codeforces, AtCoder), OOP, DBMS, OS, Distributed Systems, System Design, HTTP/TCP-IP
+3. **Projects & Contract Experience**:
+   - **RoleNova**: Autonomous Job Intelligence Agent (Node.js, MongoDB, React, LLM APIs, Redis, 5-tier AI Fallback, 72 ATS Scrapers)
+   - **Monitorly**: Service Health Monitoring & Alerting (Node.js, MongoDB, React, Socket.io, Cron Engine, Docker, Azure App Service, CI/CD)
+   - **Wispnote**: Full-Stack Real-Time Notes & Collaboration Platform (React, Node.js, Express, MongoDB, Socket.io, Azure, NanoID)
+   - **Experience**: Backend Developer (Contract) at Network18 (Aug 2025 – Dec 2025, Remote)
+4. **Targeting & Evaluation Preferences**:
+   - **Preferred Roles**: SDE, SDE 1 / SDE I, Full-Stack Developer, Backend Software Engineer, Node.js Developer, API Developer, Associate Software Engineer, Software Engineer, Graduate Engineer Trainee, SDE Intern, AI Engineer
+   - **Preferred Locations**: India, Remote, Bengaluru, Bangalore, Noida, Hyderabad, Pune, Gurgaon, Gurugram, Delhi NCR, Mumbai, Chennai, Ahmedabad, Vadodara
+   - **Preferred Domains**: `BACKEND`, `FULLSTACK`, `SOFTWARE_ENGINEERING`, `AI_ENGINEERING`, `DISTRIBUTED_SYSTEMS`, `CLOUD`, `PLATFORM_ENGINEERING`, `API_DEVELOPMENT`, `DEVOPS`
+   - **Excluded Domains**: `SALES`, `MARKETING`, `HR`, `CUSTOMER_SUPPORT`, `CONTENT_WRITING`, `GRAPHIC_DESIGN`, `UI_UX_DESIGN`, `BUSINESS_DEVELOPMENT`, `ACCOUNTING`, `FINANCE`, `LEGAL`, `MECHANICAL`, `CIVIL`, `ELECTRICAL`, `MOBILE`
+
 
 
