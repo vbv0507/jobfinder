@@ -36,7 +36,7 @@ const getAnalyticsData = async (force = false) => {
         const matchedJobsCount = await MatchedJob.countDocuments();
         
         
-        const aiEvaluatedCount = await MatchedJob.countDocuments({ score: { $exists: true } });
+        const aiEvaluatedCount = await RawJob.countDocuments({ aiEvaluated: true });
         
         const newJobsCount = await MatchedJob.countDocuments({ status: "new" });
         const savedJobsCount = await MatchedJob.countDocuments({ status: "saved" });
@@ -146,12 +146,12 @@ const getAnalyticsData = async (force = false) => {
                 { $sort: { _id: 1 } }
             ]),
             SearchLog.aggregate([
-                { $match: { createdAt: { $gte: sevenDaysAgo } } },
+                { $match: { createdAt: { $gte: sevenDaysAgo }, status: { $in: ["Success", "Partial Success"] } } },
                 {
                     $group: {
                         _id: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt", timezone: "+05:30" } },
-                        jobsFound: { $sum: { $ifNull: ["$jobsFound", 0] } },
-                        jobsMatched: { $sum: { $ifNull: ["$jobsMatched", 0] } }
+                        jobsFound: { $max: { $ifNull: ["$jobsFound", 0] } },
+                        jobsMatched: { $max: { $ifNull: ["$jobsMatched", 0] } }
                     }
                 },
                 { $sort: { _id: 1 } }
@@ -314,7 +314,7 @@ const getAnalyticsData = async (force = false) => {
                 "Recovered Nodes": latest.retriedSuccessfully || 0,
                 "Raw Jobs": latest.jobsFound || latest.totalJobs || 0,
                 "Matched Jobs": latest.jobsMatched || latest.matchedJobs || 0,
-                "AI Evaluations": latest.jobsEvaluated || latest.aiEvaluations || aiEvaluatedCount || 0,
+                "AI Evaluations": latest.aiEvaluations || latest.jobsEvaluated || aiEvaluatedCount || 0,
                 "Parser Failures": latest.parserOutdated || 0,
                 "Validation Failures": latest.validationDrops || 0,
                 "ATS Changed": latest.atsChanged || 0,

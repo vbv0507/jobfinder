@@ -1,0 +1,2916 @@
+{
+  "generatedAt": "2026-09-02T12:05:48.650Z",
+  "candidateName": "Vaibhav Rai",
+  "totalInfineonJobs": 150,
+  "evaluatedCount": 32,
+  "results": [
+    {
+      "job": {
+        "title": "Young Graduate Trainee",
+        "company": "Infineon Technologies",
+        "location": "Bengaluru, KA, IN",
+        "applyLink": "https://jobs.infineon.com/careers/job/563808971773357",
+        "description": "Young Graduate Trainee  - ES - Bengaluru, KA, IN - HRC1715361",
+        "source": "infineon",
+        "postedDate": "2026-08-12T14:53:18.000Z",
+        "postedAt": "2026-08-12T14:53:18.000Z",
+        "jobId": "563808971773357",
+        "experience": "",
+        "employmentType": "onsite"
+      },
+      "evaluation": {
+        "score": 100,
+        "confidence": "High",
+        "suitable": true,
+        "isClosed": false,
+        "recommendationLevel": "Excellent Match",
+        "scoringBreakdown": {
+          "roleMatch": 5,
+          "skillsMatch": 35,
+          "experienceMatch": 20,
+          "domainMatch": 20,
+          "locationMatch": 20
+        },
+        "domainMismatch": false,
+        "domainExplanation": "The candidate's preferred domains (SOFTWARE_ENGINEERING, BACKEND, FULLSTACK, etc.) align perfectly with a 'Young Graduate Trainee' role, which is inherently a software engineering position.",
+        "jobDomain": "Software Engineering",
+        "experienceMismatch": false,
+        "roleMatch": "Strong",
+        "skillOverlapPercentage": 100,
+        "matchedSkills": [
+          "JavaScript",
+          "TypeScript",
+          "Python",
+          "C++",
+          "Java",
+          "Node.js",
+          "Express.js",
+          "React",
+          "Vite",
+          "Tailwind CSS",
+          "REST APIs",
+          "MVC Architecture",
+          "PostgreSQL",
+          "Prisma ORM",
+          "MongoDB",
+          "Mongoose",
+          "MySQL",
+          "Redis",
+          "Vector Databases",
+          "Schema Design & Indexing",
+          "Query Optimization",
+          "LangChain",
+          "Multi-Provider LLM APIs",
+          "AI Agents",
+          "Prompt Engineering",
+          "Socket.io",
+          "Job Queues & Scheduling",
+          "JWT Authentication",
+          "RBAC / PBAC Authorization",
+          "Middleware Design",
+          "Docker",
+          "Kubernetes",
+          "Containerization",
+          "Azure App Service",
+          "Azure Blob Storage",
+          "Render",
+          "Vercel",
+          "Git",
+          "GitHub Actions CI/CD",
+          "Data Structures & Algorithms (DSA)",
+          "Object-Oriented Programming (OOP)",
+          "Database Management Systems (DBMS)",
+          "Operating Systems",
+          "Distributed Systems",
+          "System Design",
+          "HTTP/TCP-IP",
+          "Process & Memory Management"
+        ],
+        "missingSkills": [],
+        "strengths": [
+          "Perfect alignment with the 'Young Graduate Trainee' career stage and experience level.",
+          "Exceptional breadth and depth of technical skills for an entry-level candidate, covering multiple programming languages, web frameworks, databases, cloud platforms, DevOps tools, and AI/ML concepts.",
+          "Strong foundation in core Computer Science fundamentals (DSA, OOP, DBMS, OS, Distributed Systems, System Design).",
+          "Proficiency in modern development practices and tools (REST APIs, Docker, CI/CD, authentication/authorization).",
+          "Location preference (Bengaluru) is an exact match for the job location.",
+          "Preferred domains align perfectly with a general software engineering role."
+        ],
+        "weaknesses": [
+          "The job description is extremely brief and does not list specific mandatory skills, making it impossible to identify any explicit skill gaps. However, the candidate's profile is robust enough to cover general software engineering needs."
+        ],
+        "mandatoryRequirements": [],
+        "optionalRequirements": [],
+        "reasonsFor": [
+          "The candidate's career stage (New Grad, Expected 2027) and 0 years of experience are an ideal match for a 'Young Graduate Trainee' role.",
+          "The candidate possesses an incredibly strong and diverse technical skill set for an entry-level engineer, demonstrating proficiency across multiple programming languages, web development, databases, cloud, DevOps, and even AI/ML, which are highly valuable for a general software engineering position.",
+          "Strong foundational knowledge in Computer Science principles (DSA, OOP, DBMS, OS, Distributed Systems, System Design) indicates a solid academic background and readiness for complex engineering tasks.",
+          "The candidate's preferred location (Bengaluru) and preferred domains (Software Engineering, Backend, Fullstack) are a perfect match for the job."
+        ],
+        "reasonsAgainst": [
+          "No explicit mandatory skills were provided in the job description to identify specific gaps. The candidate's profile is exceptionally strong for a new graduate."
+        ],
+        "primaryReasons": [
+          "The candidate is an excellent fit for the 'Young Graduate Trainee' role due to their new graduate status and 0 years of experience, perfectly aligning with the job's target audience.",
+          "They demonstrate an exceptionally strong and broad technical skill set for an entry-level engineer, encompassing core CS fundamentals, multiple programming languages, web technologies, databases, DevOps, and AI, making them highly suitable for a general software engineering trainee position.",
+          "Location and preferred domains are an exact match, further solidifying their suitability."
+        ],
+        "reason": "The candidate is an excellent match for the 'Young Graduate Trainee' role, possessing the ideal experience level, a remarkably strong and diverse technical skill set, and perfect alignment in location and preferred domains.",
+        "recommendation": "Excellent Match",
+        "evaluatedBy": "Gemini",
+        "provider": "gemini",
+        "model": "gemini-2.5-flash",
+        "evaluationTimeMs": 15951,
+        "fallbackCount": 0,
+        "providerChain": [
+          "Gemini"
+        ],
+        "attemptLogs": {
+          "gemini": "Success"
+        },
+        "verificationStatus": "verified"
+      },
+      "priority": 1
+    },
+    {
+      "job": {
+        "title": "Young Graduate Trainee",
+        "company": "Infineon Technologies",
+        "location": "Bengaluru, KA, IN",
+        "applyLink": "https://jobs.infineon.com/careers/job/563808971782817",
+        "description": "Young Graduate Trainee - ES - Bengaluru, KA, IN - HRC1737601",
+        "source": "infineon",
+        "postedDate": "2026-08-07T12:21:38.000Z",
+        "postedAt": "2026-08-07T12:21:38.000Z",
+        "jobId": "563808971782817",
+        "experience": "",
+        "employmentType": "onsite"
+      },
+      "evaluation": {
+        "score": 99,
+        "confidence": "High",
+        "suitable": true,
+        "isClosed": false,
+        "recommendationLevel": "Excellent Match",
+        "scoringBreakdown": {
+          "roleMatch": 100,
+          "skillsMatch": 95,
+          "experienceMatch": 100,
+          "domainMatch": 100,
+          "locationMatch": 100
+        },
+        "domainMismatch": false,
+        "domainExplanation": "The candidate's preferred domains (SOFTWARE_ENGINEERING, BACKEND, FULLSTACK, AI_ENGINEERING, DEVOPS) are highly relevant and align perfectly with a general 'Young Graduate Trainee' role, which is typically within Software Engineering.",
+        "jobDomain": "SOFTWARE_ENGINEERING",
+        "experienceMismatch": false,
+        "roleMatch": "Strong",
+        "skillOverlapPercentage": 100,
+        "matchedSkills": [
+          "JavaScript (ES6+)",
+          "TypeScript",
+          "Python",
+          "C++ (DSA)",
+          "Java (OOP, working knowledge)",
+          "Node.js",
+          "Express.js",
+          "React",
+          "Vite",
+          "Tailwind CSS",
+          "REST APIs",
+          "MVC Architecture",
+          "PostgreSQL (Neon)",
+          "Prisma ORM",
+          "MongoDB",
+          "Mongoose",
+          "MySQL",
+          "Redis (Caching, Distributed Locks, Job Queues)",
+          "Vector Databases",
+          "Schema Design & Indexing",
+          "Query Optimization",
+          "LangChain",
+          "Multi-Provider LLM APIs (Gemini, Groq, Cerebras, OpenRouter, DeepSeek)",
+          "AI Agents",
+          "Prompt Engineering",
+          "Socket.io (Event-Driven Systems)",
+          "Job Queues & Scheduling (node-cron, BullMQ)",
+          "JWT Authentication (Access/Refresh Tokens)",
+          "RBAC / PBAC Authorization",
+          "Middleware Design",
+          "Docker",
+          "Kubernetes",
+          "Containerization",
+          "Azure App Service",
+          "Azure Blob Storage",
+          "Render",
+          "Vercel",
+          "Git",
+          "GitHub Actions CI/CD",
+          "Data Structures & Algorithms (DSA)",
+          "Object-Oriented Programming (OOP)",
+          "Database Management Systems (DBMS)",
+          "Operating Systems",
+          "Distributed Systems",
+          "System Design",
+          "HTTP/TCP-IP",
+          "Process & Memory Management"
+        ],
+        "missingSkills": [],
+        "strengths": [
+          "Perfect alignment with the 'Young Graduate Trainee' role in terms of career stage and experience.",
+          "Extensive and diverse technical skill set for a new graduate, covering multiple programming languages, frameworks, databases, cloud platforms, DevOps tools, and fundamental computer science concepts.",
+          "Strong foundational knowledge in DSA, OOP, DBMS, OS, Distributed Systems, and System Design.",
+          "Exposure to modern technologies like AI/LLM APIs, Vector Databases, Docker, Kubernetes, and CI/CD.",
+          "Location preference perfectly matches the job location."
+        ],
+        "weaknesses": [
+          "The job description is extremely vague, making it impossible to identify specific mandatory skills or technologies. This means the match is based on general suitability for a software engineering role rather than precise alignment."
+        ],
+        "mandatoryRequirements": [
+          "0 years of experience (Young Graduate Trainee)",
+          "Location in Bengaluru, KA, IN"
+        ],
+        "optionalRequirements": [],
+        "reasonsFor": [
+          "Candidate's career stage (Entry Level / New Grad) and 0 years of experience are an ideal fit for a 'Young Graduate Trainee' role.",
+          "Candidate possesses a remarkably strong and broad technical skill set for a new graduate, demonstrating excellent foundational knowledge and exposure to modern technologies.",
+          "Preferred location (Bengaluru) matches the job location exactly.",
+          "Preferred domains (Software Engineering, Backend, Fullstack, AI, DevOps) align well with a general engineering trainee position."
+        ],
+        "reasonsAgainst": [
+          "Lack of specific skill requirements in the job description means the match is based on general suitability rather than explicit alignment, though the candidate's skills are highly relevant."
+        ],
+        "primaryReasons": [
+          "Ideal candidate profile (new grad, 0 years experience) for a 'Young Graduate Trainee' position.",
+          "Exceptional breadth and depth of relevant technical skills and foundational computer science knowledge for an entry-level software engineering role.",
+          "Perfect location match."
+        ],
+        "reason": "The candidate is an excellent match due to perfect alignment with the 'Young Graduate Trainee' role's experience and location requirements, coupled with an exceptionally strong and broad technical skill set for a new graduate.",
+        "recommendation": "Excellent Match",
+        "evaluatedBy": "Gemini",
+        "provider": "gemini",
+        "model": "gemini-2.5-flash",
+        "evaluationTimeMs": 17049,
+        "fallbackCount": 0,
+        "providerChain": [
+          "Gemini"
+        ],
+        "attemptLogs": {
+          "gemini": "Success"
+        },
+        "verificationStatus": "verified"
+      },
+      "priority": 1
+    },
+    {
+      "job": {
+        "title": "Young Graduate Trainee",
+        "company": "Infineon Technologies",
+        "location": "Bengaluru, KA, IN",
+        "applyLink": "https://jobs.infineon.com/careers/job/563808971773353",
+        "description": "Young Graduate Trainee - ES - Bengaluru, KA, IN - HRC1715280",
+        "source": "infineon",
+        "postedDate": "2026-07-23T09:15:11.000Z",
+        "postedAt": "2026-07-23T09:15:11.000Z",
+        "jobId": "563808971773353",
+        "experience": "",
+        "employmentType": "onsite"
+      },
+      "evaluation": {
+        "score": 98,
+        "confidence": "High",
+        "suitable": true,
+        "isClosed": false,
+        "recommendationLevel": "Excellent Match",
+        "scoringBreakdown": {
+          "roleMatch": 100,
+          "skillsMatch": 95,
+          "experienceMatch": 100,
+          "domainMatch": 100,
+          "locationMatch": 100
+        },
+        "domainMismatch": false,
+        "domainExplanation": "The candidate's preferred domains (SOFTWARE_ENGINEERING, BACKEND, FULLSTACK, AI_ENGINEERING, DISTRIBUTED_SYSTEMS, CLOUD, PLATFORM_ENGINEERING, API_DEVELOPMENT, DEVOPS) align perfectly with the implied 'Engineering/Software Engineering' domain of a 'Young Graduate Trainee' role.",
+        "jobDomain": "Software Engineering",
+        "experienceMismatch": false,
+        "roleMatch": "Strong",
+        "skillOverlapPercentage": 100,
+        "matchedSkills": [
+          "JavaScript",
+          "TypeScript",
+          "Python",
+          "C++",
+          "Java",
+          "Node.js",
+          "Express.js",
+          "React",
+          "Tailwind CSS",
+          "REST APIs",
+          "MVC Architecture",
+          "PostgreSQL",
+          "Prisma ORM",
+          "MongoDB",
+          "Mongoose",
+          "MySQL",
+          "Redis",
+          "Vector Databases",
+          "Schema Design & Indexing",
+          "Query Optimization",
+          "LangChain",
+          "Multi-Provider LLM APIs",
+          "AI Agents",
+          "Prompt Engineering",
+          "Socket.io",
+          "Job Queues & Scheduling",
+          "JWT Authentication",
+          "RBAC / PBAC Authorization",
+          "Middleware Design",
+          "Docker",
+          "Kubernetes",
+          "Containerization",
+          "Azure App Service",
+          "Azure Blob Storage",
+          "Render",
+          "Vercel",
+          "Git",
+          "GitHub Actions CI/CD",
+          "Data Structures & Algorithms (DSA)",
+          "Object-Oriented Programming (OOP)",
+          "Database Management Systems (DBMS)",
+          "Operating Systems",
+          "Distributed Systems",
+          "System Design",
+          "HTTP/TCP-IP",
+          "Process & Memory Management"
+        ],
+        "missingSkills": [],
+        "strengths": [
+          "Exceptional alignment with the 'Young Graduate Trainee' role, being an entry-level candidate (Expected 2027 graduate).",
+          "Extensive and highly relevant technical skill set for a new graduate, covering multiple programming languages, web frameworks, databases, DevOps tools, and even AI/ML fundamentals.",
+          "Strong foundational knowledge in core computer science concepts (DSA, OOP, DBMS, OS, Distributed Systems, System Design).",
+          "Location preference (Bengaluru, India) perfectly matches the job location.",
+          "Preferred domains align perfectly with a general software engineering trainee role."
+        ],
+        "weaknesses": [
+          "No specific weaknesses identified given the minimal job description and the candidate's strong profile for a new graduate role."
+        ],
+        "mandatoryRequirements": [
+          "Entry-level/New Graduate status (implied by 'Young Graduate Trainee' title)",
+          "Foundational Engineering/Software Development skills"
+        ],
+        "optionalRequirements": [],
+        "reasonsFor": [
+          "The candidate's career stage (Entry Level / New Grad, Expected 2027) is a perfect match for a 'Young Graduate Trainee' role.",
+          "The candidate possesses a remarkably broad and deep technical skill set for a new graduate, covering full-stack development, cloud, DevOps, and AI, which are highly relevant to a general engineering role.",
+          "The candidate's preferred locations explicitly include Bengaluru, KA, IN, ensuring a perfect geographical fit.",
+          "The candidate's preferred domains (Software Engineering, Backend, Fullstack, AI Engineering, etc.) are directly applicable to the implied nature of the role."
+        ],
+        "reasonsAgainst": [
+          "The job description is extremely brief, making it difficult to identify any specific niche requirements that the candidate might miss. However, based on general expectations for a YGT, the candidate is exceptionally well-prepared."
+        ],
+        "primaryReasons": [
+          "The candidate is an excellent fit for a 'Young Graduate Trainee' role, demonstrating strong foundational knowledge and a diverse, relevant skill set for a new graduate.",
+          "All key criteria including experience, location, skills, and domain align perfectly with the job's implied requirements."
+        ],
+        "reason": "The candidate is an excellent match for the Young Graduate Trainee role, possessing a strong technical foundation and relevant skills for an entry-level position, with perfect alignment on experience, location, and domain.",
+        "recommendation": "Excellent Match",
+        "evaluatedBy": "Gemini",
+        "provider": "gemini",
+        "model": "gemini-2.5-flash",
+        "evaluationTimeMs": 14119,
+        "fallbackCount": 0,
+        "providerChain": [
+          "Gemini"
+        ],
+        "attemptLogs": {
+          "gemini": "Success"
+        },
+        "verificationStatus": "verified"
+      },
+      "priority": 1
+    },
+    {
+      "job": {
+        "title": "Young Graduate Trainee",
+        "company": "Infineon Technologies",
+        "location": "Bengaluru, KA, IN",
+        "applyLink": "https://jobs.infineon.com/careers/job/563808971773351",
+        "description": "Young Graduate Trainee  - ES - Bengaluru, KA, IN - HRC1715346",
+        "source": "infineon",
+        "postedDate": "2026-08-12T14:47:31.000Z",
+        "postedAt": "2026-08-12T14:47:31.000Z",
+        "jobId": "563808971773351",
+        "experience": "",
+        "employmentType": "onsite"
+      },
+      "evaluation": {
+        "score": 95,
+        "confidence": "High",
+        "suitable": true,
+        "isClosed": false,
+        "recommendationLevel": "Excellent Match",
+        "scoringBreakdown": {
+          "roleMatch": 100,
+          "skillsMatch": 95,
+          "experienceMatch": 100,
+          "domainMatch": 100,
+          "locationMatch": 100
+        },
+        "domainMismatch": false,
+        "domainExplanation": "The candidate's preferred domains (SOFTWARE_ENGINEERING, BACKEND, FULLSTACK, AI_ENGINEERING, DISTRIBUTED_SYSTEMS, CLOUD, PLATFORM_ENGINEERING, API_DEVELOPMENT, DEVOPS) align perfectly with a general 'Engineering Services' (ES) role, which is implied by the 'Young Graduate Trainee' title.",
+        "jobDomain": "SOFTWARE_ENGINEERING",
+        "experienceMismatch": false,
+        "roleMatch": "Strong",
+        "skillOverlapPercentage": 100,
+        "matchedSkills": [
+          "JavaScript",
+          "TypeScript",
+          "Python",
+          "C++",
+          "Java",
+          "Node.js",
+          "Express.js",
+          "React",
+          "Tailwind CSS",
+          "REST APIs",
+          "PostgreSQL",
+          "MongoDB",
+          "MySQL",
+          "Redis",
+          "LangChain",
+          "LLM APIs",
+          "AI Agents",
+          "Prompt Engineering",
+          "Socket.io",
+          "Job Queues & Scheduling",
+          "JWT Authentication",
+          "RBAC / PBAC Authorization",
+          "Middleware Design",
+          "Docker",
+          "Kubernetes",
+          "Azure App Service",
+          "Azure Blob Storage",
+          "Render",
+          "Vercel",
+          "Git",
+          "GitHub Actions CI/CD",
+          "Data Structures & Algorithms (DSA)",
+          "Object-Oriented Programming (OOP)",
+          "Database Management Systems (DBMS)",
+          "Operating Systems",
+          "Distributed Systems",
+          "System Design",
+          "HTTP/TCP-IP",
+          "Process & Memory Management"
+        ],
+        "missingSkills": [],
+        "strengths": [
+          "Perfect alignment with 'Young Graduate Trainee' role as an Entry Level / New Grad (Expected 2027).",
+          "Exact match for job location (Bengaluru).",
+          "Possesses an exceptionally broad and deep technical skill set for an entry-level candidate, covering multiple programming languages, frameworks, databases, cloud platforms, DevOps, and AI/LLM related technologies.",
+          "Strong foundational knowledge in core computer science concepts (DSA, OOP, DBMS, OS, Distributed Systems, System Design).",
+          "Preferred domains align perfectly with a general software engineering position."
+        ],
+        "weaknesses": [
+          "The job description is too generic to identify any specific missing skills, making it difficult to pinpoint any weaknesses in the candidate's profile for this particular role."
+        ],
+        "mandatoryRequirements": [
+          "Young Graduate Trainee (implies 0-1 years of experience)"
+        ],
+        "optionalRequirements": [],
+        "reasonsFor": [
+          "The candidate's career stage and expected graduation year perfectly match the 'Young Graduate Trainee' designation.",
+          "The candidate's preferred locations include Bengaluru, which is the exact job location.",
+          "The candidate demonstrates an outstanding and diverse technical skill set for a new graduate, covering a wide array of modern technologies relevant to software engineering.",
+          "The candidate's preferred domains are highly relevant to a general software engineering role."
+        ],
+        "reasonsAgainst": [
+          "No explicit mandatory skills were provided in the job description, so no direct skill gaps could be identified. The candidate's profile is exceptionally strong for an entry-level role."
+        ],
+        "primaryReasons": [
+          "The candidate is an ideal fit for the 'Young Graduate Trainee' role due to perfect alignment in career stage and location.",
+          "The candidate exhibits an exceptionally strong and comprehensive technical skill set, including foundational CS concepts, modern web technologies, cloud, DevOps, and AI/LLM, making them highly suitable for a general software engineering position."
+        ],
+        "reason": "The candidate is an excellent match for the Young Graduate Trainee role, demonstrating perfect alignment in career stage, location, and possessing an exceptionally strong and diverse technical skill set for an entry-level software engineering position.",
+        "recommendation": "Excellent Match",
+        "evaluatedBy": "Gemini",
+        "provider": "gemini",
+        "model": "gemini-2.5-flash",
+        "evaluationTimeMs": 19315,
+        "fallbackCount": 0,
+        "providerChain": [
+          "Gemini"
+        ],
+        "attemptLogs": {
+          "gemini": "Success"
+        },
+        "verificationStatus": "verified"
+      },
+      "priority": 1
+    },
+    {
+      "job": {
+        "title": "Young Graduate Trainee",
+        "company": "Infineon Technologies",
+        "location": "Bengaluru, KA, IN",
+        "applyLink": "https://jobs.infineon.com/careers/job/563808971773352",
+        "description": "Young Graduate Trainee - ES - Bengaluru, KA, IN - HRC1715291",
+        "source": "infineon",
+        "postedDate": "2026-08-19T04:42:30.000Z",
+        "postedAt": "2026-08-19T04:42:30.000Z",
+        "jobId": "563808971773352",
+        "experience": "",
+        "employmentType": "onsite"
+      },
+      "evaluation": {
+        "score": 95,
+        "confidence": "High",
+        "suitable": true,
+        "isClosed": false,
+        "recommendationLevel": "Excellent Match",
+        "scoringBreakdown": {
+          "roleMatch": 100,
+          "skillsMatch": 95,
+          "experienceMatch": 100,
+          "domainMatch": 100,
+          "locationMatch": 100
+        },
+        "domainMismatch": false,
+        "domainExplanation": "The candidate's preferred domains (SOFTWARE_ENGINEERING, BACKEND, FULLSTACK, AI_ENGINEERING, DISTRIBUTED_SYSTEMS, CLOUD, PLATFORM_ENGINEERING, API_DEVELOPMENT, DEVOPS) are an excellent match for a 'Young Graduate Trainee - ES' role, which implies a general Software Engineering position.",
+        "jobDomain": "SOFTWARE_ENGINEERING",
+        "experienceMismatch": false,
+        "roleMatch": "Strong",
+        "skillOverlapPercentage": 100,
+        "matchedSkills": [
+          "JavaScript",
+          "TypeScript",
+          "Python",
+          "C++",
+          "Java",
+          "Node.js",
+          "Express.js",
+          "React",
+          "REST APIs",
+          "PostgreSQL",
+          "MongoDB",
+          "MySQL",
+          "Redis",
+          "Docker",
+          "Kubernetes",
+          "Azure",
+          "Git",
+          "GitHub Actions CI/CD",
+          "Data Structures & Algorithms (DSA)",
+          "Object-Oriented Programming (OOP)",
+          "Database Management Systems (DBMS)",
+          "Operating Systems",
+          "Distributed Systems",
+          "System Design",
+          "HTTP/TCP-IP"
+        ],
+        "missingSkills": [],
+        "strengths": [
+          "Perfectly aligned career stage (Entry Level / New Grad) for a 'Young Graduate Trainee' role.",
+          "Extremely strong and diverse technical skill set for a new graduate, covering multiple programming languages, frameworks, databases, cloud platforms, and DevOps tools.",
+          "Proficiency in core computer science fundamentals including DSA, OOP, DBMS, OS, Distributed Systems, and System Design.",
+          "Experience with modern web development (Node.js, React, Express.js, REST APIs) and database technologies (PostgreSQL, MongoDB, MySQL, Redis).",
+          "Exposure to cloud (Azure), containerization (Docker, Kubernetes), and CI/CD (GitHub Actions) practices.",
+          "Knowledge of AI/ML related concepts (LangChain, LLM APIs, AI Agents, Prompt Engineering).",
+          "Preferred locations include Bengaluru, which is the job location."
+        ],
+        "weaknesses": [
+          "The job description is very brief, making it difficult to identify any highly specific niche requirements that might be missing from the candidate's broad skill set. However, for a general 'Young Graduate Trainee' role, the candidate's profile is exceptionally comprehensive."
+        ],
+        "mandatoryRequirements": [
+          "Young Graduate Trainee (implies 0-1 years experience / New Grad)"
+        ],
+        "optionalRequirements": [],
+        "reasonsFor": [
+          "The candidate's career stage and expected graduation year (2027) are an ideal match for a 'Young Graduate Trainee' position.",
+          "The candidate possesses an extensive and highly relevant skill set for a software engineering role, covering both foundational CS concepts and modern technologies.",
+          "The candidate's preferred domains align perfectly with a general software engineering role.",
+          "The candidate's preferred locations include the job location (Bengaluru)."
+        ],
+        "reasonsAgainst": [
+          "No explicit reasons against the candidate given the broad nature of the job title and the candidate's strong, well-rounded profile."
+        ],
+        "primaryReasons": [
+          "Ideal experience level for a 'Young Graduate Trainee' role.",
+          "Comprehensive and highly relevant technical skill set for a software engineering position.",
+          "Strong foundational knowledge in computer science principles.",
+          "Location preference matches job location."
+        ],
+        "reason": "The candidate is an excellent match for the 'Young Graduate Trainee' role due to their ideal career stage, extensive and relevant technical skills, strong foundational knowledge, and matching location preferences.",
+        "recommendation": "Excellent Match",
+        "evaluatedBy": "Gemini",
+        "provider": "gemini",
+        "model": "gemini-2.5-flash",
+        "evaluationTimeMs": 15499,
+        "fallbackCount": 0,
+        "providerChain": [
+          "Gemini"
+        ],
+        "attemptLogs": {
+          "gemini": "Success"
+        },
+        "verificationStatus": "verified"
+      },
+      "priority": 1
+    },
+    {
+      "job": {
+        "title": "Trainee Engineer",
+        "company": "Infineon Technologies",
+        "location": "Bengaluru, KA, IN, Bengaluru, KA, IN",
+        "applyLink": "https://jobs.infineon.com/careers/job/563808970057480",
+        "description": "Trainee Engineer - ATV - Bengaluru, KA, IN, Bengaluru, KA, IN - HRC1574263",
+        "source": "infineon",
+        "postedDate": "2026-03-16T10:00:43.000Z",
+        "postedAt": "2026-03-16T10:00:43.000Z",
+        "jobId": "563808970057480",
+        "experience": "",
+        "employmentType": "onsite"
+      },
+      "evaluation": {
+        "score": 88,
+        "confidence": "Medium",
+        "suitable": true,
+        "isClosed": false,
+        "recommendationLevel": "Strong Match",
+        "scoringBreakdown": {
+          "roleMatch": 90,
+          "skillsMatch": 80,
+          "experienceMatch": 100,
+          "domainMatch": 90,
+          "locationMatch": 100
+        },
+        "domainMismatch": false,
+        "domainExplanation": "The job title 'Trainee Engineer' aligns with the candidate's target entry-level Software Engineering and Backend domains.",
+        "jobDomain": "SOFTWARE_ENGINEERING",
+        "experienceMismatch": false,
+        "roleMatch": "Strong",
+        "skillOverlapPercentage": 80,
+        "matchedSkills": [
+          "JavaScript",
+          "Python",
+          "C++ (DSA)",
+          "Java",
+          "Data Structures & Algorithms (DSA)",
+          "Object-Oriented Programming (OOP)",
+          "Database Management Systems (DBMS)",
+          "Operating Systems",
+          "Git"
+        ],
+        "missingSkills": [],
+        "strengths": [
+          "Ideal experience level (0 YoE/Fresher) for a Trainee Engineer role",
+          "Strong Computer Science fundamentals including DSA, OOP, DBMS, and OS",
+          "Location perfectly matches Bengaluru preference"
+        ],
+        "weaknesses": [
+          "Job description lacks specific technical details to assess specialized tech stack requirements"
+        ],
+        "mandatoryRequirements": [
+          "0 years experience / Fresher candidate suitable for Trainee Engineer position"
+        ],
+        "optionalRequirements": [],
+        "reasonsFor": [
+          "Candidate is an entry-level applicant matching the Trainee Engineer career stage requirements",
+          "Candidate possesses strong core CS fundamentals required for graduate engineering trainee roles",
+          "Location is an exact match for Bengaluru"
+        ],
+        "reasonsAgainst": [
+          "Extremely brief job description provides minimal detail on specific tools or frameworks required"
+        ],
+        "primaryReasons": [
+          "Candidate's entry-level profile perfectly aligns with a Trainee Engineer position in Bengaluru",
+          "Strong technical skills and CS fundamentals fit general entry-level engineering expectations"
+        ],
+        "reason": "The candidate is a strong match for this Trainee Engineer role given their fresh graduate status, solid CS background, and matching location preferences.",
+        "recommendation": "Strong Match",
+        "evaluatedBy": "Gemini",
+        "provider": "gemini",
+        "model": "gemini-3.6-flash",
+        "evaluationTimeMs": 19000,
+        "fallbackCount": 0,
+        "providerChain": [
+          "Gemini"
+        ],
+        "attemptLogs": {
+          "gemini": "Success"
+        },
+        "verificationStatus": "verified"
+      },
+      "priority": 1
+    },
+    {
+      "job": {
+        "title": "Young Graduate Trainee",
+        "company": "Infineon Technologies",
+        "location": "Bengaluru, KA, IN",
+        "applyLink": "https://jobs.infineon.com/careers/job/563808971773350",
+        "description": "Young Graduate Trainee - ES - Bengaluru, KA, IN - HRC1715365",
+        "source": "infineon",
+        "postedDate": "2026-08-14T09:10:47.000Z",
+        "postedAt": "2026-08-14T09:10:47.000Z",
+        "jobId": "563808971773350",
+        "experience": "",
+        "employmentType": "onsite"
+      },
+      "evaluation": {
+        "score": 82,
+        "confidence": "Medium",
+        "suitable": true,
+        "isClosed": false,
+        "recommendationLevel": "Strong Match",
+        "scoringBreakdown": {
+          "roleMatch": 85,
+          "skillsMatch": 75,
+          "experienceMatch": 100,
+          "domainMatch": 80,
+          "locationMatch": 100
+        },
+        "domainMismatch": false,
+        "domainExplanation": "The role is an entry-level Young Graduate Trainee position, which aligns well with the candidate's software engineering background and early-career profile.",
+        "jobDomain": "Software Engineering / Early Career",
+        "experienceMismatch": false,
+        "roleMatch": "Strong",
+        "skillOverlapPercentage": 70,
+        "matchedSkills": [
+          "JavaScript (ES6+)",
+          "Python",
+          "C++ (DSA)",
+          "Java",
+          "Data Structures & Algorithms (DSA)",
+          "Object-Oriented Programming (OOP)",
+          "Git"
+        ],
+        "missingSkills": [],
+        "strengths": [
+          "Perfect alignment between entry-level candidate status and Young Graduate Trainee title",
+          "Strong foundational skill set in DSA, OOP, database design, and web development technologies",
+          "Location is an exact match for Bengaluru, KA"
+        ],
+        "weaknesses": [
+          "Job description lacks specific technical requirement details, making precise skill overlap assessment limited"
+        ],
+        "mandatoryRequirements": [
+          "Young Graduate / Entry Level Status",
+          "Location: Bengaluru, KA, IN"
+        ],
+        "optionalRequirements": [],
+        "reasonsFor": [
+          "Role specifically targets fresh graduates or entry-level candidates, perfectly fitting the candidate profile",
+          "Candidate possesses a comprehensive skill set across backend, databases, and core CS fundamentals",
+          "Candidate prefers Bengaluru as a location"
+        ],
+        "reasonsAgainst": [
+          "Minimal details in job description obscure specific technical stack expectations"
+        ],
+        "primaryReasons": [
+          "Candidate's experience level (0 years / 2027 grad) perfectly matches the 'Young Graduate Trainee' target profile",
+          "Location criteria fully satisfied for Bengaluru, KA, IN"
+        ],
+        "reason": "The candidate is a strong match for this entry-level Young Graduate Trainee position given perfect target level and location alignment.",
+        "recommendation": "Strong Match",
+        "evaluatedBy": "Gemini",
+        "provider": "gemini",
+        "model": "gemini-3.6-flash",
+        "evaluationTimeMs": 36138,
+        "fallbackCount": 0,
+        "providerChain": [
+          "Gemini"
+        ],
+        "attemptLogs": {
+          "gemini": "Success"
+        },
+        "verificationStatus": "verified"
+      },
+      "priority": 1
+    },
+    {
+      "job": {
+        "title": "Trainee: Product Management - Automotive Microcontrollers",
+        "company": "Infineon Technologies",
+        "location": "Bengaluru, KA, IN",
+        "applyLink": "https://jobs.infineon.com/careers/job/563808970002130",
+        "description": "Trainee: Product Management - Automotive Microcontrollers  - ATV - Bengaluru, KA, IN - HRC1496061",
+        "source": "infineon",
+        "postedDate": "2026-08-10T04:15:01.000Z",
+        "postedAt": "2026-08-10T04:15:01.000Z",
+        "jobId": "563808970002130",
+        "experience": "",
+        "employmentType": "onsite"
+      },
+      "evaluation": {
+        "score": 30,
+        "confidence": "High",
+        "suitable": false,
+        "isClosed": false,
+        "recommendationLevel": "Reject",
+        "scoringBreakdown": {
+          "roleMatch": 0,
+          "skillsMatch": 0,
+          "experienceMatch": 100,
+          "domainMatch": 0,
+          "locationMatch": 100
+        },
+        "domainMismatch": true,
+        "domainExplanation": "The candidate's preferred domains are exclusively software engineering (Backend, Fullstack, AI Engineering, etc.), while the job is in Product Management for Automotive Microcontrollers. This represents a fundamental mismatch in career path and domain focus.",
+        "jobDomain": "Product Management, Automotive Microcontrollers",
+        "experienceMismatch": false,
+        "roleMatch": "Reject",
+        "skillOverlapPercentage": 0,
+        "matchedSkills": [],
+        "missingSkills": [
+          "Product Management experience/skills",
+          "Automotive industry knowledge",
+          "Microcontroller knowledge"
+        ],
+        "strengths": [
+          "Candidate's preferred location (Bengaluru) matches the job location.",
+          "Candidate's career stage (Entry Level / New Grad) aligns with a 'Trainee' role."
+        ],
+        "weaknesses": [
+          "Complete mismatch between the candidate's software engineering profile and the Product Management role.",
+          "No skills, experience, or stated interest in Product Management.",
+          "No skills, experience, or stated interest in the Automotive industry or Microcontrollers.",
+          "Candidate's preferred domains are exclusively technical software development, contrasting sharply with this role's nature."
+        ],
+        "mandatoryRequirements": [
+          "Trainee role (implies 0 years experience)",
+          "Focus on Product Management",
+          "Focus on Automotive Microcontrollers"
+        ],
+        "optionalRequirements": [],
+        "reasonsFor": [
+          "The candidate's preferred location (Bengaluru) matches the job location.",
+          "The candidate's entry-level status (0 years experience, expected 2027) aligns with a 'Trainee' position."
+        ],
+        "reasonsAgainst": [
+          "The candidate's profile is entirely focused on software engineering and AI development, which is fundamentally different from a Product Management role.",
+          "There is no indication of interest, skills, or experience in product management, the automotive industry, or microcontroller technology.",
+          "The candidate's preferred domains are exclusively technical software roles, indicating a strong preference away from non-technical or hardware-specific roles like this."
+        ],
+        "primaryReasons": [
+          "Fundamental mismatch between the candidate's software engineering background and the Product Management role.",
+          "Lack of any relevant skills, experience, or stated interest in Product Management or the Automotive Microcontroller domain."
+        ],
+        "reason": "The candidate's software engineering profile and preferred domains are a complete mismatch for a Product Management role in Automotive Microcontrollers, despite matching location and experience level.",
+        "recommendation": "Reject",
+        "evaluatedBy": "Gemini",
+        "provider": "gemini",
+        "model": "gemini-2.5-flash",
+        "evaluationTimeMs": 13662,
+        "fallbackCount": 0,
+        "providerChain": [
+          "Gemini"
+        ],
+        "attemptLogs": {
+          "gemini": "Success"
+        },
+        "verificationStatus": "verified"
+      },
+      "priority": 1
+    },
+    {
+      "job": {
+        "title": "Senior Engineer Software",
+        "company": "Infineon Technologies",
+        "location": "Ahmedabad, GJ, IN",
+        "applyLink": "https://jobs.infineon.com/careers/job/563808970594284",
+        "description": "Senior Engineer Software - DES - Ahmedabad, GJ, IN - HRC1626801",
+        "source": "infineon",
+        "postedDate": "2026-09-02T09:54:41.000Z",
+        "postedAt": "2026-09-02T09:54:41.000Z",
+        "jobId": "563808970594284",
+        "experience": "",
+        "employmentType": "hybrid"
+      },
+      "evaluation": {
+        "score": 15,
+        "confidence": "High",
+        "suitable": false,
+        "isClosed": false,
+        "recommendationLevel": "Reject",
+        "scoringBreakdown": {
+          "roleMatch": 10,
+          "skillsMatch": 20,
+          "experienceMatch": 0,
+          "domainMatch": 50,
+          "locationMatch": 100
+        },
+        "domainMismatch": false,
+        "domainExplanation": "The job title 'Senior Engineer Software' implies a general software engineering role. The candidate's skills in Backend, Full Stack, and AI align with general software engineering, but the seniority level is the primary mismatch.",
+        "jobDomain": "Software Engineering (Senior)",
+        "experienceMismatch": true,
+        "roleMatch": "Reject",
+        "skillOverlapPercentage": 0,
+        "matchedSkills": [],
+        "missingSkills": [
+          "5+ Years of Experience",
+          "Senior Level Expertise"
+        ],
+        "strengths": [
+          "Location matches (Ahmedabad is in preferred list)",
+          "Strong technical foundation in modern web technologies (Node.js, React, TypeScript)"
+        ],
+        "weaknesses": [
+          "Candidate is a Fresher (0 years experience) while the role is for a Senior Engineer",
+          "Significant experience gap (likely 5-10+ years required for Senior role)",
+          "Lack of production-level experience implied by 'Senior' title"
+        ],
+        "mandatoryRequirements": [
+          "Senior Level Experience (typically 5+ years)"
+        ],
+        "optionalRequirements": [
+          "Specific tech stack details not provided in description"
+        ],
+        "reasonsFor": [
+          "Candidate is located in Ahmedabad, which matches the job location."
+        ],
+        "reasonsAgainst": [
+          "Candidate has 0 years of experience, whereas the role is 'Senior Engineer', which typically requires 5+ years.",
+          "The job description is sparse, but the title 'Senior' is a hard constraint for a fresher."
+        ],
+        "primaryReasons": [
+          "Severe experience mismatch: Fresher applying for a Senior role.",
+          "No specific skills can be verified due to lack of job description details, but the seniority gap is disqualifying."
+        ],
+        "reason": "Candidate is a fresher (0 years experience) applying for a Senior Engineer role, which is a hard constraint mismatch.",
+        "recommendation": "Reject",
+        "evaluatedBy": "Groq",
+        "provider": "groq",
+        "model": "qwen/qwen3.8-27b",
+        "evaluationTimeMs": 1638,
+        "fallbackCount": 0,
+        "providerChain": [
+          "Groq_Key_1"
+        ],
+        "attemptLogs": {
+          "groq": "Success"
+        },
+        "verificationStatus": "verified"
+      },
+      "priority": 2
+    },
+    {
+      "job": {
+        "title": "Functional Test Pattern Development Engineer",
+        "company": "Infineon Technologies",
+        "location": "Bengaluru, KA, IN",
+        "applyLink": "https://jobs.infineon.com/careers/job/563808971598280",
+        "description": "Functional Test Pattern Development Engineer - DES - Bengaluru, KA, IN - HRC1703978",
+        "source": "infineon",
+        "postedDate": "2026-08-12T13:37:35.000Z",
+        "postedAt": "2026-08-12T13:37:35.000Z",
+        "jobId": "563808971598280",
+        "experience": "",
+        "employmentType": "hybrid"
+      },
+      "evaluation": {
+        "score": 15,
+        "confidence": "High",
+        "suitable": false,
+        "isClosed": false,
+        "recommendationLevel": "Reject",
+        "scoringBreakdown": {
+          "roleMatch": 10,
+          "skillsMatch": 20,
+          "experienceMatch": 0,
+          "domainMatch": 10,
+          "locationMatch": 100
+        },
+        "domainMismatch": true,
+        "domainExplanation": "The job title 'Functional Test Pattern Development Engineer' strongly implies a focus on Quality Assurance, Test Automation, or Hardware/Embedded Testing (common in DES - Design Engineering Services). The candidate is a Backend/Fullstack Software Engineer with no specific experience in test automation frameworks (Selenium, Cypress, JUnit, etc.) or hardware testing. This is a significant domain mismatch.",
+        "jobDomain": "QA / Test Engineering / Embedded Systems",
+        "experienceMismatch": true,
+        "roleMatch": "Reject",
+        "skillOverlapPercentage": 10,
+        "matchedSkills": [
+          "Python",
+          "C++",
+          "Java"
+        ],
+        "missingSkills": [
+          "Test Automation Frameworks (Selenium, Cypress, Playwright)",
+          "Unit Testing (JUnit, PyTest, Jest)",
+          "Hardware/Embedded Testing Knowledge",
+          "Functional Testing Methodologies",
+          "Debugging Hardware/Software Interfaces"
+        ],
+        "strengths": [
+          "Location matches (Bengaluru)",
+          "Possesses core programming languages (Python, C++, Java) which are foundational for test development"
+        ],
+        "weaknesses": [
+          "Zero years of experience (Fresher) for a specialized engineering role",
+          "No specific QA or Test Automation skills listed",
+          "Profile is heavily skewed towards Backend/Fullstack development, not Quality Assurance",
+          "Job description is sparse but title implies a specialized niche not covered by candidate's profile"
+        ],
+        "mandatoryRequirements": [
+          "Experience in Functional Test Pattern Development",
+          "Knowledge of Testing Frameworks/Methodologies"
+        ],
+        "optionalRequirements": [
+          "Python/C++ proficiency",
+          "Understanding of System Design"
+        ],
+        "reasonsFor": [
+          "Candidate is located in Bengaluru",
+          "Candidate has strong programming fundamentals in Python and C++"
+        ],
+        "reasonsAgainst": [
+          "Candidate is a fresher (0 years) while the role likely requires some experience or specific domain knowledge in testing",
+          "Candidate lacks specific Test Automation or QA skills",
+          "Domain mismatch: Backend/Fullstack vs. Test Engineering/QA"
+        ],
+        "primaryReasons": [
+          "The role is a specialized Test Engineering position, whereas the candidate is a Backend/Fullstack developer with no QA experience.",
+          "As a fresher, the candidate lacks the specific domain expertise required for 'Functional Test Pattern Development'."
+        ],
+        "reason": "Candidate is a Backend/Fullstack fresher with no QA or Test Automation experience, making them a poor fit for a specialized Functional Test Pattern Development Engineer role.",
+        "recommendation": "Reject",
+        "evaluatedBy": "Groq",
+        "provider": "groq",
+        "model": "qwen/qwen3.8-27b",
+        "evaluationTimeMs": 1902,
+        "fallbackCount": 0,
+        "providerChain": [
+          "Groq_Key_2"
+        ],
+        "attemptLogs": {
+          "groq": "Success"
+        },
+        "verificationStatus": "verified"
+      },
+      "priority": 2
+    },
+    {
+      "job": {
+        "title": "Senior Engineer Software",
+        "company": "Infineon Technologies",
+        "location": "Bengaluru, KA, IN",
+        "applyLink": "https://jobs.infineon.com/careers/job/563808971722316",
+        "description": "Senior Engineer Software - CSS - Bengaluru, KA, IN - HRC1649031",
+        "source": "infineon",
+        "postedDate": "2026-08-14T06:38:58.000Z",
+        "postedAt": "2026-08-14T06:38:58.000Z",
+        "jobId": "563808971722316",
+        "experience": "",
+        "employmentType": "onsite"
+      },
+      "evaluation": {
+        "score": 15,
+        "confidence": "High",
+        "suitable": false,
+        "isClosed": false,
+        "recommendationLevel": "Reject",
+        "scoringBreakdown": {
+          "roleMatch": 10,
+          "skillsMatch": 20,
+          "experienceMatch": 0,
+          "domainMatch": 50,
+          "locationMatch": 100
+        },
+        "domainMismatch": false,
+        "domainExplanation": "The job title 'Senior Engineer Software' implies a general software engineering role. The candidate's skills (Backend, Fullstack, AI) align with general software engineering, but the seniority level is the primary mismatch.",
+        "jobDomain": "Software Engineering (Senior)",
+        "experienceMismatch": true,
+        "roleMatch": "Reject",
+        "skillOverlapPercentage": 0,
+        "matchedSkills": [],
+        "missingSkills": [
+          "5+ Years Experience",
+          "Senior Level Expertise"
+        ],
+        "strengths": [
+          "Location matches (Bengaluru is in preferred list)",
+          "Strong technical skill set for a junior role (Node.js, React, Python, Cloud)"
+        ],
+        "weaknesses": [
+          "Candidate is a Fresher (0 years experience) while the role is 'Senior Engineer'",
+          "Significant experience gap (typically 5-8+ years required for Senior roles)",
+          "Job description lacks specific technical details, but title implies high seniority"
+        ],
+        "mandatoryRequirements": [
+          "Senior Level Experience (implied by title 'Senior Engineer')"
+        ],
+        "optionalRequirements": [
+          "Specific tech stack (not listed in description)"
+        ],
+        "reasonsFor": [
+          "Candidate is located in Bengaluru, which matches the job location."
+        ],
+        "reasonsAgainst": [
+          "Candidate has 0 years of experience.",
+          "Job title is 'Senior Engineer', which typically requires 5+ years of experience.",
+          "Hard constraint violation: Fresher applying for Senior role."
+        ],
+        "primaryReasons": [
+          "The candidate is a new graduate with 0 years of experience.",
+          "The job title 'Senior Engineer Software' indicates a senior-level position requiring significant professional experience.",
+          "This constitutes a severe experience mismatch, triggering a hard rejection constraint."
+        ],
+        "reason": "Candidate is a fresher (0 years experience) applying for a Senior Engineer role, which is a hard constraint mismatch.",
+        "recommendation": "Reject",
+        "evaluatedBy": "Groq",
+        "provider": "groq",
+        "model": "qwen/qwen3.8-27b",
+        "evaluationTimeMs": 14985,
+        "fallbackCount": 0,
+        "providerChain": [
+          "Groq_Key_1"
+        ],
+        "attemptLogs": {
+          "groq": "Success"
+        },
+        "verificationStatus": "verified"
+      },
+      "priority": 2
+    },
+    {
+      "job": {
+        "title": "Senior Engineer Software",
+        "company": "Infineon Technologies",
+        "location": "Bengaluru, KA, IN",
+        "applyLink": "https://jobs.infineon.com/careers/job/563808971596581",
+        "description": "Senior Engineer Software - ATV - Bengaluru, KA, IN - HRC1697356",
+        "source": "infineon",
+        "postedDate": "2026-08-19T05:52:26.000Z",
+        "postedAt": "2026-08-19T05:52:26.000Z",
+        "jobId": "563808971596581",
+        "experience": "",
+        "employmentType": "onsite"
+      },
+      "evaluation": {
+        "score": 15,
+        "confidence": "High",
+        "suitable": false,
+        "isClosed": false,
+        "recommendationLevel": "Reject",
+        "scoringBreakdown": {
+          "roleMatch": 10,
+          "skillsMatch": 20,
+          "experienceMatch": 0,
+          "domainMatch": 50,
+          "locationMatch": 100
+        },
+        "domainMismatch": false,
+        "domainExplanation": "The job title 'Senior Engineer Software' implies a general software engineering role. The candidate's skills in Backend, Full Stack, and AI align with general software engineering, but the seniority level is a critical mismatch.",
+        "jobDomain": "Software Engineering (Senior)",
+        "experienceMismatch": true,
+        "roleMatch": "Reject",
+        "skillOverlapPercentage": 0,
+        "matchedSkills": [],
+        "missingSkills": [
+          "5+ Years Experience",
+          "Senior Level Expertise"
+        ],
+        "strengths": [
+          "Location matches (Bengaluru is in preferred list)",
+          "Strong technical foundation in modern web technologies (Node.js, React, TypeScript)"
+        ],
+        "weaknesses": [
+          "Candidate is a Fresher (0 years experience) while the role is 'Senior Engineer'",
+          "Significant experience gap (typically 5-8+ years required for Senior roles)",
+          "Lack of production-scale system design experience implied by seniority"
+        ],
+        "mandatoryRequirements": [
+          "Senior Level Experience (typically 5+ years)",
+          "Proven track record in software engineering"
+        ],
+        "optionalRequirements": [
+          "Specific tech stack (not specified in description, assumed general SWE)"
+        ],
+        "reasonsFor": [
+          "Candidate is located in Bengaluru, matching the job location."
+        ],
+        "reasonsAgainst": [
+          "Candidate has 0 years of experience, whereas the role is explicitly 'Senior Engineer'.",
+          "Fresher candidates are generally not eligible for Senior roles which require significant professional experience and leadership capabilities."
+        ],
+        "primaryReasons": [
+          "Severe experience mismatch: Fresher applying for a Senior Engineer role.",
+          "The job title 'Senior Engineer' is a hard constraint that the candidate does not meet."
+        ],
+        "reason": "Candidate is a fresher (0 years experience) applying for a Senior Engineer role, which is a hard constraint mismatch.",
+        "recommendation": "Reject",
+        "evaluatedBy": "Groq",
+        "provider": "groq",
+        "model": "qwen/qwen3.8-27b",
+        "evaluationTimeMs": 2883,
+        "fallbackCount": 0,
+        "providerChain": [
+          "Groq_Key_2"
+        ],
+        "attemptLogs": {
+          "groq": "Success"
+        },
+        "verificationStatus": "verified"
+      },
+      "priority": 2
+    },
+    {
+      "job": {
+        "title": "Principal Engineer Software",
+        "company": "Infineon Technologies",
+        "location": "Ahmedabad, GJ, IN",
+        "applyLink": "https://jobs.infineon.com/careers/job/563808970320786",
+        "description": "Principal Engineer Software  - ATV - Ahmedabad, GJ, IN - HRC1604994",
+        "source": "infineon",
+        "postedDate": "2026-08-06T12:04:46.000Z",
+        "postedAt": "2026-08-06T12:04:46.000Z",
+        "jobId": "563808970320786",
+        "experience": "",
+        "employmentType": "onsite"
+      },
+      "evaluation": {
+        "score": 10,
+        "confidence": "High",
+        "suitable": false,
+        "isClosed": false,
+        "recommendationLevel": "Reject",
+        "scoringBreakdown": {
+          "roleMatch": 0,
+          "skillsMatch": 0,
+          "experienceMatch": 0,
+          "domainMatch": 50,
+          "locationMatch": 100
+        },
+        "domainMismatch": false,
+        "domainExplanation": "The job is a Software Engineering role, which aligns with the candidate's preferred domains (Backend, Fullstack, etc.). However, the seniority level is completely misaligned.",
+        "jobDomain": "Software Engineering (Principal Level)",
+        "experienceMismatch": true,
+        "roleMatch": "Reject",
+        "skillOverlapPercentage": 0,
+        "matchedSkills": [],
+        "missingSkills": [
+          "10+ Years of Experience",
+          "Principal Level Leadership",
+          "System Architecture at Scale",
+          "Mentoring Senior Engineers"
+        ],
+        "strengths": [
+          "Location matches (Ahmedabad is in preferred list)",
+          "Candidate has strong foundational skills in modern web technologies"
+        ],
+        "weaknesses": [
+          "Candidate is a Fresher (0 years experience) applying for a Principal Engineer role",
+          "Principal Engineer roles typically require 10-15+ years of experience",
+          "Severe experience gap (Hard Constraint violation)"
+        ],
+        "mandatoryRequirements": [
+          "Principal Level Seniority (Implied 10+ years experience)",
+          "Advanced System Design & Architecture expertise"
+        ],
+        "optionalRequirements": [
+          "Specific tech stack details not provided in description"
+        ],
+        "reasonsFor": [
+          "Location is acceptable"
+        ],
+        "reasonsAgainst": [
+          "Candidate has 0 years of experience",
+          "Job title 'Principal Engineer' implies a very senior role (C-level technical leadership or top-tier IC)",
+          "Experience mismatch is a hard constraint requiring rejection"
+        ],
+        "primaryReasons": [
+          "The candidate is a new graduate (2027) with 0 years of experience.",
+          "The job is for a Principal Engineer, a role that typically requires 10-15+ years of experience and significant leadership/architectural responsibility.",
+          "This constitutes a severe experience mismatch, triggering an immediate rejection per evaluation rules."
+        ],
+        "reason": "Candidate is a fresher applying for a Principal Engineer role, resulting in a severe experience mismatch.",
+        "recommendation": "Reject",
+        "evaluatedBy": "Groq",
+        "provider": "groq",
+        "model": "qwen/qwen3.8-27b",
+        "evaluationTimeMs": 2171,
+        "fallbackCount": 0,
+        "providerChain": [
+          "Groq_Key_1"
+        ],
+        "attemptLogs": {
+          "groq": "Success"
+        },
+        "verificationStatus": "verified"
+      },
+      "priority": 2
+    },
+    {
+      "job": {
+        "title": "Senior Staff Engineer  Software",
+        "company": "Infineon Technologies",
+        "location": "Bengaluru, KA, IN",
+        "applyLink": "https://jobs.infineon.com/careers/job/563808971624505",
+        "description": "Senior Staff Engineer  Software - SWT - Bengaluru, KA, IN - HRC1707728",
+        "source": "infineon",
+        "postedDate": "2026-07-10T10:15:14.000Z",
+        "postedAt": "2026-07-10T10:15:14.000Z",
+        "jobId": "563808971624505",
+        "experience": "",
+        "employmentType": "hybrid"
+      },
+      "evaluation": {
+        "score": 10,
+        "confidence": "High",
+        "suitable": false,
+        "isClosed": false,
+        "recommendationLevel": "Reject",
+        "scoringBreakdown": {
+          "roleMatch": 0,
+          "skillsMatch": 50,
+          "experienceMatch": 0,
+          "domainMatch": 80,
+          "locationMatch": 100
+        },
+        "domainMismatch": false,
+        "domainExplanation": "The job is a Senior Staff Software Engineer role, which aligns with the candidate's preferred domains (Backend, Fullstack, etc.). However, the seniority level is completely misaligned.",
+        "jobDomain": "Software Engineering (Senior/Staff)",
+        "experienceMismatch": true,
+        "roleMatch": "Reject",
+        "skillOverlapPercentage": 50,
+        "matchedSkills": [
+          "Software Engineering",
+          "System Design",
+          "Distributed Systems"
+        ],
+        "missingSkills": [
+          "10+ Years Experience",
+          "Leadership/Management Experience",
+          "Strategic Technical Vision"
+        ],
+        "strengths": [
+          "Location matches (Bengaluru is in preferred list)",
+          "Strong foundational technical skills in Backend and AI"
+        ],
+        "weaknesses": [
+          "Candidate is a Fresher (0 years experience) while the role is Senior Staff Engineer (typically 10+ years)",
+          "Lack of leadership and architectural experience required for Staff level roles"
+        ],
+        "mandatoryRequirements": [
+          "Senior/Staff level experience (typically 10+ years)",
+          "Proven track record in leading large-scale software initiatives"
+        ],
+        "optionalRequirements": [
+          "Specific tech stack expertise (not detailed in description but implied by title)"
+        ],
+        "reasonsFor": [
+          "Candidate is located in Bengaluru",
+          "Candidate has relevant technical skills in software engineering"
+        ],
+        "reasonsAgainst": [
+          "Severe experience mismatch: Fresher vs Senior Staff Engineer",
+          "Role requires significant leadership and strategic impact which a new grad cannot provide"
+        ],
+        "primaryReasons": [
+          "The candidate is an entry-level new grad (2027) applying for a Senior Staff Engineer role, which is a hard constraint violation."
+        ],
+        "reason": "Candidate is a fresher with 0 years of experience, which is a severe mismatch for a Senior Staff Engineer position requiring extensive experience and leadership.",
+        "recommendation": "Reject",
+        "evaluatedBy": "Groq",
+        "provider": "groq",
+        "model": "qwen/qwen3.8-27b",
+        "evaluationTimeMs": 1644,
+        "fallbackCount": 0,
+        "providerChain": [
+          "Groq_Key_3"
+        ],
+        "attemptLogs": {
+          "groq": "Success"
+        },
+        "verificationStatus": "verified"
+      },
+      "priority": 2
+    },
+    {
+      "job": {
+        "title": "Senior Staff Engineer Wifi Software",
+        "company": "Infineon Technologies",
+        "location": "Bengaluru, KA, IN",
+        "applyLink": "https://jobs.infineon.com/careers/job/563808971723554",
+        "description": "Senior Staff Engineer Wifi Software - ES - Bengaluru, KA, IN - HRC1723088",
+        "source": "infineon",
+        "postedDate": "2026-07-21T10:14:58.000Z",
+        "postedAt": "2026-07-21T10:14:58.000Z",
+        "jobId": "563808971723554",
+        "experience": "",
+        "employmentType": "onsite"
+      },
+      "evaluation": {
+        "score": 10,
+        "confidence": "High",
+        "suitable": false,
+        "isClosed": false,
+        "recommendationLevel": "Reject",
+        "scoringBreakdown": {
+          "roleMatch": 0,
+          "skillsMatch": 10,
+          "experienceMatch": 0,
+          "domainMatch": 0,
+          "locationMatch": 100
+        },
+        "domainMismatch": true,
+        "domainExplanation": "The job is for a Senior Staff Engineer in Wifi Software, which typically involves embedded systems, C/C++, Linux kernel, and networking protocols. The candidate is a software engineering graduate with a focus on web development (Node.js, React) and AI, lacking specific embedded or low-level networking expertise.",
+        "jobDomain": "Embedded Systems / Networking",
+        "experienceMismatch": true,
+        "roleMatch": "Reject",
+        "skillOverlapPercentage": 10,
+        "matchedSkills": [
+          "C++ (DSA)"
+        ],
+        "missingSkills": [
+          "Embedded C",
+          "Linux Kernel Development",
+          "Wifi Protocols (802.11)",
+          "Hardware Debugging",
+          "Senior Level System Design"
+        ],
+        "strengths": [
+          "Location matches (Bengaluru)",
+          "Has C++ knowledge (though likely high-level/DSA focused)"
+        ],
+        "weaknesses": [
+          "0 years experience vs Senior Staff Engineer role (requires 10+ years typically)",
+          "No experience in embedded systems or low-level networking",
+          "Candidate is a new grad (2027) applying for a senior leadership/technical role",
+          "Skill set is heavily weighted towards Web/AI, not hardware/firmware"
+        ],
+        "mandatoryRequirements": [
+          "Senior Staff Engineer level experience (typically 10+ years)",
+          "Deep expertise in Wifi software/embedded systems"
+        ],
+        "optionalRequirements": [
+          "Knowledge of Linux kernel",
+          "Experience with hardware debugging tools"
+        ],
+        "reasonsFor": [
+          "Candidate is located in Bengaluru",
+          "Candidate knows C++"
+        ],
+        "reasonsAgainst": [
+          "Severe experience mismatch: Fresher (0 years) vs Senior Staff Engineer (10+ years)",
+          "Domain mismatch: Web/AI background vs Embedded/Networking role",
+          "Lacks specific technical skills for Wifi software development"
+        ],
+        "primaryReasons": [
+          "The candidate is a new graduate with 0 years of experience, while the role is a Senior Staff Engineer position requiring extensive senior-level experience.",
+          "The candidate's skill set is focused on web development and AI, which does not align with the embedded systems and networking requirements of a Wifi Software role."
+        ],
+        "reason": "Candidate is a fresher with a web/AI background, making them completely unsuitable for a Senior Staff Engineer role in Wifi/Embedded software.",
+        "recommendation": "Reject",
+        "evaluatedBy": "Groq",
+        "provider": "groq",
+        "model": "qwen/qwen3.8-27b",
+        "evaluationTimeMs": 6696,
+        "fallbackCount": 0,
+        "providerChain": [
+          "Groq_Key_1"
+        ],
+        "attemptLogs": {
+          "groq": "Success"
+        },
+        "verificationStatus": "verified"
+      },
+      "priority": 2
+    },
+    {
+      "job": {
+        "title": "Staff Engineer Software",
+        "company": "Infineon Technologies",
+        "location": "Bengaluru, KA, IN",
+        "applyLink": "https://jobs.infineon.com/careers/job/563808970638568",
+        "description": "Staff Engineer Software - ES - Bengaluru, KA, IN - HRC1625061",
+        "source": "infineon",
+        "postedDate": "2026-05-04T11:52:22.000Z",
+        "postedAt": "2026-05-04T11:52:22.000Z",
+        "jobId": "563808970638568",
+        "experience": "",
+        "employmentType": "hybrid"
+      },
+      "evaluation": {
+        "score": 10,
+        "confidence": "High",
+        "suitable": false,
+        "isClosed": false,
+        "recommendationLevel": "Reject",
+        "scoringBreakdown": {
+          "roleMatch": 0,
+          "skillsMatch": 20,
+          "experienceMatch": 0,
+          "domainMatch": 50,
+          "locationMatch": 100
+        },
+        "domainMismatch": false,
+        "domainExplanation": "The job is a Software Engineering role, which aligns with the candidate's preferred domains (Backend, Fullstack, etc.). However, the seniority level is completely misaligned.",
+        "jobDomain": "Software Engineering (Staff Level)",
+        "experienceMismatch": true,
+        "roleMatch": "Reject",
+        "skillOverlapPercentage": 20,
+        "matchedSkills": [
+          "Software Engineering",
+          "System Design",
+          "Distributed Systems"
+        ],
+        "missingSkills": [
+          "10+ Years of Experience",
+          "Leadership/Management Experience",
+          "Strategic Technical Decision Making",
+          "Cross-team Collaboration at Scale"
+        ],
+        "strengths": [
+          "Location matches (Bengaluru is in preferred list)",
+          "Strong theoretical foundation in DSA and System Design"
+        ],
+        "weaknesses": [
+          "Candidate is a Fresher (0 years experience) while the role is 'Staff Engineer' (typically requires 8-12+ years)",
+          "Lack of professional industry experience",
+          "No evidence of leadership or large-scale system ownership required for Staff level roles"
+        ],
+        "mandatoryRequirements": [
+          "Staff Engineer Seniority (Implies 8-12+ years experience)",
+          "Proven track record of leading technical initiatives"
+        ],
+        "optionalRequirements": [
+          "Specific tech stack (not detailed in description, but implied to be complex enterprise systems)"
+        ],
+        "reasonsFor": [
+          "Candidate is located in Bengaluru",
+          "Candidate has relevant technical skills for software engineering"
+        ],
+        "reasonsAgainst": [
+          "Severe experience mismatch: Fresher applying for Staff Engineer role",
+          "Staff Engineer roles require significant professional experience and leadership, which the candidate lacks"
+        ],
+        "primaryReasons": [
+          "The role is a Staff Engineer position, which is a senior individual contributor role typically requiring 8-12+ years of experience.",
+          "The candidate is a new graduate with 0 years of experience, making them ineligible for this seniority level."
+        ],
+        "reason": "Candidate is a fresher applying for a Staff Engineer role, which is a severe experience mismatch.",
+        "recommendation": "Reject",
+        "evaluatedBy": "Groq",
+        "provider": "groq",
+        "model": "qwen/qwen3.8-27b",
+        "evaluationTimeMs": 1730,
+        "fallbackCount": 0,
+        "providerChain": [
+          "Groq_Key_2"
+        ],
+        "attemptLogs": {
+          "groq": "Success"
+        },
+        "verificationStatus": "verified"
+      },
+      "priority": 2
+    },
+    {
+      "job": {
+        "title": "Product Manager — Developer Platform (GitHub)",
+        "company": "Infineon Technologies",
+        "location": "Bengaluru, KA, IN",
+        "applyLink": "https://jobs.infineon.com/careers/job/563808970781570",
+        "description": "Product Manager — Developer Platform (GitHub) - SWT - Bengaluru, KA, IN - HRC1638677",
+        "source": "infineon",
+        "postedDate": "2026-07-03T11:06:16.000Z",
+        "postedAt": "2026-07-03T11:06:16.000Z",
+        "jobId": "563808970781570",
+        "experience": "",
+        "employmentType": "onsite"
+      },
+      "evaluation": {
+        "score": 10,
+        "confidence": "High",
+        "suitable": false,
+        "isClosed": false,
+        "recommendationLevel": "Reject",
+        "scoringBreakdown": {
+          "roleMatch": 0,
+          "skillsMatch": 10,
+          "experienceMatch": 0,
+          "domainMatch": 0,
+          "locationMatch": 100
+        },
+        "domainMismatch": true,
+        "domainExplanation": "The job is a Product Management role, which is a non-technical business function. The candidate is a Software Engineer/Backend Developer. This is a fundamental domain mismatch.",
+        "jobDomain": "Product Management",
+        "experienceMismatch": true,
+        "roleMatch": "Reject",
+        "skillOverlapPercentage": 0,
+        "matchedSkills": [],
+        "missingSkills": [
+          "Product Strategy",
+          "Roadmap Planning",
+          "Stakeholder Management",
+          "Market Analysis",
+          "User Research",
+          "Agile/Scrum Product Ownership"
+        ],
+        "strengths": [
+          "Location matches (Bengaluru is in preferred locations)"
+        ],
+        "weaknesses": [
+          "Candidate is a Fresher (0 years experience) while Product Manager roles typically require 3-5+ years of experience",
+          "Candidate has no Product Management experience",
+          "Candidate's skills are purely technical (Coding, DevOps, AI), lacking business/product skills",
+          "Role is 'Manager' level, implying seniority not held by a new grad"
+        ],
+        "mandatoryRequirements": [
+          "Product Management experience",
+          "Experience with Developer Platforms (implied by title)",
+          "Strategic thinking and stakeholder management"
+        ],
+        "optionalRequirements": [
+          "Technical background (which the candidate has, but it's not the primary requirement for a PM role)"
+        ],
+        "reasonsFor": [
+          "Candidate is located in Bengaluru, which matches the job location."
+        ],
+        "reasonsAgainst": [
+          "Complete domain mismatch: Candidate is a Software Engineer, Job is Product Manager.",
+          "Severe experience mismatch: Candidate is a Fresher (0 years), PM roles require significant professional experience.",
+          "Lack of core PM skills: No evidence of product strategy, roadmap, or stakeholder management."
+        ],
+        "primaryReasons": [
+          "The candidate is applying for a Product Management role with zero product experience and zero years of professional experience.",
+          "The role requires a 'Manager' level professional, which is incompatible with a 'New Grad' profile."
+        ],
+        "reason": "Candidate is a Fresher Software Engineer applying for a Product Manager role, resulting in a complete domain and experience mismatch.",
+        "recommendation": "Reject",
+        "evaluatedBy": "Groq",
+        "provider": "groq",
+        "model": "qwen/qwen3.8-27b",
+        "evaluationTimeMs": 1776,
+        "fallbackCount": 0,
+        "providerChain": [
+          "Groq_Key_3"
+        ],
+        "attemptLogs": {
+          "groq": "Success"
+        },
+        "verificationStatus": "verified"
+      },
+      "priority": 2
+    },
+    {
+      "job": {
+        "title": "Senior Manager Software",
+        "company": "Infineon Technologies",
+        "location": "Bengaluru, KA, IN",
+        "applyLink": "https://jobs.infineon.com/careers/job/563808971838009",
+        "description": "Senior Manager Software - SWT - Bengaluru, KA, IN - HRC1746681",
+        "source": "infineon",
+        "postedDate": "2026-08-13T08:30:12.000Z",
+        "postedAt": "2026-08-13T08:30:12.000Z",
+        "jobId": "563808971838009",
+        "experience": "",
+        "employmentType": "hybrid"
+      },
+      "evaluation": {
+        "score": 10,
+        "confidence": "High",
+        "suitable": false,
+        "isClosed": false,
+        "recommendationLevel": "Reject",
+        "scoringBreakdown": {
+          "roleMatch": 0,
+          "skillsMatch": 0,
+          "experienceMatch": 0,
+          "domainMatch": 0,
+          "locationMatch": 100
+        },
+        "domainMismatch": false,
+        "domainExplanation": "The job title 'Senior Manager Software' implies a leadership/management role in software engineering. While the specific technical domain isn't detailed in the snippet, the seniority level is the primary mismatch. The candidate is an entry-level student.",
+        "jobDomain": "Software Engineering / Management",
+        "experienceMismatch": true,
+        "roleMatch": "Reject",
+        "skillOverlapPercentage": 0,
+        "matchedSkills": [],
+        "missingSkills": [
+          "Senior Leadership Experience",
+          "Team Management",
+          "Strategic Planning",
+          "10+ Years Industry Experience"
+        ],
+        "strengths": [
+          "Location matches (Bengaluru is in preferred list)"
+        ],
+        "weaknesses": [
+          "Candidate is a Fresher (0 years experience) expected to graduate in 2027",
+          "Job requires Senior Manager level (typically 10-15+ years experience)",
+          "Severe experience gap (>10 years)",
+          "No management or leadership experience"
+        ],
+        "mandatoryRequirements": [
+          "Senior Manager level experience (implied 10+ years)",
+          "Leadership/Management capabilities"
+        ],
+        "optionalRequirements": [
+          "Specific technical stack (not specified in snippet)"
+        ],
+        "reasonsFor": [
+          "Candidate is located in Bengaluru, which matches the job location."
+        ],
+        "reasonsAgainst": [
+          "Candidate has 0 years of experience and is a student graduating in 2027.",
+          "Job title 'Senior Manager' requires significant seniority and leadership experience, which the candidate lacks entirely.",
+          "Experience gap is >10 years, triggering a hard reject constraint."
+        ],
+        "primaryReasons": [
+          "The candidate is an entry-level fresher applying for a Senior Manager role, which is a critical mismatch in seniority and experience.",
+          "The job requires a seasoned leader with extensive industry experience, whereas the candidate has no professional experience."
+        ],
+        "reason": "Candidate is a fresher with 0 years of experience, making them completely unsuitable for a Senior Manager role which requires 10+ years of experience and leadership skills.",
+        "recommendation": "Reject",
+        "evaluatedBy": "Groq",
+        "provider": "groq",
+        "model": "qwen/qwen3.8-27b",
+        "evaluationTimeMs": 1715,
+        "fallbackCount": 0,
+        "providerChain": [
+          "Groq_Key_3"
+        ],
+        "attemptLogs": {
+          "groq": "Success"
+        },
+        "verificationStatus": "verified"
+      },
+      "priority": 2
+    },
+    {
+      "job": {
+        "title": "Senior Specialist Supply Chain & Capacity Planning",
+        "company": "Infineon Technologies",
+        "location": "Ahmedabad, GJ, IN",
+        "applyLink": "https://jobs.infineon.com/careers/job/563808971922481",
+        "description": "Senior Specialist Supply Chain & Capacity Planning - PS - Ahmedabad, GJ, IN - HRC1763221",
+        "source": "infineon",
+        "postedDate": "2026-09-01T10:31:48.000Z",
+        "postedAt": "2026-09-01T10:31:48.000Z",
+        "jobId": "563808971922481",
+        "experience": "",
+        "employmentType": "hybrid"
+      },
+      "evaluation": {
+        "score": 5,
+        "confidence": "High",
+        "suitable": false,
+        "isClosed": false,
+        "recommendationLevel": "Reject",
+        "scoringBreakdown": {
+          "roleMatch": 0,
+          "skillsMatch": 0,
+          "experienceMatch": 0,
+          "domainMatch": 0,
+          "locationMatch": 100
+        },
+        "domainMismatch": true,
+        "domainExplanation": "The job is in Supply Chain & Capacity Planning (Operations/Logistics), while the candidate is a Software Engineer (Backend/AI). This is a complete domain mismatch.",
+        "jobDomain": "Supply Chain / Operations",
+        "experienceMismatch": true,
+        "roleMatch": "Reject",
+        "skillOverlapPercentage": 0,
+        "matchedSkills": [],
+        "missingSkills": [
+          "Supply Chain Management",
+          "Capacity Planning",
+          "SAP/ERP Systems",
+          "Logistics Operations",
+          "Demand Forecasting"
+        ],
+        "strengths": [
+          "Location matches (Ahmedabad is in preferred list)"
+        ],
+        "weaknesses": [
+          "Complete domain mismatch: Software Engineering vs Supply Chain",
+          "Experience mismatch: Fresher (0 years) vs Senior Specialist (typically 5-10+ years)",
+          "No relevant skills in logistics, operations, or capacity planning"
+        ],
+        "mandatoryRequirements": [
+          "Senior level experience in Supply Chain",
+          "Expertise in Capacity Planning"
+        ],
+        "optionalRequirements": [],
+        "reasonsFor": [
+          "Candidate is located in a preferred region (Ahmedabad)"
+        ],
+        "reasonsAgainst": [
+          "Candidate is a Software Engineer, not a Supply Chain Specialist",
+          "Candidate is a Fresher, role is Senior",
+          "Zero skill overlap with job requirements"
+        ],
+        "primaryReasons": [
+          "The candidate's profile is for a Software Engineering role, whereas the job is for a Supply Chain & Capacity Planning role.",
+          "The candidate is a fresher, but the role is a Senior Specialist position requiring significant domain experience."
+        ],
+        "reason": "Complete mismatch in domain (Software vs Supply Chain) and experience level (Fresher vs Senior).",
+        "recommendation": "Reject",
+        "evaluatedBy": "Groq",
+        "provider": "groq",
+        "model": "qwen/qwen3.8-27b",
+        "evaluationTimeMs": 1818,
+        "fallbackCount": 0,
+        "providerChain": [
+          "Groq_Key_2"
+        ],
+        "attemptLogs": {
+          "groq": "Success"
+        },
+        "verificationStatus": "verified"
+      },
+      "priority": 2
+    },
+    {
+      "job": {
+        "title": "Bluetooth Firmware Engineer",
+        "company": "Infineon Technologies",
+        "location": "Bengaluru, KA, IN, Bengaluru, KA, IN",
+        "applyLink": "https://jobs.infineon.com/careers/job/563808971773354",
+        "description": "Bluetooth Firmware Engineer - ES - Bengaluru, KA, IN, Bengaluru, KA, IN - HRC1720347",
+        "source": "infineon",
+        "postedDate": "2026-08-10T12:43:26.000Z",
+        "postedAt": "2026-08-10T12:43:26.000Z",
+        "jobId": "563808971773354",
+        "experience": "",
+        "employmentType": "hybrid"
+      },
+      "evaluation": {
+        "score": 5,
+        "confidence": "High",
+        "suitable": false,
+        "isClosed": false,
+        "recommendationLevel": "Reject",
+        "scoringBreakdown": {
+          "roleMatch": 0,
+          "skillsMatch": 0,
+          "experienceMatch": 0,
+          "domainMatch": 0,
+          "locationMatch": 100
+        },
+        "domainMismatch": true,
+        "domainExplanation": "The job is for a Bluetooth Firmware Engineer, which falls under Embedded Systems/Hardware Engineering. The candidate is a Software Engineer specializing in Backend, Full Stack, and AI Engineering. There is no overlap in domain expertise.",
+        "jobDomain": "Embedded Systems / Firmware Engineering",
+        "experienceMismatch": true,
+        "roleMatch": "Reject",
+        "skillOverlapPercentage": 0,
+        "matchedSkills": [],
+        "missingSkills": [
+          "Bluetooth Protocol Stack",
+          "C/C++ (Embedded)",
+          "RTOS (FreeRTOS, Zephyr)",
+          "Hardware Debugging",
+          "Firmware Development",
+          "Microcontroller Architecture"
+        ],
+        "strengths": [
+          "Location matches (Bengaluru)"
+        ],
+        "weaknesses": [
+          "No experience in Firmware or Embedded Systems",
+          "Candidate is a Fresher (0 years) while Firmware roles often require specific hardware experience",
+          "Skill set is entirely software/web-focused (JS, Python, React, Cloud)",
+          "Lacks knowledge of Bluetooth protocols and hardware interfaces"
+        ],
+        "mandatoryRequirements": [
+          "Bluetooth Firmware Development",
+          "Embedded C/C++",
+          "Hardware/RTOS knowledge"
+        ],
+        "optionalRequirements": [
+          "Experience with specific Bluetooth chips (Qualcomm, Nordic, etc.)"
+        ],
+        "reasonsFor": [
+          "Candidate is located in Bengaluru, which matches the job location."
+        ],
+        "reasonsAgainst": [
+          "Complete domain mismatch: Candidate is a Software/Backend Engineer, Job is Firmware/Embedded.",
+          "No relevant skills in Bluetooth, Embedded C, or Hardware.",
+          "Candidate is a new grad with 0 years of experience in the required field."
+        ],
+        "primaryReasons": [
+          "The candidate's profile is strictly software-focused (Web/AI), whereas the role requires specialized hardware/firmware engineering skills.",
+          "There is zero overlap in technical skills required for Bluetooth firmware development."
+        ],
+        "reason": "The candidate is a software engineer with no experience or skills in Bluetooth firmware or embedded systems, making them unsuitable for this hardware-focused role.",
+        "recommendation": "Reject",
+        "evaluatedBy": "Groq",
+        "provider": "groq",
+        "model": "qwen/qwen3.8-27b",
+        "evaluationTimeMs": 1808,
+        "fallbackCount": 0,
+        "providerChain": [
+          "Groq_Key_2"
+        ],
+        "attemptLogs": {
+          "groq": "Success"
+        },
+        "verificationStatus": "verified"
+      },
+      "priority": 2
+    },
+    {
+      "job": {
+        "title": "Senior Staff Engineer - Embedded Software Firmware",
+        "company": "Infineon Technologies",
+        "location": "Bengaluru, KA, IN",
+        "applyLink": "https://jobs.infineon.com/careers/job/563808971723561",
+        "description": "Senior Staff Engineer - Embedded Software Firmware - ES - Bengaluru, KA, IN - HRC1722982",
+        "source": "infineon",
+        "postedDate": "2026-08-25T05:50:26.000Z",
+        "postedAt": "2026-08-25T05:50:26.000Z",
+        "jobId": "563808971723561",
+        "experience": "",
+        "employmentType": "onsite"
+      },
+      "evaluation": {
+        "score": 5,
+        "confidence": "High",
+        "suitable": false,
+        "isClosed": false,
+        "recommendationLevel": "Reject",
+        "scoringBreakdown": {
+          "roleMatch": 0,
+          "skillsMatch": 0,
+          "experienceMatch": 0,
+          "domainMatch": 0,
+          "locationMatch": 100
+        },
+        "domainMismatch": true,
+        "domainExplanation": "The job is for Embedded Software Firmware, which is a hardware-centric domain. The candidate is a Software Engineer specializing in Backend, Full Stack, and AI/Cloud technologies. There is no overlap in the core engineering domain.",
+        "jobDomain": "Embedded Systems / Firmware",
+        "experienceMismatch": true,
+        "roleMatch": "Reject",
+        "skillOverlapPercentage": 0,
+        "matchedSkills": [],
+        "missingSkills": [
+          "Embedded C/C++",
+          "RTOS",
+          "Hardware Abstraction Layers (HAL)",
+          "Microcontroller Programming",
+          "Firmware Development",
+          "Signal Processing",
+          "Low-level Memory Management"
+        ],
+        "strengths": [
+          "Location matches (Bengaluru is in preferred locations)",
+          "Strong general software engineering fundamentals (DSA, OOP)"
+        ],
+        "weaknesses": [
+          "0 years of experience vs Senior Staff Engineer role (requires 10+ years typically)",
+          "No experience in Embedded Systems or Firmware",
+          "Skill set is entirely focused on Web/Cloud/AI, not hardware",
+          "Candidate is a New Grad (2027), role is Senior/Staff level"
+        ],
+        "mandatoryRequirements": [
+          "Senior/Staff level experience (typically 10+ years)",
+          "Embedded C/C++ expertise",
+          "Firmware development experience",
+          "Hardware interface knowledge"
+        ],
+        "optionalRequirements": [
+          "Python for scripting",
+          "Linux kernel knowledge"
+        ],
+        "reasonsFor": [
+          "Candidate is located in Bengaluru, which matches the job location."
+        ],
+        "reasonsAgainst": [
+          "Severe experience mismatch: Candidate is a fresher (0 years) applying for a Senior Staff Engineer role.",
+          "Complete domain mismatch: Candidate has no embedded/firmware experience; profile is purely software/web/AI.",
+          "Lack of mandatory technical skills: No mention of Embedded C, RTOS, or hardware-specific tools."
+        ],
+        "primaryReasons": [
+          "The candidate is a new graduate with 0 years of experience, while the role is a Senior Staff Engineer position requiring significant seniority.",
+          "The candidate's skill set is entirely focused on Backend/Full Stack/AI, with zero overlap in Embedded Systems or Firmware development."
+        ],
+        "reason": "Candidate is a fresher with a software/web profile applying for a senior embedded firmware role, resulting in a complete mismatch in both experience and domain.",
+        "recommendation": "Reject",
+        "evaluatedBy": "Groq",
+        "provider": "groq",
+        "model": "qwen/qwen3.8-27b",
+        "evaluationTimeMs": 1982,
+        "fallbackCount": 0,
+        "providerChain": [
+          "Groq_Key_3"
+        ],
+        "attemptLogs": {
+          "groq": "Success"
+        },
+        "verificationStatus": "verified"
+      },
+      "priority": 2
+    },
+    {
+      "job": {
+        "title": "Specialist Supply Chain Management (Contract)",
+        "company": "Infineon Technologies",
+        "location": "Bengaluru, KA, IN",
+        "applyLink": "https://jobs.infineon.com/careers/job/563808971619401",
+        "description": "Specialist Supply Chain Management (Contract) - ES OP NPI RSM - Bengaluru, KA, IN - 133295",
+        "source": "infineon",
+        "postedDate": "2026-07-21T08:13:36.000Z",
+        "postedAt": "2026-07-21T08:13:36.000Z",
+        "jobId": "563808971619401",
+        "experience": "",
+        "employmentType": "onsite"
+      },
+      "evaluation": {
+        "score": 5,
+        "confidence": "High",
+        "suitable": false,
+        "isClosed": false,
+        "recommendationLevel": "Reject",
+        "scoringBreakdown": {
+          "roleMatch": 0,
+          "skillsMatch": 0,
+          "experienceMatch": 0,
+          "domainMatch": 0,
+          "locationMatch": 100
+        },
+        "domainMismatch": true,
+        "domainExplanation": "The job is in Supply Chain Management (Operations/Logistics), while the candidate is a Software Engineer (Backend/AI). This is a complete domain mismatch.",
+        "jobDomain": "Supply Chain Management",
+        "experienceMismatch": true,
+        "roleMatch": "Reject",
+        "skillOverlapPercentage": 0,
+        "matchedSkills": [],
+        "missingSkills": [
+          "Supply Chain Management",
+          "Logistics",
+          "Procurement",
+          "Inventory Management",
+          "ERP Systems (SAP/Oracle)"
+        ],
+        "strengths": [
+          "Location matches (Bengaluru is in preferred list)"
+        ],
+        "weaknesses": [
+          "Complete domain mismatch: Software Engineering vs Supply Chain",
+          "No relevant experience in logistics or operations",
+          "Candidate is a fresher/new grad, likely lacking the specific operational experience required for a Specialist role"
+        ],
+        "mandatoryRequirements": [
+          "Supply Chain Management expertise",
+          "Operational/Logistics domain knowledge"
+        ],
+        "optionalRequirements": [],
+        "reasonsFor": [
+          "Location is acceptable"
+        ],
+        "reasonsAgainst": [
+          "Job is in Supply Chain Management, not Software Engineering",
+          "Candidate has 0 years of experience in the required domain",
+          "Candidate's skills (JS, Python, AI) are irrelevant to the role"
+        ],
+        "primaryReasons": [
+          "The candidate is a software engineer applying for a supply chain management role, which is a fundamental domain mismatch.",
+          "The candidate lacks any experience or skills related to logistics, procurement, or supply chain operations."
+        ],
+        "reason": "Candidate is a software engineer with no experience in Supply Chain Management, resulting in a complete domain and skill mismatch.",
+        "recommendation": "Reject",
+        "evaluatedBy": "Groq",
+        "provider": "groq",
+        "model": "qwen/qwen3.8-27b",
+        "evaluationTimeMs": 14619,
+        "fallbackCount": 0,
+        "providerChain": [
+          "Groq_Key_1"
+        ],
+        "attemptLogs": {
+          "groq": "Success"
+        },
+        "verificationStatus": "verified"
+      },
+      "priority": 2
+    },
+    {
+      "job": {
+        "title": "SoC HW Systems Engineer — Packaging & IO",
+        "company": "Infineon Technologies",
+        "location": "Bengaluru, KA, IN",
+        "applyLink": "https://jobs.infineon.com/careers/job/563808971261568",
+        "description": "SoC HW Systems Engineer — Packaging & IO  - ATV - Bengaluru, KA, IN - HRC1668631",
+        "source": "infineon",
+        "postedDate": "2026-08-19T11:26:48.000Z",
+        "postedAt": "2026-08-19T11:26:48.000Z",
+        "jobId": "563808971261568",
+        "experience": "",
+        "employmentType": "onsite"
+      },
+      "evaluation": {
+        "score": 5,
+        "confidence": "High",
+        "suitable": false,
+        "isClosed": false,
+        "recommendationLevel": "Reject",
+        "scoringBreakdown": {
+          "roleMatch": 0,
+          "skillsMatch": 0,
+          "experienceMatch": 0,
+          "domainMatch": 0,
+          "locationMatch": 100
+        },
+        "domainMismatch": true,
+        "domainExplanation": "The job is for a Hardware Systems Engineer (SoC Packaging & IO), which falls under Hardware/Embedded Engineering. The candidate is a Software Engineer with skills in Backend, Full Stack, and AI. There is a fundamental domain mismatch.",
+        "jobDomain": "Hardware Engineering / SoC Design",
+        "experienceMismatch": true,
+        "roleMatch": "Reject",
+        "skillOverlapPercentage": 0,
+        "matchedSkills": [],
+        "missingSkills": [
+          "SoC Design",
+          "Packaging",
+          "IO Design",
+          "Hardware Verification",
+          "Physical Design",
+          "Signal Integrity"
+        ],
+        "strengths": [
+          "Location matches (Bengaluru)"
+        ],
+        "weaknesses": [
+          "Candidate is a Software Engineer, not a Hardware Engineer",
+          "No experience in SoC, Packaging, or IO",
+          "Candidate is a Fresher (0 years), while SoC roles typically require significant specialized experience or specific academic background in VLSI/Hardware",
+          "Skill set is entirely software-focused (JS, Python, React, etc.)"
+        ],
+        "mandatoryRequirements": [
+          "SoC Hardware Systems Engineering experience",
+          "Packaging & IO expertise"
+        ],
+        "optionalRequirements": [],
+        "reasonsFor": [
+          "Candidate is located in Bengaluru, which matches the job location."
+        ],
+        "reasonsAgainst": [
+          "Complete domain mismatch: Software vs Hardware.",
+          "Lack of any hardware-related skills or experience.",
+          "Fresher status is generally not suitable for specialized SoC roles without specific academic focus in VLSI/Hardware."
+        ],
+        "primaryReasons": [
+          "The candidate is a software engineer with no hardware background, while the role requires specialized SoC Hardware Systems Engineering skills.",
+          "There is zero overlap in technical skills between the candidate's software stack and the job's hardware requirements."
+        ],
+        "reason": "Candidate is a software engineer with no hardware/SoC experience, making them completely unsuitable for a Hardware Systems Engineer role.",
+        "recommendation": "Reject",
+        "evaluatedBy": "Groq",
+        "provider": "groq",
+        "model": "qwen/qwen3.8-27b",
+        "evaluationTimeMs": 14780,
+        "fallbackCount": 0,
+        "providerChain": [
+          "Groq_Key_1"
+        ],
+        "attemptLogs": {
+          "groq": "Success"
+        },
+        "verificationStatus": "verified"
+      },
+      "priority": 2
+    },
+    {
+      "job": {
+        "title": "Senior Specialist Supply Chain Fulfillment",
+        "company": "Infineon Technologies",
+        "location": "Bengaluru, KA, IN",
+        "applyLink": "https://jobs.infineon.com/careers/job/563808971876592",
+        "description": "Senior Specialist Supply Chain Fulfillment - PS - Bengaluru, KA, IN - HRC1764155",
+        "source": "infineon",
+        "postedDate": "2026-08-19T15:00:21.000Z",
+        "postedAt": "2026-08-19T15:00:21.000Z",
+        "jobId": "563808971876592",
+        "experience": "",
+        "employmentType": "onsite"
+      },
+      "evaluation": {
+        "score": 5,
+        "confidence": "High",
+        "suitable": false,
+        "isClosed": false,
+        "recommendationLevel": "Reject",
+        "scoringBreakdown": {
+          "roleMatch": 0,
+          "skillsMatch": 0,
+          "experienceMatch": 0,
+          "domainMatch": 0,
+          "locationMatch": 100
+        },
+        "domainMismatch": true,
+        "domainExplanation": "The job is in Supply Chain Fulfillment (Operations/Logistics), while the candidate is a Software Engineer (Backend/AI). This is a complete domain mismatch.",
+        "jobDomain": "Supply Chain / Operations",
+        "experienceMismatch": true,
+        "roleMatch": "Reject",
+        "skillOverlapPercentage": 0,
+        "matchedSkills": [],
+        "missingSkills": [
+          "Supply Chain Management",
+          "Fulfillment Operations",
+          "Logistics",
+          "Inventory Management",
+          "ERP Systems (SAP/Oracle)"
+        ],
+        "strengths": [
+          "Location matches (Bengaluru)"
+        ],
+        "weaknesses": [
+          "Candidate is a Fresher (0 years) for a Senior Specialist role",
+          "Candidate has no experience in Supply Chain or Fulfillment",
+          "Candidate's skills are purely technical (Software Engineering), not operational",
+          "Title implies seniority (Senior Specialist) which requires significant experience"
+        ],
+        "mandatoryRequirements": [
+          "Senior level experience (implied by title 'Senior Specialist')",
+          "Supply Chain Fulfillment domain expertise"
+        ],
+        "optionalRequirements": [],
+        "reasonsFor": [
+          "Location is acceptable"
+        ],
+        "reasonsAgainst": [
+          "Complete domain mismatch: Software Engineering vs Supply Chain",
+          "Severe experience mismatch: Fresher vs Senior Specialist",
+          "No relevant skills in logistics or fulfillment"
+        ],
+        "primaryReasons": [
+          "The candidate is a new graduate in Software Engineering, whereas the role is a Senior Specialist in Supply Chain Fulfillment.",
+          "There is zero overlap in domain expertise and skills."
+        ],
+        "reason": "Candidate is a software engineering fresher applying for a senior supply chain operations role, resulting in a complete mismatch in domain and experience.",
+        "recommendation": "Reject",
+        "evaluatedBy": "Groq",
+        "provider": "groq",
+        "model": "qwen/qwen3.8-27b",
+        "evaluationTimeMs": 1548,
+        "fallbackCount": 0,
+        "providerChain": [
+          "Groq_Key_2"
+        ],
+        "attemptLogs": {
+          "groq": "Success"
+        },
+        "verificationStatus": "verified"
+      },
+      "priority": 2
+    },
+    {
+      "job": {
+        "title": "Staff Specialist Supply Chain Development and Optimization",
+        "company": "Infineon Technologies",
+        "location": "Bengaluru, KA, IN",
+        "applyLink": "https://jobs.infineon.com/careers/job/563808971911899",
+        "description": "Staff Specialist Supply Chain Development and Optimization - ATV - Bengaluru, KA, IN - HRC1778254",
+        "source": "infineon",
+        "postedDate": "2026-09-01T11:12:19.000Z",
+        "postedAt": "2026-09-01T11:12:19.000Z",
+        "jobId": "563808971911899",
+        "experience": "",
+        "employmentType": "onsite"
+      },
+      "evaluation": {
+        "score": 5,
+        "confidence": "High",
+        "suitable": false,
+        "isClosed": false,
+        "recommendationLevel": "Reject",
+        "scoringBreakdown": {
+          "roleMatch": 0,
+          "skillsMatch": 0,
+          "experienceMatch": 0,
+          "domainMatch": 0,
+          "locationMatch": 100
+        },
+        "domainMismatch": true,
+        "domainExplanation": "The job is in Supply Chain Development and Optimization, which is an Operations/Logistics domain. The candidate is a Software Engineer with skills in Backend, AI, and DevOps. There is no overlap in professional domain.",
+        "jobDomain": "Supply Chain / Operations",
+        "experienceMismatch": true,
+        "roleMatch": "Reject",
+        "skillOverlapPercentage": 0,
+        "matchedSkills": [],
+        "missingSkills": [
+          "Supply Chain Management",
+          "Logistics Optimization",
+          "Operations Research",
+          "Inventory Management",
+          "Procurement"
+        ],
+        "strengths": [
+          "Location matches (Bengaluru)"
+        ],
+        "weaknesses": [
+          "Candidate is a Fresher (0 years) for a Staff-level role (typically 8-10+ years)",
+          "Complete domain mismatch: Software Engineering vs Supply Chain",
+          "No relevant supply chain or operations experience"
+        ],
+        "mandatoryRequirements": [
+          "Staff-level experience (implied 8-10+ years)",
+          "Supply Chain Development and Optimization expertise"
+        ],
+        "optionalRequirements": [],
+        "reasonsFor": [
+          "Candidate is located in Bengaluru, which matches the job location."
+        ],
+        "reasonsAgainst": [
+          "Severe experience mismatch: Candidate is a new grad (2027) applying for a Staff Specialist role.",
+          "Complete domain mismatch: Candidate is a Software Engineer, job is in Supply Chain/Operations.",
+          "No relevant skills in supply chain, logistics, or operations optimization."
+        ],
+        "primaryReasons": [
+          "The candidate is a fresh software engineering graduate, while the role is a senior-level Supply Chain Specialist position.",
+          "There is zero overlap between the candidate's technical software skills and the required supply chain/operations domain expertise."
+        ],
+        "reason": "Candidate is a fresh software engineering graduate with no experience in Supply Chain or Operations, making them completely unsuitable for a Staff-level Supply Chain Specialist role.",
+        "recommendation": "Reject",
+        "evaluatedBy": "Groq",
+        "provider": "groq",
+        "model": "qwen/qwen3.8-27b",
+        "evaluationTimeMs": 14689,
+        "fallbackCount": 0,
+        "providerChain": [
+          "Groq_Key_1"
+        ],
+        "attemptLogs": {
+          "groq": "Success"
+        },
+        "verificationStatus": "verified"
+      },
+      "priority": 2
+    },
+    {
+      "job": {
+        "title": "Specialist Supply Chain Management (Contract)",
+        "company": "Infineon Technologies",
+        "location": "Bengaluru, KA, IN",
+        "applyLink": "https://jobs.infineon.com/careers/job/563808971619914",
+        "description": "Specialist Supply Chain Management (Contract) - ES - Bengaluru, KA, IN - 133296",
+        "source": "infineon",
+        "postedDate": "2026-07-21T08:14:46.000Z",
+        "postedAt": "2026-07-21T08:14:46.000Z",
+        "jobId": "563808971619914",
+        "experience": "",
+        "employmentType": "onsite"
+      },
+      "evaluation": {
+        "score": 5,
+        "confidence": "High",
+        "suitable": false,
+        "isClosed": false,
+        "recommendationLevel": "Reject",
+        "scoringBreakdown": {
+          "roleMatch": 0,
+          "skillsMatch": 0,
+          "experienceMatch": 0,
+          "domainMatch": 0,
+          "locationMatch": 100
+        },
+        "domainMismatch": true,
+        "domainExplanation": "The job is in Supply Chain Management (Operations/Logistics), while the candidate is a Software Engineer with skills in Backend, AI, and DevOps. There is zero domain overlap.",
+        "jobDomain": "Supply Chain Management",
+        "experienceMismatch": true,
+        "roleMatch": "Reject",
+        "skillOverlapPercentage": 0,
+        "matchedSkills": [],
+        "missingSkills": [
+          "Supply Chain Management",
+          "Logistics",
+          "Procurement",
+          "Inventory Management",
+          "ERP Systems (SAP/Oracle)"
+        ],
+        "strengths": [
+          "Location matches (Bengaluru is in preferred list)"
+        ],
+        "weaknesses": [
+          "Complete domain mismatch: Candidate is a Software Engineer, Job is Supply Chain Management",
+          "No relevant experience in logistics, procurement, or supply chain operations",
+          "Candidate is a fresher (0 years) for a Specialist role which typically requires significant experience",
+          "Technical skills (Python, Node.js, React) are irrelevant to the core responsibilities of a Supply Chain Specialist"
+        ],
+        "mandatoryRequirements": [
+          "Supply Chain Management expertise",
+          "Experience in logistics/procurement (implied by Specialist title)"
+        ],
+        "optionalRequirements": [],
+        "reasonsFor": [
+          "Location is acceptable"
+        ],
+        "reasonsAgainst": [
+          "Fundamental domain mismatch: Software Engineering vs Supply Chain Management",
+          "Lack of any relevant operational or logistics experience",
+          "Candidate profile is purely technical, whereas the role is operational/business"
+        ],
+        "primaryReasons": [
+          "The candidate is a software engineering graduate with no experience in supply chain, logistics, or operations.",
+          "The job requires a Specialist in Supply Chain Management, which is a completely different career path from software development."
+        ],
+        "reason": "Candidate is a software engineer with no experience or skills in Supply Chain Management, resulting in a complete domain mismatch.",
+        "recommendation": "Reject",
+        "evaluatedBy": "Groq",
+        "provider": "groq",
+        "model": "qwen/qwen3.8-27b",
+        "evaluationTimeMs": 1636,
+        "fallbackCount": 0,
+        "providerChain": [
+          "Groq_Key_3"
+        ],
+        "attemptLogs": {
+          "groq": "Success"
+        },
+        "verificationStatus": "verified"
+      },
+      "priority": 2
+    },
+    {
+      "job": {
+        "title": "Young Graduate Trainee",
+        "company": "Infineon Technologies",
+        "location": "Bengaluru, KA, IN",
+        "applyLink": "https://jobs.infineon.com/careers/job/563808971891937",
+        "description": "Young Graduate Trainee - ES - Bengaluru, KA, IN - HRC1765500",
+        "source": "infineon",
+        "postedDate": "2026-08-25T11:11:37.000Z",
+        "postedAt": "2026-08-25T11:11:37.000Z",
+        "jobId": "563808971891937",
+        "experience": "",
+        "employmentType": "onsite"
+      },
+      "evaluation": {
+        "score": 0,
+        "confidence": "High",
+        "suitable": false,
+        "isClosed": false,
+        "recommendationLevel": "Reject",
+        "scoringBreakdown": {
+          "roleMatch": 0,
+          "skillsMatch": 0,
+          "experienceMatch": 0,
+          "domainMatch": 0,
+          "locationMatch": 0
+        },
+        "domainMismatch": true,
+        "domainExplanation": "The job title 'Young Graduate Trainee' with code 'HRC1765500' and location 'Bengaluru, KA, IN' strongly suggests a Human Resources (HR) or General Management trainee role, likely at a large corporation (e.g., HCL or similar). The candidate's preferred domains are strictly technical (Backend, Fullstack, AI, etc.) and explicitly exclude HR, Sales, Marketing, and Business Development. Therefore, there is a fundamental domain mismatch.",
+        "jobDomain": "Human Resources / General Management",
+        "experienceMismatch": false,
+        "roleMatch": "Reject",
+        "skillOverlapPercentage": 0,
+        "matchedSkills": [],
+        "missingSkills": [
+          "HR Principles",
+          "General Management",
+          "Communication Skills",
+          "Business Acumen"
+        ],
+        "strengths": [
+          "Candidate is a new grad (2027) which fits the 'Young Graduate' title",
+          "Location (Bengaluru) matches candidate preference"
+        ],
+        "weaknesses": [
+          "Job is likely non-technical (HR/General) while candidate is a Software Engineer",
+          "Candidate explicitly excludes HR and Business domains",
+          "No technical skills required or listed in job description"
+        ],
+        "mandatoryRequirements": [
+          "Graduate status",
+          "Interest in HR/General Management (implied by title/code)"
+        ],
+        "optionalRequirements": [],
+        "reasonsFor": [
+          "Location is in Bengaluru, which is in the candidate's preferred list",
+          "Candidate is a new graduate, fitting the 'Young Graduate' aspect"
+        ],
+        "reasonsAgainst": [
+          "Job domain (HR/General) is explicitly excluded by the candidate",
+          "Candidate is a specialized Software Engineer with no interest in non-technical roles",
+          "No technical skills are relevant to this role"
+        ],
+        "primaryReasons": [
+          "The job is a non-technical trainee role (likely HR/General) which conflicts with the candidate's explicit exclusion of HR and Business domains",
+          "The candidate is a technical software engineer seeking backend/fullstack roles, making this a poor fit despite the location match"
+        ],
+        "reason": "The job is a non-technical trainee role (likely HR/General) which is explicitly excluded by the candidate's domain preferences, resulting in a complete domain mismatch.",
+        "recommendation": "Reject",
+        "evaluatedBy": "Groq",
+        "provider": "groq",
+        "model": "qwen/qwen3.8-27b",
+        "evaluationTimeMs": 2390,
+        "fallbackCount": 1,
+        "providerChain": [
+          "Gemini",
+          "Groq_Key_1"
+        ],
+        "attemptLogs": {
+          "gemini": "Failed",
+          "groq": "Success"
+        },
+        "verificationStatus": "verified"
+      },
+      "priority": 1
+    },
+    {
+      "job": {
+        "title": "Young Graduate Trainee",
+        "company": "Infineon Technologies",
+        "location": "Bengaluru, KA, IN",
+        "applyLink": "https://jobs.infineon.com/careers/job/563808971891931",
+        "description": "Young Graduate Trainee - ES - Bengaluru, KA, IN - HRC1765470",
+        "source": "infineon",
+        "postedDate": "2026-08-25T11:34:23.000Z",
+        "postedAt": "2026-08-25T11:34:23.000Z",
+        "jobId": "563808971891931",
+        "experience": "",
+        "employmentType": "onsite"
+      },
+      "evaluation": {
+        "score": 0,
+        "confidence": "High",
+        "suitable": false,
+        "isClosed": false,
+        "recommendationLevel": "Reject",
+        "scoringBreakdown": {
+          "roleMatch": 0,
+          "skillsMatch": 0,
+          "experienceMatch": 0,
+          "domainMatch": 0,
+          "locationMatch": 0
+        },
+        "domainMismatch": true,
+        "domainExplanation": "The job title 'Young Graduate Trainee' with ID 'HRC1765470' strongly suggests a Human Resources or General Management trainee role, which falls under the 'HR' domain. The candidate has explicitly excluded 'HR' from their preferred domains.",
+        "jobDomain": "HR / General Management",
+        "experienceMismatch": false,
+        "roleMatch": "Reject",
+        "skillOverlapPercentage": 0,
+        "matchedSkills": [],
+        "missingSkills": [
+          "HR Principles",
+          "General Management",
+          "People Management"
+        ],
+        "strengths": [
+          "Location matches (Bengaluru)",
+          "Graduation year aligns with 'Young Graduate' title"
+        ],
+        "weaknesses": [
+          "Job domain (HR/General) is explicitly excluded by candidate",
+          "No technical skills required or mentioned in job title/description",
+          "Candidate is a specialized Software Engineer"
+        ],
+        "mandatoryRequirements": [
+          "Graduate status",
+          "Interest in HR/General Management (implied by title)"
+        ],
+        "optionalRequirements": [],
+        "reasonsFor": [
+          "Candidate is a new graduate (2027) which fits the 'Young Graduate' profile",
+          "Location preference includes Bengaluru"
+        ],
+        "reasonsAgainst": [
+          "Candidate explicitly excludes HR domain",
+          "Job appears to be non-technical (HR/General Trainee) while candidate is a Backend/Fullstack Engineer",
+          "No technical skills overlap"
+        ],
+        "primaryReasons": [
+          "The job is likely an HR or General Management trainee role, which is in the candidate's excluded domains.",
+          "The candidate is a technical software engineer with no interest in non-technical roles."
+        ],
+        "reason": "The job is a non-technical trainee role (likely HR/General) which is explicitly excluded by the candidate's domain preferences.",
+        "recommendation": "Reject",
+        "evaluatedBy": "Groq",
+        "provider": "groq",
+        "model": "qwen/qwen3.8-27b",
+        "evaluationTimeMs": 1577,
+        "fallbackCount": 0,
+        "providerChain": [
+          "Groq_Key_2"
+        ],
+        "attemptLogs": {
+          "groq": "Success"
+        },
+        "verificationStatus": "verified"
+      },
+      "priority": 1
+    },
+    {
+      "job": {
+        "title": "Young Graduate Trainee",
+        "company": "Infineon Technologies",
+        "location": "Bengaluru, KA, IN",
+        "applyLink": "https://jobs.infineon.com/careers/job/563808971891930",
+        "description": "Young Graduate Trainee - ES - Bengaluru, KA, IN - HRC1765485",
+        "source": "infineon",
+        "postedDate": "2026-08-25T11:43:23.000Z",
+        "postedAt": "2026-08-25T11:43:23.000Z",
+        "jobId": "563808971891930",
+        "experience": "",
+        "employmentType": "onsite"
+      },
+      "evaluation": {
+        "score": 0,
+        "confidence": "High",
+        "suitable": false,
+        "isClosed": false,
+        "recommendationLevel": "Reject",
+        "scoringBreakdown": {
+          "roleMatch": 0,
+          "skillsMatch": 0,
+          "experienceMatch": 0,
+          "domainMatch": 0,
+          "locationMatch": 0
+        },
+        "domainMismatch": true,
+        "domainExplanation": "The job title 'Young Graduate Trainee' with ID 'HRC1765485' strongly suggests a Human Resources or General Management trainee role, which falls under the 'HR' domain. The candidate has explicitly excluded 'HR' from their preferred domains.",
+        "jobDomain": "HR / General Management",
+        "experienceMismatch": false,
+        "roleMatch": "Reject",
+        "skillOverlapPercentage": 0,
+        "matchedSkills": [],
+        "missingSkills": [
+          "HR Principles",
+          "General Management",
+          "People Management"
+        ],
+        "strengths": [
+          "Location matches (Bengaluru)",
+          "Graduation year (2027) aligns with 'Young Graduate' timeline"
+        ],
+        "weaknesses": [
+          "Job domain (HR/General) is explicitly excluded by candidate",
+          "No technical skills required or listed in job description",
+          "Candidate is a specialized Software Engineer/AI Engineer"
+        ],
+        "mandatoryRequirements": [
+          "Graduate status",
+          "Interest in HR/General Management (implied by title)"
+        ],
+        "optionalRequirements": [],
+        "reasonsFor": [
+          "Location is in Bengaluru, which is in the candidate's preferred list",
+          "Candidate is a new grad (2027), fitting the 'Young Graduate' profile"
+        ],
+        "reasonsAgainst": [
+          "The job title indicates an HR or General Management role, which is in the candidate's 'Excluded Domains' list",
+          "The candidate's profile is heavily specialized in Backend, AI, and DevOps, which are not relevant to this role"
+        ],
+        "primaryReasons": [
+          "The job is in the HR/General Management domain, which the candidate has explicitly excluded.",
+          "There is no overlap between the candidate's technical skills and the implied requirements of a General/HR trainee role."
+        ],
+        "reason": "The job is an HR/General Management trainee role, which is explicitly excluded by the candidate's domain preferences.",
+        "recommendation": "Reject",
+        "evaluatedBy": "Groq",
+        "provider": "groq",
+        "model": "qwen/qwen3.8-27b",
+        "evaluationTimeMs": 1575,
+        "fallbackCount": 0,
+        "providerChain": [
+          "Groq_Key_3"
+        ],
+        "attemptLogs": {
+          "groq": "Success"
+        },
+        "verificationStatus": "verified"
+      },
+      "priority": 1
+    },
+    {
+      "job": {
+        "title": "Senior Successfactors & AI Specialist (f/m/div)",
+        "company": "Infineon Technologies",
+        "location": "Porto, Porto District, PT, Ahmedabad, GJ, IN",
+        "applyLink": "https://jobs.infineon.com/careers/job/563808971387789",
+        "description": "Senior Successfactors & AI Specialist (f/m/div) - HR - Porto, Porto District, PT, Ahmedabad, GJ, IN - HRC1685564",
+        "source": "infineon",
+        "postedDate": "2026-07-24T07:35:50.000Z",
+        "postedAt": "2026-07-24T07:35:50.000Z",
+        "jobId": "563808971387789",
+        "experience": "",
+        "employmentType": "hybrid"
+      },
+      "evaluation": {
+        "score": 0,
+        "confidence": "High",
+        "suitable": false,
+        "isClosed": false,
+        "recommendationLevel": "Reject",
+        "scoringBreakdown": {
+          "roleMatch": 0,
+          "skillsMatch": 0,
+          "experienceMatch": 0,
+          "domainMatch": 0,
+          "locationMatch": 0
+        },
+        "domainMismatch": true,
+        "domainExplanation": "The job is in the HR/SuccessFactors domain, which is explicitly excluded by the candidate. The candidate is a Software Engineer.",
+        "jobDomain": "HR / SuccessFactors",
+        "experienceMismatch": true,
+        "roleMatch": "Reject",
+        "skillOverlapPercentage": 0,
+        "matchedSkills": [],
+        "missingSkills": [
+          "SAP SuccessFactors",
+          "HR Systems",
+          "AI in HR Context"
+        ],
+        "strengths": [
+          "None relevant to this role"
+        ],
+        "weaknesses": [
+          "Candidate is a Fresher (0 years) for a Senior role",
+          "Candidate has no experience with SAP SuccessFactors",
+          "Job is in HR domain, which is excluded by candidate",
+          "Job location includes Porto, Portugal (Foreign country)"
+        ],
+        "mandatoryRequirements": [
+          "Senior level experience",
+          "SAP SuccessFactors expertise",
+          "AI specialization in HR context"
+        ],
+        "optionalRequirements": [],
+        "reasonsFor": [],
+        "reasonsAgainst": [
+          "Candidate is a Fresher (0 years) while the role is Senior",
+          "Candidate lacks SAP SuccessFactors skills",
+          "Job domain (HR) is explicitly excluded by candidate",
+          "Job location includes a foreign country (Portugal)"
+        ],
+        "primaryReasons": [
+          "Candidate is a Fresher applying for a Senior HR/SuccessFactors role",
+          "Candidate has no relevant skills in SAP SuccessFactors or HR systems",
+          "Job location includes a foreign country (Portugal) which is not in candidate's preferred locations"
+        ],
+        "reason": "Candidate is a Fresher with no SAP SuccessFactors experience applying for a Senior HR role located partly in a foreign country.",
+        "recommendation": "Reject",
+        "evaluatedBy": "Groq",
+        "provider": "groq",
+        "model": "qwen/qwen3.8-27b",
+        "evaluationTimeMs": 1519,
+        "fallbackCount": 0,
+        "providerChain": [
+          "Groq_Key_3"
+        ],
+        "attemptLogs": {
+          "groq": "Success"
+        },
+        "verificationStatus": "verified"
+      },
+      "priority": 2
+    },
+    {
+      "job": {
+        "title": "Supply Chain Specialist",
+        "company": "Infineon Technologies",
+        "location": "Bengaluru, KA, IN",
+        "applyLink": "https://jobs.infineon.com/careers/job/563808971873733",
+        "description": "Supply Chain Specialist - ES - Bengaluru, KA, IN - HRC1757122",
+        "source": "infineon",
+        "postedDate": "2026-08-19T06:00:13.000Z",
+        "postedAt": "2026-08-19T06:00:13.000Z",
+        "jobId": "563808971873733",
+        "experience": "",
+        "employmentType": "onsite"
+      },
+      "evaluation": {
+        "score": 0,
+        "confidence": "High",
+        "suitable": false,
+        "isClosed": false,
+        "recommendationLevel": "Reject",
+        "scoringBreakdown": {
+          "roleMatch": 0,
+          "skillsMatch": 0,
+          "experienceMatch": 0,
+          "domainMatch": 0,
+          "locationMatch": 100
+        },
+        "domainMismatch": true,
+        "domainExplanation": "The job is in Supply Chain Management, which is a business/operations domain. The candidate is a Software Engineer with skills in Backend, AI, and DevOps. There is zero overlap in professional domain.",
+        "jobDomain": "Supply Chain / Operations",
+        "experienceMismatch": true,
+        "roleMatch": "Reject",
+        "skillOverlapPercentage": 0,
+        "matchedSkills": [],
+        "missingSkills": [
+          "Supply Chain Management",
+          "Logistics",
+          "Procurement",
+          "Inventory Management",
+          "ERP Systems (SAP/Oracle)"
+        ],
+        "strengths": [
+          "Location matches (Bengaluru is in preferred list)"
+        ],
+        "weaknesses": [
+          "Complete domain mismatch: Candidate is a Software Engineer, Job is Supply Chain Specialist",
+          "No relevant business or operations experience",
+          "Candidate skills (JS, Python, AI) are irrelevant to Supply Chain operations"
+        ],
+        "mandatoryRequirements": [
+          "Supply Chain domain expertise"
+        ],
+        "optionalRequirements": [],
+        "reasonsFor": [
+          "Location is acceptable"
+        ],
+        "reasonsAgainst": [
+          "Job title 'Supply Chain Specialist' indicates a non-technical operations role",
+          "Candidate profile is strictly technical (Software Engineering)",
+          "No skills in logistics, procurement, or supply chain management"
+        ],
+        "primaryReasons": [
+          "Fundamental domain mismatch between Software Engineering and Supply Chain Management"
+        ],
+        "reason": "The candidate is a software engineer applying for a supply chain operations role, resulting in a complete domain mismatch.",
+        "recommendation": "Reject",
+        "evaluatedBy": "Groq",
+        "provider": "groq",
+        "model": "qwen/qwen3.8-27b",
+        "evaluationTimeMs": 2880,
+        "fallbackCount": 0,
+        "providerChain": [
+          "Groq_Key_2"
+        ],
+        "attemptLogs": {
+          "groq": "Success"
+        },
+        "verificationStatus": "verified"
+      },
+      "priority": 2
+    },
+    {
+      "job": {
+        "title": "Assistant Engineer",
+        "company": "Infineon Technologies",
+        "location": "Bengaluru, KA, IN",
+        "applyLink": "https://jobs.infineon.com/careers/job/563808971782823",
+        "description": "Assistant Engineer - ES - Bengaluru, KA, IN - HRC1737599",
+        "source": "infineon",
+        "postedDate": "2026-08-03T08:00:40.000Z",
+        "postedAt": "2026-08-03T08:00:40.000Z",
+        "jobId": "563808971782823",
+        "experience": "",
+        "employmentType": "onsite"
+      },
+      "evaluation": {
+        "score": 0,
+        "confidence": "High",
+        "suitable": false,
+        "isClosed": false,
+        "recommendationLevel": "Reject",
+        "scoringBreakdown": {
+          "roleMatch": 0,
+          "skillsMatch": 0,
+          "experienceMatch": 0,
+          "domainMatch": 0,
+          "locationMatch": 0
+        },
+        "domainMismatch": true,
+        "domainExplanation": "The job title 'Assistant Engineer' with the code 'ES' (likely Electrical Systems or Engineering Services) and lack of software keywords suggests a non-software engineering role (e.g., Electrical, Civil, or Mechanical). The candidate is a Software Engineer. This is a fundamental domain mismatch.",
+        "jobDomain": "Electrical/General Engineering (Inferred from 'ES' code and lack of software details)",
+        "experienceMismatch": false,
+        "roleMatch": "Reject",
+        "skillOverlapPercentage": 0,
+        "matchedSkills": [],
+        "missingSkills": [
+          "Electrical Engineering Principles",
+          "Hardware Design",
+          "Circuit Analysis"
+        ],
+        "strengths": [
+          "Location matches (Bengaluru is in preferred list)"
+        ],
+        "weaknesses": [
+          "Job description is empty of software requirements",
+          "Job title implies non-software engineering role",
+          "Candidate is a Software Engineer, not an Electrical/General Engineer"
+        ],
+        "mandatoryRequirements": [
+          "Engineering Degree (Non-Software implied by 'ES' code)"
+        ],
+        "optionalRequirements": [],
+        "reasonsFor": [
+          "Location is acceptable"
+        ],
+        "reasonsAgainst": [
+          "Job description lacks any software engineering keywords",
+          "Title 'Assistant Engineer - ES' typically refers to Electrical Systems or similar non-software engineering disciplines",
+          "Candidate's skills (JS, Python, React, etc.) are irrelevant to the inferred job domain"
+        ],
+        "primaryReasons": [
+          "The job description provides no evidence of a software engineering role.",
+          "The 'ES' code in the title strongly suggests an Electrical or General Engineering role, which does not match the candidate's Software Engineering profile."
+        ],
+        "reason": "The job description is devoid of software engineering requirements and the title suggests a non-software engineering role, making it a complete mismatch for a software candidate.",
+        "recommendation": "Reject",
+        "evaluatedBy": "Groq",
+        "provider": "groq",
+        "model": "qwen/qwen3.8-27b",
+        "evaluationTimeMs": 1804,
+        "fallbackCount": 0,
+        "providerChain": [
+          "Groq_Key_3"
+        ],
+        "attemptLogs": {
+          "groq": "Success"
+        },
+        "verificationStatus": "verified"
+      },
+      "priority": 2
+    }
+  ]
+}

@@ -613,6 +613,7 @@ const runSearch = async (triggerSource = "Unknown", forceRefresh = false) => {
               
               companyAiEvaluated++;
               stats.aiEvaluations++;
+              stats.jobsEvaluated++;
               companyMetrics.funnel.aiEvaluated++;
               
               if (result.analysis && result.analysis.provider) {

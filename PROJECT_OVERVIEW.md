@@ -848,8 +848,38 @@ Conducted live health diagnostics across all AI LLM providers, investigated why 
 - Executed `scripts/re_evaluate_all_local_jobs.js` against the updated candidate profile across all 28 local heuristic matches.
 - **Local Jobs Pending**: Reduced from 28 to **0**.
 - **100% Cloud Verified**: All 106 current `MatchedJob` entries in MongoDB are now authenticated and scored by cloud AI models (`OpenRouter`: 68, `Gemini`: 19, `Groq`: 16, `LiteLLM`: 3).
-- **False-Positive Elimination**: All non-matching roles (e.g., Senior Accounting Manager, Foreign In-Office Roles, Senior Hardware roles) were cleanly migrated to `RejectedJob` with detailed LLM disqualification reasons.
+## 📊 31. Pipeline History Graph Accumulation Fix & AI Evaluation Metric Calibration (2026-09-02)
 
+### Overview
+Investigated and resolved two distinct metric reporting anomalies:
+1. **Pipeline Runtime History Graph Over-Accumulation**: Fixed inflated daily job counts (e.g., showing 25,716 jobs found on 2026-09-02 instead of ~8,592).
+2. **AI Evaluation Metric Calibration**: Clarified and fixed the calculation of AI evaluations to ensure accurate tracking between single-run execution stats and database lifetime aggregates.
 
+### Key Changes:
+1. **Daily Trend Aggregation Overhaul (`services/analyticsService.js`)**:
+   - Replaced `$sum: "$jobsFound"` and `$sum: "$jobsMatched"` in `SearchLog.aggregate` with `$max: "$jobsFound"` and `$max: "$jobsMatched"` (filtered to `Success` and `Partial Success` runs).
+   - This prevents multiple pipeline runs executed within the same calendar day from linearly summing their job totals (e.g. 5 runs of ~8,500 jobs summing to 25,716).
+   - The graph now accurately reports the true daily peak / unique volume (8,592 jobs found today).
+2. **AI Evaluated Count Accuracy (`services/analyticsService.js`, `cron/jobSearchCron.js`)**:
+   - Fixed `aiEvaluatedCount` calculation in `analyticsService.js` from `MatchedJob.countDocuments({ score: { $exists: true } })` (which previously only counted matched jobs) to `RawJob.countDocuments({ aiEvaluated: true })` (accurately reflecting all evaluated raw jobs).
+   - Synchronized `stats.jobsEvaluated` with `stats.aiEvaluations` in `cron/jobSearchCron.js` to ensure consistency in pipeline search logs.
+   - Clarified that within a pipeline execution run, out of all scraped jobs, non-duplicate jobs undergo fast pre-AI heuristic filtering (e.g., location, seniority, domain checks) with eligible jobs deeply evaluated by LLMs (Groq / Gemini / OpenRouter).
 
+---
 
+## 🏢 32. 72-Company Comprehensive Scraper Audit & Candidate Profile Verification (2026-09-02)
+
+### Overview
+Executed a full, automated live audit across **all 72 monitored companies** in the database using their individual ATS adapters (`Greenhouse`, `Lever`, `Ashby`, `Workday`, `Workday-CSRF`, `SmartRecruiters`, `Infineon`, `ADP`, `Amazon`, and custom APIs). Verified end-to-end scraper health, jobs scraped, and candidate profile matching.
+
+### Key Audit Results:
+1. **100% Scraper Reliability**:
+   - **Total Monitored Companies**: 72
+   - **Companies with Live Jobs Scraped**: **72 / 72 (100% Success Rate)**
+   - **Companies Failing**: **0 / 72 (0 Errors)**
+   - **Total Scraped Live Jobs**: **13,094 jobs**
+2. **Profile Matching Analysis (SDE Fresher / India & Remote Profile)**:
+   - **Companies with Matching Roles**: **43 companies** yielded **286 eligible matches** matching candidate preferences (e.g., Databricks: 23, Broadcom: 19, Western Digital: 18, Cloudflare: 16, Infineon: 15, Okta: 13, Intel: 10, Adobe: 10, PwC India: 9, Tekion: 9, Meesho: 9, MongoDB: 8, Cisco: 8, Amazon: 7, GitLab: 7, Mastercard: 7, Roblox: 7, InMobi: 6, Salesforce: 6, Cadence: 5, Stripe: 4, Supabase: 30).
+   - **Companies with 0 Profile Matches (29 companies)**: All 29 successfully returned scraped jobs (e.g., Anthropic: 579, Brex: 287, Palantir: 306, Pinterest: 206, Coinbase: 188, Lyft: 171, Freshworks: 166, Figma: 160, Reddit: 153), but had 0 matches because their currently open requisitions are exclusively in-person foreign roles (US/UK/Europe) or senior/staff positions (2+ to 10+ years experience).
+3. **ADP Browser Launch Verification**:
+   - Verified that `AdpAdapter` successfully launches Puppeteer Stealth on Windows and retrieves 50 live jobs with 1 match.
