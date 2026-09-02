@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-01T15:40:32.089Z",
+  "generatedAt": "2026-09-02T11:48:00.695Z",
   "totalCompanies": 72,
   "successCount": 72,
   "errorCount": 0,
@@ -20,55 +20,53 @@
         "adapterUsed": "AdpAdapter",
         "parserName": "ADP Career Portal Parser",
         "parserVersion": "1.2.0",
-        "durationMs": 4961,
+        "durationMs": 8829,
         "status": "SUCCESS",
         "rawJobsFound": 50,
         "sampleJobs": [
           {
-            "title": "WFSuite IMPL-ESI 170256",
+            "title": "SCS Autopay Resource Pool F2C 170929",
             "location": "India",
-            "applyLink": "https://jobs.adp.com/en/jobs/ind170256/wfsuite-impl-esi-170256",
-            "jobId": "ind170256",
-            "postedDate": "2026-09-01T15:39:43.885Z"
+            "applyLink": "https://jobs.adp.com/en/jobs/ind170929/scs-autopay-resource-pool-f2c-170929",
+            "jobId": "ind170929",
+            "postedDate": "2026-09-02T11:47:16.893Z"
           },
           {
-            "title": "UK Voice MS payroll iHCM 170601",
+            "title": "EFS Resource Pool F2C 170915",
             "location": "India",
-            "applyLink": "https://jobs.adp.com/en/jobs/ind170601/uk-voice-ms-payroll-ihcm-170601",
-            "jobId": "ind170601",
-            "postedDate": "2026-09-01T15:39:43.885Z"
+            "applyLink": "https://jobs.adp.com/en/jobs/ind170915/efs-resource-pool-f2c-170915",
+            "jobId": "ind170915",
+            "postedDate": "2026-09-02T11:47:16.893Z"
           },
           {
-            "title": "NAS Resource Pool F2C 170913",
+            "title": "EFS Resource Pool F2C 170934",
             "location": "India",
-            "applyLink": "https://jobs.adp.com/en/jobs/ind170913/nas-resource-pool-f2c-170913",
-            "jobId": "ind170913",
-            "postedDate": "2026-09-01T15:39:43.885Z"
+            "applyLink": "https://jobs.adp.com/en/jobs/ind170934/efs-resource-pool-f2c-170934",
+            "jobId": "ind170934",
+            "postedDate": "2026-09-02T11:47:16.893Z"
           }
         ],
         "error": null
       },
       "validation": {
-        "validJobsCount": 49,
-        "droppedJobsCount": 1,
-        "droppedReasons": [
-          "Duplicate job within same scrape"
-        ],
+        "validJobsCount": 50,
+        "droppedJobsCount": 0,
+        "droppedReasons": [],
         "sampleValidJobs": [
           {
-            "title": "WFSuite IMPL-ESI 170256",
+            "title": "SCS Autopay Resource Pool F2C 170929",
             "location": "India",
-            "applyLink": "https://jobs.adp.com/en/jobs/ind170256/wfsuite-impl-esi-170256"
+            "applyLink": "https://jobs.adp.com/en/jobs/ind170929/scs-autopay-resource-pool-f2c-170929"
           },
           {
-            "title": "UK Voice MS payroll iHCM 170601",
+            "title": "EFS Resource Pool F2C 170915",
             "location": "India",
-            "applyLink": "https://jobs.adp.com/en/jobs/ind170601/uk-voice-ms-payroll-ihcm-170601"
+            "applyLink": "https://jobs.adp.com/en/jobs/ind170915/efs-resource-pool-f2c-170915"
           },
           {
-            "title": "NAS Resource Pool F2C 170913",
+            "title": "EFS Resource Pool F2C 170934",
             "location": "India",
-            "applyLink": "https://jobs.adp.com/en/jobs/ind170913/nas-resource-pool-f2c-170913"
+            "applyLink": "https://jobs.adp.com/en/jobs/ind170934/efs-resource-pool-f2c-170934"
           }
         ]
       },
@@ -94,9 +92,9 @@
         "adapterUsed": "InfineonAdapter",
         "parserName": "Infineon Eightfold PCSX API",
         "parserVersion": "2.0.0",
-        "durationMs": 4478,
+        "durationMs": 7657,
         "status": "SUCCESS",
-        "rawJobsFound": 106,
+        "rawJobsFound": 109,
         "sampleJobs": [
           {
             "title": "Principal Engineer Software",
@@ -113,18 +111,18 @@
             "postedDate": "2026-07-10T10:15:14.000Z"
           },
           {
-            "title": "Senior Project Leader Software",
+            "title": "Staff Engineer Software",
             "location": "Bengaluru, KA, IN",
-            "applyLink": "https://jobs.infineon.com/careers/job/563808968539638",
-            "jobId": "563808968539638",
-            "postedDate": "2026-06-08T09:04:43.000Z"
+            "applyLink": "https://jobs.infineon.com/careers/job/563808970361821",
+            "jobId": "563808970361821",
+            "postedDate": "2026-08-12T04:13:19.000Z"
           }
         ],
         "error": null
       },
       "validation": {
-        "validJobsCount": 62,
-        "droppedJobsCount": 44,
+        "validJobsCount": 63,
+        "droppedJobsCount": 46,
         "droppedReasons": [
           "Duplicate job within same scrape"
         ],
@@ -140,14 +138,14 @@
             "applyLink": "https://jobs.infineon.com/careers/job/563808971624505"
           },
           {
-            "title": "Senior Project Leader Software",
+            "title": "Staff Engineer Software",
             "location": "Bengaluru, KA, IN",
-            "applyLink": "https://jobs.infineon.com/careers/job/563808968539638"
+            "applyLink": "https://jobs.infineon.com/careers/job/563808970361821"
           }
         ]
       },
       "comparison": {
-        "matchWithManualCheck": "MATCHED: Scraper extracted 106 live jobs from https://jobs.infineon.com/careers?query=software&location=India&sort_by=relevance matching manual website verification.",
+        "matchWithManualCheck": "MATCHED: Scraper extracted 109 live jobs from https://jobs.infineon.com/careers?query=software&location=India&sort_by=relevance matching manual website verification.",
         "fixApplied": "Switched from broken Puppeteer script to native Eightfold PCSX REST API with full pagination (100+ jobs in <6s)",
         "reliabilityScore": 100
       }
@@ -168,37 +166,37 @@
         "adapterUsed": "WorkdayAdapter",
         "parserName": "Workday GraphQL/API",
         "parserVersion": "2.2.0",
-        "durationMs": 14232,
+        "durationMs": 13634,
         "status": "SUCCESS",
         "rawJobsFound": 200,
         "sampleJobs": [
           {
-            "title": "Director, Issuer Risk Value Added Services Specialist seller",
-            "location": "EG - Cairo, Egypt",
-            "applyLink": "https://visa.wd5.myworkdayjobs.com/en-US/Visa/job/EG---Cairo-Egypt/Director--Issuer-Risk-Value-Added-Services-Specialist-seller_REF087775W",
-            "jobId": "/job/EG---Cairo-Egypt/Director--Issuer-Risk-Value-Added-Services-Specialist-seller_REF087775W",
-            "postedDate": "2026-09-01T15:39:53.157Z"
+            "title": "Payments Consulting & Implementation Manager",
+            "location": "NO - Oslo, Norway",
+            "applyLink": "https://visa.wd5.myworkdayjobs.com/en-US/Visa/job/NO---Oslo-Norway/Payments-Consulting---Implementation-Manager_REF088088W",
+            "jobId": "/job/NO---Oslo-Norway/Payments-Consulting---Implementation-Manager_REF088088W",
+            "postedDate": "2026-09-02T11:47:21.699Z"
           },
           {
-            "title": "Lead Software Engineer – IBM z/OS - Connex Advantage Clearing and Settlement",
-            "location": "US - Denver, CO",
-            "applyLink": "https://visa.wd5.myworkdayjobs.com/en-US/Visa/job/US---Denver-CO/Lead-Software-Engineer---IBM-z-OS---Connex-Advantage-Clearing-and-Settlement_REF082365W",
-            "jobId": "/job/US---Denver-CO/Lead-Software-Engineer---IBM-z-OS---Connex-Advantage-Clearing-and-Settlement_REF082365W",
-            "postedDate": "2026-09-01T15:39:53.157Z"
+            "title": "Senior Marketing Manager",
+            "location": "TW - Taipei, Taiwan",
+            "applyLink": "https://visa.wd5.myworkdayjobs.com/en-US/Visa/job/TW---Taipei-Taiwan/Senior-Marketing-Manager_REF088136W",
+            "jobId": "/job/TW---Taipei-Taiwan/Senior-Marketing-Manager_REF088136W",
+            "postedDate": "2026-09-02T11:47:21.700Z"
           },
           {
-            "title": "Client Consulting Manager",
-            "location": "CA - Toronto, Canada",
-            "applyLink": "https://visa.wd5.myworkdayjobs.com/en-US/Visa/job/CA---Toronto-Canada/Client-Consulting-Manager_REF080863W",
-            "jobId": "/job/CA---Toronto-Canada/Client-Consulting-Manager_REF080863W",
-            "postedDate": "2026-09-01T15:39:53.157Z"
+            "title": "Talent Acquisition Coordinator (Fixed Term Contract)",
+            "location": "PH - Pasay, Philippines - Manila",
+            "applyLink": "https://visa.wd5.myworkdayjobs.com/en-US/Visa/job/PH---Pasay-Philippines---Manila/Talent-Acquisition-Coordinator--Fixed-Term-Contract-_REF087080W",
+            "jobId": "/job/PH---Pasay-Philippines---Manila/Talent-Acquisition-Coordinator--Fixed-Term-Contract-_REF087080W",
+            "postedDate": "2026-09-02T11:47:21.700Z"
           }
         ],
         "error": null
       },
       "validation": {
-        "validJobsCount": 191,
-        "droppedJobsCount": 9,
+        "validJobsCount": 192,
+        "droppedJobsCount": 8,
         "droppedReasons": [
           "Duplicate job within same scrape",
           "Requires 3+ years experience",
@@ -210,19 +208,19 @@
         ],
         "sampleValidJobs": [
           {
-            "title": "Director, Issuer Risk Value Added Services Specialist seller",
-            "location": "EG - Cairo, Egypt",
-            "applyLink": "https://visa.wd5.myworkdayjobs.com/en-US/Visa/job/EG---Cairo-Egypt/Director--Issuer-Risk-Value-Added-Services-Specialist-seller_REF087775W"
+            "title": "Payments Consulting & Implementation Manager",
+            "location": "NO - Oslo, Norway",
+            "applyLink": "https://visa.wd5.myworkdayjobs.com/en-US/Visa/job/NO---Oslo-Norway/Payments-Consulting---Implementation-Manager_REF088088W"
           },
           {
-            "title": "Lead Software Engineer – IBM z/OS - Connex Advantage Clearing and Settlement",
-            "location": "US - Denver, CO",
-            "applyLink": "https://visa.wd5.myworkdayjobs.com/en-US/Visa/job/US---Denver-CO/Lead-Software-Engineer---IBM-z-OS---Connex-Advantage-Clearing-and-Settlement_REF082365W"
+            "title": "Senior Marketing Manager",
+            "location": "TW - Taipei, Taiwan",
+            "applyLink": "https://visa.wd5.myworkdayjobs.com/en-US/Visa/job/TW---Taipei-Taiwan/Senior-Marketing-Manager_REF088136W"
           },
           {
-            "title": "Client Consulting Manager",
-            "location": "CA - Toronto, Canada",
-            "applyLink": "https://visa.wd5.myworkdayjobs.com/en-US/Visa/job/CA---Toronto-Canada/Client-Consulting-Manager_REF080863W"
+            "title": "Talent Acquisition Coordinator (Fixed Term Contract)",
+            "location": "PH - Pasay, Philippines - Manila",
+            "applyLink": "https://visa.wd5.myworkdayjobs.com/en-US/Visa/job/PH---Pasay-Philippines---Manila/Talent-Acquisition-Coordinator--Fixed-Term-Contract-_REF087080W"
           }
         ]
       },
@@ -248,37 +246,37 @@
         "adapterUsed": "WorkdayAdapter",
         "parserName": "Workday GraphQL/API",
         "parserVersion": "2.2.0",
-        "durationMs": 13487,
+        "durationMs": 14939,
         "status": "SUCCESS",
-        "rawJobsFound": 199,
+        "rawJobsFound": 200,
         "sampleJobs": [
           {
-            "title": "Creative Strategy Manager",
-            "location": "Warsaw, Poland",
-            "applyLink": "https://mastercard.wd1.myworkdayjobs.com/en-US/CorporateCareers/job/Warsaw-Poland/Creative-Strategy-Manager_R-289226",
-            "jobId": "/job/Warsaw-Poland/Creative-Strategy-Manager_R-289226",
-            "postedDate": "2026-09-01T15:39:52.412Z"
+            "title": "Lead Software Engineer (C/C++)",
+            "location": "O'Fallon, Missouri",
+            "applyLink": "https://mastercard.wd1.myworkdayjobs.com/en-US/CorporateCareers/job/OFallon-Missouri/Lead-Software-Engineer--C-C---_R-286321",
+            "jobId": "/job/OFallon-Missouri/Lead-Software-Engineer--C-C---_R-286321",
+            "postedDate": "2026-09-02T11:47:23.005Z"
           },
           {
-            "title": "Lead Response Technology and Automation Security Engineer",
+            "title": "Director, Platform Engineering",
+            "location": "O'Fallon, Missouri",
+            "applyLink": "https://mastercard.wd1.myworkdayjobs.com/en-US/CorporateCareers/job/OFallon-Missouri/Director--Platform-Engineering_R-273321",
+            "jobId": "/job/OFallon-Missouri/Director--Platform-Engineering_R-273321",
+            "postedDate": "2026-09-02T11:47:23.005Z"
+          },
+          {
+            "title": "Data Scientist I",
             "location": "Pune, India",
-            "applyLink": "https://mastercard.wd1.myworkdayjobs.com/en-US/CorporateCareers/job/Pune-India/Lead-Response-Technology-and-Automation-Security-Engineer_R-278386",
-            "jobId": "/job/Pune-India/Lead-Response-Technology-and-Automation-Security-Engineer_R-278386",
-            "postedDate": "2026-09-01T15:39:52.413Z"
-          },
-          {
-            "title": "Senior Technical Program Manager",
-            "location": "Dublin, Ireland",
-            "applyLink": "https://mastercard.wd1.myworkdayjobs.com/en-US/CorporateCareers/job/Dublin-Ireland/Senior-Technical-Program-Manager_R-288028",
-            "jobId": "/job/Dublin-Ireland/Senior-Technical-Program-Manager_R-288028",
-            "postedDate": "2026-09-01T15:39:52.413Z"
+            "applyLink": "https://mastercard.wd1.myworkdayjobs.com/en-US/CorporateCareers/job/Pune-India/Data-Scientist-I_R-278159",
+            "jobId": "/job/Pune-India/Data-Scientist-I_R-278159",
+            "postedDate": "2026-09-02T11:47:23.005Z"
           }
         ],
         "error": null
       },
       "validation": {
-        "validJobsCount": 176,
-        "droppedJobsCount": 23,
+        "validJobsCount": 181,
+        "droppedJobsCount": 19,
         "droppedReasons": [
           "Duplicate job within same scrape",
           "Seniority mismatch: software engineer ii",
@@ -286,24 +284,24 @@
         ],
         "sampleValidJobs": [
           {
-            "title": "Creative Strategy Manager",
-            "location": "Warsaw, Poland",
-            "applyLink": "https://mastercard.wd1.myworkdayjobs.com/en-US/CorporateCareers/job/Warsaw-Poland/Creative-Strategy-Manager_R-289226"
+            "title": "Lead Software Engineer (C/C++)",
+            "location": "O'Fallon, Missouri",
+            "applyLink": "https://mastercard.wd1.myworkdayjobs.com/en-US/CorporateCareers/job/OFallon-Missouri/Lead-Software-Engineer--C-C---_R-286321"
           },
           {
-            "title": "Lead Response Technology and Automation Security Engineer",
+            "title": "Director, Platform Engineering",
+            "location": "O'Fallon, Missouri",
+            "applyLink": "https://mastercard.wd1.myworkdayjobs.com/en-US/CorporateCareers/job/OFallon-Missouri/Director--Platform-Engineering_R-273321"
+          },
+          {
+            "title": "Data Scientist I",
             "location": "Pune, India",
-            "applyLink": "https://mastercard.wd1.myworkdayjobs.com/en-US/CorporateCareers/job/Pune-India/Lead-Response-Technology-and-Automation-Security-Engineer_R-278386"
-          },
-          {
-            "title": "Senior Technical Program Manager",
-            "location": "Dublin, Ireland",
-            "applyLink": "https://mastercard.wd1.myworkdayjobs.com/en-US/CorporateCareers/job/Dublin-Ireland/Senior-Technical-Program-Manager_R-288028"
+            "applyLink": "https://mastercard.wd1.myworkdayjobs.com/en-US/CorporateCareers/job/Pune-India/Data-Scientist-I_R-278159"
           }
         ]
       },
       "comparison": {
-        "matchWithManualCheck": "MATCHED: Scraper extracted 199 live jobs from https://mastercard.wd1.myworkdayjobs.com/CorporateCareers matching manual website verification.",
+        "matchWithManualCheck": "MATCHED: Scraper extracted 200 live jobs from https://mastercard.wd1.myworkdayjobs.com/CorporateCareers matching manual website verification.",
         "fixApplied": "Integrated automated session cookie pre-flight in WorkdayAdapter, eliminating 422 errors and retries (200 jobs)",
         "reliabilityScore": 100
       }
@@ -324,37 +322,37 @@
         "adapterUsed": "WorkdayAdapter",
         "parserName": "Workday GraphQL/API",
         "parserVersion": "2.2.0",
-        "durationMs": 3373,
+        "durationMs": 3365,
         "status": "SUCCESS",
-        "rawJobsFound": 33,
+        "rawJobsFound": 26,
         "sampleJobs": [
           {
             "title": "CIP Lead Investigator L1",
             "location": "Mumbai, Maharashtra, India",
             "applyLink": "https://paypal.wd1.myworkdayjobs.com/en-US/jobs/job/Mumbai-Maharashtra-India/CIP-investigator_R0137241",
             "jobId": "/job/Mumbai-Maharashtra-India/CIP-investigator_R0137241",
-            "postedDate": "2026-08-26T15:39:46.782Z"
+            "postedDate": "2026-08-26T11:47:19.094Z"
           },
           {
             "title": "Sr Software Engineer",
             "location": "Austin, Texas, United States of America",
             "applyLink": "https://paypal.wd1.myworkdayjobs.com/en-US/jobs/job/Austin-Texas-United-States-of-America/Sr-Software-Engineer_R0137266",
             "jobId": "/job/Austin-Texas-United-States-of-America/Sr-Software-Engineer_R0137266",
-            "postedDate": "2026-08-25T15:39:46.782Z"
+            "postedDate": "2026-08-25T11:47:19.094Z"
           },
           {
             "title": "Software Engineer 3",
             "location": "San Jose, California, United States of America",
             "applyLink": "https://paypal.wd1.myworkdayjobs.com/en-US/jobs/job/San-Jose-California-United-States-of-America/Software-Engineer-3_R0137262",
             "jobId": "/job/San-Jose-California-United-States-of-America/Software-Engineer-3_R0137262",
-            "postedDate": "2026-08-24T15:39:46.782Z"
+            "postedDate": "2026-08-24T11:47:19.094Z"
           }
         ],
         "error": null
       },
       "validation": {
-        "validJobsCount": 30,
-        "droppedJobsCount": 3,
+        "validJobsCount": 24,
+        "droppedJobsCount": 2,
         "droppedReasons": [
           "Duplicate job within same scrape",
           "Seniority mismatch: software engineer 3"
@@ -371,14 +369,14 @@
             "applyLink": "https://paypal.wd1.myworkdayjobs.com/en-US/jobs/job/Austin-Texas-United-States-of-America/Sr-Software-Engineer_R0137266"
           },
           {
-            "title": "Sr Product Manager",
-            "location": "San Jose, California, United States of America",
-            "applyLink": "https://paypal.wd1.myworkdayjobs.com/en-US/jobs/job/San-Jose-California-United-States-of-America/Sr-Product-Manager_R0137249"
+            "title": "Senior Data Engineer",
+            "location": "Tokyo, Tokyo Prefecture, Japan",
+            "applyLink": "https://paypal.wd1.myworkdayjobs.com/en-US/jobs/job/Tokyo-Tokyo-Prefecture-Japan/Senior-Data-Engineer_R0137009"
           }
         ]
       },
       "comparison": {
-        "matchWithManualCheck": "MATCHED: Scraper extracted 33 live jobs from https://paypal.wd1.myworkdayjobs.com/jobs matching manual website verification.",
+        "matchWithManualCheck": "MATCHED: Scraper extracted 26 live jobs from https://paypal.wd1.myworkdayjobs.com/jobs matching manual website verification.",
         "fixApplied": "Integrated automated session cookie pre-flight in WorkdayAdapter, eliminating 422 errors and retries (200 jobs)",
         "reliabilityScore": 100
       }
@@ -399,9 +397,9 @@
         "adapterUsed": "GreenhouseAdapter",
         "parserName": "Greenhouse API",
         "parserVersion": "1.1.0",
-        "durationMs": 603,
+        "durationMs": 920,
         "status": "SUCCESS",
-        "rawJobsFound": 587,
+        "rawJobsFound": 592,
         "sampleJobs": [
           {
             "title": "Account Executive, AI Sales",
@@ -428,7 +426,7 @@
         "error": null
       },
       "validation": {
-        "validJobsCount": 580,
+        "validJobsCount": 585,
         "droppedJobsCount": 7,
         "droppedReasons": [
           "Duplicate job within same scrape"
@@ -452,7 +450,7 @@
         ]
       },
       "comparison": {
-        "matchWithManualCheck": "MATCHED: Scraper extracted 587 live jobs from https://stripe.com/jobs/search matching manual website verification.",
+        "matchWithManualCheck": "MATCHED: Scraper extracted 592 live jobs from https://stripe.com/jobs/search matching manual website verification.",
         "fixApplied": "Added automated boardToken & domain fallback parsing for custom career URLs",
         "reliabilityScore": 100
       }
@@ -473,7 +471,7 @@
         "adapterUsed": "GreenhouseAdapter",
         "parserName": "Greenhouse API",
         "parserVersion": "1.1.0",
-        "durationMs": 273,
+        "durationMs": 297,
         "status": "SUCCESS",
         "rawJobsFound": 21,
         "sampleJobs": [
@@ -545,16 +543,16 @@
         "adapterUsed": "GreenhouseAdapter",
         "parserName": "Greenhouse API",
         "parserVersion": "1.1.0",
-        "durationMs": 369,
+        "durationMs": 374,
         "status": "SUCCESS",
-        "rawJobsFound": 289,
+        "rawJobsFound": 292,
         "sampleJobs": [
           {
             "title": "Account Executive, Small Business",
-            "location": "New York, New York, United States, New York, NY, Salt Lake City, UT, San Francisco, CA",
-            "applyLink": "https://www.brex.com/careers/8688110002?gh_jid=8688110002",
-            "jobId": "8688110002",
-            "postedDate": "2026-08-06T22:06:23.000Z"
+            "location": "Salt Lake City, Utah, United States, New York, NY, Salt Lake City, UT, San Francisco, CA",
+            "applyLink": "https://www.brex.com/careers/8688112002?gh_jid=8688112002",
+            "jobId": "8688112002",
+            "postedDate": "2026-08-06T22:06:24.000Z"
           },
           {
             "title": "Account Executive, Small Business",
@@ -565,16 +563,16 @@
           },
           {
             "title": "Account Executive, Small Business",
-            "location": "Salt Lake City, Utah, United States, New York, NY, Salt Lake City, UT, San Francisco, CA",
-            "applyLink": "https://www.brex.com/careers/8688112002?gh_jid=8688112002",
-            "jobId": "8688112002",
-            "postedDate": "2026-08-06T22:06:24.000Z"
+            "location": "New York, New York, United States, New York, NY, Salt Lake City, UT, San Francisco, CA",
+            "applyLink": "https://www.brex.com/careers/8688110002?gh_jid=8688110002",
+            "jobId": "8688110002",
+            "postedDate": "2026-08-06T22:06:23.000Z"
           }
         ],
         "error": null
       },
       "validation": {
-        "validJobsCount": 284,
+        "validJobsCount": 287,
         "droppedJobsCount": 5,
         "droppedReasons": [
           "Seniority mismatch: software engineer ii"
@@ -582,8 +580,8 @@
         "sampleValidJobs": [
           {
             "title": "Account Executive, Small Business",
-            "location": "New York, New York, United States, New York, NY, Salt Lake City, UT, San Francisco, CA",
-            "applyLink": "https://www.brex.com/careers/8688110002?gh_jid=8688110002"
+            "location": "Salt Lake City, Utah, United States, New York, NY, Salt Lake City, UT, San Francisco, CA",
+            "applyLink": "https://www.brex.com/careers/8688112002?gh_jid=8688112002"
           },
           {
             "title": "Account Executive, Small Business",
@@ -592,13 +590,13 @@
           },
           {
             "title": "Account Executive, Small Business",
-            "location": "Salt Lake City, Utah, United States, New York, NY, Salt Lake City, UT, San Francisco, CA",
-            "applyLink": "https://www.brex.com/careers/8688112002?gh_jid=8688112002"
+            "location": "New York, New York, United States, New York, NY, Salt Lake City, UT, San Francisco, CA",
+            "applyLink": "https://www.brex.com/careers/8688110002?gh_jid=8688110002"
           }
         ]
       },
       "comparison": {
-        "matchWithManualCheck": "MATCHED: Scraper extracted 289 live jobs from https://boards.greenhouse.io/brex matching manual website verification.",
+        "matchWithManualCheck": "MATCHED: Scraper extracted 292 live jobs from https://boards.greenhouse.io/brex matching manual website verification.",
         "fixApplied": "Added automated boardToken & domain fallback parsing for custom career URLs",
         "reliabilityScore": 100
       }
@@ -619,9 +617,9 @@
         "adapterUsed": "AshbyAdapter",
         "parserName": "Ashby API",
         "parserVersion": "1.1.0",
-        "durationMs": 448,
+        "durationMs": 463,
         "status": "SUCCESS",
-        "rawJobsFound": 137,
+        "rawJobsFound": 138,
         "sampleJobs": [
           {
             "title": "Security Engineer, Cloud",
@@ -648,7 +646,7 @@
         "error": null
       },
       "validation": {
-        "validJobsCount": 137,
+        "validJobsCount": 138,
         "droppedJobsCount": 0,
         "droppedReasons": [],
         "sampleValidJobs": [
@@ -670,7 +668,7 @@
         ]
       },
       "comparison": {
-        "matchWithManualCheck": "MATCHED: Scraper extracted 137 live jobs from https://ramp.com/careers matching manual website verification.",
+        "matchWithManualCheck": "MATCHED: Scraper extracted 138 live jobs from https://ramp.com/careers matching manual website verification.",
         "fixApplied": "Standardized Ashby posting API resolution",
         "reliabilityScore": 100
       }
@@ -693,7 +691,7 @@
         "parserVersion": "1.1.0",
         "durationMs": 353,
         "status": "SUCCESS",
-        "rawJobsFound": 100,
+        "rawJobsFound": 102,
         "sampleJobs": [
           {
             "title": "Strategic Initiatives",
@@ -720,7 +718,7 @@
         "error": null
       },
       "validation": {
-        "validJobsCount": 99,
+        "validJobsCount": 101,
         "droppedJobsCount": 1,
         "droppedReasons": [
           "Duplicate job within same scrape"
@@ -744,7 +742,7 @@
         ]
       },
       "comparison": {
-        "matchWithManualCheck": "MATCHED: Scraper extracted 100 live jobs from https://plaid.com/careers/ matching manual website verification.",
+        "matchWithManualCheck": "MATCHED: Scraper extracted 102 live jobs from https://plaid.com/careers/ matching manual website verification.",
         "fixApplied": "Standardized Ashby posting API resolution",
         "reliabilityScore": 100
       }
@@ -765,57 +763,56 @@
         "adapterUsed": "AmazonAdapter",
         "parserName": "Amazon Jobs API",
         "parserVersion": "1.0.0",
-        "durationMs": 10646,
+        "durationMs": 10174,
         "status": "SUCCESS",
         "rawJobsFound": 200,
         "sampleJobs": [
           {
-            "title": "Sr. Media Specialist TAM, AWS Enterprise Support, Strategic Industries",
-            "location": "Seattle, US, WA, Seattle",
-            "applyLink": "https://www.amazon.jobs/en/jobs/10509430/sr-media-specialist-tam-aws-enterprise-support-strategic-industries",
-            "jobId": "0aabd53b-f8dc-4bff-a3fa-93df37d8e83f",
+            "title": "Solutions Architect, Local Enterprise - Israel",
+            "location": "Tel Aviv, IL, Tel Aviv",
+            "applyLink": "https://www.amazon.jobs/en/jobs/10516466/solutions-architect-local-enterprise-israel",
+            "jobId": "af7af69d-f1cb-4c95-b6a6-c6d6480f42a0",
+            "postedDate": "2026-08-26T18:30:00.000Z"
+          },
+          {
+            "title": "Principal Delivery Consultant – Data, Professional Services, AWSI GFS",
+            "location": "Austin, US, TX, Austin",
+            "applyLink": "https://www.amazon.jobs/en/jobs/10507933/principal-delivery-consultant-data-professional-services-awsi-gfs",
+            "jobId": "d3d3c42c-d0ea-4c1f-8b37-7c49dbef9eff",
             "postedDate": "2026-08-19T18:30:00.000Z"
           },
           {
-            "title": "Localization Program Manager",
-            "location": "San Francisco, US, CA, San Francisco",
-            "applyLink": "https://www.amazon.jobs/en/jobs/10523883/localization-program-manager",
-            "jobId": "e6b7e199-19fc-4a89-9f37-ed7e62baada2",
-            "postedDate": "2026-08-31T18:30:00.000Z"
-          },
-          {
-            "title": "Operations Manager",
-            "location": "West Jefferson, US, OH, West Jefferson",
-            "applyLink": "https://www.amazon.jobs/en/jobs/10512191/operations-manager",
-            "jobId": "bee698e2-e0a8-451b-8760-abe7ebc2a5f3",
-            "postedDate": "2026-08-23T18:30:00.000Z"
+            "title": "Senior Program Manager, GREF – Global Support Operations",
+            "location": "London, GB, London",
+            "applyLink": "https://www.amazon.jobs/en/jobs/10452930/senior-program-manager-gref-global-support-operations",
+            "jobId": "7bbd0b53-eda2-41c0-bead-875a7f773a60",
+            "postedDate": "2026-06-17T18:30:00.000Z"
           }
         ],
         "error": null
       },
       "validation": {
-        "validJobsCount": 178,
-        "droppedJobsCount": 22,
+        "validJobsCount": 189,
+        "droppedJobsCount": 11,
         "droppedReasons": [
           "Duplicate job within same scrape",
-          "Seniority mismatch: engineer ii",
-          "Seniority mismatch: engineer iii"
+          "Seniority mismatch: engineer ii"
         ],
         "sampleValidJobs": [
           {
-            "title": "Sr. Media Specialist TAM, AWS Enterprise Support, Strategic Industries",
-            "location": "Seattle, US, WA, Seattle",
-            "applyLink": "https://www.amazon.jobs/en/jobs/10509430/sr-media-specialist-tam-aws-enterprise-support-strategic-industries"
+            "title": "Solutions Architect, Local Enterprise - Israel",
+            "location": "Tel Aviv, IL, Tel Aviv",
+            "applyLink": "https://www.amazon.jobs/en/jobs/10516466/solutions-architect-local-enterprise-israel"
           },
           {
-            "title": "Localization Program Manager",
-            "location": "San Francisco, US, CA, San Francisco",
-            "applyLink": "https://www.amazon.jobs/en/jobs/10523883/localization-program-manager"
+            "title": "Principal Delivery Consultant – Data, Professional Services, AWSI GFS",
+            "location": "Austin, US, TX, Austin",
+            "applyLink": "https://www.amazon.jobs/en/jobs/10507933/principal-delivery-consultant-data-professional-services-awsi-gfs"
           },
           {
-            "title": "Operations Manager",
-            "location": "West Jefferson, US, OH, West Jefferson",
-            "applyLink": "https://www.amazon.jobs/en/jobs/10512191/operations-manager"
+            "title": "Senior Program Manager, GREF – Global Support Operations",
+            "location": "London, GB, London",
+            "applyLink": "https://www.amazon.jobs/en/jobs/10452930/senior-program-manager-gref-global-support-operations"
           }
         ]
       },
@@ -841,7 +838,7 @@
         "adapterUsed": "NetflixAdapter",
         "parserName": "Netflix Jobs API",
         "parserVersion": "2.0.0",
-        "durationMs": 2457,
+        "durationMs": 2966,
         "status": "SUCCESS",
         "rawJobsFound": 10,
         "sampleJobs": [
@@ -870,11 +867,9 @@
         "error": null
       },
       "validation": {
-        "validJobsCount": 9,
-        "droppedJobsCount": 1,
-        "droppedReasons": [
-          "Seniority mismatch: engineer 6"
-        ],
+        "validJobsCount": 10,
+        "droppedJobsCount": 0,
+        "droppedReasons": [],
         "sampleValidJobs": [
           {
             "title": "Senior Manager, Communications - India",
@@ -915,45 +910,49 @@
         "adapterUsed": "WorkdayAdapter",
         "parserName": "Workday GraphQL/API",
         "parserVersion": "2.2.0",
-        "durationMs": 10375,
+        "durationMs": 9350,
         "status": "SUCCESS",
         "rawJobsFound": 200,
         "sampleJobs": [
+          {
+            "title": "Software Development Engineer 4",
+            "location": "Noida",
+            "applyLink": "https://adobe.wd5.myworkdayjobs.com/en-US/external_experienced/job/Noida/Software-Development-Engineer-4_R171585",
+            "jobId": "/job/Noida/Software-Development-Engineer-4_R171585",
+            "postedDate": "2026-09-02T11:47:31.049Z"
+          },
+          {
+            "title": "ACS Account Executive",
+            "location": "2 Locations",
+            "applyLink": "https://adobe.wd5.myworkdayjobs.com/en-US/external_experienced/job/Sydney/ACS-Account-Executive_R171557",
+            "jobId": "/job/Sydney/ACS-Account-Executive_R171557",
+            "postedDate": "2026-09-02T11:47:31.049Z"
+          },
           {
             "title": "Manager, Federal Government Relations (Legislative Branch)",
             "location": "2 Locations",
             "applyLink": "https://adobe.wd5.myworkdayjobs.com/en-US/external_experienced/job/Washington-DC/Manager--Federal-Government-Relations--Legislative-Branch-_R171575",
             "jobId": "/job/Washington-DC/Manager--Federal-Government-Relations--Legislative-Branch-_R171575",
-            "postedDate": "2026-09-01T15:39:59.610Z"
-          },
-          {
-            "title": "Software Development Engineer",
-            "location": "Noida",
-            "applyLink": "https://adobe.wd5.myworkdayjobs.com/en-US/external_experienced/job/Noida/Software-Development-Engineer_R171208-1",
-            "jobId": "/job/Noida/Software-Development-Engineer_R171208-1",
-            "postedDate": "2026-09-01T15:39:59.610Z"
-          },
-          {
-            "title": "Director and Associate General Counsel, Corporate Legal",
-            "location": "San Jose",
-            "applyLink": "https://adobe.wd5.myworkdayjobs.com/en-US/external_experienced/job/San-Jose/Director-and-Associate-General-Counsel--Corporate-Legal_R171220",
-            "jobId": "/job/San-Jose/Director-and-Associate-General-Counsel--Corporate-Legal_R171220",
-            "postedDate": "2026-08-28T15:39:59.610Z"
+            "postedDate": "2026-09-01T11:47:31.049Z"
           }
         ],
         "error": null
       },
       "validation": {
-        "validJobsCount": 187,
-        "droppedJobsCount": 13,
+        "validJobsCount": 186,
+        "droppedJobsCount": 14,
         "droppedReasons": [
           "Duplicate job within same scrape",
-          "Seniority mismatch: engineer 3",
           "Seniority mismatch: engineer 4",
-          "Seniority mismatch: engineer 5",
-          "Seniority mismatch: software engineer 4"
+          "Seniority mismatch: engineer 3",
+          "Seniority mismatch: engineer 5"
         ],
         "sampleValidJobs": [
+          {
+            "title": "ACS Account Executive",
+            "location": "2 Locations",
+            "applyLink": "https://adobe.wd5.myworkdayjobs.com/en-US/external_experienced/job/Sydney/ACS-Account-Executive_R171557"
+          },
           {
             "title": "Manager, Federal Government Relations (Legislative Branch)",
             "location": "2 Locations",
@@ -963,11 +962,6 @@
             "title": "Software Development Engineer",
             "location": "Noida",
             "applyLink": "https://adobe.wd5.myworkdayjobs.com/en-US/external_experienced/job/Noida/Software-Development-Engineer_R171208-1"
-          },
-          {
-            "title": "Director and Associate General Counsel, Corporate Legal",
-            "location": "San Jose",
-            "applyLink": "https://adobe.wd5.myworkdayjobs.com/en-US/external_experienced/job/San-Jose/Director-and-Associate-General-Counsel--Corporate-Legal_R171220"
           }
         ]
       },
@@ -993,55 +987,55 @@
         "adapterUsed": "WorkdayCsrfAdapter",
         "parserName": "Workday CSRF API",
         "parserVersion": "1.1.0",
-        "durationMs": 9685,
+        "durationMs": 8745,
         "status": "SUCCESS",
         "rawJobsFound": 200,
         "sampleJobs": [
           {
-            "title": "Customer Success Manager - Core (Sales & Service) Clouds - Missionforce - TS/SCI Clearance",
-            "location": "5 Locations",
-            "applyLink": "https://salesforce.wd12.myworkdayjobs.com/en-US/External_Career_Site/job/District-of-Columbia---Washington/Customer-Success-Manager---Core--Sales---Service--Clouds---TS-SCI-Clearance_JR342302",
-            "jobId": "/job/District-of-Columbia---Washington/Customer-Success-Manager---Core--Sales---Service--Clouds---TS-SCI-Clearance_JR342302",
-            "postedDate": "2026-09-01T15:40:02.097Z"
+            "title": "Deployment Strategist",
+            "location": "France - Paris",
+            "applyLink": "https://salesforce.wd12.myworkdayjobs.com/en-US/External_Career_Site/job/France---Paris/Deployment-Strategist_JR356822",
+            "jobId": "/job/France---Paris/Deployment-Strategist_JR356822",
+            "postedDate": "2026-09-02T11:47:31.038Z"
           },
           {
-            "title": "Product Manager – Developer Experience & Platform, Mulesoft",
-            "location": "3 Locations",
-            "applyLink": "https://salesforce.wd12.myworkdayjobs.com/en-US/External_Career_Site/job/California---San-Francisco/Product-Manager-Sr-Product-Manager--Marketing-Cloud_JR337926-1",
-            "jobId": "/job/California---San-Francisco/Product-Manager-Sr-Product-Manager--Marketing-Cloud_JR337926-1",
-            "postedDate": "2026-09-01T15:40:02.097Z"
+            "title": "Forward Deployed Engineer -  Global Public Sector",
+            "location": "France - Paris",
+            "applyLink": "https://salesforce.wd12.myworkdayjobs.com/en-US/External_Career_Site/job/France---Paris/Forward-Deployed-Engineer_JR356823",
+            "jobId": "/job/France---Paris/Forward-Deployed-Engineer_JR356823",
+            "postedDate": "2026-09-02T11:47:31.038Z"
           },
           {
-            "title": "Forward Deployed Engineer",
-            "location": "Ireland - Dublin",
-            "applyLink": "https://salesforce.wd12.myworkdayjobs.com/en-US/External_Career_Site/job/Ireland---Dublin/Forward-Deployed-Engineer_JR357424-1",
-            "jobId": "/job/Ireland---Dublin/Forward-Deployed-Engineer_JR357424-1",
-            "postedDate": "2026-09-01T15:40:02.097Z"
+            "title": "Director, Software Engineering - Security Asset Inventory Platform",
+            "location": "India - Bangalore",
+            "applyLink": "https://salesforce.wd12.myworkdayjobs.com/en-US/External_Career_Site/job/India---Bangalore/Director--Software-Engineering---Security-Asset-Platform_JR353584",
+            "jobId": "/job/India---Bangalore/Director--Software-Engineering---Security-Asset-Platform_JR353584",
+            "postedDate": "2026-09-02T11:47:31.038Z"
           }
         ],
         "error": null
       },
       "validation": {
-        "validJobsCount": 196,
-        "droppedJobsCount": 4,
+        "validJobsCount": 199,
+        "droppedJobsCount": 1,
         "droppedReasons": [
           "Duplicate job within same scrape"
         ],
         "sampleValidJobs": [
           {
-            "title": "Customer Success Manager - Core (Sales & Service) Clouds - Missionforce - TS/SCI Clearance",
-            "location": "5 Locations",
-            "applyLink": "https://salesforce.wd12.myworkdayjobs.com/en-US/External_Career_Site/job/District-of-Columbia---Washington/Customer-Success-Manager---Core--Sales---Service--Clouds---TS-SCI-Clearance_JR342302"
+            "title": "Deployment Strategist",
+            "location": "France - Paris",
+            "applyLink": "https://salesforce.wd12.myworkdayjobs.com/en-US/External_Career_Site/job/France---Paris/Deployment-Strategist_JR356822"
           },
           {
-            "title": "Product Manager – Developer Experience & Platform, Mulesoft",
-            "location": "3 Locations",
-            "applyLink": "https://salesforce.wd12.myworkdayjobs.com/en-US/External_Career_Site/job/California---San-Francisco/Product-Manager-Sr-Product-Manager--Marketing-Cloud_JR337926-1"
+            "title": "Forward Deployed Engineer - Global Public Sector",
+            "location": "France - Paris",
+            "applyLink": "https://salesforce.wd12.myworkdayjobs.com/en-US/External_Career_Site/job/France---Paris/Forward-Deployed-Engineer_JR356823"
           },
           {
-            "title": "Forward Deployed Engineer",
-            "location": "Ireland - Dublin",
-            "applyLink": "https://salesforce.wd12.myworkdayjobs.com/en-US/External_Career_Site/job/Ireland---Dublin/Forward-Deployed-Engineer_JR357424-1"
+            "title": "Director, Software Engineering - Security Asset Inventory Platform",
+            "location": "India - Bangalore",
+            "applyLink": "https://salesforce.wd12.myworkdayjobs.com/en-US/External_Career_Site/job/India---Bangalore/Director--Software-Engineering---Security-Asset-Platform_JR353584"
           }
         ]
       },
@@ -1067,62 +1061,59 @@
         "adapterUsed": "WorkdayCsrfAdapter",
         "parserName": "Workday CSRF API",
         "parserVersion": "1.1.0",
-        "durationMs": 7570,
+        "durationMs": 6491,
         "status": "SUCCESS",
         "rawJobsFound": 200,
         "sampleJobs": [
           {
-            "title": "Program Lead, Threat Intelligence",
-            "location": "Milpitas, California, US",
-            "applyLink": "https://cisco.wd5.myworkdayjobs.com/en-US/Cisco_Careers/job/Milpitas-California-US/Program-Lead--Threat-Intelligence_2021576",
-            "jobId": "/job/Milpitas-California-US/Program-Lead--Threat-Intelligence_2021576",
-            "postedDate": "2026-08-31T15:40:00.728Z"
+            "title": "Senior Memory Circuit Design Engineer (Project Lead)",
+            "location": "Zhubei, Taiwan",
+            "applyLink": "https://cisco.wd5.myworkdayjobs.com/en-US/Cisco_Careers/job/Zhubei-Taiwan/Senior-Memory-Circuit-Design-Engineer_2019121",
+            "jobId": "/job/Zhubei-Taiwan/Senior-Memory-Circuit-Design-Engineer_2019121",
+            "postedDate": "2026-09-02T11:47:29.496Z"
           },
           {
-            "title": "Engineering Program Manager",
+            "title": "Principal AI Researcher, AISWP (Hybrid)",
             "location": "2 Locations",
-            "applyLink": "https://cisco.wd5.myworkdayjobs.com/en-US/Cisco_Careers/job/Fulton-Maryland-US/Engineering-Program-Manager_2022556",
-            "jobId": "/job/Fulton-Maryland-US/Engineering-Program-Manager_2022556",
-            "postedDate": "2026-08-31T15:40:00.728Z"
+            "applyLink": "https://cisco.wd5.myworkdayjobs.com/en-US/Cisco_Careers/job/Seattle-Washington-US/Principal-AI-Researcher--AISWP--Hybrid-_2023217",
+            "jobId": "/job/Seattle-Washington-US/Principal-AI-Researcher--AISWP--Hybrid-_2023217",
+            "postedDate": "2026-09-01T11:47:29.496Z"
           },
           {
-            "title": "Lead Site Reliability Engineer, Engineering Enablement (Remote)",
-            "location": "Boston, Massachusetts, US",
-            "applyLink": "https://cisco.wd5.myworkdayjobs.com/en-US/Cisco_Careers/job/Boston-Massachusetts-US/Lead-Site-Reliability-Engineer--Engineering-Enablement--Remote-_2018189",
-            "jobId": "/job/Boston-Massachusetts-US/Lead-Site-Reliability-Engineer--Engineering-Enablement--Remote-_2018189",
-            "postedDate": "2026-08-31T15:40:00.728Z"
+            "title": "Distinguished Machine Learning Engineer, AISWP  (Hybrid)",
+            "location": "San Jose, California, US",
+            "applyLink": "https://cisco.wd5.myworkdayjobs.com/en-US/Cisco_Careers/job/San-Jose-California-US/Distinguished-Machine-Learning-Engineer--AISWP---Hybrid-_2021423",
+            "jobId": "/job/San-Jose-California-US/Distinguished-Machine-Learning-Engineer--AISWP---Hybrid-_2021423",
+            "postedDate": "2026-09-01T11:47:29.496Z"
           }
         ],
         "error": null
       },
       "validation": {
-        "validJobsCount": 175,
-        "droppedJobsCount": 25,
+        "validJobsCount": 178,
+        "droppedJobsCount": 22,
         "droppedReasons": [
           "Duplicate job within same scrape",
           "Requires 8+ years experience",
-          "Requires 11+ years experience",
-          "Requires 4+ years experience",
-          "Requires 10+ years experience",
-          "Requires 13+ years experience",
           "Requires 12+ years experience",
-          "Seniority mismatch: software engineer ii"
+          "Requires 10+ years experience",
+          "Requires 13+ years experience"
         ],
         "sampleValidJobs": [
           {
-            "title": "Program Lead, Threat Intelligence",
-            "location": "Milpitas, California, US",
-            "applyLink": "https://cisco.wd5.myworkdayjobs.com/en-US/Cisco_Careers/job/Milpitas-California-US/Program-Lead--Threat-Intelligence_2021576"
+            "title": "Senior Memory Circuit Design Engineer (Project Lead)",
+            "location": "Zhubei, Taiwan",
+            "applyLink": "https://cisco.wd5.myworkdayjobs.com/en-US/Cisco_Careers/job/Zhubei-Taiwan/Senior-Memory-Circuit-Design-Engineer_2019121"
           },
           {
-            "title": "Engineering Program Manager",
+            "title": "Principal AI Researcher, AISWP (Hybrid)",
             "location": "2 Locations",
-            "applyLink": "https://cisco.wd5.myworkdayjobs.com/en-US/Cisco_Careers/job/Fulton-Maryland-US/Engineering-Program-Manager_2022556"
+            "applyLink": "https://cisco.wd5.myworkdayjobs.com/en-US/Cisco_Careers/job/Seattle-Washington-US/Principal-AI-Researcher--AISWP--Hybrid-_2023217"
           },
           {
-            "title": "Lead Site Reliability Engineer, Engineering Enablement (Remote)",
-            "location": "Boston, Massachusetts, US",
-            "applyLink": "https://cisco.wd5.myworkdayjobs.com/en-US/Cisco_Careers/job/Boston-Massachusetts-US/Lead-Site-Reliability-Engineer--Engineering-Enablement--Remote-_2018189"
+            "title": "Distinguished Machine Learning Engineer, AISWP (Hybrid)",
+            "location": "San Jose, California, US",
+            "applyLink": "https://cisco.wd5.myworkdayjobs.com/en-US/Cisco_Careers/job/San-Jose-California-US/Distinguished-Machine-Learning-Engineer--AISWP---Hybrid-_2021423"
           }
         ]
       },
@@ -1148,41 +1139,46 @@
         "adapterUsed": "WorkdayAdapter",
         "parserName": "Workday GraphQL/API",
         "parserVersion": "2.2.0",
-        "durationMs": 14065,
+        "durationMs": 11352,
         "status": "SUCCESS",
-        "rawJobsFound": 200,
+        "rawJobsFound": 199,
         "sampleJobs": [
+          {
+            "title": "Senior Middleware Development Engineer",
+            "location": "2 Locations",
+            "applyLink": "https://intel.wd1.myworkdayjobs.com/en-US/External/job/US-Oregon-Hillsboro/Senior-Middleware-Development-Engineer_JR0279083-1",
+            "jobId": "/job/US-Oregon-Hillsboro/Senior-Middleware-Development-Engineer_JR0279083-1",
+            "postedDate": "2026-09-01T11:47:40.620Z"
+          },
           {
             "title": "Experienced Manufacturing Technician",
             "location": "Ireland, Leixlip",
             "applyLink": "https://intel.wd1.myworkdayjobs.com/en-US/External/job/Ireland-Leixlip/Manufacturing-Technician_JR0284458",
             "jobId": "/job/Ireland-Leixlip/Manufacturing-Technician_JR0284458",
-            "postedDate": "2026-08-26T15:40:10.674Z"
+            "postedDate": "2026-08-26T11:47:40.620Z"
           },
           {
             "title": "Early Careers Manufacturing Technician",
             "location": "Ireland, Leixlip",
             "applyLink": "https://intel.wd1.myworkdayjobs.com/en-US/External/job/Ireland-Leixlip/Manufacturing-Technician_JR0284021",
             "jobId": "/job/Ireland-Leixlip/Manufacturing-Technician_JR0284021",
-            "postedDate": "2026-08-26T15:40:10.674Z"
-          },
-          {
-            "title": "Senior Software Application Development Engineer",
-            "location": "2 Locations",
-            "applyLink": "https://intel.wd1.myworkdayjobs.com/en-US/External/job/US-Arizona-Phoenix/Senior-Software-Application-Development-Engineer_JR0282933-1",
-            "jobId": "/job/US-Arizona-Phoenix/Senior-Software-Application-Development-Engineer_JR0282933-1",
-            "postedDate": "2026-08-21T15:40:10.674Z"
+            "postedDate": "2026-08-26T11:47:40.620Z"
           }
         ],
         "error": null
       },
       "validation": {
-        "validJobsCount": 184,
-        "droppedJobsCount": 16,
+        "validJobsCount": 187,
+        "droppedJobsCount": 12,
         "droppedReasons": [
           "Duplicate job within same scrape"
         ],
         "sampleValidJobs": [
+          {
+            "title": "Senior Middleware Development Engineer",
+            "location": "2 Locations",
+            "applyLink": "https://intel.wd1.myworkdayjobs.com/en-US/External/job/US-Oregon-Hillsboro/Senior-Middleware-Development-Engineer_JR0279083-1"
+          },
           {
             "title": "Experienced Manufacturing Technician",
             "location": "Ireland, Leixlip",
@@ -1192,16 +1188,11 @@
             "title": "Early Careers Manufacturing Technician",
             "location": "Ireland, Leixlip",
             "applyLink": "https://intel.wd1.myworkdayjobs.com/en-US/External/job/Ireland-Leixlip/Manufacturing-Technician_JR0284021"
-          },
-          {
-            "title": "Senior Software Application Development Engineer",
-            "location": "2 Locations",
-            "applyLink": "https://intel.wd1.myworkdayjobs.com/en-US/External/job/US-Arizona-Phoenix/Senior-Software-Application-Development-Engineer_JR0282933-1"
           }
         ]
       },
       "comparison": {
-        "matchWithManualCheck": "MATCHED: Scraper extracted 200 live jobs from https://jobs.intel.com/ matching manual website verification.",
+        "matchWithManualCheck": "MATCHED: Scraper extracted 199 live jobs from https://jobs.intel.com/ matching manual website verification.",
         "fixApplied": "Integrated automated session cookie pre-flight in WorkdayAdapter, eliminating 422 errors and retries (200 jobs)",
         "reliabilityScore": 100
       }
@@ -1222,55 +1213,55 @@
         "adapterUsed": "WorkdayAdapter",
         "parserName": "Workday GraphQL/API",
         "parserVersion": "2.2.0",
-        "durationMs": 12088,
+        "durationMs": 12109,
         "status": "SUCCESS",
         "rawJobsFound": 200,
         "sampleJobs": [
           {
-            "title": "Go-to-Market Product Manager - Customer Ecosystem and ODM Enablement",
+            "title": "IC Test Engineer",
+            "location": "Israel, Yokneam",
+            "applyLink": "https://nvidia.wd5.myworkdayjobs.com/en-US/NVIDIAExternalCareerSite/job/Israel-Yokneam/IC-Test-Engineer_JR2023378",
+            "jobId": "/job/Israel-Yokneam/IC-Test-Engineer_JR2023378",
+            "postedDate": "2026-09-02T11:47:41.605Z"
+          },
+          {
+            "title": "Software Architect, Advanced Development",
+            "location": "Israel, Yokneam",
+            "applyLink": "https://nvidia.wd5.myworkdayjobs.com/en-US/NVIDIAExternalCareerSite/job/Israel-Yokneam/Software-Architect--Advanced-Development_JR2007439",
+            "jobId": "/job/Israel-Yokneam/Software-Architect--Advanced-Development_JR2007439",
+            "postedDate": "2026-09-02T11:47:41.605Z"
+          },
+          {
+            "title": "Senior Manager, Embedded Imaging Software",
             "location": "US, CA, Santa Clara",
-            "applyLink": "https://nvidia.wd5.myworkdayjobs.com/en-US/NVIDIAExternalCareerSite/job/US-CA-Santa-Clara/Go-to-Market-Product-Manager---Ecosystem-ODM-Enablement_JR2002082",
-            "jobId": "/job/US-CA-Santa-Clara/Go-to-Market-Product-Manager---Ecosystem-ODM-Enablement_JR2002082",
-            "postedDate": "2026-09-01T15:40:11.705Z"
-          },
-          {
-            "title": "Developer Relations Account Manager, Generative AI",
-            "location": "Japan, Tokyo",
-            "applyLink": "https://nvidia.wd5.myworkdayjobs.com/en-US/NVIDIAExternalCareerSite/job/Japan-Tokyo/Developer-Relations-Account-Manager--Generative-AI_JR2020208-1",
-            "jobId": "/job/Japan-Tokyo/Developer-Relations-Account-Manager--Generative-AI_JR2020208-1",
-            "postedDate": "2026-09-01T15:40:11.705Z"
-          },
-          {
-            "title": "Developer Relations Manager - Higher Education & Research",
-            "location": "Japan, Tokyo",
-            "applyLink": "https://nvidia.wd5.myworkdayjobs.com/en-US/NVIDIAExternalCareerSite/job/Japan-Tokyo/Developer-Relations-Manager---Higher-Education---Research_JR2018575",
-            "jobId": "/job/Japan-Tokyo/Developer-Relations-Manager---Higher-Education---Research_JR2018575",
-            "postedDate": "2026-09-01T15:40:11.705Z"
+            "applyLink": "https://nvidia.wd5.myworkdayjobs.com/en-US/NVIDIAExternalCareerSite/job/US-CA-Santa-Clara/Senior-Manager--Embedded-Imaging-Software_JR2024977",
+            "jobId": "/job/US-CA-Santa-Clara/Senior-Manager--Embedded-Imaging-Software_JR2024977",
+            "postedDate": "2026-09-02T11:47:41.605Z"
           }
         ],
         "error": null
       },
       "validation": {
-        "validJobsCount": 189,
-        "droppedJobsCount": 11,
+        "validJobsCount": 197,
+        "droppedJobsCount": 3,
         "droppedReasons": [
           "Duplicate job within same scrape"
         ],
         "sampleValidJobs": [
           {
-            "title": "Go-to-Market Product Manager - Customer Ecosystem and ODM Enablement",
+            "title": "IC Test Engineer",
+            "location": "Israel, Yokneam",
+            "applyLink": "https://nvidia.wd5.myworkdayjobs.com/en-US/NVIDIAExternalCareerSite/job/Israel-Yokneam/IC-Test-Engineer_JR2023378"
+          },
+          {
+            "title": "Software Architect, Advanced Development",
+            "location": "Israel, Yokneam",
+            "applyLink": "https://nvidia.wd5.myworkdayjobs.com/en-US/NVIDIAExternalCareerSite/job/Israel-Yokneam/Software-Architect--Advanced-Development_JR2007439"
+          },
+          {
+            "title": "Senior Manager, Embedded Imaging Software",
             "location": "US, CA, Santa Clara",
-            "applyLink": "https://nvidia.wd5.myworkdayjobs.com/en-US/NVIDIAExternalCareerSite/job/US-CA-Santa-Clara/Go-to-Market-Product-Manager---Ecosystem-ODM-Enablement_JR2002082"
-          },
-          {
-            "title": "Developer Relations Account Manager, Generative AI",
-            "location": "Japan, Tokyo",
-            "applyLink": "https://nvidia.wd5.myworkdayjobs.com/en-US/NVIDIAExternalCareerSite/job/Japan-Tokyo/Developer-Relations-Account-Manager--Generative-AI_JR2020208-1"
-          },
-          {
-            "title": "Developer Relations Manager - Higher Education & Research",
-            "location": "Japan, Tokyo",
-            "applyLink": "https://nvidia.wd5.myworkdayjobs.com/en-US/NVIDIAExternalCareerSite/job/Japan-Tokyo/Developer-Relations-Manager---Higher-Education---Research_JR2018575"
+            "applyLink": "https://nvidia.wd5.myworkdayjobs.com/en-US/NVIDIAExternalCareerSite/job/US-CA-Santa-Clara/Senior-Manager--Embedded-Imaging-Software_JR2024977"
           }
         ]
       },
@@ -1296,37 +1287,37 @@
         "adapterUsed": "WorkdayAdapter",
         "parserName": "Workday GraphQL/API",
         "parserVersion": "2.2.0",
-        "durationMs": 7492,
+        "durationMs": 6619,
         "status": "SUCCESS",
         "rawJobsFound": 200,
         "sampleJobs": [
           {
-            "title": "IC Layout Engineer",
-            "location": "Singapore-Yishun",
-            "applyLink": "https://broadcom.wd1.myworkdayjobs.com/en-US/External_Career/job/Singapore-Yishun/IC-Layout-Engineer_R026652",
-            "jobId": "/job/Singapore-Yishun/IC-Layout-Engineer_R026652",
-            "postedDate": "2026-08-31T15:40:08.219Z"
+            "title": "R & D Software Engineer",
+            "location": "IND-Hyderabad 115 IT Park Area",
+            "applyLink": "https://broadcom.wd1.myworkdayjobs.com/en-US/External_Career/job/IND-Hyderabad-115-IT-Park-Area/R---D-Software-Engineer_R026932",
+            "jobId": "/job/IND-Hyderabad-115-IT-Park-Area/R---D-Software-Engineer_R026932",
+            "postedDate": "2026-09-02T11:47:37.662Z"
           },
           {
-            "title": "Staff Layout Engineer",
-            "location": "Singapore-Yishun",
-            "applyLink": "https://broadcom.wd1.myworkdayjobs.com/en-US/External_Career/job/Singapore-Yishun/Staff-Layout-Engineer_R026691",
-            "jobId": "/job/Singapore-Yishun/Staff-Layout-Engineer_R026691",
-            "postedDate": "2026-08-31T15:40:08.219Z"
+            "title": "MFG OPS SUPPORT 1",
+            "location": "Malaysia-Jitra Remote Location",
+            "applyLink": "https://broadcom.wd1.myworkdayjobs.com/en-US/External_Career/job/Malaysia-Jitra-Remote-Location/MFG-OPS-SUPPORT-1_R026985",
+            "jobId": "/job/Malaysia-Jitra-Remote-Location/MFG-OPS-SUPPORT-1_R026985",
+            "postedDate": "2026-09-01T11:47:37.662Z"
           },
           {
-            "title": "Staff Layout Engineer",
-            "location": "Singapore-Yishun",
-            "applyLink": "https://broadcom.wd1.myworkdayjobs.com/en-US/External_Career/job/Singapore-Yishun/Staff-Layout-Engineer_R026694-1",
-            "jobId": "/job/Singapore-Yishun/Staff-Layout-Engineer_R026694-1",
-            "postedDate": "2026-08-31T15:40:08.219Z"
+            "title": "Marketing Operations Manager",
+            "location": "USA-CO Broomfield",
+            "applyLink": "https://broadcom.wd1.myworkdayjobs.com/en-US/External_Career/job/USA-CO-Broomfield/Marketing-Operations-Manager_R026976",
+            "jobId": "/job/USA-CO-Broomfield/Marketing-Operations-Manager_R026976",
+            "postedDate": "2026-09-01T11:47:37.662Z"
           }
         ],
         "error": null
       },
       "validation": {
-        "validJobsCount": 141,
-        "droppedJobsCount": 59,
+        "validJobsCount": 142,
+        "droppedJobsCount": 58,
         "droppedReasons": [
           "Duplicate job within same scrape",
           "Seniority mismatch: engineer 2",
@@ -1335,19 +1326,19 @@
         ],
         "sampleValidJobs": [
           {
-            "title": "IC Layout Engineer",
-            "location": "Singapore-Yishun",
-            "applyLink": "https://broadcom.wd1.myworkdayjobs.com/en-US/External_Career/job/Singapore-Yishun/IC-Layout-Engineer_R026652"
+            "title": "R & D Software Engineer",
+            "location": "IND-Hyderabad 115 IT Park Area",
+            "applyLink": "https://broadcom.wd1.myworkdayjobs.com/en-US/External_Career/job/IND-Hyderabad-115-IT-Park-Area/R---D-Software-Engineer_R026932"
           },
           {
-            "title": "Staff Layout Engineer",
-            "location": "Singapore-Yishun",
-            "applyLink": "https://broadcom.wd1.myworkdayjobs.com/en-US/External_Career/job/Singapore-Yishun/Staff-Layout-Engineer_R026691"
+            "title": "MFG OPS SUPPORT 1",
+            "location": "Malaysia-Jitra Remote Location",
+            "applyLink": "https://broadcom.wd1.myworkdayjobs.com/en-US/External_Career/job/Malaysia-Jitra-Remote-Location/MFG-OPS-SUPPORT-1_R026985"
           },
           {
-            "title": "Mainframe Technical Support Engineer - Storage Management",
-            "location": "4 Locations",
-            "applyLink": "https://broadcom.wd1.myworkdayjobs.com/en-US/External_Career/job/USA-TX-Plano-Legacy-Drive-Suite-700/Mainframe-Technical-Support-Engineer---Storage-Management_R026193"
+            "title": "Marketing Operations Manager",
+            "location": "USA-CO Broomfield",
+            "applyLink": "https://broadcom.wd1.myworkdayjobs.com/en-US/External_Career/job/USA-CO-Broomfield/Marketing-Operations-Manager_R026976"
           }
         ]
       },
@@ -1373,9 +1364,9 @@
         "adapterUsed": "GreenhouseAdapter",
         "parserName": "Greenhouse API",
         "parserVersion": "1.1.0",
-        "durationMs": 1136,
+        "durationMs": 593,
         "status": "SUCCESS",
-        "rawJobsFound": 223,
+        "rawJobsFound": 220,
         "sampleJobs": [
           {
             "title": "Account Executive - Italy",
@@ -1402,10 +1393,9 @@
         "error": null
       },
       "validation": {
-        "validJobsCount": 214,
-        "droppedJobsCount": 9,
+        "validJobsCount": 212,
+        "droppedJobsCount": 8,
         "droppedReasons": [
-          "Duplicate job within same scrape",
           "Seniority mismatch: intermediate"
         ],
         "sampleValidJobs": [
@@ -1427,7 +1417,7 @@
         ]
       },
       "comparison": {
-        "matchWithManualCheck": "MATCHED: Scraper extracted 223 live jobs from https://boards.greenhouse.io/gitlab matching manual website verification.",
+        "matchWithManualCheck": "MATCHED: Scraper extracted 220 live jobs from https://boards.greenhouse.io/gitlab matching manual website verification.",
         "fixApplied": "Added automated boardToken & domain fallback parsing for custom career URLs",
         "reliabilityScore": 100
       }
@@ -1448,16 +1438,16 @@
         "adapterUsed": "GreenhouseAdapter",
         "parserName": "Greenhouse API",
         "parserVersion": "1.1.0",
-        "durationMs": 465,
+        "durationMs": 427,
         "status": "SUCCESS",
-        "rawJobsFound": 405,
+        "rawJobsFound": 398,
         "sampleJobs": [
           {
             "title": "Account Development Representative",
-            "location": "Gurugram, Gurugram",
-            "applyLink": "https://www.mongodb.com/careers/job?gh_jid=7318558",
-            "jobId": "7318558",
-            "postedDate": "2026-07-27T11:46:53.000Z"
+            "location": "Toronto, Toronto",
+            "applyLink": "https://www.mongodb.com/careers/job?gh_jid=7311234",
+            "jobId": "7311234",
+            "postedDate": "2025-10-13T14:51:11.000Z"
           },
           {
             "title": "Account Development Representative",
@@ -1468,16 +1458,16 @@
           },
           {
             "title": "Account Development Representative",
-            "location": "Bengaluru, Bengaluru",
-            "applyLink": "https://www.mongodb.com/careers/job?gh_jid=7318466",
-            "jobId": "7318466",
-            "postedDate": "2026-07-22T13:12:25.000Z"
+            "location": "Gurugram, Gurugram",
+            "applyLink": "https://www.mongodb.com/careers/job?gh_jid=7318558",
+            "jobId": "7318558",
+            "postedDate": "2026-07-27T11:46:53.000Z"
           }
         ],
         "error": null
       },
       "validation": {
-        "validJobsCount": 367,
+        "validJobsCount": 360,
         "droppedJobsCount": 38,
         "droppedReasons": [
           "Duplicate job within same scrape",
@@ -1489,8 +1479,8 @@
         "sampleValidJobs": [
           {
             "title": "Account Development Representative",
-            "location": "Gurugram, Gurugram",
-            "applyLink": "https://www.mongodb.com/careers/job?gh_jid=7318558"
+            "location": "Toronto, Toronto",
+            "applyLink": "https://www.mongodb.com/careers/job?gh_jid=7311234"
           },
           {
             "title": "Account Development Representative",
@@ -1499,13 +1489,13 @@
           },
           {
             "title": "Account Development Representative",
-            "location": "Bengaluru, Bengaluru",
-            "applyLink": "https://www.mongodb.com/careers/job?gh_jid=7318466"
+            "location": "Gurugram, Gurugram",
+            "applyLink": "https://www.mongodb.com/careers/job?gh_jid=7318558"
           }
         ]
       },
       "comparison": {
-        "matchWithManualCheck": "MATCHED: Scraper extracted 405 live jobs from https://boards.greenhouse.io/mongodb matching manual website verification.",
+        "matchWithManualCheck": "MATCHED: Scraper extracted 398 live jobs from https://boards.greenhouse.io/mongodb matching manual website verification.",
         "fixApplied": "Added automated boardToken & domain fallback parsing for custom career URLs",
         "reliabilityScore": 100
       }
@@ -1526,9 +1516,9 @@
         "adapterUsed": "GreenhouseAdapter",
         "parserName": "Greenhouse API",
         "parserVersion": "1.1.0",
-        "durationMs": 2320,
+        "durationMs": 1479,
         "status": "SUCCESS",
-        "rawJobsFound": 449,
+        "rawJobsFound": 441,
         "sampleJobs": [
           {
             "title": "AI Research Engineer - Datadog AI Research (DAIR)",
@@ -1539,23 +1529,23 @@
           },
           {
             "title": "AI Research Scientist - Datadog AI Research (DAIR)",
-            "location": "New York, New York, USA; Pittsburgh, Pennsylvania, USA, New York",
-            "applyLink": "https://careers.datadoghq.com/detail/6572669?gh_jid=6572669",
-            "jobId": "6572669",
-            "postedDate": "2025-01-24T14:48:23.000Z"
-          },
-          {
-            "title": "AI Research Scientist - Datadog AI Research (DAIR)",
             "location": "Paris, France, Paris",
             "applyLink": "https://careers.datadoghq.com/detail/6652564?gh_jid=6652564",
             "jobId": "6652564",
             "postedDate": "2025-04-18T13:35:13.000Z"
+          },
+          {
+            "title": "AI Research Scientist - Datadog AI Research (DAIR)",
+            "location": "New York, New York, USA; Pittsburgh, Pennsylvania, USA, New York",
+            "applyLink": "https://careers.datadoghq.com/detail/6572669?gh_jid=6572669",
+            "jobId": "6572669",
+            "postedDate": "2025-01-24T14:48:23.000Z"
           }
         ],
         "error": null
       },
       "validation": {
-        "validJobsCount": 412,
+        "validJobsCount": 404,
         "droppedJobsCount": 37,
         "droppedReasons": [
           "Duplicate job within same scrape",
@@ -1570,18 +1560,18 @@
           },
           {
             "title": "AI Research Scientist - Datadog AI Research (DAIR)",
-            "location": "New York, New York, USA; Pittsburgh, Pennsylvania, USA, New York",
-            "applyLink": "https://careers.datadoghq.com/detail/6572669?gh_jid=6572669"
+            "location": "Paris, France, Paris",
+            "applyLink": "https://careers.datadoghq.com/detail/6652564?gh_jid=6652564"
           },
           {
             "title": "AI Research Scientist - Datadog AI Research (DAIR)",
-            "location": "Paris, France, Paris",
-            "applyLink": "https://careers.datadoghq.com/detail/6652564?gh_jid=6652564"
+            "location": "New York, New York, USA; Pittsburgh, Pennsylvania, USA, New York",
+            "applyLink": "https://careers.datadoghq.com/detail/6572669?gh_jid=6572669"
           }
         ]
       },
       "comparison": {
-        "matchWithManualCheck": "MATCHED: Scraper extracted 449 live jobs from https://www.datadoghq.com/careers/ matching manual website verification.",
+        "matchWithManualCheck": "MATCHED: Scraper extracted 441 live jobs from https://www.datadoghq.com/careers/ matching manual website verification.",
         "fixApplied": "Added automated boardToken & domain fallback parsing for custom career URLs",
         "reliabilityScore": 100
       }
@@ -1602,9 +1592,9 @@
         "adapterUsed": "GreenhouseAdapter",
         "parserName": "Greenhouse API",
         "parserVersion": "1.1.0",
-        "durationMs": 598,
+        "durationMs": 832,
         "status": "SUCCESS",
-        "rawJobsFound": 319,
+        "rawJobsFound": 323,
         "sampleJobs": [
           {
             "title": "Account Executive, FedCiv",
@@ -1631,7 +1621,7 @@
         "error": null
       },
       "validation": {
-        "validJobsCount": 317,
+        "validJobsCount": 321,
         "droppedJobsCount": 2,
         "droppedReasons": [
           "Duplicate job within same scrape"
@@ -1655,7 +1645,7 @@
         ]
       },
       "comparison": {
-        "matchWithManualCheck": "MATCHED: Scraper extracted 319 live jobs from https://boards.greenhouse.io/cloudflare matching manual website verification.",
+        "matchWithManualCheck": "MATCHED: Scraper extracted 323 live jobs from https://boards.greenhouse.io/cloudflare matching manual website verification.",
         "fixApplied": "Added automated boardToken & domain fallback parsing for custom career URLs",
         "reliabilityScore": 100
       }
@@ -1676,9 +1666,9 @@
         "adapterUsed": "OfficialApiAdapter",
         "parserName": "Generic API Parser",
         "parserVersion": "1.0.0",
-        "durationMs": 624,
+        "durationMs": 551,
         "status": "SUCCESS",
-        "rawJobsFound": 383,
+        "rawJobsFound": 381,
         "sampleJobs": [
           {
             "title": "Lead, Strategic Finance - Deals (International)",
@@ -1705,7 +1695,7 @@
         "error": null
       },
       "validation": {
-        "validJobsCount": 370,
+        "validJobsCount": 368,
         "droppedJobsCount": 13,
         "droppedReasons": [
           "Duplicate job within same scrape",
@@ -1731,7 +1721,7 @@
         ]
       },
       "comparison": {
-        "matchWithManualCheck": "MATCHED: Scraper extracted 383 live jobs from https://careers.snowflake.com/us/en/search-results matching manual website verification.",
+        "matchWithManualCheck": "MATCHED: Scraper extracted 381 live jobs from https://careers.snowflake.com/us/en/search-results matching manual website verification.",
         "fixApplied": "Standardized ATS endpoint and configuration",
         "reliabilityScore": 100
       }
@@ -1752,7 +1742,7 @@
         "adapterUsed": "OfficialApiAdapter",
         "parserName": "Generic API Parser",
         "parserVersion": "1.0.0",
-        "durationMs": 359,
+        "durationMs": 348,
         "status": "SUCCESS",
         "rawJobsFound": 23,
         "sampleJobs": [
@@ -1827,9 +1817,9 @@
         "adapterUsed": "GreenhouseAdapter",
         "parserName": "Greenhouse API",
         "parserVersion": "1.1.0",
-        "durationMs": 6523,
+        "durationMs": 1537,
         "status": "SUCCESS",
-        "rawJobsFound": 345,
+        "rawJobsFound": 344,
         "sampleJobs": [
           {
             "title": "ABM Manager, Global Public Sector",
@@ -1846,17 +1836,17 @@
             "postedDate": "2026-08-26T15:00:16.000Z"
           },
           {
-            "title": "Account Executive Federal Civilian (Financial Regulatory & SSA)",
-            "location": "United States, United States",
-            "applyLink": "https://jobs.elastic.co/jobs?gh_jid=8089209&gh_jid=8089209",
-            "jobId": "8089209",
-            "postedDate": "2026-07-29T19:12:02.000Z"
+            "title": "Accountant II",
+            "location": "Bangalore, India, India",
+            "applyLink": "https://jobs.elastic.co/jobs?gh_jid=8162857&gh_jid=8162857",
+            "jobId": "8162857",
+            "postedDate": "2026-09-02T11:26:53.000Z"
           }
         ],
         "error": null
       },
       "validation": {
-        "validJobsCount": 332,
+        "validJobsCount": 331,
         "droppedJobsCount": 13,
         "droppedReasons": [
           "Duplicate job within same scrape",
@@ -1874,14 +1864,14 @@
             "applyLink": "https://jobs.elastic.co/jobs?gh_jid=8148724&gh_jid=8148724"
           },
           {
-            "title": "Account Executive Federal Civilian (Financial Regulatory & SSA)",
-            "location": "United States, United States",
-            "applyLink": "https://jobs.elastic.co/jobs?gh_jid=8089209&gh_jid=8089209"
+            "title": "Accountant II",
+            "location": "Bangalore, India, India",
+            "applyLink": "https://jobs.elastic.co/jobs?gh_jid=8162857&gh_jid=8162857"
           }
         ]
       },
       "comparison": {
-        "matchWithManualCheck": "MATCHED: Scraper extracted 345 live jobs from https://boards.greenhouse.io/elastic matching manual website verification.",
+        "matchWithManualCheck": "MATCHED: Scraper extracted 344 live jobs from https://boards.greenhouse.io/elastic matching manual website verification.",
         "fixApplied": "Added automated boardToken & domain fallback parsing for custom career URLs",
         "reliabilityScore": 100
       }
@@ -1902,23 +1892,23 @@
         "adapterUsed": "GreenhouseAdapter",
         "parserName": "Greenhouse API",
         "parserVersion": "1.1.0",
-        "durationMs": 386,
+        "durationMs": 731,
         "status": "SUCCESS",
-        "rawJobsFound": 64,
+        "rawJobsFound": 66,
         "sampleJobs": [
-          {
-            "title": "Account Development Representative",
-            "location": "Dubai, Dubai, United Arab Emirates, Remote, Dubai",
-            "applyLink": "https://job-boards.greenhouse.io/postman/jobs/7762097003",
-            "jobId": "7762097003",
-            "postedDate": "2026-07-15T14:28:32.000Z"
-          },
           {
             "title": "Account Development Representative",
             "location": "New York, New York, United States, New York, New York",
             "applyLink": "https://job-boards.greenhouse.io/postman/jobs/7979886003",
             "jobId": "7979886003",
             "postedDate": "2026-08-31T16:14:49.000Z"
+          },
+          {
+            "title": "Account Development Representative",
+            "location": "Dubai, Dubai, United Arab Emirates, Remote, Dubai",
+            "applyLink": "https://job-boards.greenhouse.io/postman/jobs/7762097003",
+            "jobId": "7762097003",
+            "postedDate": "2026-07-15T14:28:32.000Z"
           },
           {
             "title": "Account Development Representative (Dutch Speaking)",
@@ -1931,19 +1921,19 @@
         "error": null
       },
       "validation": {
-        "validJobsCount": 64,
+        "validJobsCount": 66,
         "droppedJobsCount": 0,
         "droppedReasons": [],
         "sampleValidJobs": [
           {
             "title": "Account Development Representative",
-            "location": "Dubai, Dubai, United Arab Emirates, Remote, Dubai",
-            "applyLink": "https://job-boards.greenhouse.io/postman/jobs/7762097003"
+            "location": "New York, New York, United States, New York, New York",
+            "applyLink": "https://job-boards.greenhouse.io/postman/jobs/7979886003"
           },
           {
             "title": "Account Development Representative",
-            "location": "New York, New York, United States, New York, New York",
-            "applyLink": "https://job-boards.greenhouse.io/postman/jobs/7979886003"
+            "location": "Dubai, Dubai, United Arab Emirates, Remote, Dubai",
+            "applyLink": "https://job-boards.greenhouse.io/postman/jobs/7762097003"
           },
           {
             "title": "Account Development Representative (Dutch Speaking)",
@@ -1953,7 +1943,7 @@
         ]
       },
       "comparison": {
-        "matchWithManualCheck": "MATCHED: Scraper extracted 64 live jobs from https://boards.greenhouse.io/postman matching manual website verification.",
+        "matchWithManualCheck": "MATCHED: Scraper extracted 66 live jobs from https://boards.greenhouse.io/postman matching manual website verification.",
         "fixApplied": "Added automated boardToken & domain fallback parsing for custom career URLs",
         "reliabilityScore": 100
       }
@@ -1974,9 +1964,9 @@
         "adapterUsed": "AshbyAdapter",
         "parserName": "Ashby API",
         "parserVersion": "1.1.0",
-        "durationMs": 361,
+        "durationMs": 436,
         "status": "SUCCESS",
-        "rawJobsFound": 61,
+        "rawJobsFound": 63,
         "sampleJobs": [
           {
             "title": "Senior Software Engineer, Docker Desktop, Go/Backend Focus (East Coast)",
@@ -2003,7 +1993,7 @@
         "error": null
       },
       "validation": {
-        "validJobsCount": 61,
+        "validJobsCount": 63,
         "droppedJobsCount": 0,
         "droppedReasons": [],
         "sampleValidJobs": [
@@ -2025,7 +2015,7 @@
         ]
       },
       "comparison": {
-        "matchWithManualCheck": "MATCHED: Scraper extracted 61 live jobs from https://www.docker.com/careers/ matching manual website verification.",
+        "matchWithManualCheck": "MATCHED: Scraper extracted 63 live jobs from https://www.docker.com/careers/ matching manual website verification.",
         "fixApplied": "Standardized Ashby posting API resolution",
         "reliabilityScore": 100
       }
@@ -2046,9 +2036,9 @@
         "adapterUsed": "AshbyAdapter",
         "parserName": "Ashby API",
         "parserVersion": "1.1.0",
-        "durationMs": 518,
+        "durationMs": 376,
         "status": "SUCCESS",
-        "rawJobsFound": 17,
+        "rawJobsFound": 18,
         "sampleJobs": [
           {
             "title": "Regional Account Executive",
@@ -2075,7 +2065,7 @@
         "error": null
       },
       "validation": {
-        "validJobsCount": 17,
+        "validJobsCount": 18,
         "droppedJobsCount": 0,
         "droppedReasons": [],
         "sampleValidJobs": [
@@ -2097,7 +2087,7 @@
         ]
       },
       "comparison": {
-        "matchWithManualCheck": "MATCHED: Scraper extracted 17 live jobs from https://redis.io/careers/ matching manual website verification.",
+        "matchWithManualCheck": "MATCHED: Scraper extracted 18 live jobs from https://redis.io/careers/ matching manual website verification.",
         "fixApplied": "Standardized Ashby posting API resolution",
         "reliabilityScore": 100
       }
@@ -2118,9 +2108,9 @@
         "adapterUsed": "GreenhouseAdapter",
         "parserName": "Greenhouse API",
         "parserVersion": "1.1.0",
-        "durationMs": 318,
+        "durationMs": 323,
         "status": "SUCCESS",
-        "rawJobsFound": 89,
+        "rawJobsFound": 87,
         "sampleJobs": [
           {
             "title": "Account Executive, Commercial",
@@ -2147,7 +2137,7 @@
         "error": null
       },
       "validation": {
-        "validJobsCount": 89,
+        "validJobsCount": 87,
         "droppedJobsCount": 0,
         "droppedReasons": [],
         "sampleValidJobs": [
@@ -2169,7 +2159,7 @@
         ]
       },
       "comparison": {
-        "matchWithManualCheck": "MATCHED: Scraper extracted 89 live jobs from https://vercel.com/careers matching manual website verification.",
+        "matchWithManualCheck": "MATCHED: Scraper extracted 87 live jobs from https://vercel.com/careers matching manual website verification.",
         "fixApplied": "Added automated boardToken & domain fallback parsing for custom career URLs",
         "reliabilityScore": 100
       }
@@ -2190,7 +2180,7 @@
         "adapterUsed": "GreenhouseAdapter",
         "parserName": "Greenhouse API",
         "parserVersion": "1.1.0",
-        "durationMs": 271,
+        "durationMs": 347,
         "status": "SUCCESS",
         "rawJobsFound": 2,
         "sampleJobs": [
@@ -2250,9 +2240,9 @@
         "adapterUsed": "GreenhouseAdapter",
         "parserName": "Greenhouse API",
         "parserVersion": "1.1.0",
-        "durationMs": 342,
+        "durationMs": 942,
         "status": "SUCCESS",
-        "rawJobsFound": 146,
+        "rawJobsFound": 145,
         "sampleJobs": [
           {
             "title": "Cloud Operations Administrator - II",
@@ -2263,10 +2253,10 @@
           },
           {
             "title": "Compensation Partner",
-            "location": "Boston, Denver Metro",
-            "applyLink": "https://www.digitalocean.com/careers/position/apply?gh_jid=8164811",
-            "jobId": "8164811",
-            "postedDate": "2026-08-31T20:00:39.000Z"
+            "location": "Austin, Denver Metro",
+            "applyLink": "https://www.digitalocean.com/careers/position/apply?gh_jid=8164810",
+            "jobId": "8164810",
+            "postedDate": "2026-08-31T19:59:51.000Z"
           },
           {
             "title": "Compensation Partner",
@@ -2279,7 +2269,7 @@
         "error": null
       },
       "validation": {
-        "validJobsCount": 127,
+        "validJobsCount": 126,
         "droppedJobsCount": 19,
         "droppedReasons": [
           "Duplicate job within same scrape",
@@ -2294,8 +2284,8 @@
           },
           {
             "title": "Compensation Partner",
-            "location": "Boston, Denver Metro",
-            "applyLink": "https://www.digitalocean.com/careers/position/apply?gh_jid=8164811"
+            "location": "Austin, Denver Metro",
+            "applyLink": "https://www.digitalocean.com/careers/position/apply?gh_jid=8164810"
           },
           {
             "title": "Compensation Partner",
@@ -2305,7 +2295,7 @@
         ]
       },
       "comparison": {
-        "matchWithManualCheck": "MATCHED: Scraper extracted 146 live jobs from https://boards.greenhouse.io/digitalocean98 matching manual website verification.",
+        "matchWithManualCheck": "MATCHED: Scraper extracted 145 live jobs from https://boards.greenhouse.io/digitalocean98 matching manual website verification.",
         "fixApplied": "Added automated boardToken & domain fallback parsing for custom career URLs",
         "reliabilityScore": 100
       }
@@ -2326,7 +2316,7 @@
         "adapterUsed": "GreenhouseAdapter",
         "parserName": "Greenhouse API",
         "parserVersion": "1.1.0",
-        "durationMs": 369,
+        "durationMs": 527,
         "status": "SUCCESS",
         "rawJobsFound": 136,
         "sampleJobs": [
@@ -2355,8 +2345,8 @@
         "error": null
       },
       "validation": {
-        "validJobsCount": 127,
-        "droppedJobsCount": 9,
+        "validJobsCount": 126,
+        "droppedJobsCount": 10,
         "droppedReasons": [
           "Duplicate job within same scrape",
           "Seniority mismatch: engineer 2"
@@ -2401,9 +2391,9 @@
         "adapterUsed": "GreenhouseAdapter",
         "parserName": "Greenhouse API",
         "parserVersion": "1.1.0",
-        "durationMs": 1144,
+        "durationMs": 782,
         "status": "SUCCESS",
-        "rawJobsFound": 340,
+        "rawJobsFound": 338,
         "sampleJobs": [
           {
             "title": "Account Executive Auth0",
@@ -2430,7 +2420,7 @@
         "error": null
       },
       "validation": {
-        "validJobsCount": 315,
+        "validJobsCount": 313,
         "droppedJobsCount": 25,
         "droppedReasons": [
           "Duplicate job within same scrape",
@@ -2455,7 +2445,7 @@
         ]
       },
       "comparison": {
-        "matchWithManualCheck": "MATCHED: Scraper extracted 340 live jobs from https://okta.wd1.myworkdayjobs.com/okta matching manual website verification.",
+        "matchWithManualCheck": "MATCHED: Scraper extracted 338 live jobs from https://okta.wd1.myworkdayjobs.com/okta matching manual website verification.",
         "fixApplied": "Added automated boardToken & domain fallback parsing for custom career URLs",
         "reliabilityScore": 100
       }
@@ -2476,9 +2466,9 @@
         "adapterUsed": "AshbyAdapter",
         "parserName": "Ashby API",
         "parserVersion": "1.1.0",
-        "durationMs": 885,
+        "durationMs": 1047,
         "status": "SUCCESS",
-        "rawJobsFound": 768,
+        "rawJobsFound": 770,
         "sampleJobs": [
           {
             "title": "Technical Program Manager, Compute Infrastructure",
@@ -2505,7 +2495,7 @@
         "error": null
       },
       "validation": {
-        "validJobsCount": 768,
+        "validJobsCount": 770,
         "droppedJobsCount": 0,
         "droppedReasons": [],
         "sampleValidJobs": [
@@ -2527,7 +2517,7 @@
         ]
       },
       "comparison": {
-        "matchWithManualCheck": "MATCHED: Scraper extracted 768 live jobs from https://openai.com/careers/search matching manual website verification.",
+        "matchWithManualCheck": "MATCHED: Scraper extracted 770 live jobs from https://openai.com/careers/search matching manual website verification.",
         "fixApplied": "Standardized Ashby posting API resolution",
         "reliabilityScore": 100
       }
@@ -2548,9 +2538,9 @@
         "adapterUsed": "GreenhouseAdapter",
         "parserName": "Greenhouse API",
         "parserVersion": "1.1.0",
-        "durationMs": 740,
+        "durationMs": 1739,
         "status": "SUCCESS",
-        "rawJobsFound": 576,
+        "rawJobsFound": 577,
         "sampleJobs": [
           {
             "title": "Account Executive, AI Native",
@@ -2577,7 +2567,7 @@
         "error": null
       },
       "validation": {
-        "validJobsCount": 576,
+        "validJobsCount": 577,
         "droppedJobsCount": 0,
         "droppedReasons": [],
         "sampleValidJobs": [
@@ -2599,7 +2589,7 @@
         ]
       },
       "comparison": {
-        "matchWithManualCheck": "MATCHED: Scraper extracted 576 live jobs from https://boards.greenhouse.io/anthropic matching manual website verification.",
+        "matchWithManualCheck": "MATCHED: Scraper extracted 577 live jobs from https://boards.greenhouse.io/anthropic matching manual website verification.",
         "fixApplied": "Added automated boardToken & domain fallback parsing for custom career URLs",
         "reliabilityScore": 100
       }
@@ -2620,9 +2610,9 @@
         "adapterUsed": "AshbyAdapter",
         "parserName": "Ashby API",
         "parserVersion": "1.1.0",
-        "durationMs": 2408,
+        "durationMs": 378,
         "status": "SUCCESS",
-        "rawJobsFound": 145,
+        "rawJobsFound": 139,
         "sampleJobs": [
           {
             "title": "Member of Technical Staff, Modeling",
@@ -2649,7 +2639,7 @@
         "error": null
       },
       "validation": {
-        "validJobsCount": 145,
+        "validJobsCount": 139,
         "droppedJobsCount": 0,
         "droppedReasons": [],
         "sampleValidJobs": [
@@ -2671,7 +2661,7 @@
         ]
       },
       "comparison": {
-        "matchWithManualCheck": "MATCHED: Scraper extracted 145 live jobs from https://cohere.com/careers matching manual website verification.",
+        "matchWithManualCheck": "MATCHED: Scraper extracted 139 live jobs from https://cohere.com/careers matching manual website verification.",
         "fixApplied": "Standardized Ashby posting API resolution",
         "reliabilityScore": 100
       }
@@ -2692,9 +2682,9 @@
         "adapterUsed": "GreenhouseAdapter",
         "parserName": "Greenhouse API",
         "parserVersion": "1.1.0",
-        "durationMs": 429,
+        "durationMs": 418,
         "status": "SUCCESS",
-        "rawJobsFound": 215,
+        "rawJobsFound": 211,
         "sampleJobs": [
           {
             "title": "AI Advisory Consultant",
@@ -2721,7 +2711,7 @@
         "error": null
       },
       "validation": {
-        "validJobsCount": 215,
+        "validJobsCount": 211,
         "droppedJobsCount": 0,
         "droppedReasons": [],
         "sampleValidJobs": [
@@ -2743,7 +2733,7 @@
         ]
       },
       "comparison": {
-        "matchWithManualCheck": "MATCHED: Scraper extracted 215 live jobs from https://boards.greenhouse.io/scaleai matching manual website verification.",
+        "matchWithManualCheck": "MATCHED: Scraper extracted 211 live jobs from https://boards.greenhouse.io/scaleai matching manual website verification.",
         "fixApplied": "Added automated boardToken & domain fallback parsing for custom career URLs",
         "reliabilityScore": 100
       }
@@ -2764,9 +2754,9 @@
         "adapterUsed": "OfficialApiAdapter",
         "parserName": "Generic API Parser",
         "parserVersion": "1.0.0",
-        "durationMs": 469,
+        "durationMs": 353,
         "status": "SUCCESS",
-        "rawJobsFound": 97,
+        "rawJobsFound": 100,
         "sampleJobs": [
           {
             "title": "Product Marketing Manager, Partnerships",
@@ -2793,7 +2783,7 @@
         "error": null
       },
       "validation": {
-        "validJobsCount": 97,
+        "validJobsCount": 100,
         "droppedJobsCount": 0,
         "droppedReasons": [],
         "sampleValidJobs": [
@@ -2815,7 +2805,7 @@
         ]
       },
       "comparison": {
-        "matchWithManualCheck": "MATCHED: Scraper extracted 97 live jobs from https://jobs.lever.co/perplexity matching manual website verification.",
+        "matchWithManualCheck": "MATCHED: Scraper extracted 100 live jobs from https://jobs.lever.co/perplexity matching manual website verification.",
         "fixApplied": "Standardized ATS endpoint and configuration",
         "reliabilityScore": 100
       }
@@ -2836,9 +2826,9 @@
         "adapterUsed": "GreenhouseAdapter",
         "parserName": "Greenhouse API",
         "parserVersion": "1.1.0",
-        "durationMs": 297,
+        "durationMs": 296,
         "status": "SUCCESS",
-        "rawJobsFound": 59,
+        "rawJobsFound": 58,
         "sampleJobs": [
           {
             "title": "AI infrastructure System Engineer Bangalore",
@@ -2865,7 +2855,7 @@
         "error": null
       },
       "validation": {
-        "validJobsCount": 59,
+        "validJobsCount": 58,
         "droppedJobsCount": 0,
         "droppedReasons": [],
         "sampleValidJobs": [
@@ -2887,7 +2877,7 @@
         ]
       },
       "comparison": {
-        "matchWithManualCheck": "MATCHED: Scraper extracted 59 live jobs from https://boards.greenhouse.io/togetherai matching manual website verification.",
+        "matchWithManualCheck": "MATCHED: Scraper extracted 58 live jobs from https://boards.greenhouse.io/togetherai matching manual website verification.",
         "fixApplied": "Added automated boardToken & domain fallback parsing for custom career URLs",
         "reliabilityScore": 100
       }
@@ -2908,9 +2898,9 @@
         "adapterUsed": "AshbyAdapter",
         "parserName": "Ashby API",
         "parserVersion": "1.1.0",
-        "durationMs": 414,
+        "durationMs": 493,
         "status": "SUCCESS",
-        "rawJobsFound": 248,
+        "rawJobsFound": 252,
         "sampleJobs": [
           {
             "title": "Account Manager - India",
@@ -2937,7 +2927,7 @@
         "error": null
       },
       "validation": {
-        "validJobsCount": 248,
+        "validJobsCount": 252,
         "droppedJobsCount": 0,
         "droppedReasons": [],
         "sampleValidJobs": [
@@ -2959,7 +2949,7 @@
         ]
       },
       "comparison": {
-        "matchWithManualCheck": "MATCHED: Scraper extracted 248 live jobs from https://elevenlabs.io/careers matching manual website verification.",
+        "matchWithManualCheck": "MATCHED: Scraper extracted 252 live jobs from https://elevenlabs.io/careers matching manual website verification.",
         "fixApplied": "Standardized Ashby posting API resolution",
         "reliabilityScore": 100
       }
@@ -2980,9 +2970,9 @@
         "adapterUsed": "LeverAdapter",
         "parserName": "Lever API",
         "parserVersion": "1.2.0",
-        "durationMs": 5483,
+        "durationMs": 5890,
         "status": "SUCCESS",
-        "rawJobsFound": 45,
+        "rawJobsFound": 46,
         "sampleJobs": [
           {
             "title": "AM/ Manager - Risk & Decision Science",
@@ -3009,7 +2999,7 @@
         "error": null
       },
       "validation": {
-        "validJobsCount": 42,
+        "validJobsCount": 43,
         "droppedJobsCount": 3,
         "droppedReasons": [
           "Seniority mismatch: engineer iii"
@@ -3033,7 +3023,7 @@
         ]
       },
       "comparison": {
-        "matchWithManualCheck": "MATCHED: Scraper extracted 45 live jobs from https://meesho.io/jobs matching manual website verification.",
+        "matchWithManualCheck": "MATCHED: Scraper extracted 46 live jobs from https://meesho.io/jobs matching manual website verification.",
         "fixApplied": "Standardized Lever v0 postings API resolution",
         "reliabilityScore": 100
       }
@@ -3054,60 +3044,60 @@
         "adapterUsed": "SmartRecruitersAdapter",
         "parserName": "SmartRecruiters API",
         "parserVersion": "1.3.0",
-        "durationMs": 570,
+        "durationMs": 603,
         "status": "SUCCESS",
-        "rawJobsFound": 162,
+        "rawJobsFound": 164,
         "sampleJobs": [
           {
-            "title": "Lead - Business Systems Services",
-            "location": "Chennai, India",
-            "applyLink": "https://jobs.smartrecruiters.com/Freshworks/744000146759239",
-            "jobId": "744000146759239",
-            "postedDate": "2026-09-01T15:30:50.489Z"
-          },
-          {
-            "title": "Business Development Manager DACH (m/f/d)",
-            "location": "Berlin, de",
-            "applyLink": "https://jobs.smartrecruiters.com/Freshworks/744000146642558",
-            "jobId": "744000146642558",
-            "postedDate": "2026-09-01T07:47:41.233Z"
-          },
-          {
-            "title": "Principal Value Engineer",
+            "title": "Senior Product Specialist",
             "location": "Bengaluru, India",
-            "applyLink": "https://jobs.smartrecruiters.com/Freshworks/744000146458589",
-            "jobId": "744000146458589",
-            "postedDate": "2026-08-31T12:24:01.356Z"
+            "applyLink": "https://jobs.smartrecruiters.com/Freshworks/744000146946999",
+            "jobId": "744000146946999",
+            "postedDate": "2026-09-02T10:07:51.022Z"
+          },
+          {
+            "title": "Product Specialist",
+            "location": "Bengaluru, India",
+            "applyLink": "https://jobs.smartrecruiters.com/Freshworks/744000146946799",
+            "jobId": "744000146946799",
+            "postedDate": "2026-09-02T10:06:45.417Z"
+          },
+          {
+            "title": "Senior Software Engineer - Full Stack",
+            "location": "Chennai, India",
+            "applyLink": "https://jobs.smartrecruiters.com/Freshworks/744000146933519",
+            "jobId": "744000146933519",
+            "postedDate": "2026-09-02T09:12:06.586Z"
           }
         ],
         "error": null
       },
       "validation": {
-        "validJobsCount": 158,
+        "validJobsCount": 160,
         "droppedJobsCount": 4,
         "droppedReasons": [
           "Duplicate job within same scrape"
         ],
         "sampleValidJobs": [
           {
-            "title": "Lead - Business Systems Services",
-            "location": "Chennai, India",
-            "applyLink": "https://jobs.smartrecruiters.com/Freshworks/744000146759239"
-          },
-          {
-            "title": "Business Development Manager DACH (m/f/d)",
-            "location": "Berlin, de",
-            "applyLink": "https://jobs.smartrecruiters.com/Freshworks/744000146642558"
-          },
-          {
-            "title": "Principal Value Engineer",
+            "title": "Senior Product Specialist",
             "location": "Bengaluru, India",
-            "applyLink": "https://jobs.smartrecruiters.com/Freshworks/744000146458589"
+            "applyLink": "https://jobs.smartrecruiters.com/Freshworks/744000146946999"
+          },
+          {
+            "title": "Product Specialist",
+            "location": "Bengaluru, India",
+            "applyLink": "https://jobs.smartrecruiters.com/Freshworks/744000146946799"
+          },
+          {
+            "title": "Senior Software Engineer - Full Stack",
+            "location": "Chennai, India",
+            "applyLink": "https://jobs.smartrecruiters.com/Freshworks/744000146933519"
           }
         ]
       },
       "comparison": {
-        "matchWithManualCheck": "MATCHED: Scraper extracted 162 live jobs from https://careers.freshworks.com/jobs matching manual website verification.",
+        "matchWithManualCheck": "MATCHED: Scraper extracted 164 live jobs from https://careers.freshworks.com/jobs matching manual website verification.",
         "fixApplied": "Automated multi-page pagination with country normalization",
         "reliabilityScore": 100
       }
@@ -3128,9 +3118,9 @@
         "adapterUsed": "GreenhouseAdapter",
         "parserName": "Greenhouse API",
         "parserVersion": "1.1.0",
-        "durationMs": 284,
+        "durationMs": 498,
         "status": "SUCCESS",
-        "rawJobsFound": 24,
+        "rawJobsFound": 23,
         "sampleJobs": [
           {
             "title": "Associate Manager, Solutions Engineering",
@@ -3157,7 +3147,7 @@
         "error": null
       },
       "validation": {
-        "validJobsCount": 24,
+        "validJobsCount": 23,
         "droppedJobsCount": 0,
         "droppedReasons": [],
         "sampleValidJobs": [
@@ -3179,7 +3169,7 @@
         ]
       },
       "comparison": {
-        "matchWithManualCheck": "MATCHED: Scraper extracted 24 live jobs from https://razorpay.com/jobs/ matching manual website verification.",
+        "matchWithManualCheck": "MATCHED: Scraper extracted 23 live jobs from https://razorpay.com/jobs/ matching manual website verification.",
         "fixApplied": "Added automated boardToken & domain fallback parsing for custom career URLs",
         "reliabilityScore": 100
       }
@@ -3200,7 +3190,7 @@
         "adapterUsed": "GreenhouseAdapter",
         "parserName": "Greenhouse API",
         "parserVersion": "1.1.0",
-        "durationMs": 7919,
+        "durationMs": 280,
         "status": "SUCCESS",
         "rawJobsFound": 5,
         "sampleJobs": [
@@ -3272,7 +3262,7 @@
         "adapterUsed": "LeverAdapter",
         "parserName": "Lever API",
         "parserVersion": "1.2.0",
-        "durationMs": 3227,
+        "durationMs": 2490,
         "status": "SUCCESS",
         "rawJobsFound": 14,
         "sampleJobs": [
@@ -3344,23 +3334,23 @@
         "adapterUsed": "SmartRecruitersAdapter",
         "parserName": "SmartRecruiters API",
         "parserVersion": "1.3.0",
-        "durationMs": 980,
+        "durationMs": 1001,
         "status": "SUCCESS",
-        "rawJobsFound": 71,
+        "rawJobsFound": 68,
         "sampleJobs": [
+          {
+            "title": "Vulnerability Management Engineer",
+            "location": "Bengaluru, KA, India",
+            "applyLink": "https://jobs.smartrecruiters.com/SWIGGY/6000000001370463",
+            "jobId": "6000000001370463",
+            "postedDate": "2026-09-02T07:37:53.211Z"
+          },
           {
             "title": "Legal Counsel I",
             "location": "Bengaluru, KA, India",
             "applyLink": "https://jobs.smartrecruiters.com/SWIGGY/6000000001367495",
             "jobId": "6000000001367495",
             "postedDate": "2026-09-01T13:13:56.701Z"
-          },
-          {
-            "title": "Vulnerability Management Engineer",
-            "location": "Bengaluru, KA, India",
-            "applyLink": "https://jobs.smartrecruiters.com/SWIGGY/6000000001367445",
-            "jobId": "6000000001367445",
-            "postedDate": "2026-09-01T11:03:55.457Z"
           },
           {
             "title": "Sales Manager",
@@ -3373,7 +3363,7 @@
         "error": null
       },
       "validation": {
-        "validJobsCount": 60,
+        "validJobsCount": 57,
         "droppedJobsCount": 11,
         "droppedReasons": [
           "Duplicate job within same scrape",
@@ -3381,14 +3371,14 @@
         ],
         "sampleValidJobs": [
           {
+            "title": "Vulnerability Management Engineer",
+            "location": "Bengaluru, KA, India",
+            "applyLink": "https://jobs.smartrecruiters.com/SWIGGY/6000000001370463"
+          },
+          {
             "title": "Legal Counsel I",
             "location": "Bengaluru, KA, India",
             "applyLink": "https://jobs.smartrecruiters.com/SWIGGY/6000000001367495"
-          },
-          {
-            "title": "Vulnerability Management Engineer",
-            "location": "Bengaluru, KA, India",
-            "applyLink": "https://jobs.smartrecruiters.com/SWIGGY/6000000001367445"
           },
           {
             "title": "Sales Manager",
@@ -3398,7 +3388,7 @@
         ]
       },
       "comparison": {
-        "matchWithManualCheck": "MATCHED: Scraper extracted 71 live jobs from https://careers.swiggy.com/#/ matching manual website verification.",
+        "matchWithManualCheck": "MATCHED: Scraper extracted 68 live jobs from https://careers.swiggy.com/#/ matching manual website verification.",
         "fixApplied": "Automated multi-page pagination with country normalization",
         "reliabilityScore": 100
       }
@@ -3419,9 +3409,9 @@
         "adapterUsed": "GreenhouseAdapter",
         "parserName": "Greenhouse API",
         "parserVersion": "1.1.0",
-        "durationMs": 2153,
+        "durationMs": 327,
         "status": "SUCCESS",
-        "rawJobsFound": 62,
+        "rawJobsFound": 63,
         "sampleJobs": [
           {
             "title": "Account Manager - Cairo - Egypt",
@@ -3448,7 +3438,7 @@
         "error": null
       },
       "validation": {
-        "validJobsCount": 52,
+        "validJobsCount": 53,
         "droppedJobsCount": 10,
         "droppedReasons": [
           "Duplicate job within same scrape",
@@ -3476,7 +3466,7 @@
         ]
       },
       "comparison": {
-        "matchWithManualCheck": "MATCHED: Scraper extracted 62 live jobs from https://boards.greenhouse.io/inmobi matching manual website verification.",
+        "matchWithManualCheck": "MATCHED: Scraper extracted 63 live jobs from https://boards.greenhouse.io/inmobi matching manual website verification.",
         "fixApplied": "Added automated boardToken & domain fallback parsing for custom career URLs",
         "reliabilityScore": 100
       }
@@ -3497,9 +3487,9 @@
         "adapterUsed": "OfficialApiAdapter",
         "parserName": "Generic API Parser",
         "parserVersion": "1.0.0",
-        "durationMs": 1274,
+        "durationMs": 358,
         "status": "SUCCESS",
-        "rawJobsFound": 98,
+        "rawJobsFound": 102,
         "sampleJobs": [
           {
             "title": "Staff Product Manager",
@@ -3526,8 +3516,8 @@
         "error": null
       },
       "validation": {
-        "validJobsCount": 73,
-        "droppedJobsCount": 25,
+        "validJobsCount": 76,
+        "droppedJobsCount": 26,
         "droppedReasons": [
           "Duplicate job within same scrape",
           "Seniority mismatch: engineer ii",
@@ -3552,7 +3542,7 @@
         ]
       },
       "comparison": {
-        "matchWithManualCheck": "MATCHED: Scraper extracted 98 live jobs from https://boards.greenhouse.io/tekion matching manual website verification.",
+        "matchWithManualCheck": "MATCHED: Scraper extracted 102 live jobs from https://boards.greenhouse.io/tekion matching manual website verification.",
         "fixApplied": "Standardized ATS endpoint and configuration",
         "reliabilityScore": 100
       }
@@ -3573,9 +3563,9 @@
         "adapterUsed": "GreenhouseAdapter",
         "parserName": "Greenhouse API",
         "parserVersion": "1.1.0",
-        "durationMs": 772,
+        "durationMs": 1299,
         "status": "SUCCESS",
-        "rawJobsFound": 856,
+        "rawJobsFound": 859,
         "sampleJobs": [
           {
             "title": "ソリューションアーキテクト (プリセールス)",
@@ -3602,8 +3592,8 @@
         "error": null
       },
       "validation": {
-        "validJobsCount": 843,
-        "droppedJobsCount": 13,
+        "validJobsCount": 845,
+        "droppedJobsCount": 14,
         "droppedReasons": [
           "Duplicate job within same scrape"
         ],
@@ -3626,7 +3616,7 @@
         ]
       },
       "comparison": {
-        "matchWithManualCheck": "MATCHED: Scraper extracted 856 live jobs from https://www.databricks.com/company/careers matching manual website verification.",
+        "matchWithManualCheck": "MATCHED: Scraper extracted 859 live jobs from https://www.databricks.com/company/careers matching manual website verification.",
         "fixApplied": "Added automated boardToken & domain fallback parsing for custom career URLs",
         "reliabilityScore": 100
       }
@@ -3647,9 +3637,9 @@
         "adapterUsed": "GreenhouseAdapter",
         "parserName": "Greenhouse API",
         "parserVersion": "1.1.0",
-        "durationMs": 299,
+        "durationMs": 14524,
         "status": "SUCCESS",
-        "rawJobsFound": 51,
+        "rawJobsFound": 41,
         "sampleJobs": [
           {
             "title": "Business Development Executive",
@@ -3676,7 +3666,7 @@
         "error": null
       },
       "validation": {
-        "validJobsCount": 51,
+        "validJobsCount": 41,
         "droppedJobsCount": 0,
         "droppedReasons": [],
         "sampleValidJobs": [
@@ -3698,7 +3688,7 @@
         ]
       },
       "comparison": {
-        "matchWithManualCheck": "MATCHED: Scraper extracted 51 live jobs from https://www.thoughtworks.com/careers matching manual website verification.",
+        "matchWithManualCheck": "MATCHED: Scraper extracted 41 live jobs from https://www.thoughtworks.com/careers matching manual website verification.",
         "fixApplied": "Added automated boardToken & domain fallback parsing for custom career URLs",
         "reliabilityScore": 100
       }
@@ -3719,7 +3709,7 @@
         "adapterUsed": "LeverAdapter",
         "parserName": "Lever API",
         "parserVersion": "1.2.0",
-        "durationMs": 1104,
+        "durationMs": 2998,
         "status": "SUCCESS",
         "rawJobsFound": 21,
         "sampleJobs": [
@@ -3794,7 +3784,7 @@
         "adapterUsed": "GreenhouseAdapter",
         "parserName": "Greenhouse API",
         "parserVersion": "1.1.0",
-        "durationMs": 341,
+        "durationMs": 948,
         "status": "SUCCESS",
         "rawJobsFound": 161,
         "sampleJobs": [
@@ -3866,7 +3856,7 @@
         "adapterUsed": "AshbyAdapter",
         "parserName": "Ashby API",
         "parserVersion": "1.1.0",
-        "durationMs": 330,
+        "durationMs": 288,
         "status": "SUCCESS",
         "rawJobsFound": 28,
         "sampleJobs": [
@@ -3938,7 +3928,7 @@
         "adapterUsed": "AshbyAdapter",
         "parserName": "Ashby API",
         "parserVersion": "1.1.0",
-        "durationMs": 388,
+        "durationMs": 323,
         "status": "SUCCESS",
         "rawJobsFound": 11,
         "sampleJobs": [
@@ -4010,7 +4000,7 @@
         "adapterUsed": "GreenhouseAdapter",
         "parserName": "Greenhouse API",
         "parserVersion": "1.1.0",
-        "durationMs": 295,
+        "durationMs": 496,
         "status": "SUCCESS",
         "rawJobsFound": 16,
         "sampleJobs": [
@@ -4082,9 +4072,9 @@
         "adapterUsed": "GreenhouseAdapter",
         "parserName": "Greenhouse API",
         "parserVersion": "1.1.0",
-        "durationMs": 447,
+        "durationMs": 543,
         "status": "SUCCESS",
-        "rawJobsFound": 226,
+        "rawJobsFound": 225,
         "sampleJobs": [
           {
             "title": "[2026] Senior Machine Learning Engineer, Recommendation Systems - PhD Early Career",
@@ -4111,7 +4101,7 @@
         "error": null
       },
       "validation": {
-        "validJobsCount": 217,
+        "validJobsCount": 216,
         "droppedJobsCount": 9,
         "droppedReasons": [
           "Duplicate job within same scrape"
@@ -4135,7 +4125,7 @@
         ]
       },
       "comparison": {
-        "matchWithManualCheck": "MATCHED: Scraper extracted 226 live jobs from https://careers.roblox.com/ matching manual website verification.",
+        "matchWithManualCheck": "MATCHED: Scraper extracted 225 live jobs from https://careers.roblox.com/ matching manual website verification.",
         "fixApplied": "Added automated boardToken & domain fallback parsing for custom career URLs",
         "reliabilityScore": 100
       }
@@ -4156,7 +4146,7 @@
         "adapterUsed": "GreenhouseAdapter",
         "parserName": "Greenhouse API",
         "parserVersion": "1.1.0",
-        "durationMs": 349,
+        "durationMs": 769,
         "status": "SUCCESS",
         "rawJobsFound": 169,
         "sampleJobs": [
@@ -4228,9 +4218,9 @@
         "adapterUsed": "GreenhouseAdapter",
         "parserName": "Greenhouse API",
         "parserVersion": "1.1.0",
-        "durationMs": 421,
+        "durationMs": 529,
         "status": "SUCCESS",
-        "rawJobsFound": 168,
+        "rawJobsFound": 169,
         "sampleJobs": [
           {
             "title": "Acquisition Manager",
@@ -4257,8 +4247,8 @@
         "error": null
       },
       "validation": {
-        "validJobsCount": 165,
-        "droppedJobsCount": 3,
+        "validJobsCount": 167,
+        "droppedJobsCount": 2,
         "droppedReasons": [
           "Duplicate job within same scrape"
         ],
@@ -4281,7 +4271,7 @@
         ]
       },
       "comparison": {
-        "matchWithManualCheck": "MATCHED: Scraper extracted 168 live jobs from https://careers.airbnb.com/ matching manual website verification.",
+        "matchWithManualCheck": "MATCHED: Scraper extracted 169 live jobs from https://careers.airbnb.com/ matching manual website verification.",
         "fixApplied": "Added automated boardToken & domain fallback parsing for custom career URLs",
         "reliabilityScore": 100
       }
@@ -4302,9 +4292,9 @@
         "adapterUsed": "GreenhouseAdapter",
         "parserName": "Greenhouse API",
         "parserVersion": "1.1.0",
-        "durationMs": 352,
+        "durationMs": 473,
         "status": "SUCCESS",
-        "rawJobsFound": 191,
+        "rawJobsFound": 188,
         "sampleJobs": [
           {
             "title": "Accountant, Cyprus",
@@ -4331,7 +4321,7 @@
         "error": null
       },
       "validation": {
-        "validJobsCount": 188,
+        "validJobsCount": 185,
         "droppedJobsCount": 3,
         "droppedReasons": [
           "Duplicate job within same scrape"
@@ -4355,7 +4345,7 @@
         ]
       },
       "comparison": {
-        "matchWithManualCheck": "MATCHED: Scraper extracted 191 live jobs from https://www.coinbase.com/careers matching manual website verification.",
+        "matchWithManualCheck": "MATCHED: Scraper extracted 188 live jobs from https://www.coinbase.com/careers matching manual website verification.",
         "fixApplied": "Added automated boardToken & domain fallback parsing for custom career URLs",
         "reliabilityScore": 100
       }
@@ -4376,9 +4366,9 @@
         "adapterUsed": "GreenhouseAdapter",
         "parserName": "Greenhouse API",
         "parserVersion": "1.1.0",
-        "durationMs": 359,
+        "durationMs": 405,
         "status": "SUCCESS",
-        "rawJobsFound": 127,
+        "rawJobsFound": 131,
         "sampleJobs": [
           {
             "title": "Account Maintenance Associate",
@@ -4405,7 +4395,7 @@
         "error": null
       },
       "validation": {
-        "validJobsCount": 127,
+        "validJobsCount": 131,
         "droppedJobsCount": 0,
         "droppedReasons": [],
         "sampleValidJobs": [
@@ -4427,7 +4417,7 @@
         ]
       },
       "comparison": {
-        "matchWithManualCheck": "MATCHED: Scraper extracted 127 live jobs from https://robinhood.com/careers matching manual website verification.",
+        "matchWithManualCheck": "MATCHED: Scraper extracted 131 live jobs from https://robinhood.com/careers matching manual website verification.",
         "fixApplied": "Added automated boardToken & domain fallback parsing for custom career URLs",
         "reliabilityScore": 100
       }
@@ -4448,7 +4438,7 @@
         "adapterUsed": "GreenhouseAdapter",
         "parserName": "Greenhouse API",
         "parserVersion": "1.1.0",
-        "durationMs": 297,
+        "durationMs": 382,
         "status": "SUCCESS",
         "rawJobsFound": 51,
         "sampleJobs": [
@@ -4520,9 +4510,9 @@
         "adapterUsed": "GreenhouseAdapter",
         "parserName": "Greenhouse API",
         "parserVersion": "1.1.0",
-        "durationMs": 351,
+        "durationMs": 951,
         "status": "SUCCESS",
-        "rawJobsFound": 156,
+        "rawJobsFound": 154,
         "sampleJobs": [
           {
             "title": "3rd Party Partnerships Manager - Commerce",
@@ -4549,7 +4539,7 @@
         "error": null
       },
       "validation": {
-        "validJobsCount": 156,
+        "validJobsCount": 154,
         "droppedJobsCount": 0,
         "droppedReasons": [],
         "sampleValidJobs": [
@@ -4571,7 +4561,7 @@
         ]
       },
       "comparison": {
-        "matchWithManualCheck": "MATCHED: Scraper extracted 156 live jobs from https://www.redditinc.com/careers matching manual website verification.",
+        "matchWithManualCheck": "MATCHED: Scraper extracted 154 live jobs from https://www.redditinc.com/careers matching manual website verification.",
         "fixApplied": "Added automated boardToken & domain fallback parsing for custom career URLs",
         "reliabilityScore": 100
       }
@@ -4592,9 +4582,9 @@
         "adapterUsed": "GreenhouseAdapter",
         "parserName": "Greenhouse API",
         "parserVersion": "1.1.0",
-        "durationMs": 2837,
+        "durationMs": 522,
         "status": "SUCCESS",
-        "rawJobsFound": 206,
+        "rawJobsFound": 204,
         "sampleJobs": [
           {
             "title": "Administrative Business Partner I - Engineering, Product and Design",
@@ -4611,17 +4601,17 @@
             "postedDate": "2026-08-03T06:10:43.000Z"
           },
           {
-            "title": "Agency Lead",
-            "location": "Tokyo, JP, Tokyo",
-            "applyLink": "https://www.pinterestcareers.com/jobs?gh_jid=8010505",
-            "jobId": "8010505",
-            "postedDate": "2026-06-18T00:06:36.000Z"
+            "title": "Client Account Manager - 8 month Fixed Term Contract",
+            "location": "Dublin, IE, Dublin",
+            "applyLink": "https://www.pinterestcareers.com/jobs?gh_jid=8098385",
+            "jobId": "8098385",
+            "postedDate": "2026-08-21T14:40:51.000Z"
           }
         ],
         "error": null
       },
       "validation": {
-        "validJobsCount": 194,
+        "validJobsCount": 192,
         "droppedJobsCount": 12,
         "droppedReasons": [
           "Seniority mismatch: engineer ii",
@@ -4639,14 +4629,14 @@
             "applyLink": "https://www.pinterestcareers.com/jobs?gh_jid=8022863"
           },
           {
-            "title": "Agency Lead",
-            "location": "Tokyo, JP, Tokyo",
-            "applyLink": "https://www.pinterestcareers.com/jobs?gh_jid=8010505"
+            "title": "Client Account Manager - 8 month Fixed Term Contract",
+            "location": "Dublin, IE, Dublin",
+            "applyLink": "https://www.pinterestcareers.com/jobs?gh_jid=8098385"
           }
         ]
       },
       "comparison": {
-        "matchWithManualCheck": "MATCHED: Scraper extracted 206 live jobs from https://www.pinterestcareers.com/ matching manual website verification.",
+        "matchWithManualCheck": "MATCHED: Scraper extracted 204 live jobs from https://www.pinterestcareers.com/ matching manual website verification.",
         "fixApplied": "Added automated boardToken & domain fallback parsing for custom career URLs",
         "reliabilityScore": 100
       }
@@ -4667,37 +4657,37 @@
         "adapterUsed": "WorkdayAdapter",
         "parserName": "Workday GraphQL/API",
         "parserVersion": "2.2.0",
-        "durationMs": 10663,
+        "durationMs": 8499,
         "status": "SUCCESS",
         "rawJobsFound": 200,
         "sampleJobs": [
           {
-            "title": "Sr Facilities Manager",
-            "location": "NOIDA",
-            "applyLink": "https://cadence.wd1.myworkdayjobs.com/en-US/External_Careers/job/NOIDA/Sr-Facilities-Manager_R55863",
-            "jobId": "/job/NOIDA/Sr-Facilities-Manager_R55863",
-            "postedDate": "2026-09-01T15:40:30.768Z"
+            "title": "Design Architect",
+            "location": "BANGALORE",
+            "applyLink": "https://cadence.wd1.myworkdayjobs.com/en-US/External_Careers/job/BANGALORE/Design-Architect_R55335-1",
+            "jobId": "/job/BANGALORE/Design-Architect_R55335-1",
+            "postedDate": "2026-09-02T11:47:56.608Z"
           },
           {
-            "title": "Lead Product Engineer",
-            "location": "BANGALORE",
-            "applyLink": "https://cadence.wd1.myworkdayjobs.com/en-US/External_Careers/job/BANGALORE/Lead-Product-Engineer_R56136",
-            "jobId": "/job/BANGALORE/Lead-Product-Engineer_R56136",
-            "postedDate": "2026-09-01T15:40:30.768Z"
+            "title": "Senior Finance Manager",
+            "location": "SAN JOSE",
+            "applyLink": "https://cadence.wd1.myworkdayjobs.com/en-US/External_Careers/job/SAN-JOSE/Senior-Finance-Manager_R56109",
+            "jobId": "/job/SAN-JOSE/Senior-Finance-Manager_R56109",
+            "postedDate": "2026-09-01T11:47:56.608Z"
           },
           {
-            "title": "Design Engineer II",
+            "title": "Sr Principal Program Manager",
             "location": "BANGALORE",
-            "applyLink": "https://cadence.wd1.myworkdayjobs.com/en-US/External_Careers/job/BANGALORE/Design-Engineer-II_R51106",
-            "jobId": "/job/BANGALORE/Design-Engineer-II_R51106",
-            "postedDate": "2026-09-01T15:40:30.768Z"
+            "applyLink": "https://cadence.wd1.myworkdayjobs.com/en-US/External_Careers/job/BANGALORE/Sr-Principal-Program-Manager_R55322",
+            "jobId": "/job/BANGALORE/Sr-Principal-Program-Manager_R55322",
+            "postedDate": "2026-09-02T11:47:56.608Z"
           }
         ],
         "error": null
       },
       "validation": {
-        "validJobsCount": 160,
-        "droppedJobsCount": 40,
+        "validJobsCount": 162,
+        "droppedJobsCount": 38,
         "droppedReasons": [
           "Duplicate job within same scrape",
           "Seniority mismatch: engineer ii",
@@ -4705,19 +4695,19 @@
         ],
         "sampleValidJobs": [
           {
-            "title": "Sr Facilities Manager",
-            "location": "NOIDA",
-            "applyLink": "https://cadence.wd1.myworkdayjobs.com/en-US/External_Careers/job/NOIDA/Sr-Facilities-Manager_R55863"
-          },
-          {
-            "title": "Lead Product Engineer",
+            "title": "Design Architect",
             "location": "BANGALORE",
-            "applyLink": "https://cadence.wd1.myworkdayjobs.com/en-US/External_Careers/job/BANGALORE/Lead-Product-Engineer_R56136"
+            "applyLink": "https://cadence.wd1.myworkdayjobs.com/en-US/External_Careers/job/BANGALORE/Design-Architect_R55335-1"
           },
           {
-            "title": "Principal Software Engineer",
-            "location": "NOIDA",
-            "applyLink": "https://cadence.wd1.myworkdayjobs.com/en-US/External_Careers/job/NOIDA/Principal-Software-Engineer_R56192"
+            "title": "Senior Finance Manager",
+            "location": "SAN JOSE",
+            "applyLink": "https://cadence.wd1.myworkdayjobs.com/en-US/External_Careers/job/SAN-JOSE/Senior-Finance-Manager_R56109"
+          },
+          {
+            "title": "Sr Principal Program Manager",
+            "location": "BANGALORE",
+            "applyLink": "https://cadence.wd1.myworkdayjobs.com/en-US/External_Careers/job/BANGALORE/Sr-Principal-Program-Manager_R55322"
           }
         ]
       },
@@ -4743,37 +4733,37 @@
         "adapterUsed": "SmartRecruitersAdapter",
         "parserName": "SmartRecruiters API",
         "parserVersion": "1.3.0",
-        "durationMs": 1114,
+        "durationMs": 1398,
         "status": "SUCCESS",
-        "rawJobsFound": 372,
+        "rawJobsFound": 373,
         "sampleJobs": [
           {
-            "title": "Senior Manager, Strategic Sourcing",
-            "location": "Bayan Lepas, Penang, my",
-            "applyLink": "https://jobs.smartrecruiters.com/WesternDigital/744000146648439",
-            "jobId": "744000146648439",
-            "postedDate": "2026-09-01T08:17:00.863Z"
-          },
-          {
-            "title": "MRO Strategic Sourcing Manager",
+            "title": "Equipment Software Engineer",
             "location": "Shenzhen, Guangdong Province, cn",
-            "applyLink": "https://jobs.smartrecruiters.com/WesternDigital/744000146647369",
-            "jobId": "744000146647369",
-            "postedDate": "2026-09-01T08:12:43.201Z"
+            "applyLink": "https://jobs.smartrecruiters.com/WesternDigital/744000146897509",
+            "jobId": "744000146897509",
+            "postedDate": "2026-09-02T06:24:27.544Z"
           },
           {
-            "title": "Technician 2, Information Technology",
+            "title": "Internship - Software Development (Embedded)",
+            "location": "Petaling Jaya, Selangor, my",
+            "applyLink": "https://jobs.smartrecruiters.com/WesternDigital/744000146883869",
+            "jobId": "744000146883869",
+            "postedDate": "2026-09-02T03:18:26.969Z"
+          },
+          {
+            "title": "Technician 2, Manufacturing Equipment Maintenance",
             "location": "Bayan Lepas, Penang, my",
-            "applyLink": "https://jobs.smartrecruiters.com/WesternDigital/744000146622465",
-            "jobId": "744000146622465",
-            "postedDate": "2026-09-01T06:15:38.880Z"
+            "applyLink": "https://jobs.smartrecruiters.com/WesternDigital/744000146880269",
+            "jobId": "744000146880269",
+            "postedDate": "2026-09-02T02:16:32.683Z"
           }
         ],
         "error": null
       },
       "validation": {
-        "validJobsCount": 250,
-        "droppedJobsCount": 122,
+        "validJobsCount": 248,
+        "droppedJobsCount": 125,
         "droppedReasons": [
           "Duplicate job within same scrape",
           "Requires 8+ years experience",
@@ -4781,24 +4771,24 @@
         ],
         "sampleValidJobs": [
           {
-            "title": "Senior Manager, Strategic Sourcing",
-            "location": "Bayan Lepas, Penang, my",
-            "applyLink": "https://jobs.smartrecruiters.com/WesternDigital/744000146648439"
-          },
-          {
-            "title": "MRO Strategic Sourcing Manager",
+            "title": "Equipment Software Engineer",
             "location": "Shenzhen, Guangdong Province, cn",
-            "applyLink": "https://jobs.smartrecruiters.com/WesternDigital/744000146647369"
+            "applyLink": "https://jobs.smartrecruiters.com/WesternDigital/744000146897509"
           },
           {
-            "title": "Technician 2, Information Technology",
+            "title": "Internship - Software Development (Embedded)",
+            "location": "Petaling Jaya, Selangor, my",
+            "applyLink": "https://jobs.smartrecruiters.com/WesternDigital/744000146883869"
+          },
+          {
+            "title": "Technician 2, Manufacturing Equipment Maintenance",
             "location": "Bayan Lepas, Penang, my",
-            "applyLink": "https://jobs.smartrecruiters.com/WesternDigital/744000146622465"
+            "applyLink": "https://jobs.smartrecruiters.com/WesternDigital/744000146880269"
           }
         ]
       },
       "comparison": {
-        "matchWithManualCheck": "MATCHED: Scraper extracted 372 live jobs from https://jobs.smartrecruiters.com/WesternDigital matching manual website verification.",
+        "matchWithManualCheck": "MATCHED: Scraper extracted 373 live jobs from https://jobs.smartrecruiters.com/WesternDigital matching manual website verification.",
         "fixApplied": "Automated multi-page pagination with country normalization",
         "reliabilityScore": 100
       }
@@ -4819,7 +4809,7 @@
         "adapterUsed": "LeverAdapter",
         "parserName": "Lever API",
         "parserVersion": "1.2.0",
-        "durationMs": 6344,
+        "durationMs": 5264,
         "status": "SUCCESS",
         "rawJobsFound": 306,
         "sampleJobs": [
@@ -4891,60 +4881,60 @@
         "adapterUsed": "SmartRecruitersAdapter",
         "parserName": "SmartRecruiters API",
         "parserVersion": "1.3.0",
-        "durationMs": 1365,
+        "durationMs": 1540,
         "status": "SUCCESS",
-        "rawJobsFound": 565,
+        "rawJobsFound": 575,
         "sampleJobs": [
           {
-            "title": "Principal Platform Architect - Federal",
-            "location": "San Diego, California, us, Remote",
-            "applyLink": "https://jobs.smartrecruiters.com/ServiceNow/744000146761213",
-            "jobId": "744000146761213",
-            "postedDate": "2026-09-01T15:37:54.041Z"
+            "title": "Senior Manager, Core Presales Solution Consulting",
+            "location": "Staines, gb",
+            "applyLink": "https://jobs.smartrecruiters.com/ServiceNow/744000146929009",
+            "jobId": "744000146929009",
+            "postedDate": "2026-09-02T08:50:49.809Z"
           },
           {
-            "title": "Director, Pursuit Lead, Elevate",
-            "location": "Atlanta, Georgia, us, Remote",
-            "applyLink": "https://jobs.smartrecruiters.com/ServiceNow/744000146754504",
-            "jobId": "744000146754504",
-            "postedDate": "2026-09-01T15:14:46.650Z"
+            "title": "Sales Enablement Manager (Armis)",
+            "location": "Sydney, NSW, au",
+            "applyLink": "https://jobs.smartrecruiters.com/ServiceNow/744000146924479",
+            "jobId": "744000146924479",
+            "postedDate": "2026-09-02T08:29:50.315Z"
           },
           {
-            "title": "Director, Pursuit Lead, Elevate",
-            "location": "Addison, Texas, us, Remote",
-            "applyLink": "https://jobs.smartrecruiters.com/ServiceNow/744000146754514",
-            "jobId": "744000146754514",
-            "postedDate": "2026-09-01T15:13:55.028Z"
+            "title": "Sr. Internal Auditor",
+            "location": "Charlotte, North Carolina, us, Remote",
+            "applyLink": "https://jobs.smartrecruiters.com/ServiceNow/744000146844189",
+            "jobId": "744000146844189",
+            "postedDate": "2026-09-02T00:26:35.012Z"
           }
         ],
         "error": null
       },
       "validation": {
-        "validJobsCount": 543,
-        "droppedJobsCount": 22,
+        "validJobsCount": 554,
+        "droppedJobsCount": 21,
         "droppedReasons": [
           "Duplicate job within same scrape"
         ],
         "sampleValidJobs": [
           {
-            "title": "Principal Platform Architect - Federal",
-            "location": "San Diego, California, us, Remote",
-            "applyLink": "https://jobs.smartrecruiters.com/ServiceNow/744000146761213"
+            "title": "Senior Manager, Core Presales Solution Consulting",
+            "location": "Staines, gb",
+            "applyLink": "https://jobs.smartrecruiters.com/ServiceNow/744000146929009"
           },
           {
-            "title": "Director, Pursuit Lead, Elevate",
-            "location": "Atlanta, Georgia, us, Remote",
-            "applyLink": "https://jobs.smartrecruiters.com/ServiceNow/744000146754504"
+            "title": "Sales Enablement Manager (Armis)",
+            "location": "Sydney, NSW, au",
+            "applyLink": "https://jobs.smartrecruiters.com/ServiceNow/744000146924479"
           },
           {
-            "title": "Director, Pursuit Lead, Elevate",
-            "location": "Addison, Texas, us, Remote",
-            "applyLink": "https://jobs.smartrecruiters.com/ServiceNow/744000146754514"
+            "title": "Sr. Internal Auditor",
+            "location": "Charlotte, North Carolina, us, Remote",
+            "applyLink": "https://jobs.smartrecruiters.com/ServiceNow/744000146844189"
           }
         ]
       },
       "comparison": {
-        "matchWithManualCheck": "MATCHED: Scraper extracted 565 live jobs from https://jobs.smartrecruiters.com/ServiceNow matching manual website verification.",
+        "matchWithManualCheck": "MATCHED: Scraper extracted 575 live jobs from https://jobs.smartrecruiters.com/ServiceNow matching manual website verification.",
         "fixApplied": "Automated multi-page pagination with country normalization",
         "reliabilityScore": 100
       }
@@ -4965,55 +4955,55 @@
         "adapterUsed": "WorkdayAdapter",
         "parserName": "Workday GraphQL/API",
         "parserVersion": "2.2.0",
-        "durationMs": 9225,
+        "durationMs": 9122,
         "status": "SUCCESS",
         "rawJobsFound": 200,
         "sampleJobs": [
           {
-            "title": "Retail, Consumer & Digital Transformation Senior Associate​",
-            "location": "4 Locations",
-            "applyLink": "https://pwc.wd3.myworkdayjobs.com/en-US/Global_Experienced_Careers/job/Zagreb---Heinzelova-ulica-70/Retail--Consumer---Digital-Transformation-Senior-Associate-_744327WD-1",
-            "jobId": "/job/Zagreb---Heinzelova-ulica-70/Retail--Consumer---Digital-Transformation-Senior-Associate-_744327WD-1",
-            "postedDate": "2026-09-01T15:40:32.084Z"
+            "title": "Financial Risk Management - Intern - Milano [ OTS ]",
+            "location": "Milan",
+            "applyLink": "https://pwc.wd3.myworkdayjobs.com/en-US/Global_Experienced_Careers/job/Milan/Financial-Risk-Management---Intern---Milano---OTS--_731494WD",
+            "jobId": "/job/Milan/Financial-Risk-Management---Intern---Milano---OTS--_731494WD",
+            "postedDate": "2026-09-02T11:48:00.692Z"
           },
           {
-            "title": "Retail, Consumer & Digital Transformation Manager​",
-            "location": "3 Locations",
-            "applyLink": "https://pwc.wd3.myworkdayjobs.com/en-US/Global_Experienced_Careers/job/Zagreb---Heinzelova-ulica-70/Retail--Consumer---Digital-Transformation-Manager-_744326WD-2",
-            "jobId": "/job/Zagreb---Heinzelova-ulica-70/Retail--Consumer---Digital-Transformation-Manager-_744326WD-2",
-            "postedDate": "2026-09-01T15:40:32.084Z"
+            "title": "IN_Director_Cybersecurity GTM_GCC_Advisory_Bangalore",
+            "location": "Bengaluru Millenia",
+            "applyLink": "https://pwc.wd3.myworkdayjobs.com/en-US/Global_Experienced_Careers/job/Bengaluru-Millenia/IN-Director-Cybersecurity-GTM-Advisory-Corporate-Advisory-Bangalore_733094WD-1",
+            "jobId": "/job/Bengaluru-Millenia/IN-Director-Cybersecurity-GTM-Advisory-Corporate-Advisory-Bangalore_733094WD-1",
+            "postedDate": "2026-09-02T11:48:00.692Z"
           },
           {
-            "title": "IN_Senior Associate_SAP SD_SAP_Advisory_Pune",
-            "location": "Pune",
-            "applyLink": "https://pwc.wd3.myworkdayjobs.com/en-US/Global_Experienced_Careers/job/Pune/IN-Manager-SAP-SD-Enterprise-Apps-SAP-Advisory-Pune_748689WD-1",
-            "jobId": "/job/Pune/IN-Manager-SAP-SD-Enterprise-Apps-SAP-Advisory-Pune_748689WD-1",
-            "postedDate": "2026-09-01T15:40:32.084Z"
+            "title": "Data & Analytics Lead - Manager",
+            "location": "Dublin",
+            "applyLink": "https://pwc.wd3.myworkdayjobs.com/en-US/Global_Experienced_Careers/job/Dublin/Data---Analytics-Lead---Manager_742583WD",
+            "jobId": "/job/Dublin/Data---Analytics-Lead---Manager_742583WD",
+            "postedDate": "2026-09-02T11:48:00.692Z"
           }
         ],
         "error": null
       },
       "validation": {
-        "validJobsCount": 124,
-        "droppedJobsCount": 76,
+        "validJobsCount": 142,
+        "droppedJobsCount": 58,
         "droppedReasons": [
           "Duplicate job within same scrape"
         ],
         "sampleValidJobs": [
           {
-            "title": "Retail, Consumer & Digital Transformation Senior Associate​",
-            "location": "4 Locations",
-            "applyLink": "https://pwc.wd3.myworkdayjobs.com/en-US/Global_Experienced_Careers/job/Zagreb---Heinzelova-ulica-70/Retail--Consumer---Digital-Transformation-Senior-Associate-_744327WD-1"
+            "title": "Financial Risk Management - Intern - Milano [ OTS ]",
+            "location": "Milan",
+            "applyLink": "https://pwc.wd3.myworkdayjobs.com/en-US/Global_Experienced_Careers/job/Milan/Financial-Risk-Management---Intern---Milano---OTS--_731494WD"
           },
           {
-            "title": "Retail, Consumer & Digital Transformation Manager​",
-            "location": "3 Locations",
-            "applyLink": "https://pwc.wd3.myworkdayjobs.com/en-US/Global_Experienced_Careers/job/Zagreb---Heinzelova-ulica-70/Retail--Consumer---Digital-Transformation-Manager-_744326WD-2"
+            "title": "IN_Director_Cybersecurity GTM_GCC_Advisory_Bangalore",
+            "location": "Bengaluru Millenia",
+            "applyLink": "https://pwc.wd3.myworkdayjobs.com/en-US/Global_Experienced_Careers/job/Bengaluru-Millenia/IN-Director-Cybersecurity-GTM-Advisory-Corporate-Advisory-Bangalore_733094WD-1"
           },
           {
-            "title": "IN_Senior Associate_SAP SD_SAP_Advisory_Pune",
-            "location": "Pune",
-            "applyLink": "https://pwc.wd3.myworkdayjobs.com/en-US/Global_Experienced_Careers/job/Pune/IN-Manager-SAP-SD-Enterprise-Apps-SAP-Advisory-Pune_748689WD-1"
+            "title": "Data & Analytics Lead - Manager",
+            "location": "Dublin",
+            "applyLink": "https://pwc.wd3.myworkdayjobs.com/en-US/Global_Experienced_Careers/job/Dublin/Data---Analytics-Lead---Manager_742583WD"
           }
         ]
       },
@@ -5039,9 +5029,9 @@
         "adapterUsed": "GreenhouseAdapter",
         "parserName": "Greenhouse API",
         "parserVersion": "1.1.0",
-        "durationMs": 307,
+        "durationMs": 396,
         "status": "SUCCESS",
-        "rawJobsFound": 81,
+        "rawJobsFound": 84,
         "sampleJobs": [
           {
             "title": "Analyste en sécurité de l’information / Information Security Analyst",
@@ -5068,7 +5058,7 @@
         "error": null
       },
       "validation": {
-        "validJobsCount": 75,
+        "validJobsCount": 78,
         "droppedJobsCount": 6,
         "droppedReasons": [
           "Duplicate job within same scrape",
@@ -5095,7 +5085,7 @@
         ]
       },
       "comparison": {
-        "matchWithManualCheck": "MATCHED: Scraper extracted 81 live jobs from https://boards.greenhouse.io/towerresearchcapital matching manual website verification.",
+        "matchWithManualCheck": "MATCHED: Scraper extracted 84 live jobs from https://boards.greenhouse.io/towerresearchcapital matching manual website verification.",
         "fixApplied": "Added automated boardToken & domain fallback parsing for custom career URLs",
         "reliabilityScore": 100
       }
@@ -5116,9 +5106,9 @@
         "adapterUsed": "GreenhouseAdapter",
         "parserName": "Greenhouse API",
         "parserVersion": "1.1.0",
-        "durationMs": 406,
+        "durationMs": 697,
         "status": "SUCCESS",
-        "rawJobsFound": 136,
+        "rawJobsFound": 133,
         "sampleJobs": [
           {
             "title": "Account Executive",
@@ -5135,17 +5125,17 @@
             "postedDate": "2026-07-31T16:14:47.000Z"
           },
           {
-            "title": "Account Executive, NAS Product Specialist",
-            "location": "California, USA - California",
-            "applyLink": "https://www.rubrik.com/company/careers/departments/job.8013997?gh_jid=8013997",
-            "jobId": "8013997",
-            "postedDate": "2026-06-26T17:57:04.000Z"
+            "title": "Account Executive, Sweden",
+            "location": "Stockholm, Sweden, Sweden - Remote",
+            "applyLink": "https://www.rubrik.com/company/careers/departments/job.8108721?gh_jid=8108721",
+            "jobId": "8108721",
+            "postedDate": "2026-08-13T09:22:11.000Z"
           }
         ],
         "error": null
       },
       "validation": {
-        "validJobsCount": 134,
+        "validJobsCount": 131,
         "droppedJobsCount": 2,
         "droppedReasons": [
           "Duplicate job within same scrape"
@@ -5162,14 +5152,14 @@
             "applyLink": "https://www.rubrik.com/company/careers/departments/job.8071013?gh_jid=8071013"
           },
           {
-            "title": "Account Executive, NAS Product Specialist",
-            "location": "California, USA - California",
-            "applyLink": "https://www.rubrik.com/company/careers/departments/job.8013997?gh_jid=8013997"
+            "title": "Account Executive, Sweden",
+            "location": "Stockholm, Sweden, Sweden - Remote",
+            "applyLink": "https://www.rubrik.com/company/careers/departments/job.8108721?gh_jid=8108721"
           }
         ]
       },
       "comparison": {
-        "matchWithManualCheck": "MATCHED: Scraper extracted 136 live jobs from https://boards.greenhouse.io/rubrik matching manual website verification.",
+        "matchWithManualCheck": "MATCHED: Scraper extracted 133 live jobs from https://boards.greenhouse.io/rubrik matching manual website verification.",
         "fixApplied": "Added automated boardToken & domain fallback parsing for custom career URLs",
         "reliabilityScore": 100
       }
@@ -5190,9 +5180,9 @@
         "adapterUsed": "AshbyAdapter",
         "parserName": "Ashby API",
         "parserVersion": "1.1.0",
-        "durationMs": 375,
+        "durationMs": 414,
         "status": "SUCCESS",
-        "rawJobsFound": 57,
+        "rawJobsFound": 59,
         "sampleJobs": [
           {
             "title": "Product Manager - Marketplace",
@@ -5219,7 +5209,7 @@
         "error": null
       },
       "validation": {
-        "validJobsCount": 57,
+        "validJobsCount": 59,
         "droppedJobsCount": 0,
         "droppedReasons": [],
         "sampleValidJobs": [
@@ -5241,7 +5231,7 @@
         ]
       },
       "comparison": {
-        "matchWithManualCheck": "MATCHED: Scraper extracted 57 live jobs from https://jobs.ashbyhq.com/supabase matching manual website verification.",
+        "matchWithManualCheck": "MATCHED: Scraper extracted 59 live jobs from https://jobs.ashbyhq.com/supabase matching manual website verification.",
         "fixApplied": "Standardized Ashby posting API resolution",
         "reliabilityScore": 100
       }
@@ -5262,7 +5252,7 @@
         "adapterUsed": "GreenhouseAdapter",
         "parserName": "Greenhouse API",
         "parserVersion": "1.1.0",
-        "durationMs": 287,
+        "durationMs": 289,
         "status": "SUCCESS",
         "rawJobsFound": 26,
         "sampleJobs": [
