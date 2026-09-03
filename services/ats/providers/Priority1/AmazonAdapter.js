@@ -49,18 +49,33 @@ class AmazonAdapter extends BaseAdapter {
       if (page.length < PAGE || allJobs.length >= totalHits) break;
     }
 
-    return allJobs.map(item =>
-      this.normalizeJob({
+    return allJobs.map(item => {
+      const basicQuals = (item.basic_qualifications || '').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+      const preferredQuals = (item.preferred_qualifications || '').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+      const mainDesc = (item.description || item.description_short || '').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+
+      const fullDescription = [
+        mainDesc,
+        basicQuals ? `Basic Qualifications:\n${basicQuals}` : '',
+        preferredQuals ? `Preferred Qualifications:\n${preferredQuals}` : ''
+      ].filter(Boolean).join('\n\n');
+
+      // Extract explicit years of experience from basic_qualifications
+      const expMatch = basicQuals.match(/(\d+)\+?\s*years?\s*(?:of)?\s*(?:non-internship|professional|software|development|engineering|industry)?/i);
+      const experience = expMatch ? `${expMatch[1]}+ years` : '';
+
+      return this.normalizeJob({
         title         : item.title,
         location      : [item.city, item.location].filter(Boolean).join(', ') || (item.locations || []).join(', '),
         jobId         : item.id || item.id_icims,
-        description   : item.description_short || item.description || '',
+        experience    : experience,
+        description   : fullDescription,
         url           : item.job_path ? `https://www.amazon.jobs${item.job_path}` : '',
         postedAt      : normalizeDate(item.posted_date || item.updated_time),
         employmentType: item.job_schedule_type,
         source        : 'amazon',
-      })
-    ).filter(Boolean);
+      });
+    }).filter(Boolean);
   }
 }
 

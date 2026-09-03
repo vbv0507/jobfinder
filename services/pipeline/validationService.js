@@ -83,6 +83,17 @@ const hasAllowedExperience = (job) => {
       return { passed: false, reason: `Seniority mismatch: ${midLevelMatch[0]}` };
   }
   
+  // Inspect description for explicit mandatory qualifications (e.g. Amazon "3+ years of non-internship professional experience")
+  const desc = (job.description || "").toLowerCase();
+  const descExpMatches = [...desc.matchAll(/(?:basic qualifications?|minimum qualifications?|requirements?|qualifications?|must have)[^]{0,400}?(\d+)\+?\s*years?\s*(?:of)?\s*(?:[a-z-]+\s+){0,6}experience/gi)];
+  const directExpMatches = [...desc.matchAll(/(\d+)\+?\s*years?\s*(?:of)?\s*(?:non-internship|relevant|hands-on|industry|professional|software|development|engineering|work)\s*(?:[a-z-]+\s+){0,5}experience/gi)];
+  const allExp = [...descExpMatches, ...directExpMatches].map(m => Number(m[1])).filter(n => Number.isFinite(n));
+
+  if (allExp.some(n => n >= 3)) {
+      const highest = Math.max(...allExp);
+      return { passed: false, reason: `Requires ${highest}+ years experience (from qualifications)` };
+  }
+
   return { passed: true };
 };
 

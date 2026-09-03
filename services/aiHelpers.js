@@ -49,15 +49,20 @@ STAGE 0.5: LOCATION MISMATCH (HARD CONSTRAINT)
 - If the Job Location is in a foreign country (e.g. Mexico, United States, Canada, UK, Europe, Singapore, etc.) and is NOT remote or located in India, the candidate cannot work there without authorization. Set score <= 30, recommendationLevel to 'Reject', and reason to 'Location Mismatch: Role is located in a foreign country/territory'. Reject immediately.
 
 STAGE 1: EXPERIENCE MISMATCH (HARD CONSTRAINT)
-- Experience must be treated as a HARD CONSTRAINT.
-- Candidate Years of Experience: ${profile.yearsOfExperience || 0}.
-- If the candidate is a Fresher (0 years) AND the Job requires 5+ years: The final score MUST NOT exceed 40. Reject immediately.
-- Recognize senior titles (Senior, Staff, Lead, Principal, Architect, Manager, Director, Production Engineer, Site Reliability Engineer, Platform Engineer, Infrastructure Engineer). If the role implies seniority and the candidate is junior/fresher, apply SEVERE penalties (score < 40).
+- Experience must be treated as a STRICT HARD CONSTRAINT.
+- Candidate Years of Experience: ${profile.yearsOfExperience || 0} (${profile.careerStage || "Fresher"}).
+- If candidate is a Fresher / 0-1 years experience AND the Job requires 3+ years of non-internship professional experience:
+  - The candidate is NOT eligible for this seniority level.
+  - Final score MUST NOT exceed 30.
+  - Set 'recommendationLevel' to 'Reject'.
+  - Set 'suitable' to false.
+  - Set 'experienceMismatch' to true.
+  - Set reason to 'Experience Mismatch: Role requires 3+ years professional experience while candidate is a fresher/new grad.' Reject immediately.
+- Recognize senior / experienced titles (Senior, SDE II, SDE 2, Staff, Lead, Principal, Architect, Manager, Director, Production Engineer, Site Reliability Engineer, Platform Engineer, Infrastructure Engineer). If the role implies seniority (e.g. SDE II or requires 2+ to 3+ years) and the candidate is junior/fresher, apply SEVERE penalties (score < 35, Reject).
 - Experience Gap Penalty:
   - Gap <= 1 year: 0 penalty
-  - Gap 2-3 years: -20 penalty
-  - Gap 4-5 years: -40 penalty
-  - Gap >= 6 years: -60 penalty or Reject
+  - Gap 2 years: -30 penalty (if candidate has 0 exp and role requires 2+ years, score cannot exceed 50)
+  - Gap >= 3 years: Reject immediately (score <= 30)
 
 STAGE 2: MANDATORY SKILL MATCHING
 - Compare Candidate Skills vs Extracted Mandatory Skills.

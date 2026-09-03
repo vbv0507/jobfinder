@@ -911,3 +911,31 @@ Executed a comprehensive audit across all 72 active career portals, resolved a c
    - Updated `services/pipelineState.js` and `services/pipeline/storageService.js` to track `newJobs` during live pipeline execution.
    - Enhanced `public/js/modules/dashboard.js` to render the dynamic badge (e.g., `+109 New Today`) next to the total active volume (`8,615`).
 
+---
+
+## 🎯 34. Amazon Scraper Qualification Truncation Fix & Experience Filtering Hardening (2026-09-03)
+
+### Overview
+Investigated an erroneous 75-score match on *"Software Development Engineer, Amazon Music"* for a 2027 new grad profile when the live role explicitly required **3+ years of non-internship professional experience**. Identified and resolved description truncation in `AmazonAdapter.js`, hardened pre-AI experience filtering in `validationService.js`, and strengthened AI evaluation prompt constraints in `aiHelpers.js`.
+
+### Key Root Cause & Changes:
+1. **Amazon Scraper Full Qualification Extraction (`services/ats/providers/Priority1/AmazonAdapter.js`)**:
+   - **Root Cause**: `AmazonAdapter` previously used `item.description_short || item.description`, which picked the 200-character preview blurb and discarded the 3,600-character job description, `basic_qualifications`, and `preferred_qualifications`.
+   - **Fix**: Merged `description`, `basic_qualifications`, and `preferred_qualifications` into `fullDescription` (stripping HTML tags).
+   - **Experience Extraction**: Extracted explicit experience requirements (e.g., `"3+ years"`) from `basic_qualifications` directly into `job.experience`.
+
+2. **Pre-AI Experience Filter Hardening (`services/pipeline/validationService.js`)**:
+   - Enhanced `hasAllowedExperience` to inspect job description text for explicit qualification clauses (e.g., `3+ years of non-internship professional software development experience`, `minimum of 3+ years experience`).
+   - Automatically drops roles requiring 3+ years before sending them to AI evaluation, saving LLM tokens and preventing false positive matches.
+
+3. **AI Prompt Experience Constraint Hardening (`services/aiHelpers.js`, `services/geminiService.js`)**:
+   - Updated `STAGE 1: EXPERIENCE MISMATCH` in `buildEvaluationPrompt`: If candidate is a Fresher / 0-1 years experience and the job requires 3+ years of professional experience, the score must not exceed 30, `recommendationLevel` must be `'Reject'`, and `suitable` must be `false`.
+   - Updated `evaluateJobLocally` in `geminiService.js` to penalize a 3+ year experience gap when candidate experience is under 2 years.
+
+4. **Invalid Matches Database Re-evaluation & Cleanup (`scripts/clean_invalid_amazon_matches.js`)**:
+   - Re-evaluated the two Amazon matches requiring 3+ years (`Software Development Engineer, Amazon Music` and `SDE, International Cobranded Credit Cards`).
+   - Updated `RawJob` records with full descriptions and `experience: "3+ years"`.
+   - Moved both jobs from `MatchedJob` to `RejectedJob` with the explicit reason: *"Requires 3+ years of non-internship professional software development experience (candidate is a 2027 fresher with 0 years experience)"*.
+   - Invalidated analytics cache; verified `MatchedJob` total dropped from 114 to 112 with 0 invalid Amazon experienced roles.
+
+

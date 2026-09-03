@@ -133,7 +133,11 @@ const evaluateJobLocally = (job, profile, reasonPrefix = "AI unavailable") => {
     }
 
     const expGap = Math.max(0, reqExp - candExp);
-    if (expGap >= 5 && !isFresherRole) {
+    if (expGap >= 3 && candExp < 2 && !isFresherRole) {
+        score -= 40;
+        experienceMismatch = true;
+        reasonsAgainst.push(`Experience mismatch: Requires ${reqExp}+ years, candidate has ${candExp}.`);
+    } else if (expGap >= 5) {
         score -= 40;
         experienceMismatch = true;
         reasonsAgainst.push(`Experience mismatch: Requires ${reqExp}+ years, candidate has ${candExp}.`);
