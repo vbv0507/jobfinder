@@ -29,6 +29,7 @@ const getAnalyticsData = async (force = false) => {
         const startOfDay = getISTStartOfDay();
         
         const rawJobsToday = await RawJob.countDocuments({ scrapedAt: { $gte: startOfDay } });
+        const newJobsToday = await RawJob.countDocuments({ createdAt: { $gte: startOfDay } });
         const pendingRawQueue = await RawJob.countDocuments({ aiEvaluated: { $ne: true } });
         const rawJobsCount = pendingRawQueue;
         const totalRawArchive = await RawJob.countDocuments();
@@ -263,6 +264,7 @@ const getAnalyticsData = async (force = false) => {
                 companiesMonitored,
                 rawJobsCount,
                 rawJobsToday,
+                newJobsToday,
                 aiEvaluatedCount,
                 matchedJobsCount,
                 newJobsCount,
@@ -313,6 +315,7 @@ const getAnalyticsData = async (force = false) => {
                 "Failed Companies": latestFailedCompanies,
                 "Recovered Nodes": latest.retriedSuccessfully || 0,
                 "Raw Jobs": latest.jobsFound || latest.totalJobs || 0,
+                "New Jobs Today": newJobsToday,
                 "Matched Jobs": latest.jobsMatched || latest.matchedJobs || 0,
                 "AI Evaluations": latest.aiEvaluations || latest.jobsEvaluated || aiEvaluatedCount || 0,
                 "Parser Failures": latest.parserOutdated || 0,

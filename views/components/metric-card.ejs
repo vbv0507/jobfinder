@@ -1,12 +1,20 @@
 <!-- views/components/metric-card.ejs -->
 <div class="bg-surface border border-border rounded-lg p-4 shadow-sm hover:border-border/80 transition-colors flex flex-col justify-center">
-    <div class="flex items-center gap-3 mb-2">
-        <div class="w-6 h-6 rounded-md bg-surfaceHover flex items-center justify-center <%= color %>">
-            <i class="fa-solid <%= icon %> text-xs"></i>
+    <div class="flex items-center justify-between mb-2">
+        <div class="flex items-center gap-2 overflow-hidden">
+            <div class="w-6 h-6 rounded-md bg-surfaceHover flex items-center justify-center <%= color %> shrink-0">
+                <i class="fa-solid <%= icon %> text-xs"></i>
+            </div>
+            <h4 class="text-xs font-medium text-textMuted truncate" title="<%= title %>"><%= title %></h4>
         </div>
-        <h4 class="text-xs font-medium text-textMuted truncate" title="<%= title %>"><%= title %></h4>
+        <% if (locals.badgeId) { %>
+            <span class="text-[10px] font-semibold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-1.5 py-0.5 rounded shrink-0 hidden" id="<%= badgeId %>"></span>
+        <% } %>
     </div>
-    <div class="flex items-end gap-2">
+    <div class="flex items-baseline gap-2">
         <p class="text-xl font-bold text-textMain leading-none" id="<%= id %>">--</p>
+        <% if (locals.subId) { %>
+            <span class="text-xs text-textMuted" id="<%= subId %>"></span>
+        <% } %>
     </div>
 </div>

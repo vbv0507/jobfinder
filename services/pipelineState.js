@@ -18,6 +18,7 @@ class PipelineStateManager {
         this.companyIndex = 0;
         this.totalCompanies = 0;
         this.jobsFound = 0;
+        this.newJobs = 0;
         this.jobsSaved = 0;
         this.matchedJobs = 0;
         this.aiEvaluated = 0;
@@ -193,6 +194,7 @@ class PipelineStateManager {
             companyIndex: this.companyIndex,
             totalCompanies: this.totalCompanies,
             jobsFound: this.jobsFound || this.jobsScraped || 0,
+            newJobs: this.newJobs || 0,
             jobsSaved: this.jobsSaved,
             matchedJobs: this.matchedJobs || this.jobsMatched || 0,
             aiEvaluated: this.aiEvaluated || this.jobsEvaluated || 0,
@@ -233,6 +235,7 @@ class PipelineStateManager {
             stage: entry.stage || this.currentStage,
             retryCount: this.retryCount || 0,
             jobsFound: this.jobsFound || this.jobsScraped || 0,
+            newJobs: this.newJobs || 0,
             matchedJobs: this.matchedJobs || this.jobsMatched || 0,
             elapsedTime: this.elapsedTime || 0,
             remainingEstimate,
@@ -246,6 +249,7 @@ class PipelineStateManager {
             activeBrowserCount: this.activeCompanies ? this.activeCompanies.length : 0,
             queueSize: this.totalCompanies - (this.companyIndex || 0),
             jobsFound: this.jobsFound || this.jobsScraped || 0,
+            newJobs: this.newJobs || 0,
             jobsSaved: this.jobsSaved || 0,
             elapsed: this.elapsedTime || 0,
             status: this.currentStage || "IDLE",

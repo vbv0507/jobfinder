@@ -1,11 +1,11 @@
 # 72 Seeded Companies — Complete Manual Check vs Scraper Audit Report
 
-- **Audit Date**: 2026-09-02
+- **Audit Date**: 2026-09-03
 - **Total Seeded Active Companies Audited**: 72
 - **Companies Successfully Scraped (Raw Jobs > 0)**: 72
 - **Companies with Scraper Errors**: 0
-- **Total Raw Jobs Discovered Across All 72 Companies**: 13100
-- **Total Filter-Validated Jobs**: 12373
+- **Total Raw Jobs Discovered Across All 72 Companies**: 13315
+- **Total Filter-Validated Jobs**: 12480
 
 ---
 
@@ -30,7 +30,7 @@
   - **Observed Live Opportunities**: 50+ Tech, Implementation, and SDE roles across Hyderabad, Pune, Chennai
 - **Scraper Execution**:
   - **Adapter Used**: `AdpAdapter` (`ADP Career Portal Parser` v1.2.0)
-  - **Scraper Status**: **SUCCESS** (8829ms)
+  - **Scraper Status**: **SUCCESS** (4462ms)
   - **Raw Jobs Scraped**: **50**
   - **Sample Scraped Jobs**:
     - *SCS Autopay Resource Pool F2C 170929* — Location: `India` | [Job Link](https://jobs.adp.com/en/jobs/ind170929/scs-autopay-resource-pool-f2c-170929)
@@ -51,7 +51,7 @@
   - **Observed Live Opportunities**: 100+ Software, Hardware, Firmware, and Verification Engineering roles across India (Bangalore, Ahmedabad, Hyderabad)
 - **Scraper Execution**:
   - **Adapter Used**: `InfineonAdapter` (`Infineon Eightfold PCSX API` v2.0.0)
-  - **Scraper Status**: **SUCCESS** (7657ms)
+  - **Scraper Status**: **SUCCESS** (6209ms)
   - **Raw Jobs Scraped**: **109**
   - **Sample Scraped Jobs**:
     - *Principal Engineer Software* — Location: `Ahmedabad, GJ, IN` | [Job Link](https://jobs.infineon.com/careers/job/563808970320786)
@@ -73,16 +73,16 @@
   - **Observed Live Opportunities**: Enterprise Workday job board with global & regional tech postings
 - **Scraper Execution**:
   - **Adapter Used**: `WorkdayAdapter` (`Workday GraphQL/API` v2.2.0)
-  - **Scraper Status**: **SUCCESS** (13634ms)
+  - **Scraper Status**: **SUCCESS** (10546ms)
   - **Raw Jobs Scraped**: **200**
   - **Sample Scraped Jobs**:
-    - *Payments Consulting & Implementation Manager* — Location: `NO - Oslo, Norway` | [Job Link](https://visa.wd5.myworkdayjobs.com/en-US/Visa/job/NO---Oslo-Norway/Payments-Consulting---Implementation-Manager_REF088088W)
-    - *Senior Marketing Manager* — Location: `TW - Taipei, Taiwan` | [Job Link](https://visa.wd5.myworkdayjobs.com/en-US/Visa/job/TW---Taipei-Taiwan/Senior-Marketing-Manager_REF088136W)
-    - *Talent Acquisition Coordinator (Fixed Term Contract)* — Location: `PH - Pasay, Philippines - Manila` | [Job Link](https://visa.wd5.myworkdayjobs.com/en-US/Visa/job/PH---Pasay-Philippines---Manila/Talent-Acquisition-Coordinator--Fixed-Term-Contract-_REF087080W)
+    - *Consultant, People Analytics (Power BI/DAX/SQL)* — Location: `IN - Bengaluru, India` | [Job Link](https://visa.wd5.myworkdayjobs.com/en-US/Visa/job/IN---Bengaluru-India/Consultant--People-Analytics--Power-BI-DAX-SQL-_REF087980W)
+    - *Lead Technical Program Manager* — Location: `IN - Bengaluru, India` | [Job Link](https://visa.wd5.myworkdayjobs.com/en-US/Visa/job/IN---Bengaluru-India/Lead-Technical-Program-Manager_REF087842W-1)
+    - *Sr Technical Program Manager, Treasury Digital Assets* — Location: `US - Foster City, CA` | [Job Link](https://visa.wd5.myworkdayjobs.com/en-US/Visa/job/US---Foster-City-CA/Sr-Technical-Program-Manager--Treasury-Digital-Assets_REF082972W)
 - **Pipeline Validation**:
-  - **Valid Jobs (Passed Filters)**: **192**
-  - **Dropped Jobs Count**: 8
-  - **Drop Reasons**: Duplicate job within same scrape; Requires 3+ years experience; Requires 10+ years experience
+  - **Valid Jobs (Passed Filters)**: **191**
+  - **Dropped Jobs Count**: 9
+  - **Drop Reasons**: Duplicate job within same scrape; Requires 4+ years experience; Requires 3+ years experience
 - **Fix Applied & Audit Result**: Integrated automated session cookie pre-flight in WorkdayAdapter, eliminating 422 errors and retries (200 jobs)
 - **Audit Conclusion**: MATCHED: Scraper extracted 200 live jobs from https://visa.wd5.myworkdayjobs.com/en-US/Visa matching manual website verification.
 
@@ -95,15 +95,15 @@
   - **Observed Live Opportunities**: Enterprise Workday job board with global & regional tech postings
 - **Scraper Execution**:
   - **Adapter Used**: `WorkdayAdapter` (`Workday GraphQL/API` v2.2.0)
-  - **Scraper Status**: **SUCCESS** (14939ms)
+  - **Scraper Status**: **SUCCESS** (11874ms)
   - **Raw Jobs Scraped**: **200**
   - **Sample Scraped Jobs**:
-    - *Lead Software Engineer (C/C++)* — Location: `O'Fallon, Missouri` | [Job Link](https://mastercard.wd1.myworkdayjobs.com/en-US/CorporateCareers/job/OFallon-Missouri/Lead-Software-Engineer--C-C---_R-286321)
-    - *Director, Platform Engineering* — Location: `O'Fallon, Missouri` | [Job Link](https://mastercard.wd1.myworkdayjobs.com/en-US/CorporateCareers/job/OFallon-Missouri/Director--Platform-Engineering_R-273321)
-    - *Data Scientist I* — Location: `Pune, India` | [Job Link](https://mastercard.wd1.myworkdayjobs.com/en-US/CorporateCareers/job/Pune-India/Data-Scientist-I_R-278159)
+    - *Business Analyst II* — Location: `Singapore` | [Job Link](https://mastercard.wd1.myworkdayjobs.com/en-US/CorporateCareers/job/Singapore/Business-Analyst-II_R-287981)
+    - *Consultant/Senior Research Analyst (Qualitative Research), Advisors Research Centre* — Location: `Kuala Lumpur, Malaysia` | [Job Link](https://mastercard.wd1.myworkdayjobs.com/en-US/CorporateCareers/job/Kuala-Lumpur-Malaysia/Consultant--Specialized-Product-Delivery_R-289426)
+    - *Managing Consultant, Specialised Product Delivery (Research Solutions) – Advisors Research Center (ARC)* — Location: `Kuala Lumpur, Malaysia` | [Job Link](https://mastercard.wd1.myworkdayjobs.com/en-US/CorporateCareers/job/Kuala-Lumpur-Malaysia/Managing-Consultant--Specialised-Product-Delivery--Research-Solutions----Advisors-Research-Center--ARC-_R-290118)
 - **Pipeline Validation**:
-  - **Valid Jobs (Passed Filters)**: **181**
-  - **Dropped Jobs Count**: 19
+  - **Valid Jobs (Passed Filters)**: **178**
+  - **Dropped Jobs Count**: 22
   - **Drop Reasons**: Duplicate job within same scrape; Seniority mismatch: software engineer ii; Seniority mismatch: engineer ii
 - **Fix Applied & Audit Result**: Integrated automated session cookie pre-flight in WorkdayAdapter, eliminating 422 errors and retries (200 jobs)
 - **Audit Conclusion**: MATCHED: Scraper extracted 200 live jobs from https://mastercard.wd1.myworkdayjobs.com/CorporateCareers matching manual website verification.
@@ -117,18 +117,18 @@
   - **Observed Live Opportunities**: Enterprise Workday job board with global & regional tech postings
 - **Scraper Execution**:
   - **Adapter Used**: `WorkdayAdapter` (`Workday GraphQL/API` v2.2.0)
-  - **Scraper Status**: **SUCCESS** (3365ms)
-  - **Raw Jobs Scraped**: **26**
+  - **Scraper Status**: **SUCCESS** (13998ms)
+  - **Raw Jobs Scraped**: **200**
   - **Sample Scraped Jobs**:
-    - *CIP Lead Investigator L1* — Location: `Mumbai, Maharashtra, India` | [Job Link](https://paypal.wd1.myworkdayjobs.com/en-US/jobs/job/Mumbai-Maharashtra-India/CIP-investigator_R0137241)
-    - *Sr Software Engineer* — Location: `Austin, Texas, United States of America` | [Job Link](https://paypal.wd1.myworkdayjobs.com/en-US/jobs/job/Austin-Texas-United-States-of-America/Sr-Software-Engineer_R0137266)
-    - *Software Engineer 3* — Location: `San Jose, California, United States of America` | [Job Link](https://paypal.wd1.myworkdayjobs.com/en-US/jobs/job/San-Jose-California-United-States-of-America/Software-Engineer-3_R0137262)
+    - *Account Representative, Small and Medium Business* — Location: `Tel Aviv, Tel Aviv District, Israel` | [Job Link](https://paypal.wd1.myworkdayjobs.com/en-US/jobs/job/Tel-Aviv-Tel-Aviv-District-Israel/Account-Representative--Small-and-Medium-Business_R0137337)
+    - *Accountant* — Location: `Bangalore, Karnataka, India` | [Job Link](https://paypal.wd1.myworkdayjobs.com/en-US/jobs/job/Bangalore-Karnataka-India/Accountant_R0137350)
+    - *Analyst, Procure to Pay* — Location: `Bangalore, Karnataka, India` | [Job Link](https://paypal.wd1.myworkdayjobs.com/en-US/jobs/job/Bangalore-Karnataka-India/Analyst--Procure-to-Pay_R0137342)
 - **Pipeline Validation**:
-  - **Valid Jobs (Passed Filters)**: **24**
-  - **Dropped Jobs Count**: 2
+  - **Valid Jobs (Passed Filters)**: **95**
+  - **Dropped Jobs Count**: 105
   - **Drop Reasons**: Duplicate job within same scrape; Seniority mismatch: software engineer 3
 - **Fix Applied & Audit Result**: Integrated automated session cookie pre-flight in WorkdayAdapter, eliminating 422 errors and retries (200 jobs)
-- **Audit Conclusion**: MATCHED: Scraper extracted 26 live jobs from https://paypal.wd1.myworkdayjobs.com/jobs matching manual website verification.
+- **Audit Conclusion**: MATCHED: Scraper extracted 200 live jobs from https://paypal.wd1.myworkdayjobs.com/jobs matching manual website verification.
 
 ### 6. Stripe
 - **Industry / Category**: Finance (Service)
@@ -139,18 +139,18 @@
   - **Observed Live Opportunities**: Greenhouse open positions
 - **Scraper Execution**:
   - **Adapter Used**: `GreenhouseAdapter` (`Greenhouse API` v1.1.0)
-  - **Scraper Status**: **SUCCESS** (920ms)
-  - **Raw Jobs Scraped**: **592**
+  - **Scraper Status**: **SUCCESS** (681ms)
+  - **Raw Jobs Scraped**: **593**
   - **Sample Scraped Jobs**:
     - *Account Executive, AI Sales* — Location: `San Francisco, CA, US` | [Job Link](https://stripe.com/jobs/search?gh_jid=7532733)
     - *Account Executive, AI Startups (Hunter)* — Location: `San Francisco, US` | [Job Link](https://stripe.com/jobs/search?gh_jid=8130725)
     - *Account Executive, Bridge* — Location: `SF, NYC, SEA, CHI, US` | [Job Link](https://stripe.com/jobs/search?gh_jid=8077887)
 - **Pipeline Validation**:
-  - **Valid Jobs (Passed Filters)**: **585**
+  - **Valid Jobs (Passed Filters)**: **586**
   - **Dropped Jobs Count**: 7
   - **Drop Reasons**: Duplicate job within same scrape
 - **Fix Applied & Audit Result**: Added automated boardToken & domain fallback parsing for custom career URLs
-- **Audit Conclusion**: MATCHED: Scraper extracted 592 live jobs from https://stripe.com/jobs/search matching manual website verification.
+- **Audit Conclusion**: MATCHED: Scraper extracted 593 live jobs from https://stripe.com/jobs/search matching manual website verification.
 
 ### 7. Wise
 - **Industry / Category**: Finance (Service)
@@ -161,7 +161,7 @@
   - **Observed Live Opportunities**: Greenhouse open positions
 - **Scraper Execution**:
   - **Adapter Used**: `GreenhouseAdapter` (`Greenhouse API` v1.1.0)
-  - **Scraper Status**: **SUCCESS** (297ms)
+  - **Scraper Status**: **SUCCESS** (271ms)
   - **Raw Jobs Scraped**: **21**
   - **Sample Scraped Jobs**:
     - *Supplemental Sales Agent - Anchorage, AK* — Location: `Anchorage, AK, Alaska - WS` | [Job Link](https://job-boards.greenhouse.io/wise/jobs/6145443004)
@@ -182,18 +182,18 @@
   - **Observed Live Opportunities**: Greenhouse open positions
 - **Scraper Execution**:
   - **Adapter Used**: `GreenhouseAdapter` (`Greenhouse API` v1.1.0)
-  - **Scraper Status**: **SUCCESS** (374ms)
-  - **Raw Jobs Scraped**: **292**
+  - **Scraper Status**: **SUCCESS** (1024ms)
+  - **Raw Jobs Scraped**: **282**
   - **Sample Scraped Jobs**:
-    - *Account Executive, Small Business* — Location: `Salt Lake City, Utah, United States, New York, NY, Salt Lake City, UT, San Francisco, CA` | [Job Link](https://www.brex.com/careers/8688112002?gh_jid=8688112002)
     - *Account Executive, Small Business* — Location: `San Francisco, California, United States, New York, NY, Salt Lake City, UT, San Francisco, CA` | [Job Link](https://www.brex.com/careers/8686667002?gh_jid=8686667002)
     - *Account Executive, Small Business* — Location: `New York, New York, United States, New York, NY, Salt Lake City, UT, San Francisco, CA` | [Job Link](https://www.brex.com/careers/8688110002?gh_jid=8688110002)
+    - *Account Executive, Small Business* — Location: `Salt Lake City, Utah, United States, New York, NY, Salt Lake City, UT, San Francisco, CA` | [Job Link](https://www.brex.com/careers/8688112002?gh_jid=8688112002)
 - **Pipeline Validation**:
-  - **Valid Jobs (Passed Filters)**: **287**
+  - **Valid Jobs (Passed Filters)**: **277**
   - **Dropped Jobs Count**: 5
   - **Drop Reasons**: Seniority mismatch: software engineer ii
 - **Fix Applied & Audit Result**: Added automated boardToken & domain fallback parsing for custom career URLs
-- **Audit Conclusion**: MATCHED: Scraper extracted 292 live jobs from https://boards.greenhouse.io/brex matching manual website verification.
+- **Audit Conclusion**: MATCHED: Scraper extracted 282 live jobs from https://boards.greenhouse.io/brex matching manual website verification.
 
 ### 9. Ramp
 - **Industry / Category**: Finance (Service)
@@ -204,17 +204,17 @@
   - **Observed Live Opportunities**: Ashby open job board
 - **Scraper Execution**:
   - **Adapter Used**: `AshbyAdapter` (`Ashby API` v1.1.0)
-  - **Scraper Status**: **SUCCESS** (463ms)
-  - **Raw Jobs Scraped**: **138**
+  - **Scraper Status**: **SUCCESS** (415ms)
+  - **Raw Jobs Scraped**: **140**
   - **Sample Scraped Jobs**:
     - *Security Engineer, Cloud* — Location: `New York, NY (HQ), Remote (Canada), Remote (US), Miami, FL` | [Job Link](https://jobs.ashbyhq.com/ramp/34413f8d-26bf-4bbc-8ade-eb309a0e2245)
     - *Mobile Engineer, Android* — Location: `New York, NY (HQ), Remote (Canada), San Francisco, CA, Remote (US)` | [Job Link](https://jobs.ashbyhq.com/ramp/f564dcf9-9390-4a3f-896f-8047a5086040)
     - *Software Engineer, Frontend* — Location: `New York, NY (HQ), Remote (Canada), San Francisco, CA, Remote (US), Miami, FL` | [Job Link](https://jobs.ashbyhq.com/ramp/4e64ab86-4e30-403b-b1b9-41dc052570ce)
 - **Pipeline Validation**:
-  - **Valid Jobs (Passed Filters)**: **138**
+  - **Valid Jobs (Passed Filters)**: **140**
   - **Dropped Jobs Count**: 0
 - **Fix Applied & Audit Result**: Standardized Ashby posting API resolution
-- **Audit Conclusion**: MATCHED: Scraper extracted 138 live jobs from https://ramp.com/careers matching manual website verification.
+- **Audit Conclusion**: MATCHED: Scraper extracted 140 live jobs from https://ramp.com/careers matching manual website verification.
 
 ### 10. Plaid
 - **Industry / Category**: Finance (Service)
@@ -225,18 +225,18 @@
   - **Observed Live Opportunities**: Ashby open job board
 - **Scraper Execution**:
   - **Adapter Used**: `AshbyAdapter` (`Ashby API` v1.1.0)
-  - **Scraper Status**: **SUCCESS** (353ms)
-  - **Raw Jobs Scraped**: **102**
+  - **Scraper Status**: **SUCCESS** (415ms)
+  - **Raw Jobs Scraped**: **104**
   - **Sample Scraped Jobs**:
     - *Strategic Initiatives* — Location: `San Francisco HQ` | [Job Link](https://jobs.ashbyhq.com/plaid/5d8abedc-018a-4b42-ae1f-0e70b34f2007)
     - *Technical Support Engineer* — Location: `San Francisco HQ` | [Job Link](https://jobs.ashbyhq.com/plaid/3f299587-7bed-4e59-9eb1-2d5d1df01821)
-    - *Strategic Finance Lead, Product & Engineering* — Location: `San Francisco HQ, New York City Office` | [Job Link](https://jobs.ashbyhq.com/plaid/453966dc-6854-421d-8cac-0eee80cf2048)
+    - *Senior Data Engineer - Data Engineering* — Location: `San Francisco HQ, Seattle Office, New York City Office` | [Job Link](https://jobs.ashbyhq.com/plaid/ce3b3add-47d9-402d-a31d-16ffd1d0adb4)
 - **Pipeline Validation**:
-  - **Valid Jobs (Passed Filters)**: **101**
+  - **Valid Jobs (Passed Filters)**: **103**
   - **Dropped Jobs Count**: 1
   - **Drop Reasons**: Duplicate job within same scrape
 - **Fix Applied & Audit Result**: Standardized Ashby posting API resolution
-- **Audit Conclusion**: MATCHED: Scraper extracted 102 live jobs from https://plaid.com/careers/ matching manual website verification.
+- **Audit Conclusion**: MATCHED: Scraper extracted 104 live jobs from https://plaid.com/careers/ matching manual website verification.
 
 ### 11. Amazon
 - **Industry / Category**: Big Tech (Product)
@@ -247,16 +247,16 @@
   - **Observed Live Opportunities**: Amazon SDE, Tech, Operations roles
 - **Scraper Execution**:
   - **Adapter Used**: `AmazonAdapter` (`Amazon Jobs API` v1.0.0)
-  - **Scraper Status**: **SUCCESS** (10174ms)
+  - **Scraper Status**: **SUCCESS** (9910ms)
   - **Raw Jobs Scraped**: **200**
   - **Sample Scraped Jobs**:
-    - *Solutions Architect, Local Enterprise - Israel* — Location: `Tel Aviv, IL, Tel Aviv` | [Job Link](https://www.amazon.jobs/en/jobs/10516466/solutions-architect-local-enterprise-israel)
-    - *Principal Delivery Consultant – Data, Professional Services, AWSI GFS* — Location: `Austin, US, TX, Austin` | [Job Link](https://www.amazon.jobs/en/jobs/10507933/principal-delivery-consultant-data-professional-services-awsi-gfs)
-    - *Senior Program Manager, GREF – Global Support Operations* — Location: `London, GB, London` | [Job Link](https://www.amazon.jobs/en/jobs/10452930/senior-program-manager-gref-global-support-operations)
+    - *Construction Manager* — Location: `Tokyo, JP, 13, Tokyo` | [Job Link](https://www.amazon.jobs/en/jobs/10487696/construction-manager)
+    - *Advertising Account Manager, CN Large Customer, Amazon Ads* — Location: `Shanghai, CN, 31, Shanghai` | [Job Link](https://www.amazon.jobs/en/jobs/3195456/advertising-account-manager-cn-large-customer-amazon-ads)
+    - *AI Solution Architect* — Location: `Seoul, KR, Seoul` | [Job Link](https://www.amazon.jobs/en/jobs/10528106/ai-solution-architect)
 - **Pipeline Validation**:
-  - **Valid Jobs (Passed Filters)**: **189**
-  - **Dropped Jobs Count**: 11
-  - **Drop Reasons**: Duplicate job within same scrape; Seniority mismatch: engineer ii
+  - **Valid Jobs (Passed Filters)**: **180**
+  - **Dropped Jobs Count**: 20
+  - **Drop Reasons**: Duplicate job within same scrape; Seniority mismatch: engineer ii; Seniority mismatch: engineer iii
 - **Fix Applied & Audit Result**: Verified Amazon Jobs API with multi-page offset query
 - **Audit Conclusion**: MATCHED: Scraper extracted 200 live jobs from https://www.amazon.jobs/en/search matching manual website verification.
 
@@ -269,7 +269,7 @@
   - **Observed Live Opportunities**: Netflix engineering roles
 - **Scraper Execution**:
   - **Adapter Used**: `NetflixAdapter` (`Netflix Jobs API` v2.0.0)
-  - **Scraper Status**: **SUCCESS** (2966ms)
+  - **Scraper Status**: **SUCCESS** (3303ms)
   - **Raw Jobs Scraped**: **10**
   - **Sample Scraped Jobs**:
     - *Senior Manager, Communications - India* — Location: `Mumbai,India` | [Job Link](https://explore.jobs.netflix.net/careers/job/790317836990)
@@ -290,15 +290,15 @@
   - **Observed Live Opportunities**: Enterprise Workday job board with global & regional tech postings
 - **Scraper Execution**:
   - **Adapter Used**: `WorkdayAdapter` (`Workday GraphQL/API` v2.2.0)
-  - **Scraper Status**: **SUCCESS** (9350ms)
+  - **Scraper Status**: **SUCCESS** (9656ms)
   - **Raw Jobs Scraped**: **200**
   - **Sample Scraped Jobs**:
+    - *Staff Machine Learning Engineer - ML Frameworks* — Location: `3 Locations` | [Job Link](https://adobe.wd5.myworkdayjobs.com/en-US/external_experienced/job/San-Jose/Staff-Machine-Learning-Engineer---ML-Frameworks_R171045)
+    - *Senior Product Manager, Data Platform - Knowledge & Retrieval* — Location: `San Jose` | [Job Link](https://adobe.wd5.myworkdayjobs.com/en-US/external_experienced/job/San-Jose/Senior-Product-Manager--Data-Platform---Knowledge---Retrieval_R170844-1)
     - *Software Development Engineer 4* — Location: `Noida` | [Job Link](https://adobe.wd5.myworkdayjobs.com/en-US/external_experienced/job/Noida/Software-Development-Engineer-4_R171585)
-    - *ACS Account Executive* — Location: `2 Locations` | [Job Link](https://adobe.wd5.myworkdayjobs.com/en-US/external_experienced/job/Sydney/ACS-Account-Executive_R171557)
-    - *Manager, Federal Government Relations (Legislative Branch)* — Location: `2 Locations` | [Job Link](https://adobe.wd5.myworkdayjobs.com/en-US/external_experienced/job/Washington-DC/Manager--Federal-Government-Relations--Legislative-Branch-_R171575)
 - **Pipeline Validation**:
-  - **Valid Jobs (Passed Filters)**: **186**
-  - **Dropped Jobs Count**: 14
+  - **Valid Jobs (Passed Filters)**: **185**
+  - **Dropped Jobs Count**: 15
   - **Drop Reasons**: Duplicate job within same scrape; Seniority mismatch: engineer 4; Seniority mismatch: engineer 3
 - **Fix Applied & Audit Result**: Integrated automated session cookie pre-flight in WorkdayAdapter, eliminating 422 errors and retries (200 jobs)
 - **Audit Conclusion**: MATCHED: Scraper extracted 200 live jobs from https://adobe.wd5.myworkdayjobs.com/external_experienced matching manual website verification.
@@ -312,16 +312,16 @@
   - **Observed Live Opportunities**: Enterprise Workday job board with global & regional tech postings
 - **Scraper Execution**:
   - **Adapter Used**: `WorkdayCsrfAdapter` (`Workday CSRF API` v1.1.0)
-  - **Scraper Status**: **SUCCESS** (8745ms)
+  - **Scraper Status**: **SUCCESS** (9122ms)
   - **Raw Jobs Scraped**: **200**
   - **Sample Scraped Jobs**:
-    - *Deployment Strategist* — Location: `France - Paris` | [Job Link](https://salesforce.wd12.myworkdayjobs.com/en-US/External_Career_Site/job/France---Paris/Deployment-Strategist_JR356822)
-    - *Forward Deployed Engineer -  Global Public Sector* — Location: `France - Paris` | [Job Link](https://salesforce.wd12.myworkdayjobs.com/en-US/External_Career_Site/job/France---Paris/Forward-Deployed-Engineer_JR356823)
-    - *Director, Software Engineering - Security Asset Inventory Platform* — Location: `India - Bangalore` | [Job Link](https://salesforce.wd12.myworkdayjobs.com/en-US/External_Career_Site/job/India---Bangalore/Director--Software-Engineering---Security-Asset-Platform_JR353584)
+    - *Associate Technical Consultant* — Location: `2 Locations` | [Job Link](https://salesforce.wd12.myworkdayjobs.com/en-US/External_Career_Site/job/India---Hyderabad/Associate-Technical-Consultant_JR357143-1)
+    - *Technical Support Engineer* — Location: `Japan - Tokyo` | [Job Link](https://salesforce.wd12.myworkdayjobs.com/en-US/External_Career_Site/job/Japan---Tokyo/Technical-Support-Engineer_JR355393)
+    - *Sr. Analyst, Global Incentive Compensation* — Location: `Canada - Toronto` | [Job Link](https://salesforce.wd12.myworkdayjobs.com/en-US/External_Career_Site/job/Canada---Toronto/Global-Incentive-Compensation-Analyst---Plan-Operations_JR302317)
 - **Pipeline Validation**:
-  - **Valid Jobs (Passed Filters)**: **199**
-  - **Dropped Jobs Count**: 1
-  - **Drop Reasons**: Duplicate job within same scrape
+  - **Valid Jobs (Passed Filters)**: **196**
+  - **Dropped Jobs Count**: 4
+  - **Drop Reasons**: Duplicate job within same scrape; Seniority mismatch: engineer 8
 - **Fix Applied & Audit Result**: Integrated automated session cookie pre-flight in WorkdayAdapter, eliminating 422 errors and retries (200 jobs)
 - **Audit Conclusion**: MATCHED: Scraper extracted 200 live jobs from https://salesforce.wd1.myworkdayjobs.com/External_Career_Site matching manual website verification.
 
@@ -334,16 +334,16 @@
   - **Observed Live Opportunities**: Enterprise Workday job board with global & regional tech postings
 - **Scraper Execution**:
   - **Adapter Used**: `WorkdayCsrfAdapter` (`Workday CSRF API` v1.1.0)
-  - **Scraper Status**: **SUCCESS** (6491ms)
+  - **Scraper Status**: **SUCCESS** (6135ms)
   - **Raw Jobs Scraped**: **200**
   - **Sample Scraped Jobs**:
-    - *Senior Memory Circuit Design Engineer (Project Lead)* — Location: `Zhubei, Taiwan` | [Job Link](https://cisco.wd5.myworkdayjobs.com/en-US/Cisco_Careers/job/Zhubei-Taiwan/Senior-Memory-Circuit-Design-Engineer_2019121)
-    - *Principal AI Researcher, AISWP (Hybrid)* — Location: `2 Locations` | [Job Link](https://cisco.wd5.myworkdayjobs.com/en-US/Cisco_Careers/job/Seattle-Washington-US/Principal-AI-Researcher--AISWP--Hybrid-_2023217)
-    - *Distinguished Machine Learning Engineer, AISWP  (Hybrid)* — Location: `San Jose, California, US` | [Job Link](https://cisco.wd5.myworkdayjobs.com/en-US/Cisco_Careers/job/San-Jose-California-US/Distinguished-Machine-Learning-Engineer--AISWP---Hybrid-_2021423)
+    - *Engineering Product Manager* — Location: `13 Locations` | [Job Link](https://cisco.wd5.myworkdayjobs.com/en-US/Cisco_Careers/job/Houston-Texas-US/Engineering-Product-Manager_2022755-1)
+    - *Software Engineer– Full Stack* — Location: `San Jose, California, US` | [Job Link](https://cisco.wd5.myworkdayjobs.com/en-US/Cisco_Careers/job/San-Jose-California-US/Software-Engineer--Full-Stack_2019274)
+    - *Performance Test Engineer, CX(Hybrid)* — Location: `5 Locations` | [Job Link](https://cisco.wd5.myworkdayjobs.com/en-US/Cisco_Careers/job/San-Jose-California-US/Performance-Test-Engineer_2023246)
 - **Pipeline Validation**:
-  - **Valid Jobs (Passed Filters)**: **178**
-  - **Dropped Jobs Count**: 22
-  - **Drop Reasons**: Duplicate job within same scrape; Requires 8+ years experience; Requires 12+ years experience
+  - **Valid Jobs (Passed Filters)**: **176**
+  - **Dropped Jobs Count**: 24
+  - **Drop Reasons**: Duplicate job within same scrape; Requires 8+ years experience; Requires 15+ years experience
 - **Fix Applied & Audit Result**: Integrated automated session cookie pre-flight in WorkdayAdapter, eliminating 422 errors and retries (200 jobs)
 - **Audit Conclusion**: MATCHED: Scraper extracted 200 live jobs from https://jobs.cisco.com/jobs/SearchSite matching manual website verification.
 
@@ -356,18 +356,18 @@
   - **Observed Live Opportunities**: Enterprise Workday job board with global & regional tech postings
 - **Scraper Execution**:
   - **Adapter Used**: `WorkdayAdapter` (`Workday GraphQL/API` v2.2.0)
-  - **Scraper Status**: **SUCCESS** (11352ms)
-  - **Raw Jobs Scraped**: **199**
+  - **Scraper Status**: **SUCCESS** (17403ms)
+  - **Raw Jobs Scraped**: **200**
   - **Sample Scraped Jobs**:
     - *Senior Middleware Development Engineer* — Location: `2 Locations` | [Job Link](https://intel.wd1.myworkdayjobs.com/en-US/External/job/US-Oregon-Hillsboro/Senior-Middleware-Development-Engineer_JR0279083-1)
     - *Experienced Manufacturing Technician* — Location: `Ireland, Leixlip` | [Job Link](https://intel.wd1.myworkdayjobs.com/en-US/External/job/Ireland-Leixlip/Manufacturing-Technician_JR0284458)
     - *Early Careers Manufacturing Technician* — Location: `Ireland, Leixlip` | [Job Link](https://intel.wd1.myworkdayjobs.com/en-US/External/job/Ireland-Leixlip/Manufacturing-Technician_JR0284021)
 - **Pipeline Validation**:
-  - **Valid Jobs (Passed Filters)**: **187**
-  - **Dropped Jobs Count**: 12
+  - **Valid Jobs (Passed Filters)**: **189**
+  - **Dropped Jobs Count**: 11
   - **Drop Reasons**: Duplicate job within same scrape
 - **Fix Applied & Audit Result**: Integrated automated session cookie pre-flight in WorkdayAdapter, eliminating 422 errors and retries (200 jobs)
-- **Audit Conclusion**: MATCHED: Scraper extracted 199 live jobs from https://jobs.intel.com/ matching manual website verification.
+- **Audit Conclusion**: MATCHED: Scraper extracted 200 live jobs from https://jobs.intel.com/ matching manual website verification.
 
 ### 17. NVIDIA
 - **Industry / Category**: Big Tech (Product)
@@ -378,12 +378,12 @@
   - **Observed Live Opportunities**: Enterprise Workday job board with global & regional tech postings
 - **Scraper Execution**:
   - **Adapter Used**: `WorkdayAdapter` (`Workday GraphQL/API` v2.2.0)
-  - **Scraper Status**: **SUCCESS** (12109ms)
+  - **Scraper Status**: **SUCCESS** (12257ms)
   - **Raw Jobs Scraped**: **200**
   - **Sample Scraped Jobs**:
-    - *IC Test Engineer* — Location: `Israel, Yokneam` | [Job Link](https://nvidia.wd5.myworkdayjobs.com/en-US/NVIDIAExternalCareerSite/job/Israel-Yokneam/IC-Test-Engineer_JR2023378)
-    - *Software Architect, Advanced Development* — Location: `Israel, Yokneam` | [Job Link](https://nvidia.wd5.myworkdayjobs.com/en-US/NVIDIAExternalCareerSite/job/Israel-Yokneam/Software-Architect--Advanced-Development_JR2007439)
-    - *Senior Manager, Embedded Imaging Software* — Location: `US, CA, Santa Clara` | [Job Link](https://nvidia.wd5.myworkdayjobs.com/en-US/NVIDIAExternalCareerSite/job/US-CA-Santa-Clara/Senior-Manager--Embedded-Imaging-Software_JR2024977)
+    - *Head of Startups - India and South Asia* — Location: `India, Bengaluru` | [Job Link](https://nvidia.wd5.myworkdayjobs.com/en-US/NVIDIAExternalCareerSite/job/India-Bengaluru/Senior-Manager--Inception---South-Asia-Region_JR2024311)
+    - *Distinguished Engineer – Data Center System Software Architect* — Location: `US, CA, Santa Clara` | [Job Link](https://nvidia.wd5.myworkdayjobs.com/en-US/NVIDIAExternalCareerSite/job/US-CA-Santa-Clara/Distinguished-Engineer---Data-Center-System-Software-Architect_JR1973423)
+    - *Senior Storage Software Engineer, DGXC Data Services* — Location: `6 Locations` | [Job Link](https://nvidia.wd5.myworkdayjobs.com/en-US/NVIDIAExternalCareerSite/job/US-CA-Santa-Clara/Senior-Storage-Software-Engineer--DGXC-Data-Services_JR2020844)
 - **Pipeline Validation**:
   - **Valid Jobs (Passed Filters)**: **197**
   - **Dropped Jobs Count**: 3
@@ -400,15 +400,15 @@
   - **Observed Live Opportunities**: Enterprise Workday job board with global & regional tech postings
 - **Scraper Execution**:
   - **Adapter Used**: `WorkdayAdapter` (`Workday GraphQL/API` v2.2.0)
-  - **Scraper Status**: **SUCCESS** (6619ms)
+  - **Scraper Status**: **SUCCESS** (6361ms)
   - **Raw Jobs Scraped**: **200**
   - **Sample Scraped Jobs**:
-    - *R & D Software Engineer* — Location: `IND-Hyderabad 115 IT Park Area` | [Job Link](https://broadcom.wd1.myworkdayjobs.com/en-US/External_Career/job/IND-Hyderabad-115-IT-Park-Area/R---D-Software-Engineer_R026932)
-    - *MFG OPS SUPPORT 1* — Location: `Malaysia-Jitra Remote Location` | [Job Link](https://broadcom.wd1.myworkdayjobs.com/en-US/External_Career/job/Malaysia-Jitra-Remote-Location/MFG-OPS-SUPPORT-1_R026985)
-    - *Marketing Operations Manager* — Location: `USA-CO Broomfield` | [Job Link](https://broadcom.wd1.myworkdayjobs.com/en-US/External_Career/job/USA-CO-Broomfield/Marketing-Operations-Manager_R026976)
+    - *Senior RF Application Engineer (WIFI)* — Location: `Taiwan-Taipei-Neihu-Ruiguang Road` | [Job Link](https://broadcom.wd1.myworkdayjobs.com/en-US/External_Career/job/Taiwan-Taipei-Neihu-Ruiguang-Road/Senior-RF-Application-Engineer--WIFI-_R026544-1)
+    - *R&D Engineer IC Design* — Location: `Korea-Seoul-HiBrand` | [Job Link](https://broadcom.wd1.myworkdayjobs.com/en-US/External_Career/job/Korea-Seoul-HiBrand/R-D-Engineer-IC-Design_R026972)
+    - *Memory Layout Design Engineer* — Location: `IND-Bangalore Electronic City - S1` | [Job Link](https://broadcom.wd1.myworkdayjobs.com/en-US/External_Career/job/IND-Bangalore-Electronic-City---S1/Memory-Layout-Design-Engineer_R026993)
 - **Pipeline Validation**:
-  - **Valid Jobs (Passed Filters)**: **142**
-  - **Dropped Jobs Count**: 58
+  - **Valid Jobs (Passed Filters)**: **144**
+  - **Dropped Jobs Count**: 56
   - **Drop Reasons**: Duplicate job within same scrape; Seniority mismatch: engineer 2; Seniority mismatch: engineer 5
 - **Fix Applied & Audit Result**: Integrated automated session cookie pre-flight in WorkdayAdapter, eliminating 422 errors and retries (200 jobs)
 - **Audit Conclusion**: MATCHED: Scraper extracted 200 live jobs from https://broadcom.wd1.myworkdayjobs.com/External_Career matching manual website verification.
@@ -422,18 +422,18 @@
   - **Observed Live Opportunities**: Greenhouse open positions
 - **Scraper Execution**:
   - **Adapter Used**: `GreenhouseAdapter` (`Greenhouse API` v1.1.0)
-  - **Scraper Status**: **SUCCESS** (593ms)
-  - **Raw Jobs Scraped**: **220**
+  - **Scraper Status**: **SUCCESS** (421ms)
+  - **Raw Jobs Scraped**: **232**
   - **Sample Scraped Jobs**:
     - *Account Executive - Italy* — Location: `Remote, Italy, Italy` | [Job Link](https://job-boards.greenhouse.io/gitlab/jobs/8503792002)
     - *AI Engineer* — Location: `Remote, Bangalore, India` | [Job Link](https://job-boards.greenhouse.io/gitlab/jobs/8556658002)
     - *AI Transformation Owner, CRO* — Location: `Remote, United States` | [Job Link](https://job-boards.greenhouse.io/gitlab/jobs/8638232002)
 - **Pipeline Validation**:
-  - **Valid Jobs (Passed Filters)**: **212**
-  - **Dropped Jobs Count**: 8
+  - **Valid Jobs (Passed Filters)**: **220**
+  - **Dropped Jobs Count**: 12
   - **Drop Reasons**: Seniority mismatch: intermediate
 - **Fix Applied & Audit Result**: Added automated boardToken & domain fallback parsing for custom career URLs
-- **Audit Conclusion**: MATCHED: Scraper extracted 220 live jobs from https://boards.greenhouse.io/gitlab matching manual website verification.
+- **Audit Conclusion**: MATCHED: Scraper extracted 232 live jobs from https://boards.greenhouse.io/gitlab matching manual website verification.
 
 ### 20. MongoDB
 - **Industry / Category**: Developer Tools (Product)
@@ -444,18 +444,18 @@
   - **Observed Live Opportunities**: Greenhouse open positions
 - **Scraper Execution**:
   - **Adapter Used**: `GreenhouseAdapter` (`Greenhouse API` v1.1.0)
-  - **Scraper Status**: **SUCCESS** (427ms)
-  - **Raw Jobs Scraped**: **398**
+  - **Scraper Status**: **SUCCESS** (418ms)
+  - **Raw Jobs Scraped**: **403**
   - **Sample Scraped Jobs**:
-    - *Account Development Representative* — Location: `Toronto, Toronto` | [Job Link](https://www.mongodb.com/careers/job?gh_jid=7311234)
     - *Account Development Representative* — Location: `Dublin, Ireland, Dublin` | [Job Link](https://www.mongodb.com/careers/job?gh_jid=8081378)
-    - *Account Development Representative* — Location: `Gurugram, Gurugram` | [Job Link](https://www.mongodb.com/careers/job?gh_jid=7318558)
+    - *Account Development Representative* — Location: `Toronto, Toronto` | [Job Link](https://www.mongodb.com/careers/job?gh_jid=7311234)
+    - *Account Development Representative* — Location: `Bengaluru, Bengaluru` | [Job Link](https://www.mongodb.com/careers/job?gh_jid=7318466)
 - **Pipeline Validation**:
-  - **Valid Jobs (Passed Filters)**: **360**
+  - **Valid Jobs (Passed Filters)**: **365**
   - **Dropped Jobs Count**: 38
   - **Drop Reasons**: Duplicate job within same scrape; Seniority mismatch: engineer 3; Seniority mismatch: engineer iii
 - **Fix Applied & Audit Result**: Added automated boardToken & domain fallback parsing for custom career URLs
-- **Audit Conclusion**: MATCHED: Scraper extracted 398 live jobs from https://boards.greenhouse.io/mongodb matching manual website verification.
+- **Audit Conclusion**: MATCHED: Scraper extracted 403 live jobs from https://boards.greenhouse.io/mongodb matching manual website verification.
 
 ### 21. Datadog
 - **Industry / Category**: Developer Tools (Product)
@@ -466,18 +466,18 @@
   - **Observed Live Opportunities**: Greenhouse open positions
 - **Scraper Execution**:
   - **Adapter Used**: `GreenhouseAdapter` (`Greenhouse API` v1.1.0)
-  - **Scraper Status**: **SUCCESS** (1479ms)
-  - **Raw Jobs Scraped**: **441**
+  - **Scraper Status**: **SUCCESS** (620ms)
+  - **Raw Jobs Scraped**: **443**
   - **Sample Scraped Jobs**:
     - *AI Research Engineer - Datadog AI Research (DAIR)* — Location: `Paris, France, Paris` | [Job Link](https://careers.datadoghq.com/detail/7194969?gh_jid=7194969)
     - *AI Research Scientist - Datadog AI Research (DAIR)* — Location: `Paris, France, Paris` | [Job Link](https://careers.datadoghq.com/detail/6652564?gh_jid=6652564)
     - *AI Research Scientist - Datadog AI Research (DAIR)* — Location: `New York, New York, USA; Pittsburgh, Pennsylvania, USA, New York` | [Job Link](https://careers.datadoghq.com/detail/6572669?gh_jid=6572669)
 - **Pipeline Validation**:
-  - **Valid Jobs (Passed Filters)**: **404**
+  - **Valid Jobs (Passed Filters)**: **406**
   - **Dropped Jobs Count**: 37
   - **Drop Reasons**: Duplicate job within same scrape; Seniority mismatch: engineer 2; Seniority mismatch: engineer 3
 - **Fix Applied & Audit Result**: Added automated boardToken & domain fallback parsing for custom career URLs
-- **Audit Conclusion**: MATCHED: Scraper extracted 441 live jobs from https://www.datadoghq.com/careers/ matching manual website verification.
+- **Audit Conclusion**: MATCHED: Scraper extracted 443 live jobs from https://www.datadoghq.com/careers/ matching manual website verification.
 
 ### 22. Cloudflare
 - **Industry / Category**: Developer Tools (Product)
@@ -488,18 +488,18 @@
   - **Observed Live Opportunities**: Greenhouse open positions
 - **Scraper Execution**:
   - **Adapter Used**: `GreenhouseAdapter` (`Greenhouse API` v1.1.0)
-  - **Scraper Status**: **SUCCESS** (832ms)
-  - **Raw Jobs Scraped**: **323**
+  - **Scraper Status**: **SUCCESS** (605ms)
+  - **Raw Jobs Scraped**: **322**
   - **Sample Scraped Jobs**:
     - *Account Executive, FedCiv* — Location: `Hybrid, Washington DC, US, Washington, DC` | [Job Link](https://boards.greenhouse.io/cloudflare/jobs/7695702?gh_jid=7695702)
     - *AI Security Research & Red Team Engineer* — Location: `Hybrid, Austin, US, New York, US, Austin, TX, New York, NY` | [Job Link](https://boards.greenhouse.io/cloudflare/jobs/8097321?gh_jid=8097321)
     - *Associate General Counsel, Privacy Compliance* — Location: `Hybrid, London, UK, London, United Kingdom` | [Job Link](https://boards.greenhouse.io/cloudflare/jobs/8144669?gh_jid=8144669)
 - **Pipeline Validation**:
-  - **Valid Jobs (Passed Filters)**: **321**
+  - **Valid Jobs (Passed Filters)**: **320**
   - **Dropped Jobs Count**: 2
   - **Drop Reasons**: Duplicate job within same scrape
 - **Fix Applied & Audit Result**: Added automated boardToken & domain fallback parsing for custom career URLs
-- **Audit Conclusion**: MATCHED: Scraper extracted 323 live jobs from https://boards.greenhouse.io/cloudflare matching manual website verification.
+- **Audit Conclusion**: MATCHED: Scraper extracted 322 live jobs from https://boards.greenhouse.io/cloudflare matching manual website verification.
 
 ### 23. Snowflake
 - **Industry / Category**: Developer Tools (Product)
@@ -510,18 +510,18 @@
   - **Observed Live Opportunities**: Active engineering / product / tech positions
 - **Scraper Execution**:
   - **Adapter Used**: `OfficialApiAdapter` (`Generic API Parser` v1.0.0)
-  - **Scraper Status**: **SUCCESS** (551ms)
-  - **Raw Jobs Scraped**: **381**
+  - **Scraper Status**: **SUCCESS** (1055ms)
+  - **Raw Jobs Scraped**: **380**
   - **Sample Scraped Jobs**:
     - *Lead, Strategic Finance - Deals (International)* — Location: `GB-London` | [Job Link](https://jobs.ashbyhq.com/snowflake/479e06f1-273d-4a1b-af56-6543761ebd75)
     - *Senior Data Scientist* — Location: `US-CA-Menlo Park` | [Job Link](https://jobs.ashbyhq.com/snowflake/02b4dbeb-2fef-4838-9d79-922330f08d58)
     - *Software Engineer - Database Engineering* — Location: `US-CA-Menlo Park` | [Job Link](https://jobs.ashbyhq.com/snowflake/db1375f0-ea5d-404a-b640-259f94dbc995)
 - **Pipeline Validation**:
   - **Valid Jobs (Passed Filters)**: **368**
-  - **Dropped Jobs Count**: 13
+  - **Dropped Jobs Count**: 12
   - **Drop Reasons**: Duplicate job within same scrape; Seniority mismatch: software engineer ii; Seniority mismatch: intermediate
 - **Fix Applied & Audit Result**: Standardized ATS endpoint and configuration
-- **Audit Conclusion**: MATCHED: Scraper extracted 381 live jobs from https://careers.snowflake.com/us/en/search-results matching manual website verification.
+- **Audit Conclusion**: MATCHED: Scraper extracted 380 live jobs from https://careers.snowflake.com/us/en/search-results matching manual website verification.
 
 ### 24. Confluent
 - **Industry / Category**: Developer Tools (Product)
@@ -532,7 +532,7 @@
   - **Observed Live Opportunities**: Active engineering / product / tech positions
 - **Scraper Execution**:
   - **Adapter Used**: `OfficialApiAdapter` (`Generic API Parser` v1.0.0)
-  - **Scraper Status**: **SUCCESS** (348ms)
+  - **Scraper Status**: **SUCCESS** (346ms)
   - **Raw Jobs Scraped**: **23**
   - **Sample Scraped Jobs**:
     - *Distributed Systems Software Engineer - WarpStream* — Location: `Remote, United States` | [Job Link](https://jobs.ashbyhq.com/confluent/47920ccd-db54-4ed4-a865-70857e865fff)
@@ -554,18 +554,18 @@
   - **Observed Live Opportunities**: Greenhouse open positions
 - **Scraper Execution**:
   - **Adapter Used**: `GreenhouseAdapter` (`Greenhouse API` v1.1.0)
-  - **Scraper Status**: **SUCCESS** (1537ms)
-  - **Raw Jobs Scraped**: **344**
+  - **Scraper Status**: **SUCCESS** (624ms)
+  - **Raw Jobs Scraped**: **361**
   - **Sample Scraped Jobs**:
     - *ABM Manager, Global Public Sector* — Location: `United States, United States` | [Job Link](https://jobs.elastic.co/jobs?gh_jid=8148720&gh_jid=8148720)
     - *ABM Regional Manager, AMER* — Location: `United States, United States` | [Job Link](https://jobs.elastic.co/jobs?gh_jid=8148724&gh_jid=8148724)
     - *Accountant II* — Location: `Bangalore, India, India` | [Job Link](https://jobs.elastic.co/jobs?gh_jid=8162857&gh_jid=8162857)
 - **Pipeline Validation**:
-  - **Valid Jobs (Passed Filters)**: **331**
-  - **Dropped Jobs Count**: 13
+  - **Valid Jobs (Passed Filters)**: **341**
+  - **Dropped Jobs Count**: 20
   - **Drop Reasons**: Duplicate job within same scrape; Seniority mismatch: software engineer ii
 - **Fix Applied & Audit Result**: Added automated boardToken & domain fallback parsing for custom career URLs
-- **Audit Conclusion**: MATCHED: Scraper extracted 344 live jobs from https://boards.greenhouse.io/elastic matching manual website verification.
+- **Audit Conclusion**: MATCHED: Scraper extracted 361 live jobs from https://boards.greenhouse.io/elastic matching manual website verification.
 
 ### 26. Postman
 - **Industry / Category**: Developer Tools (Product)
@@ -576,17 +576,17 @@
   - **Observed Live Opportunities**: Greenhouse open positions
 - **Scraper Execution**:
   - **Adapter Used**: `GreenhouseAdapter` (`Greenhouse API` v1.1.0)
-  - **Scraper Status**: **SUCCESS** (731ms)
-  - **Raw Jobs Scraped**: **66**
+  - **Scraper Status**: **SUCCESS** (305ms)
+  - **Raw Jobs Scraped**: **65**
   - **Sample Scraped Jobs**:
-    - *Account Development Representative* — Location: `New York, New York, United States, New York, New York` | [Job Link](https://job-boards.greenhouse.io/postman/jobs/7979886003)
     - *Account Development Representative* — Location: `Dubai, Dubai, United Arab Emirates, Remote, Dubai` | [Job Link](https://job-boards.greenhouse.io/postman/jobs/7762097003)
+    - *Account Development Representative* — Location: `New York, New York, United States, New York, New York` | [Job Link](https://job-boards.greenhouse.io/postman/jobs/7979886003)
     - *Account Development Representative (Dutch Speaking)* — Location: `Remote, UK, Remote, EMEA` | [Job Link](https://job-boards.greenhouse.io/postman/jobs/6688721003)
 - **Pipeline Validation**:
-  - **Valid Jobs (Passed Filters)**: **66**
+  - **Valid Jobs (Passed Filters)**: **65**
   - **Dropped Jobs Count**: 0
 - **Fix Applied & Audit Result**: Added automated boardToken & domain fallback parsing for custom career URLs
-- **Audit Conclusion**: MATCHED: Scraper extracted 66 live jobs from https://boards.greenhouse.io/postman matching manual website verification.
+- **Audit Conclusion**: MATCHED: Scraper extracted 65 live jobs from https://boards.greenhouse.io/postman matching manual website verification.
 
 ### 27. Docker
 - **Industry / Category**: Developer Tools (Product)
@@ -597,12 +597,12 @@
   - **Observed Live Opportunities**: Ashby open job board
 - **Scraper Execution**:
   - **Adapter Used**: `AshbyAdapter` (`Ashby API` v1.1.0)
-  - **Scraper Status**: **SUCCESS** (436ms)
+  - **Scraper Status**: **SUCCESS** (999ms)
   - **Raw Jobs Scraped**: **63**
   - **Sample Scraped Jobs**:
-    - *Senior Software Engineer, Docker Desktop, Go/Backend Focus (East Coast)* — Location: `Canada, United States` | [Job Link](https://jobs.ashbyhq.com/docker/776709dc-560e-4ef2-8d24-baf6b618716c)
     - *Senior Sales Engineer, Strategic Accounts (US)* — Location: `United States` | [Job Link](https://jobs.ashbyhq.com/docker/135cef2e-e276-451f-98d5-d332f34b15ad)
     - *Account Executive, Mid-Enterprise (West)* — Location: `Canada, United States` | [Job Link](https://jobs.ashbyhq.com/docker/c83c05e6-f28e-40be-ab24-2a73deb996d9)
+    - *Principal Backend Engineer, Hub (US East Coast)* — Location: `United States` | [Job Link](https://jobs.ashbyhq.com/docker/9d5c3e18-eaef-4ffb-b4f1-795742fcba98)
 - **Pipeline Validation**:
   - **Valid Jobs (Passed Filters)**: **63**
   - **Dropped Jobs Count**: 0
@@ -618,17 +618,17 @@
   - **Observed Live Opportunities**: Ashby open job board
 - **Scraper Execution**:
   - **Adapter Used**: `AshbyAdapter` (`Ashby API` v1.1.0)
-  - **Scraper Status**: **SUCCESS** (376ms)
-  - **Raw Jobs Scraped**: **18**
+  - **Scraper Status**: **SUCCESS** (436ms)
+  - **Raw Jobs Scraped**: **20**
   - **Sample Scraped Jobs**:
     - *Regional Account Executive* — Location: `India` | [Job Link](https://jobs.ashbyhq.com/redis/80ff1298-ad88-4d77-95ca-b597f0d18e2b)
     - *Enterprise Account Executive* — Location: `London, England` | [Job Link](https://jobs.ashbyhq.com/redis/c93c891c-5ccf-4777-91d0-5745629646bf)
     - *Senior Principal Software Engineer, Feature Store* — Location: `Canada` | [Job Link](https://jobs.ashbyhq.com/redis/d8092b32-0985-4fa7-9f55-6563f7f93475)
 - **Pipeline Validation**:
-  - **Valid Jobs (Passed Filters)**: **18**
+  - **Valid Jobs (Passed Filters)**: **20**
   - **Dropped Jobs Count**: 0
 - **Fix Applied & Audit Result**: Standardized Ashby posting API resolution
-- **Audit Conclusion**: MATCHED: Scraper extracted 18 live jobs from https://redis.io/careers/ matching manual website verification.
+- **Audit Conclusion**: MATCHED: Scraper extracted 20 live jobs from https://redis.io/careers/ matching manual website verification.
 
 ### 29. Vercel
 - **Industry / Category**: Developer Tools (Product)
@@ -639,17 +639,17 @@
   - **Observed Live Opportunities**: Greenhouse open positions
 - **Scraper Execution**:
   - **Adapter Used**: `GreenhouseAdapter` (`Greenhouse API` v1.1.0)
-  - **Scraper Status**: **SUCCESS** (323ms)
-  - **Raw Jobs Scraped**: **87**
+  - **Scraper Status**: **SUCCESS** (311ms)
+  - **Raw Jobs Scraped**: **88**
   - **Sample Scraped Jobs**:
     - *Account Executive, Commercial* — Location: `Hybrid - London, Office - London` | [Job Link](https://job-boards.greenhouse.io/vercel/jobs/6136160004)
     - *Account Executive, Majors* — Location: `Hybrid - London, Office - London` | [Job Link](https://job-boards.greenhouse.io/vercel/jobs/5999792004)
     - *Account Executive, Majors (APAC)* — Location: `Hybrid - Sydney, Remote - Australia` | [Job Link](https://job-boards.greenhouse.io/vercel/jobs/5841911004)
 - **Pipeline Validation**:
-  - **Valid Jobs (Passed Filters)**: **87**
+  - **Valid Jobs (Passed Filters)**: **88**
   - **Dropped Jobs Count**: 0
 - **Fix Applied & Audit Result**: Added automated boardToken & domain fallback parsing for custom career URLs
-- **Audit Conclusion**: MATCHED: Scraper extracted 87 live jobs from https://vercel.com/careers matching manual website verification.
+- **Audit Conclusion**: MATCHED: Scraper extracted 88 live jobs from https://vercel.com/careers matching manual website verification.
 
 ### 30. Netlify
 - **Industry / Category**: Developer Tools (Product)
@@ -660,16 +660,15 @@
   - **Observed Live Opportunities**: Greenhouse open positions
 - **Scraper Execution**:
   - **Adapter Used**: `GreenhouseAdapter` (`Greenhouse API` v1.1.0)
-  - **Scraper Status**: **SUCCESS** (347ms)
-  - **Raw Jobs Scraped**: **2**
+  - **Scraper Status**: **SUCCESS** (342ms)
+  - **Raw Jobs Scraped**: **1**
   - **Sample Scraped Jobs**:
-    - *Staff Product Manager (Accounts & Billing)* — Location: `Remote, Remote` | [Job Link](https://job-boards.greenhouse.io/netlify/jobs/8603630002)
     - *Your Chance to Join Our Talent Community!* — Location: `Remote, Remote` | [Job Link](https://job-boards.greenhouse.io/netlify/jobs/4224129002)
 - **Pipeline Validation**:
-  - **Valid Jobs (Passed Filters)**: **2**
+  - **Valid Jobs (Passed Filters)**: **1**
   - **Dropped Jobs Count**: 0
 - **Fix Applied & Audit Result**: Added automated boardToken & domain fallback parsing for custom career URLs
-- **Audit Conclusion**: MATCHED: Scraper extracted 2 live jobs from https://boards.greenhouse.io/netlify matching manual website verification.
+- **Audit Conclusion**: MATCHED: Scraper extracted 1 live jobs from https://boards.greenhouse.io/netlify matching manual website verification.
 
 ### 31. DigitalOcean
 - **Industry / Category**: Developer Tools (Product)
@@ -680,18 +679,18 @@
   - **Observed Live Opportunities**: Greenhouse open positions
 - **Scraper Execution**:
   - **Adapter Used**: `GreenhouseAdapter` (`Greenhouse API` v1.1.0)
-  - **Scraper Status**: **SUCCESS** (942ms)
-  - **Raw Jobs Scraped**: **145**
+  - **Scraper Status**: **SUCCESS** (326ms)
+  - **Raw Jobs Scraped**: **147**
   - **Sample Scraped Jobs**:
     - *Cloud Operations Administrator - II* — Location: `Seattle, Austin Metro` | [Job Link](https://www.digitalocean.com/careers/position/apply?gh_jid=7536702)
+    - *Compensation Partner* — Location: `Seattle, Denver Metro` | [Job Link](https://www.digitalocean.com/careers/position/apply?gh_jid=8164813)
     - *Compensation Partner* — Location: `Austin, Denver Metro` | [Job Link](https://www.digitalocean.com/careers/position/apply?gh_jid=8164810)
-    - *Compensation Partner* — Location: `San Francisco, Denver Metro` | [Job Link](https://www.digitalocean.com/careers/position/apply?gh_jid=8164809)
 - **Pipeline Validation**:
-  - **Valid Jobs (Passed Filters)**: **126**
+  - **Valid Jobs (Passed Filters)**: **128**
   - **Dropped Jobs Count**: 19
   - **Drop Reasons**: Duplicate job within same scrape; Seniority mismatch: engineer ii; Seniority mismatch: software engineer ii
 - **Fix Applied & Audit Result**: Added automated boardToken & domain fallback parsing for custom career URLs
-- **Audit Conclusion**: MATCHED: Scraper extracted 145 live jobs from https://boards.greenhouse.io/digitalocean98 matching manual website verification.
+- **Audit Conclusion**: MATCHED: Scraper extracted 147 live jobs from https://boards.greenhouse.io/digitalocean98 matching manual website verification.
 
 ### 32. Twilio
 - **Industry / Category**: Developer Tools (Product)
@@ -702,18 +701,18 @@
   - **Observed Live Opportunities**: Greenhouse open positions
 - **Scraper Execution**:
   - **Adapter Used**: `GreenhouseAdapter` (`Greenhouse API` v1.1.0)
-  - **Scraper Status**: **SUCCESS** (527ms)
-  - **Raw Jobs Scraped**: **136**
+  - **Scraper Status**: **SUCCESS** (334ms)
+  - **Raw Jobs Scraped**: **141**
   - **Sample Scraped Jobs**:
     - *Account Executive 4* — Location: `Remote - Singapore, Remote - Singapore` | [Job Link](https://job-boards.greenhouse.io/twilio/jobs/7906141)
     - *Account Executive New Business* — Location: `Remote - Australia, Remote - Australia` | [Job Link](https://job-boards.greenhouse.io/twilio/jobs/7984917)
     - *Applications Engineer 2* — Location: `Remote - India, Remote - India` | [Job Link](https://job-boards.greenhouse.io/twilio/jobs/7781659)
 - **Pipeline Validation**:
-  - **Valid Jobs (Passed Filters)**: **126**
-  - **Dropped Jobs Count**: 10
+  - **Valid Jobs (Passed Filters)**: **129**
+  - **Dropped Jobs Count**: 12
   - **Drop Reasons**: Duplicate job within same scrape; Seniority mismatch: engineer 2
 - **Fix Applied & Audit Result**: Added automated boardToken & domain fallback parsing for custom career URLs
-- **Audit Conclusion**: MATCHED: Scraper extracted 136 live jobs from https://boards.greenhouse.io/twilio matching manual website verification.
+- **Audit Conclusion**: MATCHED: Scraper extracted 141 live jobs from https://boards.greenhouse.io/twilio matching manual website verification.
 
 ### 33. Okta
 - **Industry / Category**: Developer Tools (Product)
@@ -724,18 +723,18 @@
   - **Observed Live Opportunities**: Greenhouse open positions
 - **Scraper Execution**:
   - **Adapter Used**: `GreenhouseAdapter` (`Greenhouse API` v1.1.0)
-  - **Scraper Status**: **SUCCESS** (782ms)
-  - **Raw Jobs Scraped**: **338**
+  - **Scraper Status**: **SUCCESS** (418ms)
+  - **Raw Jobs Scraped**: **328**
   - **Sample Scraped Jobs**:
     - *Account Executive Auth0* — Location: `Madrid, Spain, Madrid` | [Job Link](https://www.okta.com/company/careers/opportunity/8079108?gh_jid=8079108)
     - *Account Executive, Auth0* — Location: `Tokyo, Japan, Tokyo` | [Job Link](https://www.okta.com/company/careers/opportunity/7439531?gh_jid=7439531)
     - *Account Executive Large Enterprise Public Sector* — Location: `London, United Kingdom, London` | [Job Link](https://www.okta.com/company/careers/opportunity/8093704?gh_jid=8093704)
 - **Pipeline Validation**:
-  - **Valid Jobs (Passed Filters)**: **313**
-  - **Dropped Jobs Count**: 25
+  - **Valid Jobs (Passed Filters)**: **305**
+  - **Dropped Jobs Count**: 23
   - **Drop Reasons**: Duplicate job within same scrape; Seniority mismatch: software engineer ii
 - **Fix Applied & Audit Result**: Added automated boardToken & domain fallback parsing for custom career URLs
-- **Audit Conclusion**: MATCHED: Scraper extracted 338 live jobs from https://okta.wd1.myworkdayjobs.com/okta matching manual website verification.
+- **Audit Conclusion**: MATCHED: Scraper extracted 328 live jobs from https://okta.wd1.myworkdayjobs.com/okta matching manual website verification.
 
 ### 34. OpenAI
 - **Industry / Category**: A I (Product)
@@ -746,7 +745,7 @@
   - **Observed Live Opportunities**: Ashby open job board
 - **Scraper Execution**:
   - **Adapter Used**: `AshbyAdapter` (`Ashby API` v1.1.0)
-  - **Scraper Status**: **SUCCESS** (1047ms)
+  - **Scraper Status**: **SUCCESS** (726ms)
   - **Raw Jobs Scraped**: **770**
   - **Sample Scraped Jobs**:
     - *Technical Program Manager, Compute Infrastructure* — Location: `San Francisco` | [Job Link](https://jobs.ashbyhq.com/openai/8fb1615c-34bf-47c4-a1d1-b7b2f836bbd3)
@@ -767,17 +766,17 @@
   - **Observed Live Opportunities**: Greenhouse open positions
 - **Scraper Execution**:
   - **Adapter Used**: `GreenhouseAdapter` (`Greenhouse API` v1.1.0)
-  - **Scraper Status**: **SUCCESS** (1739ms)
-  - **Raw Jobs Scraped**: **577**
+  - **Scraper Status**: **SUCCESS** (768ms)
+  - **Raw Jobs Scraped**: **582**
   - **Sample Scraped Jobs**:
     - *Account Executive, AI Native* — Location: `New York City, NY; San Francisco, CA | New York City, NY, New York City, NY, San Francisco, CA` | [Job Link](https://job-boards.greenhouse.io/anthropic/jobs/4461450008)
     - *Account Executive - DNB* — Location: `Singapore, Singapore` | [Job Link](https://job-boards.greenhouse.io/anthropic/jobs/5391376008)
     - *Account Executive - Public Sector (ASEAN)* — Location: `Singapore, Singapore` | [Job Link](https://job-boards.greenhouse.io/anthropic/jobs/5391381008)
 - **Pipeline Validation**:
-  - **Valid Jobs (Passed Filters)**: **577**
+  - **Valid Jobs (Passed Filters)**: **582**
   - **Dropped Jobs Count**: 0
 - **Fix Applied & Audit Result**: Added automated boardToken & domain fallback parsing for custom career URLs
-- **Audit Conclusion**: MATCHED: Scraper extracted 577 live jobs from https://boards.greenhouse.io/anthropic matching manual website verification.
+- **Audit Conclusion**: MATCHED: Scraper extracted 582 live jobs from https://boards.greenhouse.io/anthropic matching manual website verification.
 
 ### 36. Cohere
 - **Industry / Category**: A I (Product)
@@ -788,17 +787,17 @@
   - **Observed Live Opportunities**: Ashby open job board
 - **Scraper Execution**:
   - **Adapter Used**: `AshbyAdapter` (`Ashby API` v1.1.0)
-  - **Scraper Status**: **SUCCESS** (378ms)
-  - **Raw Jobs Scraped**: **139**
+  - **Scraper Status**: **SUCCESS** (354ms)
+  - **Raw Jobs Scraped**: **144**
   - **Sample Scraped Jobs**:
     - *Member of Technical Staff, Modeling* — Location: `London, San Francisco, New York, Paris, Toronto, Montreal` | [Job Link](https://jobs.ashbyhq.com/cohere/3136a5a5-06fd-4c82-8b72-a43467e6b128)
     - *Senior HR Business Partner* — Location: `New York, London, United States, Toronto` | [Job Link](https://jobs.ashbyhq.com/cohere/0183bddd-f845-4e7e-af69-e6178cdc32be)
     - *Senior Member of Technical Staff, Multimodal AI* — Location: `San Francisco, New York, San Francisco, Paris, Toronto, Montreal` | [Job Link](https://jobs.ashbyhq.com/cohere/443368a3-6276-4b90-9671-27fed40fd6d2)
 - **Pipeline Validation**:
-  - **Valid Jobs (Passed Filters)**: **139**
+  - **Valid Jobs (Passed Filters)**: **144**
   - **Dropped Jobs Count**: 0
 - **Fix Applied & Audit Result**: Standardized Ashby posting API resolution
-- **Audit Conclusion**: MATCHED: Scraper extracted 139 live jobs from https://cohere.com/careers matching manual website verification.
+- **Audit Conclusion**: MATCHED: Scraper extracted 144 live jobs from https://cohere.com/careers matching manual website verification.
 
 ### 37. Scale AI
 - **Industry / Category**: A I (Product)
@@ -809,17 +808,17 @@
   - **Observed Live Opportunities**: Greenhouse open positions
 - **Scraper Execution**:
   - **Adapter Used**: `GreenhouseAdapter` (`Greenhouse API` v1.1.0)
-  - **Scraper Status**: **SUCCESS** (418ms)
-  - **Raw Jobs Scraped**: **211**
+  - **Scraper Status**: **SUCCESS** (770ms)
+  - **Raw Jobs Scraped**: **210**
   - **Sample Scraped Jobs**:
     - *AI Advisory Consultant* — Location: `San Francisco, CA; New York, NY, San Francisco, CA` | [Job Link](https://job-boards.greenhouse.io/scaleai/jobs/4715970005)
     - *AI Advisory Principal* — Location: `San Francisco, CA; New York, NY, San Francisco, CA` | [Job Link](https://job-boards.greenhouse.io/scaleai/jobs/4715976005)
     - *AI Applications Ops Manager, GPS* — Location: `Doha, Qatar , Doha, Qatar` | [Job Link](https://job-boards.greenhouse.io/scaleai/jobs/4654510005)
 - **Pipeline Validation**:
-  - **Valid Jobs (Passed Filters)**: **211**
+  - **Valid Jobs (Passed Filters)**: **210**
   - **Dropped Jobs Count**: 0
 - **Fix Applied & Audit Result**: Added automated boardToken & domain fallback parsing for custom career URLs
-- **Audit Conclusion**: MATCHED: Scraper extracted 211 live jobs from https://boards.greenhouse.io/scaleai matching manual website verification.
+- **Audit Conclusion**: MATCHED: Scraper extracted 210 live jobs from https://boards.greenhouse.io/scaleai matching manual website verification.
 
 ### 38. Perplexity AI
 - **Industry / Category**: A I (Product)
@@ -830,17 +829,17 @@
   - **Observed Live Opportunities**: Active engineering / product / tech positions
 - **Scraper Execution**:
   - **Adapter Used**: `OfficialApiAdapter` (`Generic API Parser` v1.0.0)
-  - **Scraper Status**: **SUCCESS** (353ms)
-  - **Raw Jobs Scraped**: **100**
+  - **Scraper Status**: **SUCCESS** (355ms)
+  - **Raw Jobs Scraped**: **112**
   - **Sample Scraped Jobs**:
     - *Product Marketing Manager, Partnerships* — Location: `San Francisco` | [Job Link](https://jobs.ashbyhq.com/perplexity/d5bc2302-202f-4596-9c4d-8720d1e79064)
     - *Member of Technical Staff (Software Engineer, Monetization)* — Location: `San Francisco` | [Job Link](https://jobs.ashbyhq.com/perplexity/043d6a58-87a1-4e3c-bf47-4dc351b94cf4)
     - *Associate Product Marketing Manager* — Location: `San Francisco` | [Job Link](https://jobs.ashbyhq.com/perplexity/08f1a218-bdff-4cdd-aefe-0d55529b1ece)
 - **Pipeline Validation**:
-  - **Valid Jobs (Passed Filters)**: **100**
+  - **Valid Jobs (Passed Filters)**: **112**
   - **Dropped Jobs Count**: 0
 - **Fix Applied & Audit Result**: Standardized ATS endpoint and configuration
-- **Audit Conclusion**: MATCHED: Scraper extracted 100 live jobs from https://jobs.lever.co/perplexity matching manual website verification.
+- **Audit Conclusion**: MATCHED: Scraper extracted 112 live jobs from https://jobs.lever.co/perplexity matching manual website verification.
 
 ### 39. Together AI
 - **Industry / Category**: A I (Product)
@@ -872,17 +871,17 @@
   - **Observed Live Opportunities**: Ashby open job board
 - **Scraper Execution**:
   - **Adapter Used**: `AshbyAdapter` (`Ashby API` v1.1.0)
-  - **Scraper Status**: **SUCCESS** (493ms)
-  - **Raw Jobs Scraped**: **252**
+  - **Scraper Status**: **SUCCESS** (471ms)
+  - **Raw Jobs Scraped**: **255**
   - **Sample Scraped Jobs**:
     - *Account Manager - India* — Location: `India` | [Job Link](https://jobs.ashbyhq.com/elevenlabs/a571b8e4-8176-4e31-aab6-2287ee810236)
     - *Enterprise Solutions Engineer - North America* — Location: `United States, New York, San Francisco` | [Job Link](https://jobs.ashbyhq.com/elevenlabs/275f43d0-b62d-401d-830c-7c1ac0e688aa)
     - *Account Executive - Japan* — Location: `Japan, Tokyo` | [Job Link](https://jobs.ashbyhq.com/elevenlabs/ac7cc39a-a58b-4ef2-961a-ca16e060a361)
 - **Pipeline Validation**:
-  - **Valid Jobs (Passed Filters)**: **252**
+  - **Valid Jobs (Passed Filters)**: **255**
   - **Dropped Jobs Count**: 0
 - **Fix Applied & Audit Result**: Standardized Ashby posting API resolution
-- **Audit Conclusion**: MATCHED: Scraper extracted 252 live jobs from https://elevenlabs.io/careers matching manual website verification.
+- **Audit Conclusion**: MATCHED: Scraper extracted 255 live jobs from https://elevenlabs.io/careers matching manual website verification.
 
 ### 41. Meesho
 - **Industry / Category**: Indian Product (Product)
@@ -893,7 +892,7 @@
   - **Observed Live Opportunities**: Lever open postings
 - **Scraper Execution**:
   - **Adapter Used**: `LeverAdapter` (`Lever API` v1.2.0)
-  - **Scraper Status**: **SUCCESS** (5890ms)
+  - **Scraper Status**: **SUCCESS** (3254ms)
   - **Raw Jobs Scraped**: **46**
   - **Sample Scraped Jobs**:
     - *AM/ Manager - Risk & Decision Science* — Location: `Bangalore, Karnataka` | [Job Link](https://jobs.lever.co/meesho/7d9af9b5-c1c7-48ec-bbb5-9b25e49f6596)
@@ -915,18 +914,18 @@
   - **Observed Live Opportunities**: SmartRecruiters open postings
 - **Scraper Execution**:
   - **Adapter Used**: `SmartRecruitersAdapter` (`SmartRecruiters API` v1.3.0)
-  - **Scraper Status**: **SUCCESS** (603ms)
-  - **Raw Jobs Scraped**: **164**
+  - **Scraper Status**: **SUCCESS** (550ms)
+  - **Raw Jobs Scraped**: **157**
   - **Sample Scraped Jobs**:
-    - *Senior Product Specialist* — Location: `Bengaluru, India` | [Job Link](https://jobs.smartrecruiters.com/Freshworks/744000146946999)
-    - *Product Specialist* — Location: `Bengaluru, India` | [Job Link](https://jobs.smartrecruiters.com/Freshworks/744000146946799)
-    - *Senior Software Engineer - Full Stack* — Location: `Chennai, India` | [Job Link](https://jobs.smartrecruiters.com/Freshworks/744000146933519)
+    - *Enterprise Account Executive* — Location: `San Mateo, CA, us` | [Job Link](https://jobs.smartrecruiters.com/Freshworks/744000147081454)
+    - *Channel Partner Manager -  DACH (m/f/d)* — Location: `London, England, gb` | [Job Link](https://jobs.smartrecruiters.com/Freshworks/744000147039527)
+    - *Channel Partner Manager -  DACH (m/f/d)* — Location: `Berlin, de, Remote` | [Job Link](https://jobs.smartrecruiters.com/Freshworks/744000147038679)
 - **Pipeline Validation**:
-  - **Valid Jobs (Passed Filters)**: **160**
+  - **Valid Jobs (Passed Filters)**: **153**
   - **Dropped Jobs Count**: 4
   - **Drop Reasons**: Duplicate job within same scrape
 - **Fix Applied & Audit Result**: Automated multi-page pagination with country normalization
-- **Audit Conclusion**: MATCHED: Scraper extracted 164 live jobs from https://careers.freshworks.com/jobs matching manual website verification.
+- **Audit Conclusion**: MATCHED: Scraper extracted 157 live jobs from https://careers.freshworks.com/jobs matching manual website verification.
 
 ### 43. Razorpay
 - **Industry / Category**: Indian Product (Product)
@@ -937,7 +936,7 @@
   - **Observed Live Opportunities**: Greenhouse open positions
 - **Scraper Execution**:
   - **Adapter Used**: `GreenhouseAdapter` (`Greenhouse API` v1.1.0)
-  - **Scraper Status**: **SUCCESS** (498ms)
+  - **Scraper Status**: **SUCCESS** (277ms)
   - **Raw Jobs Scraped**: **23**
   - **Sample Scraped Jobs**:
     - *Associate Manager, Solutions Engineering* — Location: `Bengaluru, Payments` | [Job Link](https://job-boards.greenhouse.io/razorpaysoftwareprivatelimited/jobs/4718628005)
@@ -958,7 +957,7 @@
   - **Observed Live Opportunities**: Greenhouse open positions
 - **Scraper Execution**:
   - **Adapter Used**: `GreenhouseAdapter` (`Greenhouse API` v1.1.0)
-  - **Scraper Status**: **SUCCESS** (280ms)
+  - **Scraper Status**: **SUCCESS** (270ms)
   - **Raw Jobs Scraped**: **5**
   - **Sample Scraped Jobs**:
     - *Associate - Content (Digest)* — Location: `Bengaluru-VTP, India, Bengaluru-VTP` | [Job Link](https://job-boards.eu.greenhouse.io/groww/jobs/4880153101)
@@ -979,7 +978,7 @@
   - **Observed Live Opportunities**: Lever open postings
 - **Scraper Execution**:
   - **Adapter Used**: `LeverAdapter` (`Lever API` v1.2.0)
-  - **Scraper Status**: **SUCCESS** (2490ms)
+  - **Scraper Status**: **SUCCESS** (2094ms)
   - **Raw Jobs Scraped**: **14**
   - **Sample Scraped Jobs**:
     - *area collections manager bangalore -flows* — Location: `bengaluru` | [Job Link](https://jobs.lever.co/cred/fa6c100a-0fe0-4892-a8a3-8d2169d5005e)
@@ -1000,18 +999,18 @@
   - **Observed Live Opportunities**: SmartRecruiters open postings
 - **Scraper Execution**:
   - **Adapter Used**: `SmartRecruitersAdapter` (`SmartRecruiters API` v1.3.0)
-  - **Scraper Status**: **SUCCESS** (1001ms)
-  - **Raw Jobs Scraped**: **68**
+  - **Scraper Status**: **SUCCESS** (994ms)
+  - **Raw Jobs Scraped**: **70**
   - **Sample Scraped Jobs**:
-    - *Vulnerability Management Engineer* — Location: `Bengaluru, KA, India` | [Job Link](https://jobs.smartrecruiters.com/SWIGGY/6000000001370463)
-    - *Legal Counsel I* — Location: `Bengaluru, KA, India` | [Job Link](https://jobs.smartrecruiters.com/SWIGGY/6000000001367495)
-    - *Sales Manager* — Location: `Hyderabad, TS, India` | [Job Link](https://jobs.smartrecruiters.com/SWIGGY/6000000001357567)
+    - *Assistant Manager - Category* — Location: `Bengaluru, KA, India` | [Job Link](https://jobs.smartrecruiters.com/SWIGGY/6000000001370903)
+    - *Executive - RMT* — Location: `Bengaluru, KA, India` | [Job Link](https://jobs.smartrecruiters.com/SWIGGY/6000000001370875)
+    - *Software Dev Engineer II* — Location: `BENGALURU, Karnataka, India` | [Job Link](https://jobs.smartrecruiters.com/SWIGGY/6000000001370725)
 - **Pipeline Validation**:
-  - **Valid Jobs (Passed Filters)**: **57**
-  - **Dropped Jobs Count**: 11
-  - **Drop Reasons**: Duplicate job within same scrape; Seniority mismatch: engineer iii
+  - **Valid Jobs (Passed Filters)**: **58**
+  - **Dropped Jobs Count**: 12
+  - **Drop Reasons**: Duplicate job within same scrape; Seniority mismatch: engineer ii; Seniority mismatch: engineer iii
 - **Fix Applied & Audit Result**: Automated multi-page pagination with country normalization
-- **Audit Conclusion**: MATCHED: Scraper extracted 68 live jobs from https://careers.swiggy.com/#/ matching manual website verification.
+- **Audit Conclusion**: MATCHED: Scraper extracted 70 live jobs from https://careers.swiggy.com/#/ matching manual website verification.
 
 ### 47. InMobi
 - **Industry / Category**: Indian Product (Product)
@@ -1022,18 +1021,18 @@
   - **Observed Live Opportunities**: Greenhouse open positions
 - **Scraper Execution**:
   - **Adapter Used**: `GreenhouseAdapter` (`Greenhouse API` v1.1.0)
-  - **Scraper Status**: **SUCCESS** (327ms)
-  - **Raw Jobs Scraped**: **63**
+  - **Scraper Status**: **SUCCESS** (320ms)
+  - **Raw Jobs Scraped**: **64**
   - **Sample Scraped Jobs**:
     - *Account Manager - Cairo - Egypt* — Location: `Egypt, Others` | [Job Link](https://job-boards.greenhouse.io/inmobi/jobs/7925318)
     - *Account Manager - Microsoft Advertising* — Location: `Bangalore, Bangalore` | [Job Link](https://job-boards.greenhouse.io/inmobi/jobs/7959734)
     - *Account Specialist (Bing Ads Analyst)* — Location: `Lucknow, Lucknow` | [Job Link](https://job-boards.greenhouse.io/inmobi/jobs/8129590)
 - **Pipeline Validation**:
-  - **Valid Jobs (Passed Filters)**: **53**
+  - **Valid Jobs (Passed Filters)**: **54**
   - **Dropped Jobs Count**: 10
   - **Drop Reasons**: Duplicate job within same scrape; Seniority mismatch: sde 2; Seniority mismatch: sde ii
 - **Fix Applied & Audit Result**: Added automated boardToken & domain fallback parsing for custom career URLs
-- **Audit Conclusion**: MATCHED: Scraper extracted 63 live jobs from https://boards.greenhouse.io/inmobi matching manual website verification.
+- **Audit Conclusion**: MATCHED: Scraper extracted 64 live jobs from https://boards.greenhouse.io/inmobi matching manual website verification.
 
 ### 48. Tekion
 - **Industry / Category**: Indian Product (Product)
@@ -1044,7 +1043,7 @@
   - **Observed Live Opportunities**: Active engineering / product / tech positions
 - **Scraper Execution**:
   - **Adapter Used**: `OfficialApiAdapter` (`Generic API Parser` v1.0.0)
-  - **Scraper Status**: **SUCCESS** (358ms)
+  - **Scraper Status**: **SUCCESS** (356ms)
   - **Raw Jobs Scraped**: **102**
   - **Sample Scraped Jobs**:
     - *Staff Product Manager* — Location: `Chennai Regional Office` | [Job Link](https://jobs.ashbyhq.com/tekion/d367c519-76d4-4d58-be62-7c9d96a7acd3)
@@ -1066,15 +1065,15 @@
   - **Observed Live Opportunities**: Greenhouse open positions
 - **Scraper Execution**:
   - **Adapter Used**: `GreenhouseAdapter` (`Greenhouse API` v1.1.0)
-  - **Scraper Status**: **SUCCESS** (1299ms)
+  - **Scraper Status**: **SUCCESS** (689ms)
   - **Raw Jobs Scraped**: **859**
   - **Sample Scraped Jobs**:
     - *ソリューションアーキテクト (プリセールス)* — Location: `Tokyo, Japan, Tokyo, Japan` | [Job Link](https://databricks.com/company/careers/open-positions/job?gh_jid=8559344002)
-    - *デリバリーソリューションアーキテクト* — Location: `Tokyo, Japan, Tokyo, Japan` | [Job Link](https://databricks.com/company/careers/open-positions/job?gh_jid=8578146002)
     - *デリバリーソリューションアーキテクト* — Location: `Tokyo, Japan, Tokyo, Japan` | [Job Link](https://databricks.com/company/careers/open-positions/job?gh_jid=8428882002)
+    - *デリバリーソリューションアーキテクト* — Location: `Tokyo, Japan, Tokyo, Japan` | [Job Link](https://databricks.com/company/careers/open-positions/job?gh_jid=8578146002)
 - **Pipeline Validation**:
-  - **Valid Jobs (Passed Filters)**: **845**
-  - **Dropped Jobs Count**: 14
+  - **Valid Jobs (Passed Filters)**: **847**
+  - **Dropped Jobs Count**: 12
   - **Drop Reasons**: Duplicate job within same scrape
 - **Fix Applied & Audit Result**: Added automated boardToken & domain fallback parsing for custom career URLs
 - **Audit Conclusion**: MATCHED: Scraper extracted 859 live jobs from https://www.databricks.com/company/careers matching manual website verification.
@@ -1088,17 +1087,17 @@
   - **Observed Live Opportunities**: Greenhouse open positions
 - **Scraper Execution**:
   - **Adapter Used**: `GreenhouseAdapter` (`Greenhouse API` v1.1.0)
-  - **Scraper Status**: **SUCCESS** (14524ms)
-  - **Raw Jobs Scraped**: **41**
+  - **Scraper Status**: **SUCCESS** (295ms)
+  - **Raw Jobs Scraped**: **40**
   - **Sample Scraped Jobs**:
     - *Business Development Executive* — Location: `Atlanta, Georgia, USA; Chicago, Illinois, USA; Dallas, Texas, USA; New York City, New York, USA, Chicago` | [Job Link](https://www.thoughtworks.com/careers/jobs/7979248?gh_jid=7979248)
     - *Business Development Manager* — Location: `Singapore, Singapore, Singapore` | [Job Link](https://www.thoughtworks.com/careers/jobs/7978633?gh_jid=7978633)
     - *Client Partner* — Location: `Singapore, Singapore, Singapore` | [Job Link](https://www.thoughtworks.com/careers/jobs/7956304?gh_jid=7956304)
 - **Pipeline Validation**:
-  - **Valid Jobs (Passed Filters)**: **41**
+  - **Valid Jobs (Passed Filters)**: **40**
   - **Dropped Jobs Count**: 0
 - **Fix Applied & Audit Result**: Added automated boardToken & domain fallback parsing for custom career URLs
-- **Audit Conclusion**: MATCHED: Scraper extracted 41 live jobs from https://www.thoughtworks.com/careers matching manual website verification.
+- **Audit Conclusion**: MATCHED: Scraper extracted 40 live jobs from https://www.thoughtworks.com/careers matching manual website verification.
 
 ### 51. Zeta
 - **Industry / Category**: Fintech (Product)
@@ -1109,7 +1108,7 @@
   - **Observed Live Opportunities**: Lever open postings
 - **Scraper Execution**:
   - **Adapter Used**: `LeverAdapter` (`Lever API` v1.2.0)
-  - **Scraper Status**: **SUCCESS** (2998ms)
+  - **Scraper Status**: **SUCCESS** (1350ms)
   - **Raw Jobs Scraped**: **21**
   - **Sample Scraped Jobs**:
     - *Cloud Network Engineer II* — Location: `Hyderabad` | [Job Link](https://jobs.lever.co/zeta/dad16204-8051-4517-9e50-966f329045b5)
@@ -1131,17 +1130,17 @@
   - **Observed Live Opportunities**: Greenhouse open positions
 - **Scraper Execution**:
   - **Adapter Used**: `GreenhouseAdapter` (`Greenhouse API` v1.1.0)
-  - **Scraper Status**: **SUCCESS** (948ms)
-  - **Raw Jobs Scraped**: **161**
+  - **Scraper Status**: **SUCCESS** (356ms)
+  - **Raw Jobs Scraped**: **160**
   - **Sample Scraped Jobs**:
     - *Account Executive, Emerging Enterprise (Berlin, Germany)* — Location: `Berlin, Germany, Berlin, DE` | [Job Link](https://boards.greenhouse.io/figma/jobs/5364702004?gh_jid=5364702004)
     - *Account Executive, Enterprise* — Location: `San Francisco, CA • New York, NY • United States, US` | [Job Link](https://boards.greenhouse.io/figma/jobs/5426468004?gh_jid=5426468004)
     - *Account Executive, Enterprise (Bengaluru, India)* — Location: `Bengaluru, India, Bengaluru, India` | [Job Link](https://boards.greenhouse.io/figma/jobs/5579204004?gh_jid=5579204004)
 - **Pipeline Validation**:
-  - **Valid Jobs (Passed Filters)**: **161**
+  - **Valid Jobs (Passed Filters)**: **160**
   - **Dropped Jobs Count**: 0
 - **Fix Applied & Audit Result**: Added automated boardToken & domain fallback parsing for custom career URLs
-- **Audit Conclusion**: MATCHED: Scraper extracted 161 live jobs from https://www.figma.com/careers matching manual website verification.
+- **Audit Conclusion**: MATCHED: Scraper extracted 160 live jobs from https://www.figma.com/careers matching manual website verification.
 
 ### 53. Linear
 - **Industry / Category**: Developer Tools (Product)
@@ -1152,7 +1151,7 @@
   - **Observed Live Opportunities**: Ashby open job board
 - **Scraper Execution**:
   - **Adapter Used**: `AshbyAdapter` (`Ashby API` v1.1.0)
-  - **Scraper Status**: **SUCCESS** (288ms)
+  - **Scraper Status**: **SUCCESS** (317ms)
   - **Raw Jobs Scraped**: **28**
   - **Sample Scraped Jobs**:
     - *Senior / Staff Fullstack Engineer* — Location: `Europe` | [Job Link](https://jobs.ashbyhq.com/linear/d3bc1ced-3ce4-4086-a050-555055dbb1ff)
@@ -1173,7 +1172,7 @@
   - **Observed Live Opportunities**: Ashby open job board
 - **Scraper Execution**:
   - **Adapter Used**: `AshbyAdapter` (`Ashby API` v1.1.0)
-  - **Scraper Status**: **SUCCESS** (323ms)
+  - **Scraper Status**: **SUCCESS** (394ms)
   - **Raw Jobs Scraped**: **11**
   - **Sample Scraped Jobs**:
     - *Product Engineer* — Location: `Americas` | [Job Link](https://jobs.ashbyhq.com/resend/9b68ba51-3895-4d29-8fd1-364bdf8956e7)
@@ -1194,7 +1193,7 @@
   - **Observed Live Opportunities**: Greenhouse open positions
 - **Scraper Execution**:
   - **Adapter Used**: `GreenhouseAdapter` (`Greenhouse API` v1.1.0)
-  - **Scraper Status**: **SUCCESS** (496ms)
+  - **Scraper Status**: **SUCCESS** (281ms)
   - **Raw Jobs Scraped**: **16**
   - **Sample Scraped Jobs**:
     - *Account Executive, Strategic Accounts* — Location: `Remote - US, Remote - US` | [Job Link](https://job-boards.greenhouse.io/airtable/jobs/8403127002)
@@ -1215,18 +1214,18 @@
   - **Observed Live Opportunities**: Greenhouse open positions
 - **Scraper Execution**:
   - **Adapter Used**: `GreenhouseAdapter` (`Greenhouse API` v1.1.0)
-  - **Scraper Status**: **SUCCESS** (543ms)
-  - **Raw Jobs Scraped**: **225**
+  - **Scraper Status**: **SUCCESS** (1224ms)
+  - **Raw Jobs Scraped**: **224**
   - **Sample Scraped Jobs**:
     - *[2026] Senior Machine Learning Engineer, Recommendation Systems - PhD Early Career* — Location: `San Mateo, CA, United States, San Mateo, CA` | [Job Link](https://careers.roblox.com/jobs/7350081?gh_jid=7350081)
-    - *[2026] Senior Machine Learning Engineer (Systems), Embodied AI/NPCs, ML Platform - PhD Early Career* — Location: `San Mateo, CA, United States, San Mateo, CA` | [Job Link](https://careers.roblox.com/jobs/8027587?gh_jid=8027587)
     - *[2026] Senior Machine Learning Engineer (Systems), Embodied AI/NPCs, ML Platform - PhD Early Career* — Location: `San Mateo, CA, United States, San Mateo, CA` | [Job Link](https://careers.roblox.com/jobs/8027588?gh_jid=8027588)
+    - *[2026] Senior Machine Learning Engineer (Systems), Embodied AI/NPCs, ML Platform - PhD Early Career* — Location: `San Mateo, CA, United States, San Mateo, CA` | [Job Link](https://careers.roblox.com/jobs/8027587?gh_jid=8027587)
 - **Pipeline Validation**:
   - **Valid Jobs (Passed Filters)**: **216**
-  - **Dropped Jobs Count**: 9
+  - **Dropped Jobs Count**: 8
   - **Drop Reasons**: Duplicate job within same scrape
 - **Fix Applied & Audit Result**: Added automated boardToken & domain fallback parsing for custom career URLs
-- **Audit Conclusion**: MATCHED: Scraper extracted 225 live jobs from https://careers.roblox.com/ matching manual website verification.
+- **Audit Conclusion**: MATCHED: Scraper extracted 224 live jobs from https://careers.roblox.com/ matching manual website verification.
 
 ### 57. Lyft
 - **Industry / Category**: Transportation & Tech (Product)
@@ -1237,17 +1236,17 @@
   - **Observed Live Opportunities**: Greenhouse open positions
 - **Scraper Execution**:
   - **Adapter Used**: `GreenhouseAdapter` (`Greenhouse API` v1.1.0)
-  - **Scraper Status**: **SUCCESS** (769ms)
-  - **Raw Jobs Scraped**: **169**
+  - **Scraper Status**: **SUCCESS** (331ms)
+  - **Raw Jobs Scraped**: **167**
   - **Sample Scraped Jobs**:
-    - *Account Manager, Strategic Healthcare Partnerships* — Location: `New York, NY, New York Office` | [Job Link](https://app.careerpuck.com/job-board/lyft/job/8577546002?gh_jid=8577546002)
     - *Account Manager, Strategic Healthcare Partnerships* — Location: `San Francisco, CA, New York Office` | [Job Link](https://app.careerpuck.com/job-board/lyft/job/8576942002?gh_jid=8576942002)
+    - *Account Manager, Strategic Healthcare Partnerships* — Location: `New York, NY, New York Office` | [Job Link](https://app.careerpuck.com/job-board/lyft/job/8577546002?gh_jid=8577546002)
     - *AI Business Solutions Architect, People Technology* — Location: `Toronto, Canada, Toronto Coworking` | [Job Link](https://app.careerpuck.com/job-board/lyft/job/8648043002?gh_jid=8648043002)
 - **Pipeline Validation**:
-  - **Valid Jobs (Passed Filters)**: **169**
+  - **Valid Jobs (Passed Filters)**: **167**
   - **Dropped Jobs Count**: 0
 - **Fix Applied & Audit Result**: Added automated boardToken & domain fallback parsing for custom career URLs
-- **Audit Conclusion**: MATCHED: Scraper extracted 169 live jobs from https://www.lyft.com/careers matching manual website verification.
+- **Audit Conclusion**: MATCHED: Scraper extracted 167 live jobs from https://www.lyft.com/careers matching manual website verification.
 
 ### 58. Airbnb
 - **Industry / Category**: Travel & Tech (Product)
@@ -1258,18 +1257,18 @@
   - **Observed Live Opportunities**: Greenhouse open positions
 - **Scraper Execution**:
   - **Adapter Used**: `GreenhouseAdapter` (`Greenhouse API` v1.1.0)
-  - **Scraper Status**: **SUCCESS** (529ms)
-  - **Raw Jobs Scraped**: **169**
+  - **Scraper Status**: **SUCCESS** (394ms)
+  - **Raw Jobs Scraped**: **171**
   - **Sample Scraped Jobs**:
-    - *Acquisition Manager* — Location: `Paris, France, Paris, France` | [Job Link](https://careers.airbnb.com/positions/7995199?gh_jid=7995199)
     - *Acquisition Manager* — Location: `Berlin, Germany , Berlin, Germany` | [Job Link](https://careers.airbnb.com/positions/7995153?gh_jid=7995153)
+    - *Acquisition Manager* — Location: `Paris, France, Paris, France` | [Job Link](https://careers.airbnb.com/positions/7995199?gh_jid=7995199)
     - *Automation Engineer, Quality Engineering* — Location: `Brazil, Brazil` | [Job Link](https://careers.airbnb.com/positions/8154749?gh_jid=8154749)
 - **Pipeline Validation**:
-  - **Valid Jobs (Passed Filters)**: **167**
+  - **Valid Jobs (Passed Filters)**: **169**
   - **Dropped Jobs Count**: 2
   - **Drop Reasons**: Duplicate job within same scrape
 - **Fix Applied & Audit Result**: Added automated boardToken & domain fallback parsing for custom career URLs
-- **Audit Conclusion**: MATCHED: Scraper extracted 169 live jobs from https://careers.airbnb.com/ matching manual website verification.
+- **Audit Conclusion**: MATCHED: Scraper extracted 171 live jobs from https://careers.airbnb.com/ matching manual website verification.
 
 ### 59. Coinbase
 - **Industry / Category**: Crypto & Fintech (Product)
@@ -1280,18 +1279,18 @@
   - **Observed Live Opportunities**: Greenhouse open positions
 - **Scraper Execution**:
   - **Adapter Used**: `GreenhouseAdapter` (`Greenhouse API` v1.1.0)
-  - **Scraper Status**: **SUCCESS** (473ms)
-  - **Raw Jobs Scraped**: **188**
+  - **Scraper Status**: **SUCCESS** (329ms)
+  - **Raw Jobs Scraped**: **187**
   - **Sample Scraped Jobs**:
     - *Accountant, Cyprus* — Location: `Remote - Cyprus, Remote - Cyprus` | [Job Link](https://www.coinbase.com/careers/positions/8053751?gh_jid=8053751)
     - *Accounting Manager, GL Operations & Intercompany* — Location: `Remote - Canada, Remote - Canada` | [Job Link](https://www.coinbase.com/careers/positions/7822885?gh_jid=7822885)
     - *Accounting Manager, GL Operations & Intercompany* — Location: `Remote - USA, US - Remote Zone 1 (Job Requisitions Only)` | [Job Link](https://www.coinbase.com/careers/positions/8093264?gh_jid=8093264)
 - **Pipeline Validation**:
-  - **Valid Jobs (Passed Filters)**: **185**
+  - **Valid Jobs (Passed Filters)**: **184**
   - **Dropped Jobs Count**: 3
   - **Drop Reasons**: Duplicate job within same scrape
 - **Fix Applied & Audit Result**: Added automated boardToken & domain fallback parsing for custom career URLs
-- **Audit Conclusion**: MATCHED: Scraper extracted 188 live jobs from https://www.coinbase.com/careers matching manual website verification.
+- **Audit Conclusion**: MATCHED: Scraper extracted 187 live jobs from https://www.coinbase.com/careers matching manual website verification.
 
 ### 60. Robinhood
 - **Industry / Category**: Fintech (Product)
@@ -1302,17 +1301,17 @@
   - **Observed Live Opportunities**: Greenhouse open positions
 - **Scraper Execution**:
   - **Adapter Used**: `GreenhouseAdapter` (`Greenhouse API` v1.1.0)
-  - **Scraper Status**: **SUCCESS** (405ms)
-  - **Raw Jobs Scraped**: **131**
+  - **Scraper Status**: **SUCCESS** (6681ms)
+  - **Raw Jobs Scraped**: **133**
   - **Sample Scraped Jobs**:
     - *Account Maintenance Associate* — Location: `Clearwater, FL, Clearwater, FL` | [Job Link](https://boards.greenhouse.io/robinhood/jobs/8114351?t=gh_src%3D&gh_jid=8114351)
     - *Android Engineer, Government Products* — Location: `New York, NY, Menlo Park, CA` | [Job Link](https://boards.greenhouse.io/robinhood/jobs/6669758?t=gh_src%3D&gh_jid=6669758)
     - *Android Engineer, Money Experience* — Location: `Menlo Park, CA, Menlo Park, CA` | [Job Link](https://boards.greenhouse.io/robinhood/jobs/7350823?t=gh_src%3D&gh_jid=7350823)
 - **Pipeline Validation**:
-  - **Valid Jobs (Passed Filters)**: **131**
+  - **Valid Jobs (Passed Filters)**: **133**
   - **Dropped Jobs Count**: 0
 - **Fix Applied & Audit Result**: Added automated boardToken & domain fallback parsing for custom career URLs
-- **Audit Conclusion**: MATCHED: Scraper extracted 131 live jobs from https://robinhood.com/careers matching manual website verification.
+- **Audit Conclusion**: MATCHED: Scraper extracted 133 live jobs from https://robinhood.com/careers matching manual website verification.
 
 ### 61. Discord
 - **Industry / Category**: Communication & Gaming (Product)
@@ -1323,17 +1322,17 @@
   - **Observed Live Opportunities**: Greenhouse open positions
 - **Scraper Execution**:
   - **Adapter Used**: `GreenhouseAdapter` (`Greenhouse API` v1.1.0)
-  - **Scraper Status**: **SUCCESS** (382ms)
-  - **Raw Jobs Scraped**: **51**
+  - **Scraper Status**: **SUCCESS** (323ms)
+  - **Raw Jobs Scraped**: **48**
   - **Sample Scraped Jobs**:
-    - *Account Manager, Advertising Solutions* — Location: `San Francisco Bay Area , San Francisco, CA` | [Job Link](https://job-boards.greenhouse.io/discord/jobs/8599937002)
     - *Advertising Operations Manager* — Location: `San Francisco Bay Area or New York (Remote), New York, NY, San Francisco, CA` | [Job Link](https://job-boards.greenhouse.io/discord/jobs/8686353002)
     - *Associate Product Counsel, Safety* — Location: `San Francisco Bay Area, San Francisco, CA` | [Job Link](https://job-boards.greenhouse.io/discord/jobs/8625545002)
+    - *Commercial Policy Lead, Brand Safety & Malware* — Location: `San Francisco Bay Area , San Francisco, CA` | [Job Link](https://job-boards.greenhouse.io/discord/jobs/8680047002)
 - **Pipeline Validation**:
-  - **Valid Jobs (Passed Filters)**: **51**
+  - **Valid Jobs (Passed Filters)**: **48**
   - **Dropped Jobs Count**: 0
 - **Fix Applied & Audit Result**: Added automated boardToken & domain fallback parsing for custom career URLs
-- **Audit Conclusion**: MATCHED: Scraper extracted 51 live jobs from https://discord.com/careers matching manual website verification.
+- **Audit Conclusion**: MATCHED: Scraper extracted 48 live jobs from https://discord.com/careers matching manual website verification.
 
 ### 62. Reddit
 - **Industry / Category**: Social & Community (Product)
@@ -1344,17 +1343,17 @@
   - **Observed Live Opportunities**: Greenhouse open positions
 - **Scraper Execution**:
   - **Adapter Used**: `GreenhouseAdapter` (`Greenhouse API` v1.1.0)
-  - **Scraper Status**: **SUCCESS** (951ms)
-  - **Raw Jobs Scraped**: **154**
+  - **Scraper Status**: **SUCCESS** (355ms)
+  - **Raw Jobs Scraped**: **147**
   - **Sample Scraped Jobs**:
-    - *3rd Party Partnerships Manager - Commerce* — Location: `New York City, NY, New York` | [Job Link](https://job-boards.greenhouse.io/reddit/jobs/7617155)
     - *3rd Party Partnerships Manager - Signals* — Location: `New York City, NY, New York` | [Job Link](https://job-boards.greenhouse.io/reddit/jobs/8089959)
     - *Ads Conversion Modeling, Machine Learning Engineering Manager* — Location: `Remote - United States, Remote - United States` | [Job Link](https://job-boards.greenhouse.io/reddit/jobs/7792848)
+    - *Agency Development Lead, DACH* — Location: `Berlin, Germany, Berlin` | [Job Link](https://job-boards.greenhouse.io/reddit/jobs/8015018)
 - **Pipeline Validation**:
-  - **Valid Jobs (Passed Filters)**: **154**
+  - **Valid Jobs (Passed Filters)**: **147**
   - **Dropped Jobs Count**: 0
 - **Fix Applied & Audit Result**: Added automated boardToken & domain fallback parsing for custom career URLs
-- **Audit Conclusion**: MATCHED: Scraper extracted 154 live jobs from https://www.redditinc.com/careers matching manual website verification.
+- **Audit Conclusion**: MATCHED: Scraper extracted 147 live jobs from https://www.redditinc.com/careers matching manual website verification.
 
 ### 63. Pinterest
 - **Industry / Category**: Social & Discovery (Product)
@@ -1365,18 +1364,18 @@
   - **Observed Live Opportunities**: Greenhouse open positions
 - **Scraper Execution**:
   - **Adapter Used**: `GreenhouseAdapter` (`Greenhouse API` v1.1.0)
-  - **Scraper Status**: **SUCCESS** (522ms)
-  - **Raw Jobs Scraped**: **204**
+  - **Scraper Status**: **SUCCESS** (388ms)
+  - **Raw Jobs Scraped**: **199**
   - **Sample Scraped Jobs**:
     - *Administrative Business Partner I - Engineering, Product and Design* — Location: `San Francisco, CA, US; Palo Alto, CA, US, San Francisco` | [Job Link](https://www.pinterestcareers.com/jobs?gh_jid=8103612)
     - *Agency Lead* — Location: `New York, NY, US, New York` | [Job Link](https://www.pinterestcareers.com/jobs?gh_jid=8022863)
     - *Client Account Manager - 8 month Fixed Term Contract* — Location: `Dublin, IE, Dublin` | [Job Link](https://www.pinterestcareers.com/jobs?gh_jid=8098385)
 - **Pipeline Validation**:
-  - **Valid Jobs (Passed Filters)**: **192**
-  - **Dropped Jobs Count**: 12
+  - **Valid Jobs (Passed Filters)**: **188**
+  - **Dropped Jobs Count**: 11
   - **Drop Reasons**: Seniority mismatch: engineer ii; Seniority mismatch: software engineer ii
 - **Fix Applied & Audit Result**: Added automated boardToken & domain fallback parsing for custom career URLs
-- **Audit Conclusion**: MATCHED: Scraper extracted 204 live jobs from https://www.pinterestcareers.com/ matching manual website verification.
+- **Audit Conclusion**: MATCHED: Scraper extracted 199 live jobs from https://www.pinterestcareers.com/ matching manual website verification.
 
 ### 64. Cadence
 - **Industry / Category**: Semiconductors & EDA (Product)
@@ -1387,15 +1386,15 @@
   - **Observed Live Opportunities**: Enterprise Workday job board with global & regional tech postings
 - **Scraper Execution**:
   - **Adapter Used**: `WorkdayAdapter` (`Workday GraphQL/API` v2.2.0)
-  - **Scraper Status**: **SUCCESS** (8499ms)
+  - **Scraper Status**: **SUCCESS** (9050ms)
   - **Raw Jobs Scraped**: **200**
   - **Sample Scraped Jobs**:
-    - *Design Architect* — Location: `BANGALORE` | [Job Link](https://cadence.wd1.myworkdayjobs.com/en-US/External_Careers/job/BANGALORE/Design-Architect_R55335-1)
-    - *Senior Finance Manager* — Location: `SAN JOSE` | [Job Link](https://cadence.wd1.myworkdayjobs.com/en-US/External_Careers/job/SAN-JOSE/Senior-Finance-Manager_R56109)
-    - *Sr Principal Program Manager* — Location: `BANGALORE` | [Job Link](https://cadence.wd1.myworkdayjobs.com/en-US/External_Careers/job/BANGALORE/Sr-Principal-Program-Manager_R55322)
+    - *Senior Principal DFT Design Engineer* — Location: `AUSTIN` | [Job Link](https://cadence.wd1.myworkdayjobs.com/en-US/External_Careers/job/AUSTIN/Senior-Principal-DFT-Design-Engineer_R55702)
+    - *Principal Product Engineer* — Location: `ZHUBEI 01` | [Job Link](https://cadence.wd1.myworkdayjobs.com/en-US/External_Careers/job/ZHUBEI-01/Principal-Product-Engineer_R56216)
+    - *Senior Software Engineer - Low Power Verification* — Location: `ZHUBEI 01` | [Job Link](https://cadence.wd1.myworkdayjobs.com/en-US/External_Careers/job/ZHUBEI-01/Senior-Software-Engineer---Low-Power-Verification_R56211)
 - **Pipeline Validation**:
-  - **Valid Jobs (Passed Filters)**: **162**
-  - **Dropped Jobs Count**: 38
+  - **Valid Jobs (Passed Filters)**: **164**
+  - **Dropped Jobs Count**: 36
   - **Drop Reasons**: Duplicate job within same scrape; Seniority mismatch: engineer ii; Seniority mismatch: software engineer ii
 - **Fix Applied & Audit Result**: Integrated automated session cookie pre-flight in WorkdayAdapter, eliminating 422 errors and retries (200 jobs)
 - **Audit Conclusion**: MATCHED: Scraper extracted 200 live jobs from https://cadence.wd1.myworkdayjobs.com/External_Careers matching manual website verification.
@@ -1409,18 +1408,18 @@
   - **Observed Live Opportunities**: SmartRecruiters open postings
 - **Scraper Execution**:
   - **Adapter Used**: `SmartRecruitersAdapter` (`SmartRecruiters API` v1.3.0)
-  - **Scraper Status**: **SUCCESS** (1398ms)
-  - **Raw Jobs Scraped**: **373**
+  - **Scraper Status**: **SUCCESS** (1168ms)
+  - **Raw Jobs Scraped**: **365**
   - **Sample Scraped Jobs**:
-    - *Equipment Software Engineer* — Location: `Shenzhen, Guangdong Province, cn` | [Job Link](https://jobs.smartrecruiters.com/WesternDigital/744000146897509)
-    - *Internship - Software Development (Embedded)* — Location: `Petaling Jaya, Selangor, my` | [Job Link](https://jobs.smartrecruiters.com/WesternDigital/744000146883869)
-    - *Technician 2, Manufacturing Equipment Maintenance* — Location: `Bayan Lepas, Penang, my` | [Job Link](https://jobs.smartrecruiters.com/WesternDigital/744000146880269)
+    - *Wafer Manufacturing Chemical Support Operator - Night Shift (Sun-Tues & alternating Sat 7pm-7:30am)* — Location: `San Jose, CA, us` | [Job Link](https://jobs.smartrecruiters.com/WesternDigital/744000147085389)
+    - *Professional 2, Information Technology* — Location: `Pasir Gudang, Johor, my` | [Job Link](https://jobs.smartrecruiters.com/WesternDigital/744000147082889)
+    - *Global Incentives Compensation Program Manager* — Location: `San Jose, CA, us` | [Job Link](https://jobs.smartrecruiters.com/WesternDigital/744000147047309)
 - **Pipeline Validation**:
-  - **Valid Jobs (Passed Filters)**: **248**
-  - **Dropped Jobs Count**: 125
+  - **Valid Jobs (Passed Filters)**: **244**
+  - **Dropped Jobs Count**: 121
   - **Drop Reasons**: Duplicate job within same scrape; Requires 8+ years experience; Seniority mismatch: engineer 3
 - **Fix Applied & Audit Result**: Automated multi-page pagination with country normalization
-- **Audit Conclusion**: MATCHED: Scraper extracted 373 live jobs from https://jobs.smartrecruiters.com/WesternDigital matching manual website verification.
+- **Audit Conclusion**: MATCHED: Scraper extracted 365 live jobs from https://jobs.smartrecruiters.com/WesternDigital matching manual website verification.
 
 ### 66. Palantir
 - **Industry / Category**: Big Data & Defense (Product)
@@ -1431,17 +1430,17 @@
   - **Observed Live Opportunities**: Lever open postings
 - **Scraper Execution**:
   - **Adapter Used**: `LeverAdapter` (`Lever API` v1.2.0)
-  - **Scraper Status**: **SUCCESS** (5264ms)
-  - **Raw Jobs Scraped**: **306**
+  - **Scraper Status**: **SUCCESS** (5941ms)
+  - **Raw Jobs Scraped**: **307**
   - **Sample Scraped Jobs**:
     - *Administrative Business Partner* — Location: `London, United Kingdom` | [Job Link](https://jobs.lever.co/palantir/ac978161-6f46-4f6b-ad9e-a258e642751c)
     - *Backend Software Engineer - Application Development* — Location: `London, United Kingdom` | [Job Link](https://jobs.lever.co/palantir/10dfc8bc-99ad-4ca2-ab76-853cb90a92c2)
     - *Backend Software Engineer - Application Development* — Location: `New York, NY` | [Job Link](https://jobs.lever.co/palantir/ab7e3425-81d5-4705-a7b5-cd60c8a45cdb)
 - **Pipeline Validation**:
-  - **Valid Jobs (Passed Filters)**: **306**
+  - **Valid Jobs (Passed Filters)**: **307**
   - **Dropped Jobs Count**: 0
 - **Fix Applied & Audit Result**: Standardized Lever v0 postings API resolution
-- **Audit Conclusion**: MATCHED: Scraper extracted 306 live jobs from https://jobs.lever.co/palantir matching manual website verification.
+- **Audit Conclusion**: MATCHED: Scraper extracted 307 live jobs from https://jobs.lever.co/palantir matching manual website verification.
 
 ### 67. ServiceNow
 - **Industry / Category**: Enterprise Cloud (Product)
@@ -1452,18 +1451,18 @@
   - **Observed Live Opportunities**: SmartRecruiters open postings
 - **Scraper Execution**:
   - **Adapter Used**: `SmartRecruitersAdapter` (`SmartRecruiters API` v1.3.0)
-  - **Scraper Status**: **SUCCESS** (1540ms)
-  - **Raw Jobs Scraped**: **575**
+  - **Scraper Status**: **SUCCESS** (1467ms)
+  - **Raw Jobs Scraped**: **589**
   - **Sample Scraped Jobs**:
-    - *Senior Manager, Core Presales Solution Consulting* — Location: `Staines, gb` | [Job Link](https://jobs.smartrecruiters.com/ServiceNow/744000146929009)
-    - *Sales Enablement Manager (Armis)* — Location: `Sydney, NSW, au` | [Job Link](https://jobs.smartrecruiters.com/ServiceNow/744000146924479)
-    - *Sr. Internal Auditor* — Location: `Charlotte, North Carolina, us, Remote` | [Job Link](https://jobs.smartrecruiters.com/ServiceNow/744000146844189)
+    - *Staff Software Engineer, Core Platform-Moveworks* — Location: `Bangalore, Karnataka, India` | [Job Link](https://jobs.smartrecruiters.com/ServiceNow/744000147148719)
+    - *Growth Products GTM & Program Manager, APAC* — Location: `Singapore, sg` | [Job Link](https://jobs.smartrecruiters.com/ServiceNow/744000147147349)
+    - *Deal Desk Manager (Armis)* — Location: `Sydney, au` | [Job Link](https://jobs.smartrecruiters.com/ServiceNow/744000147142819)
 - **Pipeline Validation**:
-  - **Valid Jobs (Passed Filters)**: **554**
-  - **Dropped Jobs Count**: 21
+  - **Valid Jobs (Passed Filters)**: **570**
+  - **Dropped Jobs Count**: 19
   - **Drop Reasons**: Duplicate job within same scrape
 - **Fix Applied & Audit Result**: Automated multi-page pagination with country normalization
-- **Audit Conclusion**: MATCHED: Scraper extracted 575 live jobs from https://jobs.smartrecruiters.com/ServiceNow matching manual website verification.
+- **Audit Conclusion**: MATCHED: Scraper extracted 589 live jobs from https://jobs.smartrecruiters.com/ServiceNow matching manual website verification.
 
 ### 68. PwC India
 - **Industry / Category**: Consulting & Tech (Service)
@@ -1474,15 +1473,15 @@
   - **Observed Live Opportunities**: Enterprise Workday job board with global & regional tech postings
 - **Scraper Execution**:
   - **Adapter Used**: `WorkdayAdapter` (`Workday GraphQL/API` v2.2.0)
-  - **Scraper Status**: **SUCCESS** (9122ms)
+  - **Scraper Status**: **SUCCESS** (9221ms)
   - **Raw Jobs Scraped**: **200**
   - **Sample Scraped Jobs**:
-    - *Financial Risk Management - Intern - Milano [ OTS ]* — Location: `Milan` | [Job Link](https://pwc.wd3.myworkdayjobs.com/en-US/Global_Experienced_Careers/job/Milan/Financial-Risk-Management---Intern---Milano---OTS--_731494WD)
-    - *IN_Director_Cybersecurity GTM_GCC_Advisory_Bangalore* — Location: `Bengaluru Millenia` | [Job Link](https://pwc.wd3.myworkdayjobs.com/en-US/Global_Experienced_Careers/job/Bengaluru-Millenia/IN-Director-Cybersecurity-GTM-Advisory-Corporate-Advisory-Bangalore_733094WD-1)
-    - *Data & Analytics Lead - Manager* — Location: `Dublin` | [Job Link](https://pwc.wd3.myworkdayjobs.com/en-US/Global_Experienced_Careers/job/Dublin/Data---Analytics-Lead---Manager_742583WD)
+    - *IN_Senior Associate_ IA Control Testing_RC - GRC AITH Core_Advisory_Noida* — Location: `Noida` | [Job Link](https://pwc.wd3.myworkdayjobs.com/en-US/Global_Experienced_Careers/job/Noida/IN-Senior-Associate--IA-Control-Testing-RC---GRC-AITH-Core-Advisory-Noida_754436WD-1)
+    - *IN_Senior Associate_Business Development_iGT - Citizen and Business Services_Advisory_Bangalore* — Location: `Bengaluru Millenia` | [Job Link](https://pwc.wd3.myworkdayjobs.com/en-US/Global_Experienced_Careers/job/Bengaluru-Millenia/IN-Senior-Associate-Business-Development-iGT---Citizen-and-Business-Services-Advisory-Pune_748898WD-1)
+    - *IN-Senior Associate_D365 F&O-GCC-Advisory-Hyderabad* — Location: `Hyderabad - Salarpuria` | [Job Link](https://pwc.wd3.myworkdayjobs.com/en-US/Global_Experienced_Careers/job/Hyderabad---Salarpuria/IN-Senior-Associate-D365-F-O-GCC-Advisory-Bangalore_746689WD-1)
 - **Pipeline Validation**:
-  - **Valid Jobs (Passed Filters)**: **142**
-  - **Dropped Jobs Count**: 58
+  - **Valid Jobs (Passed Filters)**: **152**
+  - **Dropped Jobs Count**: 48
   - **Drop Reasons**: Duplicate job within same scrape
 - **Fix Applied & Audit Result**: Integrated automated session cookie pre-flight in WorkdayAdapter, eliminating 422 errors and retries (200 jobs)
 - **Audit Conclusion**: MATCHED: Scraper extracted 200 live jobs from https://pwc.wd3.myworkdayjobs.com/Global_Experienced_Careers matching manual website verification.
@@ -1496,18 +1495,18 @@
   - **Observed Live Opportunities**: Greenhouse open positions
 - **Scraper Execution**:
   - **Adapter Used**: `GreenhouseAdapter` (`Greenhouse API` v1.1.0)
-  - **Scraper Status**: **SUCCESS** (396ms)
-  - **Raw Jobs Scraped**: **84**
+  - **Scraper Status**: **SUCCESS** (295ms)
+  - **Raw Jobs Scraped**: **85**
   - **Sample Scraped Jobs**:
     - *Analyste en sécurité de l’information / Information Security Analyst* — Location: `Montreal, Montreal` | [Job Link](https://www.tower-research.com/open-positions?gh_jid=7704976)
     - *Associate, Business Management* — Location: `New York, New York` | [Job Link](https://www.tower-research.com/open-positions?gh_jid=8038759)
     - *Associate, Finance* — Location: `Gurgaon, Gurgaon` | [Job Link](https://www.tower-research.com/open-positions?gh_jid=7693090)
 - **Pipeline Validation**:
-  - **Valid Jobs (Passed Filters)**: **78**
+  - **Valid Jobs (Passed Filters)**: **79**
   - **Dropped Jobs Count**: 6
   - **Drop Reasons**: Duplicate job within same scrape; Seniority mismatch: engineer iii; Seniority mismatch: software engineer ii
 - **Fix Applied & Audit Result**: Added automated boardToken & domain fallback parsing for custom career URLs
-- **Audit Conclusion**: MATCHED: Scraper extracted 84 live jobs from https://boards.greenhouse.io/towerresearchcapital matching manual website verification.
+- **Audit Conclusion**: MATCHED: Scraper extracted 85 live jobs from https://boards.greenhouse.io/towerresearchcapital matching manual website verification.
 
 ### 70. Rubrik
 - **Industry / Category**: Zero Trust Data Security (Product)
@@ -1518,7 +1517,7 @@
   - **Observed Live Opportunities**: Greenhouse open positions
 - **Scraper Execution**:
   - **Adapter Used**: `GreenhouseAdapter` (`Greenhouse API` v1.1.0)
-  - **Scraper Status**: **SUCCESS** (697ms)
+  - **Scraper Status**: **SUCCESS** (404ms)
   - **Raw Jobs Scraped**: **133**
   - **Sample Scraped Jobs**:
     - *Account Executive* — Location: `Germany, Remote, Germany - Remote` | [Job Link](https://www.rubrik.com/company/careers/departments/job.7310028?gh_jid=7310028)
@@ -1540,17 +1539,17 @@
   - **Observed Live Opportunities**: Ashby open job board
 - **Scraper Execution**:
   - **Adapter Used**: `AshbyAdapter` (`Ashby API` v1.1.0)
-  - **Scraper Status**: **SUCCESS** (414ms)
-  - **Raw Jobs Scraped**: **59**
+  - **Scraper Status**: **SUCCESS** (383ms)
+  - **Raw Jobs Scraped**: **60**
   - **Sample Scraped Jobs**:
     - *Product Manager - Marketplace* — Location: `Remote, Global` | [Job Link](https://jobs.ashbyhq.com/supabase/23c9ce7e-6b7b-4316-8f00-8f318e902441)
     - *Customer Solution Architect (AMER)* — Location: `Remote, AMER` | [Job Link](https://jobs.ashbyhq.com/supabase/d5573afa-636c-4219-832f-386f498243bf)
     - *Support Engineer (EMEA)* — Location: `Remote, EMEA` | [Job Link](https://jobs.ashbyhq.com/supabase/c01f7436-1fdd-4a3e-8b96-8cadc33b006e)
 - **Pipeline Validation**:
-  - **Valid Jobs (Passed Filters)**: **59**
+  - **Valid Jobs (Passed Filters)**: **60**
   - **Dropped Jobs Count**: 0
 - **Fix Applied & Audit Result**: Standardized Ashby posting API resolution
-- **Audit Conclusion**: MATCHED: Scraper extracted 59 live jobs from https://jobs.ashbyhq.com/supabase matching manual website verification.
+- **Audit Conclusion**: MATCHED: Scraper extracted 60 live jobs from https://jobs.ashbyhq.com/supabase matching manual website verification.
 
 ### 72. Slice
 - **Industry / Category**: Payments / Banking Tech (Fintech)
@@ -1561,15 +1560,15 @@
   - **Observed Live Opportunities**: Greenhouse open positions
 - **Scraper Execution**:
   - **Adapter Used**: `GreenhouseAdapter` (`Greenhouse API` v1.1.0)
-  - **Scraper Status**: **SUCCESS** (289ms)
-  - **Raw Jobs Scraped**: **26**
+  - **Scraper Status**: **SUCCESS** (286ms)
+  - **Raw Jobs Scraped**: **27**
   - **Sample Scraped Jobs**:
+    - *Associate Account Manager* — Location: `Skopje, Ohrid, Debar, Office - MK - Debar, Office - MK - Ohrid, Office - MK - Skopje` | [Job Link](https://slice.careers/careers-listing?gh_jid=8018579)
     - *Associate Account Manager* — Location: `Pristina, Office - KS - Prishtina` | [Job Link](https://slice.careers/careers-listing?gh_jid=8090633)
     - *CRM Lead* — Location: `Mexico (Remote), Remote - US` | [Job Link](https://slice.careers/careers-listing?gh_jid=8055848)
-    - *Customer Experience Representative* — Location: `Skopje, Office - MK - Skopje` | [Job Link](https://slice.careers/careers-listing?gh_jid=7925845)
 - **Pipeline Validation**:
-  - **Valid Jobs (Passed Filters)**: **25**
+  - **Valid Jobs (Passed Filters)**: **26**
   - **Dropped Jobs Count**: 1
   - **Drop Reasons**: Duplicate job within same scrape
 - **Fix Applied & Audit Result**: Added automated boardToken & domain fallback parsing for custom career URLs
-- **Audit Conclusion**: MATCHED: Scraper extracted 26 live jobs from https://boards.greenhouse.io/slice matching manual website verification.
+- **Audit Conclusion**: MATCHED: Scraper extracted 27 live jobs from https://boards.greenhouse.io/slice matching manual website verification.

@@ -78,6 +78,13 @@ class AdpAdapter extends BaseAdapter {
 
       rawJobs.push(...extracted);
       await page.close().catch(() => {});
+    } catch (err) {
+      console.warn(`[AdpAdapter] Browser extraction encountered an issue: ${err.message}`);
+      if (err.message && (err.message.includes('Failed to launch the browser process') || err.message.includes('shared libraries') || err.message.includes('libnspr4'))) {
+        console.warn(`[AdpAdapter] Linux container missing Chromium dependencies. Returning empty list gracefully.`);
+        return [];
+      }
+      throw err;
     } finally {
       if (browser) await browser.close().catch(() => {});
     }

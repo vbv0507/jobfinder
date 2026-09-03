@@ -121,6 +121,13 @@ const saveRawJob = async (company, job, stats = null) => {
   if (stats) {
     stats.jobsSaved++;
     stats.totalSaveTime = (stats.totalSaveTime || 0) + (performance.now() - saveStartTime);
+    if (rawJob && rawJob.createdAt && rawJob.updatedAt && Math.abs(new Date(rawJob.createdAt).getTime() - new Date(rawJob.updatedAt).getTime()) < 1000) {
+      stats.newJobs = (stats.newJobs || 0) + 1;
+      try {
+        const pipelineState = require('../pipelineState');
+        if (pipelineState) pipelineState.newJobs = stats.newJobs;
+      } catch (_) {}
+    }
   }
 
   if (sourceData) {

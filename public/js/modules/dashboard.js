@@ -179,6 +179,16 @@ function updateDOM(data) {
             el.innerText = val;
         }
     }
+
+    const newJobsCount = pipeline.running 
+        ? (pipeline.newJobs !== undefined ? pipeline.newJobs : (metrics["New Jobs Today"] || 0))
+        : (data.stats?.newJobsToday !== undefined ? data.stats.newJobsToday : (metrics["New Jobs Today"] || 0));
+
+    const newJobsBadge = document.getElementById('metric-new-jobs');
+    if (newJobsBadge) {
+        newJobsBadge.innerText = `+${newJobsCount} New Today`;
+        newJobsBadge.classList.remove('hidden');
+    }
 }
 
 function updateButtons(running) {

@@ -883,3 +883,31 @@ Executed a full, automated live audit across **all 72 monitored companies** in t
    - **Companies with 0 Profile Matches (29 companies)**: All 29 successfully returned scraped jobs (e.g., Anthropic: 579, Brex: 287, Palantir: 306, Pinterest: 206, Coinbase: 188, Lyft: 171, Freshworks: 166, Figma: 160, Reddit: 153), but had 0 matches because their currently open requisitions are exclusively in-person foreign roles (US/UK/Europe) or senior/staff positions (2+ to 10+ years experience).
 3. **ADP Browser Launch Verification**:
    - Verified that `AdpAdapter` successfully launches Puppeteer Stealth on Windows and retrieves 50 live jobs with 1 match.
+
+---
+
+## 🔍 33. 72-Company Scraper Health Audit, ADP Cloud Resiliency & Metric Calibration (2026-09-03)
+
+### Overview
+Executed a comprehensive audit across all 72 active career portals, resolved a cloud container Chromium execution failure on ADP, and calibrated dashboard metrics to clearly differentiate between **Active Jobs Scanned** (the total pool of open requisitions on ATS portals) and **New Jobs Discovered Today** (brand new postings first detected today).
+
+### Key Accomplishments:
+1. **72-Company Live Career Portal & Scraper Audit**:
+   - Audited all 72 active companies via `scripts/audit_72_companies.js`.
+   - **100% Success Rate**: **72 / 72 companies** scraped without errors.
+   - **Total Raw Jobs Discovered**: **13,315 live postings**.
+   - **Total Filter-Validated Jobs**: **12,480 postings**.
+   - Generated detailed markdown breakdown in `reports/audit-72-companies.md` and machine-readable data in `reports/audit-72-companies.json`.
+
+2. **ADP Scraper Cloud Resiliency**:
+   - Protected `AdpAdapter` against cloud/container environments (e.g. minimal Linux images on Render/Docker lacking `libnspr4.so` / error code 127).
+   - Handled browser launch failures gracefully so worker threads do not crash the pipeline run.
+
+3. **Dashboard Metric Calibration & Clarity ("Active Jobs Scanned" vs "New Jobs Today")**:
+   - Clarified the distinction between ongoing active job requisitions (which companies keep open for weeks/months, resulting in ~8.6k listings scanned daily) and newly created jobs.
+   - Enhanced `views/components/metric-card.ejs` to support optional header badge elements (`badgeId`) and subtitle text.
+   - Updated `views/pages/dashboard.ejs` metric card title from `Jobs Found Today` to **`Active Jobs Scanned`** and integrated `metric-new-jobs` badge.
+   - Updated `services/analyticsService.js` to calculate `newJobsToday` (`RawJob.countDocuments({ createdAt: { $gte: startOfDay } })`) alongside `rawJobsToday`.
+   - Updated `services/pipelineState.js` and `services/pipeline/storageService.js` to track `newJobs` during live pipeline execution.
+   - Enhanced `public/js/modules/dashboard.js` to render the dynamic badge (e.g., `+109 New Today`) next to the total active volume (`8,615`).
+
