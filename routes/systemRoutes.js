@@ -201,6 +201,17 @@ router.post('/verify-local/stop', requireAdmin, (req, res) => {
     res.json({ success: true, message: "Requested to stop local verification." });
 });
 
+router.post('/re-evaluate/:id', requireAdmin, async (req, res) => {
+    try {
+        const { reEvaluateSingleJob } = require('../services/schedulerService');
+        const result = await reEvaluateSingleJob(req.params.id);
+        res.json({ success: true, ...result });
+    } catch (e) {
+        console.error(`[Re-Evaluate] Single job re-evaluation failed for ${req.params.id}:`, e.message);
+        res.status(500).json({ success: false, error: e.message });
+    }
+});
+
 // ==========================================
 // LLM API Health & Credit Tester Routes
 // ==========================================

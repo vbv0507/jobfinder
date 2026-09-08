@@ -69,7 +69,7 @@ const init = () => {
         }
 
         try {
-            await runSearch("Scheduler");
+            await runSearch("Scheduler", true);
             broadcast("scheduler:complete", {
                 message: "Scheduled pipeline completed successfully",
                 timestamp: new Date()
@@ -393,11 +393,167 @@ const stopVerifyLocalJobs = () => {
 
 const getVerifyLocalStatus = () => isVerifyLocalRunning;
 
+/**
+ * Re-evaluate a single locally-matched job with the full LLM pipeline.
+ * @param {string} jobId - The MatchedJob _id to re-evaluate.
+ * @returns {{ outcome: 'approved'|'rejected'|'failed', score?: number, provider?: string, reason?: string }}
+ */
+const reEvaluateSingleJob = async (jobId) => {
+    const MatchedJob = require('../models/MatchedJob');
+    const RejectedJob = require('../models/RejectedJob');
+    const { getActiveProfile, runEvaluationPipeline } = require('./pipeline/aiEvaluationService');
+    const CacheManager = require('./cacheManager');
+    const { invalidateAnalyticsCache } = require('./analyticsService');
+
+    const mJob = await MatchedJob.findById(jobId).populate('rawJob').populate('company').exec();
+    if (!mJob) {
+        throw new Error(`Job ${jobId} not found`);
+    }
+
+    const raw = mJob.rawJob;
+    const jobToEvaluate = {
+        title: raw?.title || mJob.role,
+        location: raw?.location || mJob.location,
+        company: mJob.company?.name || raw?.companyName || 'Unknown Company',
+        description: raw?.description || mJob.reason || mJob.role,
+        experience: raw?.experience || '',
+        employmentType: raw?.employmentType || 'Full-Time',
+        applyLink: raw?.applyLink || mJob.applyLink
+    };
+
+    const profile = await getActiveProfile();
+    const aiState = {
+        gemini:      { available: true, requests: 0, success: 0, failed: 0 },
+        groq:        { available: true, requests: 0, success: 0, failed: 0 },
+        openrouter:  { available: true, requests: 0, success: 0, failed: 0 },
+        litellm:     { available: true, requests: 0, success: 0, failed: 0 },
+        local:       { disabled: true },
+        calls: 0
+    };
+
+    const MATCH_THRESHOLD = Number(process.env.MATCH_THRESHOLD || 70);
+    const result = await runEvaluationPipeline(jobToEvaluate, profile, aiState);
+
+    if (!result) {
+        return { outcome: 'failed', reason: 'No result from evaluation pipeline' };
+    }
+
+    if (result.skipped) {
+        // Pre-filter rejection
+        const rawJobId = mJob.rawJob?._id || mJob.rawJob;
+        if (rawJobId) {
+            await RejectedJob.findOneAndUpdate(
+                { rawJob: rawJobId },
+                {
+                    $set: {
+                        rawJob: rawJobId,
+                        company: mJob.company?._id || mJob.company,
+                        role: jobToEvaluate.title,
+                        location: jobToEvaluate.location,
+                        score: 30,
+                        reason: `Pre-filter rejection: ${result.reason}`,
+                        primaryReasons: [`Pre-filter rejection: ${result.reason}`],
+                        recommendation: 'Reject',
+                        applyLink: jobToEvaluate.applyLink,
+                        evaluatedBy: 'AI Pre-Filter',
+                        provider: 'filter',
+                        verifiedAt: new Date(),
+                        verificationStatus: 'rejected'
+                    }
+                },
+                { upsert: true }
+            );
+        }
+        await MatchedJob.findByIdAndDelete(mJob._id);
+        CacheManager.invalidate();
+        invalidateAnalyticsCache();
+        return { outcome: 'rejected', score: 30, provider: 'filter', reason: result.reason };
+    }
+
+    if (result.analysis) {
+        const newProvider = (result.analysis.provider || 'gemini').toLowerCase();
+        const isApproved = result.analysis.suitable === true &&
+            result.analysis.score >= MATCH_THRESHOLD &&
+            !result.analysis.isClosed;
+
+        if (isApproved) {
+            await MatchedJob.findByIdAndUpdate(mJob._id, {
+                score: result.analysis.score,
+                scoringBreakdown: result.analysis.scoringBreakdown || {},
+                confidence: result.analysis.confidence || 'High',
+                suitable: true,
+                reason: result.analysis.reason,
+                primaryReasons: result.analysis.primaryReasons || [],
+                matchedSkills: result.analysis.matchedSkills || [],
+                missingSkills: result.analysis.missingSkills || [],
+                strengths: result.analysis.strengths || [],
+                weaknesses: result.analysis.weaknesses || [],
+                mandatoryRequirements: result.analysis.mandatoryRequirements || [],
+                optionalRequirements: result.analysis.optionalRequirements || [],
+                domainMismatch: result.analysis.domainMismatch || false,
+                domainExplanation: result.analysis.domainExplanation || '',
+                experienceMismatch: result.analysis.experienceMismatch || false,
+                roleMatch: result.analysis.roleMatch || result.analysis.recommendationLevel || 'Strong',
+                recommendation: result.analysis.recommendation || 'Consider applying',
+                evaluatedBy: result.analysis.evaluatedBy || 'Groq',
+                provider: newProvider,
+                model: result.analysis.model || '',
+                evaluationTimeMs: result.analysis.evaluationTimeMs || 0,
+                emailEligible: true,
+                needsReEvaluation: false,
+                verifiedAt: new Date(),
+                verificationStatus: 'verified'
+            });
+            CacheManager.invalidate();
+            invalidateAnalyticsCache();
+            return { outcome: 'approved', score: result.analysis.score, provider: newProvider, reason: result.analysis.reason };
+        } else {
+            // Rejected by LLM
+            const rawJobId = mJob.rawJob?._id || mJob.rawJob;
+            if (rawJobId) {
+                await RejectedJob.findOneAndUpdate(
+                    { rawJob: rawJobId },
+                    {
+                        $set: {
+                            rawJob: rawJobId,
+                            company: mJob.company?._id || mJob.company,
+                            role: jobToEvaluate.title,
+                            location: jobToEvaluate.location,
+                            score: result.analysis.score,
+                            reason: result.analysis.reason,
+                            primaryReasons: result.analysis.primaryReasons || [result.analysis.reason],
+                            matchedSkills: result.analysis.matchedSkills || [],
+                            missingSkills: result.analysis.missingSkills || [],
+                            domainMismatch: result.analysis.domainMismatch || false,
+                            experienceMismatch: result.analysis.experienceMismatch || false,
+                            recommendation: 'Reject',
+                            applyLink: jobToEvaluate.applyLink,
+                            evaluatedBy: result.analysis.evaluatedBy || 'AI',
+                            provider: newProvider,
+                            model: result.analysis.model,
+                            verifiedAt: new Date(),
+                            verificationStatus: 'rejected'
+                        }
+                    },
+                    { upsert: true }
+                );
+            }
+            await MatchedJob.findByIdAndDelete(mJob._id);
+            CacheManager.invalidate();
+            invalidateAnalyticsCache();
+            return { outcome: 'rejected', score: result.analysis.score, provider: newProvider, reason: result.analysis.reason };
+        }
+    }
+
+    return { outcome: 'failed', reason: 'Unexpected evaluation result format' };
+};
+
 module.exports = {
     init,
     getSchedulerStatus,
     shutdown,
     verifyLocalJobs,
+    reEvaluateSingleJob,
     getVerifyLocalStatus,
     stopVerifyLocalJobs
 };

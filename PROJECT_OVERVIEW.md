@@ -938,4 +938,50 @@ Investigated an erroneous 75-score match on *"Software Development Engineer, Ama
    - Moved both jobs from `MatchedJob` to `RejectedJob` with the explicit reason: *"Requires 3+ years of non-internship professional software development experience (candidate is a 2027 fresher with 0 years experience)"*.
    - Invalidated analytics cache; verified `MatchedJob` total dropped from 114 to 112 with 0 invalid Amazon experienced roles.
 
+---
 
+## ⏰ 35. 7 AM Scheduler 0-Job Resolution, Cloud LLM Fallback Hardening & Local Job Recovery (2026-09-05)
+
+### Overview
+Addressed two core production issues:
+1. **7:00 AM Daily Scheduler Returning 0 Jobs**: Identified that the 12-hour company cache TTL in `cron/jobSearchCron.js` was suppressing the scheduled morning run because the prior evening's 8:00 PM batch run (or evening tests) updated `company.lastScrapedAt` ~11 hours prior. Manual "Force Refresh" worked because it passed `forceRefresh = true`.
+2. **Excessive Fallback to Local Evaluator**: Discovered that Groq requests were omitting `max_tokens`, causing Groq's on-demand free tier to default to 2048 requested output tokens which exceeded the 1000 OTPM limit on `qwen/qwen3.8-27b`, resulting in immediate 429 quota errors on every Groq request. Furthermore, Gemini 429 errors were classified as permanent in `aiHelpers.js`, locking out Gemini for entire runs after a single rate limit.
+
+### Key Architectural Changes & Enhancements:
+1. **7 AM Primary Crawl Cache Bypass (`services/schedulerService.js` & `cron/jobSearchCron.js`)**:
+   - Updated `schedulerService.js` line 72 to trigger `await runSearch("Scheduler", true)` with `forceRefresh: true`.
+   - Updated `jobSearchCron.js` to explicitly ensure `shouldForce = forceRefresh || (triggerSource && triggerSource.toLowerCase().includes("scheduler"))`.
+   - Guaranteed that the 7:00 AM primary daily crawl always scrapes fresh postings across all 72 active companies regardless of when prior evening runs occurred.
+
+2. **Cloud LLM Prioritization & Quota Hardening (`services/geminiService.js` & `services/aiHelpers.js`)**:
+   - **Groq Token Limit Enforced**: Configured `max_tokens: 800` across all Groq completion calls, completely eliminating OTPM quota rejections.
+   - **Expanded Groq Model Pool**: Added `openai/gpt-oss-120b`, `openai/gpt-oss-20b`, and `groq/compound-mini` to Groq fallback models.
+   - **Gemini Non-Permanent 429 Cooldown**: Reclassified 429 errors in `aiHelpers.js` as temporary. Added a 30-second circuit-breaker cooldown so parallel requests immediately fail over to Groq without blocking worker threads.
+   - **Active Gemini Models**: Updated model pool to prioritize active models (`gemini-3.6-flash`, `gemini-flash-latest`, `gemini-3.8-flash`) with 15s per-request timeout.
+   - **Resilient AI Validation**: Enhanced `validateAiResponse` in `aiHelpers.js` to automatically extract reasoning from `primaryReasons`, `domainExplanation`, or default summaries if the model outputs concise JSON, preventing false drops into Local Heuristic evaluation.
+
+3. **Live Website Scraper Auditing (`scripts/verify_career_scrapers.js`)**:
+   - Verified live scraping across 5 major ATS architectures: Greenhouse (Groww: 7 live jobs), Lever (Zeta: 19 live jobs), Ashby (Ramp: 142 live jobs), SmartRecruiters (ServiceNow: 612 live jobs), and Workday (Visa: 200 live jobs).
+   - Confirmed end-to-end integration: live scraping, heuristic pre-filtering, and AI evaluation operate seamlessly.
+
+4. **Local Jobs Re-evaluation & Promotion (`scripts/re_evaluate_local_jobs.js`)**:
+   - Audited the ~205 jobs previously rejected by Local Heuristic scoring due to earlier cloud 429 errors.
+   - Re-evaluated them through the cloud LLM pipeline. Rescued and promoted genuine qualifying jobs (e.g. `Web Developer`, `Web Developer Associate`, `Trainee Technology at Bajaj Finserv`) into `MatchedJob` with authentic AI match scores.
+
+5. **Per-Job LLM Re-Evaluation Feature (2026-09-08)**:
+   - **Goal**: Allow users to manually re-evaluate any single locally-matched job (provider = `local` / `unknown`) through the full cloud LLM pipeline without triggering a bulk batch run.
+   - **Backend — `services/schedulerService.js`**:
+     - Added `reEvaluateSingleJob(jobId)` function. Fetches the `MatchedJob` by ID, rebuilds the job payload from its `rawJob` reference, runs it through `runEvaluationPipeline` (same logic as `verifyLocalJobs` but scoped to one job), then either updates the `MatchedJob` (approved) or moves it to `RejectedJob` + deletes it (rejected). Invalidates cache after each outcome.
+     - Exported `reEvaluateSingleJob` alongside existing exports.
+   - **Backend — `routes/systemRoutes.js`**:
+     - Added `POST /api/system/re-evaluate/:id` (admin-only). Calls `reEvaluateSingleJob` and returns `{ success, outcome, score, provider, reason }` as JSON.
+   - **Frontend — `views/pages/jobs.ejs`**:
+     - Per-row **Re-eval** button (🚀 violet, `fa-rocket` icon) rendered only for jobs where `provider` matches `/^local/i` or equals `unknown` or is absent.
+     - Clicking triggers `reEvaluateJob(id, btn)`: shows inline spinner, then on success updates the provider badge and score badge in-place (no page reload for approved jobs) or fades the row to 30% opacity (rejected), or restores the button on failure.
+   - **Frontend — `views/pages/local-jobs.ejs`**:
+     - Same per-row **Re-eval** button added to every row (all jobs on this page are local by definition).
+     - Same `reEvaluateJob()` JS function with identical inline UX feedback.
+   - **UX behaviour summary**:
+     - `approved` → provider badge turns green + score badge updates inline. Button turns green "✓ Approved".
+     - `rejected` → button turns red "🚫 Rejected", row fades to 30% opacity after 800 ms.
+     - `failed` / network error → button flashes warning for 3 s then resets to allow retry.
