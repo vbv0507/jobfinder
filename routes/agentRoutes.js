@@ -82,11 +82,14 @@ router.get('/ping', (req, res) => {
 router.get('/status', async (req, res) => {
     try {
         const startOfDay = getISTStartOfDay();
-        const [rawToday, matchedToday, totalMatched, pendingEval] = await Promise.all([
+        const [rawToday, matchedToday, totalMatched, pendingEval, allTimeRaw, allTimeRejectedModels, reviewRejected] = await Promise.all([
             RawJob.countDocuments({ scrapedAt: { $gte: startOfDay } }),
             MatchedJob.countDocuments({ createdAt: { $gte: startOfDay } }),
             MatchedJob.countDocuments(),
-            RawJob.countDocuments({ aiEvaluated: { $ne: true } })
+            RawJob.countDocuments({ aiEvaluated: { $ne: true } }),
+            RawJob.countDocuments(),
+            RejectedJob.countDocuments(),
+            MatchedJob.countDocuments({ status: 'rejected' })
         ]);
 
         const snap = pipelineState.snapshot();
@@ -114,7 +117,10 @@ router.get('/status', async (req, res) => {
                 pendingEvaluation: pendingEval
             },
             totals: {
+                allTimeScraped: allTimeRaw,
                 allTimeMatched: totalMatched,
+                allTimeRejected: allTimeRejectedModels > 0 ? allTimeRejectedModels : Math.max(0, allTimeRaw - totalMatched),
+                reviewRejected: reviewRejected,
                 db: mongoose.connection.readyState === 1 ? 'Connected' : 'Disconnected'
             }
         });
@@ -126,6 +132,67 @@ router.get('/status', async (req, res) => {
 
 // GET /api/agent/jobs/today
 // Top AI-matched jobs from today (limit 10, sorted by score desc)
+
+// GET /api/agent/jobs/rejected
+// Comprehensive rejection analytics: counts (today & all-time), breakdown by reason, and sample rejected jobs
+router.get('/jobs/rejected', async (req, res) => {
+    try {
+        const startOfDay = getISTStartOfDay();
+        const limit = Math.min(parseInt(req.query.limit) || 10, 50);
+
+        const [
+            rawToday,
+            matchedToday,
+            allTimeRaw,
+            allTimeMatched,
+            allTimeRejectedModels,
+            reviewRejected,
+            recentLog,
+            sampleRejected
+        ] = await Promise.all([
+            RawJob.countDocuments({ scrapedAt: { $gte: startOfDay } }),
+            MatchedJob.countDocuments({ createdAt: { $gte: startOfDay } }),
+            RawJob.countDocuments(),
+            MatchedJob.countDocuments(),
+            RejectedJob.countDocuments(),
+            MatchedJob.countDocuments({ status: 'rejected' }),
+            SearchLog.findOne().sort({ createdAt: -1 }).select('validationDropsByReason createdAt'),
+            RejectedJob.find().sort({ createdAt: -1 }).limit(limit).select('role company reason score status createdAt')
+        ]);
+
+        const todayRejected = Math.max(0, rawToday - matchedToday);
+        const allTimeRejectedTotal = allTimeRejectedModels > 0 ? allTimeRejectedModels : Math.max(0, allTimeRaw - allTimeMatched);
+        const rawDrops = recentLog?.validationDropsByReason || {};
+        const sortedReasons = Object.entries(rawDrops).sort((a, b) => b[1] - a[1]).slice(0, 15);
+
+        res.json({
+            success: true,
+            counts: {
+                todayScraped: rawToday,
+                todayMatched: matchedToday,
+                todayRejected: todayRejected,
+                allTimeScraped: allTimeRaw,
+                allTimeMatched: allTimeMatched,
+                allTimeRejected: allTimeRejectedTotal,
+                reviewRejected: reviewRejected,
+                todayRejectionRate: rawToday > 0 ? `${((todayRejected / rawToday) * 100).toFixed(1)}%` : "N/A",
+                allTimeRejectionRate: allTimeRaw > 0 ? `${((allTimeRejectedTotal / allTimeRaw) * 100).toFixed(1)}%` : "N/A"
+            },
+            topRejectionReasons: Object.fromEntries(sortedReasons),
+            recentRejectedSample: sampleRejected.map(j => ({
+                role: j.role,
+                company: j.company,
+                reason: j.reason,
+                score: j.score,
+                date: j.createdAt?.toISOString().split('T')[0]
+            }))
+        });
+    } catch (err) {
+        console.error('[Agent] /jobs/rejected error:', err.message);
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
+
 router.get('/jobs/today', async (req, res) => {
     try {
         const startOfDay = getISTStartOfDay();
