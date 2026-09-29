@@ -20,6 +20,7 @@ const MatchedJob = require('../models/MatchedJob');
 const RawJob = require('../models/RawJob');
 const Company = require('../models/Company');
 const SearchLog = require('../models/SearchLog');
+const RejectedJob = require('../models/RejectedJob');
 
 // Services
 const pipelineState = require('../services/pipelineState');
