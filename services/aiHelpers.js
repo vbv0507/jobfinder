@@ -94,6 +94,8 @@ Return ONLY valid JSON using this exact schema. DO NOT return markdown, explanat
   "score": 0,
   "confidence": "High|Medium|Low",
   "suitable": true|false,
+  "reason": "One sentence summary of the decision",
+  "recommendation": "Final Recommendation (e.g. Reject|Proceed)",
   "isClosed": true|false,
   "recommendationLevel": "Excellent Match|Strong Match|Moderate Match|Weak Match|Reject",
   "scoringBreakdown": {
@@ -117,9 +119,7 @@ Return ONLY valid JSON using this exact schema. DO NOT return markdown, explanat
   "optionalRequirements": ["Nice to have AWS", "Nice to have React"],
   "reasonsFor": ["Reason 1 FOR candidate", "Reason 2 FOR candidate"],
   "reasonsAgainst": ["Reason 1 AGAINST candidate", "Reason 2 AGAINST candidate"],
-  "primaryReasons": ["Combined reasoning point 1", "Combined reasoning point 2"],
-  "reason": "One sentence summary of the decision",
-  "recommendation": "Final Recommendation (e.g. Reject)"
+  "primaryReasons": ["Combined reasoning point 1", "Combined reasoning point 2"]
 }
 `;
 
@@ -151,16 +151,17 @@ const analyzeError = (error) => {
         details: error.details || error
     });
 
-    const is429 = status === 429 || msg.includes("429") || msg.includes("quota");
+    const is429 = status === 429 || msg.includes("429") || msg.includes("quota") || msg.includes("rate_limit") || msg.includes("resource_exhausted");
     const is401 = status === 401 || msg.includes("401") || msg.includes("unauthorized") || msg.includes("unauthenticated");
     const is402 = status === 402 || msg.includes("402") || msg.includes("payment required") || msg.includes("insufficient balance") || msg.includes("no credit");
     const is400 = status === 400 || msg.includes("400") || msg.includes("invalid api key");
     const is403 = status === 403 || msg.includes("403") || msg.includes("billing disabled");
 
-    const isPermanent = is429 || is401 || is402 || is400 || is403;
+    // 429 is a temporary rate-limit / quota pause, NOT a permanent fatal configuration error!
+    const isPermanent = is401 || is402 || is400 || is403;
 
     let reason = "Unknown Error";
-    if (is429) reason = "429 Quota";
+    if (is429) reason = "429 Rate Limit (Temporary)";
     else if (is401) reason = "401 Unauthorized";
     else if (is402) reason = "402 Payment Required (no balance)";
     else if (is400) reason = "400 Invalid API Key";
@@ -168,6 +169,10 @@ const analyzeError = (error) => {
     
     if (isPermanent) {
         return { permanent: true, reason };
+    }
+
+    if (is429) {
+        return { permanent: false, reason: "429 Rate Limited - Cooldown required" };
     }
 
     // Temporary errors
@@ -188,8 +193,15 @@ const validateAiResponse = (parsed, providerName) => {
     if (parsed.score === undefined || parsed.score === null || isNaN(parseInt(parsed.score))) {
         throw new Error(`Score is missing or invalid from ${providerName}`);
     }
+
+    // Gracefully recover reason from alternate fields if missing or blank
     if (!parsed.reason || typeof parsed.reason !== "string" || parsed.reason.trim() === "") {
-        throw new Error(`Reasoning is missing or empty from ${providerName}`);
+        parsed.reason = parsed.reasoning || 
+            (Array.isArray(parsed.primaryReasons) && parsed.primaryReasons.length > 0 ? parsed.primaryReasons.join(". ") : null) ||
+            (Array.isArray(parsed.reasonsAgainst) && parsed.reasonsAgainst.length > 0 ? parsed.reasonsAgainst.join(". ") : null) ||
+            (Array.isArray(parsed.reasonsFor) && parsed.reasonsFor.length > 0 ? parsed.reasonsFor.join(". ") : null) ||
+            parsed.domainExplanation ||
+            (parsed.suitable ? "Matches candidate profile requirements." : "Does not meet candidate criteria.");
     }
     parsed.score = parseInt(parsed.score);
     parsed.isClosed = parsed.isClosed === true;

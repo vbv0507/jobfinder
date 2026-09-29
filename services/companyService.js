@@ -1,11 +1,33 @@
 const Company = require("../models/Company");
 const companies = require("../utils/companies");
 
+// Older seed entries keep matching rules with the scraper settings.  The
+// pipeline, however, reads these rules from the Company document itself.
+// Normalize them at the boundary so every seeded company is filtered the same
+// way, without having to duplicate 72 sets of rules in utils/companies.js.
+const normalizeSeedCompany = (company) => {
+    const scraperConfig = company.scraperConfig || {};
+
+    return {
+        ...company,
+        targetLocations: company.targetLocations?.length
+            ? company.targetLocations
+            : (scraperConfig.allowedLocations || []),
+        targetKeywords: company.targetKeywords?.length
+            ? company.targetKeywords
+            : (scraperConfig.targetKeywords || []),
+        excludedKeywords: company.excludedKeywords?.length
+            ? company.excludedKeywords
+            : (scraperConfig.excludedKeywords || []),
+    };
+};
+
 const seedCompanies = async () => {
     const seedNames = new Set(companies.map(c => c.name));
 
     // 1. Upsert all companies from utils/companies.js
-    for (const company of companies) {
+    for (const seedCompany of companies) {
+        const company = normalizeSeedCompany(seedCompany);
         const updateDoc = {
             $set: { ...company, isSeedCompany: true }
         };

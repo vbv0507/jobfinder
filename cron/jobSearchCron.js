@@ -235,8 +235,11 @@ const runSearch = async (triggerSource = "Unknown", forceRefresh = false) => {
     const companyTimelines = {}; // Populated by cached below, and workers later
 
     const TWELVE_HOURS = 12 * 60 * 60 * 1000;
+    const isScheduledRun = triggerSource && triggerSource.toLowerCase().includes("scheduler");
+    const shouldForce = forceRefresh || isScheduledRun;
+
     const companiesToScrape = companies.filter(company => {
-      if (!forceRefresh && company.lastScrapedAt && (Date.now() - new Date(company.lastScrapedAt).getTime()) < TWELVE_HOURS) {
+      if (!shouldForce && company.lastScrapedAt && (Date.now() - new Date(company.lastScrapedAt).getTime()) < TWELVE_HOURS) {
         console.log(chalk.gray(`[Cache] Skipping ${company.name}, scraped within last 12 hours.`));
         stats.cachedCompanies++;
         

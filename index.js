@@ -18,6 +18,7 @@ const profileRoutes = require("./routes/profileRoutes");
 const telegramRoutes = require("./routes/telegramRoutes");
 const systemRoutes = require("./routes/systemRoutes");
 const adminRoutes = require("./routes/adminRoutes");
+const agentRoutes = require("./routes/agentRoutes");
 const MatchedJob = require("./models/MatchedJob");
 
 const runSearch = require("./cron/jobSearchCron");
@@ -71,6 +72,7 @@ const apiLimiter = rateLimit({
 // Skip rate limiting for system telemetry (polling)
 app.use("/api", (req, res, next) => {
     if (req.path.startsWith('/system/live-')) return next();
+    if (req.path.startsWith('/agent')) return next(); // Spider AI tool calls - bypass rate limit
     return apiLimiter(req, res, next);
 });
 
@@ -96,6 +98,7 @@ app.use("/api/profile", profileRoutes);
 app.use("/api/telegram", telegramRoutes);
 app.use("/api/system", systemRoutes);
 app.use("/admin", adminRoutes);
+app.use("/api/agent", agentRoutes); // Spider AI control plane
 
 // Health Check Route — no auth required
 app.get("/health", (req, res) => {

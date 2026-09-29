@@ -7,7 +7,11 @@ const hasRequiredFields = (job) => {
 };
 
 const hasAllowedLocation = (job, company) => {
-  const allowedLocations = company.targetLocations || [];
+  // Accept both the normalized Company schema and legacy/direct seed objects.
+  // This prevents a missing migration from silently accepting worldwide jobs.
+  const allowedLocations = company.targetLocations?.length
+    ? company.targetLocations
+    : (company.scraperConfig?.allowedLocations || []);
   const validLocations = allowedLocations.filter(loc => loc && typeof loc === 'string' && loc.trim() !== '');
   
   if (validLocations.length === 0) {
@@ -123,7 +127,9 @@ const hasExcludedKeyword = (job, excludedKeywords = []) => {
 };
 
 const hasTargetKeyword = (job, company) => {
-  const targetKeywords = Array.isArray(company.targetKeywords) ? company.targetKeywords : [];
+  const targetKeywords = Array.isArray(company.targetKeywords) && company.targetKeywords.length > 0
+    ? company.targetKeywords
+    : (Array.isArray(company.scraperConfig?.targetKeywords) ? company.scraperConfig.targetKeywords : []);
   
   const validTargets = targetKeywords.filter(k => k && typeof k === 'string' && k.trim() !== '');
   if (validTargets.length === 0) return { passed: true };
@@ -219,7 +225,10 @@ const applyJobFilters = (jobs, company, droppedJobs = []) => {
     }
     
     // 6. Keyword (Excluded)
-    const excludedKwCheck = hasExcludedKeyword(job, Array.isArray(company.excludedKeywords) ? company.excludedKeywords : []);
+    const excludedKeywords = Array.isArray(company.excludedKeywords) && company.excludedKeywords.length > 0
+      ? company.excludedKeywords
+      : (Array.isArray(company.scraperConfig?.excludedKeywords) ? company.scraperConfig.excludedKeywords : []);
+    const excludedKwCheck = hasExcludedKeyword(job, excludedKeywords);
     if (!excludedKwCheck.passed) {
       droppedJobs.push({ company: company.name, jobTitle: job.title, location: job.location, applyLink: job.url || job.applyLink, validator: "hasExcludedKeyword", validationStage: "Excluded Keyword", reason: excludedKwCheck.reason });
       return false;

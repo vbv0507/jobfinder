@@ -243,15 +243,16 @@ const evaluateJob = async (job, profile, aiState = {}) => {
     // ==========================================
     // TIER 1: Google Gemini Flash (Primary)
     // ==========================================
-    if (aiState.gemini.available && geminiClient && process.env.ENABLE_GEMINI !== "false") {
+    const isGeminiCoolingDown = aiState.gemini.cooldownUntil && (Date.now() < aiState.gemini.cooldownUntil);
+    if (aiState.gemini.available && !isGeminiCoolingDown && geminiClient && process.env.ENABLE_GEMINI !== "false") {
         providerChain.push("Gemini");
         aiState.gemini.requests++;
         console.log("[AI] Evaluating with Google Gemini Flash...");
 
         const geminiModels = [
-            process.env.GEMINI_MODEL || "gemini-2.5-flash",
             "gemini-3.6-flash",
-            "gemini-2.5-flash"
+            "gemini-flash-latest",
+            process.env.GEMINI_MODEL || "gemini-3.8-flash"
         ];
 
         for (const modelName of [...new Set(geminiModels)]) {
@@ -264,7 +265,11 @@ const evaluateJob = async (job, profile, aiState = {}) => {
                     }
                 });
 
-                const result = await model.generateContent(prompt);
+                // 15 second per-call timeout
+                const generatePromise = model.generateContent(prompt);
+                const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error("Gemini timeout: exceeded 15s")), 15000));
+                const result = await Promise.race([generatePromise, timeoutPromise]);
+
                 const content = result.response.text();
                 let parsedResult = parseJsonResponse(content);
                 parsedResult = validateAiResponse(parsedResult, `Gemini (${modelName})`);
@@ -289,6 +294,11 @@ const evaluateJob = async (job, profile, aiState = {}) => {
                     aiState.gemini.reason = errorAnalysis.reason;
                     break;
                 }
+                // If 429 rate limit or quota exceeded, set a 30s cooldown and fail over to Groq immediately
+                if (error.message && (error.message.includes("429") || error.status === 429)) {
+                    aiState.gemini.cooldownUntil = Date.now() + 30000;
+                    break;
+                }
             }
         }
         fallbackCount++;
@@ -309,10 +319,11 @@ const evaluateJob = async (job, profile, aiState = {}) => {
             console.log(`[AI] Evaluating with Groq (Key #${groqPoolEntry.keyIndex})...`);
 
             const groqModels = [
+                "openai/gpt-oss-120b",
                 process.env.GROQ_MODEL || "qwen/qwen3.8-27b",
-                "qwen/qwen3.6-27b",
                 "openai/gpt-oss-20b",
-                "groq/compound-mini"
+                "groq/compound-mini",
+                "qwen/qwen3.6-27b"
             ];
 
             for (const modelName of groqModels) {
@@ -324,8 +335,9 @@ const evaluateJob = async (job, profile, aiState = {}) => {
                             { role: "user", content: prompt }
                         ],
                         temperature: 0.1,
+                        max_tokens: 500,
                         response_format: { type: "json_object" }
-                    }, { timeout: 8000 });
+                    }, { timeout: 12000 });
 
                     const content = response.choices?.[0]?.message?.content || "";
                     let parsedResult = parseJsonResponse(content);
@@ -377,23 +389,39 @@ const evaluateJob = async (job, profile, aiState = {}) => {
         });
 
         const orModels = [
-            process.env.OPENROUTER_MODEL || "dots-studio/dots-3-note-preview:free",
-            "liquid/lfm-2.5-2.6b:free",
+            process.env.OPENROUTER_MODEL || "liquid/lfm-2.5-2.6b:free",
             "nvidia/nemotron-3.5-lightning:free",
-            "cohere/north-mini-code:free"
+            "cohere/north-mini-code:free",
+            "meta-llama/llama-3.3-70b-instruct:free"
         ];
 
         for (const modelName of orModels) {
             try {
-                const response = await orClient.chat.completions.create({
+                // Try completion; avoid json_object response_format if model returns 400
+                const requestPayload = {
                     model: modelName,
                     messages: [
                         { role: "system", content: "You are a strict job matching engine. Return only valid JSON." },
                         { role: "user", content: prompt }
                     ],
                     temperature: 0.1,
-                    response_format: { type: "json_object" }
-                }, { timeout: 8000 });
+                    max_tokens: 800
+                };
+
+                let response;
+                try {
+                    response = await orClient.chat.completions.create({
+                        ...requestPayload,
+                        response_format: { type: "json_object" }
+                    }, { timeout: 12000 });
+                } catch (jsonFormatErr) {
+                    // If model rejects json_object response_format (400), try standard
+                    if (jsonFormatErr.status === 400 || (jsonFormatErr.message && jsonFormatErr.message.includes("400"))) {
+                        response = await orClient.chat.completions.create(requestPayload, { timeout: 12000 });
+                    } else {
+                        throw jsonFormatErr;
+                    }
+                }
 
                 const content = response.choices?.[0]?.message?.content || "";
                 let parsedResult = parseJsonResponse(content);
@@ -443,8 +471,9 @@ const evaluateJob = async (job, profile, aiState = {}) => {
                     { role: "user", content: prompt }
                 ],
                 temperature: 0.1,
+                max_tokens: 800,
                 response_format: { type: "json_object" }
-            }, { timeout: 8000 });
+            }, { timeout: 10000 });
 
             const content = response.choices?.[0]?.message?.content || "";
             let parsedResult = parseJsonResponse(content);
