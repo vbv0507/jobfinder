@@ -14,6 +14,12 @@ const candidateProfileSchema = new mongoose.Schema({
 
     preferredRoles: [String],
 
+    // Enables an exact job-title allowlist for candidates who only want a focused search.
+    strictRoleMatch: { type: Boolean, default: false },
+    roleAllowlist: [String],
+    roleDenylist: [String],
+    profileVersion: String,
+
     preferredLocations: [String],
 
     projects: [String],

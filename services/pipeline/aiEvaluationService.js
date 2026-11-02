@@ -17,6 +17,35 @@ const hasEntryLevelSignal = (text) =>
     text,
   );
 
+const normalizeRole = (value = "") => value.trim().toLowerCase();
+
+const escapeRegExp = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+const includesRole = (title, roles = []) =>
+  roles.some((role) => {
+    const phrase = normalizeRole(role);
+    return phrase && new RegExp(`(^|\\W)${escapeRegExp(phrase)}(?=$|\\W)`, "i").test(title);
+  });
+
+const getRoleAlignmentReason = (job, profile) => {
+  if (!profile.strictRoleMatch) return "";
+
+  // Titles are intentional here: a description can mention unrelated teams or tools.
+  const title = normalizeRole(job.title || job.role);
+  const deniedRoles = profile.roleDenylist || [];
+  const allowedRoles = profile.roleAllowlist || profile.preferredRoles || [];
+
+  if (includesRole(title, deniedRoles)) {
+    return "role outside candidate's software-engineering focus";
+  }
+
+  if (!includesRole(title, allowedRoles)) {
+    return "job title is outside candidate's approved software-engineering roles";
+  }
+
+  return "";
+};
+
 
 
 const isLocationMatching = (job, profile) => {
@@ -69,6 +98,9 @@ const getSkipReason = (job, profile) => {
   if (!isLocationMatching(job, profile)) {
     return "location not preferred";
   }
+
+  const strictRoleReason = getRoleAlignmentReason(job, profile);
+  if (strictRoleReason) return strictRoleReason;
 
   const roleMatches = preferredRoles.some((role) =>
     text.includes(role.toLowerCase()),
@@ -162,4 +194,4 @@ const runEvaluationPipeline = async (job, profile, aiState) => {
   return { skipped: false, analysis };
 };
 
-module.exports = { getJobText, hasEntryLevelSignal, getSkipReason, getActiveProfile, runEvaluationPipeline };
+module.exports = { getJobText, hasEntryLevelSignal, getRoleAlignmentReason, getSkipReason, getActiveProfile, runEvaluationPipeline };

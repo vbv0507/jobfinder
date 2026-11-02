@@ -1,6 +1,10 @@
 const { client } = require('../../config/redis');
 const crypto = require('crypto');
 
+// Change this only when deterministic evaluation rules change. It keeps old,
+// more permissive evaluation results from being reused after a policy update.
+const EVALUATION_POLICY_VERSION = "strict-role-v1";
+
 class RedisCacheService {
     /**
      * Compute deterministic hash for an AI evaluation request
@@ -9,9 +13,16 @@ class RedisCacheService {
         const title = (job.title || job.role || "").trim().toLowerCase();
         const desc = (job.description || "").slice(0, 500).trim().toLowerCase();
         const exp = (job.experience || "").trim().toLowerCase();
-        const profHash = (profile.skills || []).slice(0, 5).join(",");
+        const profileFingerprint = [
+            profile.profileVersion || "default",
+            profile.strictRoleMatch ? "strict" : "standard",
+            ...(profile.skills || []),
+            ...(profile.preferredRoles || []),
+            ...(profile.roleAllowlist || []),
+            ...(profile.roleDenylist || [])
+        ].join(",");
         
-        const raw = `${title}|${desc}|${exp}|${profHash}`;
+        const raw = `${EVALUATION_POLICY_VERSION}|${title}|${desc}|${exp}|${profileFingerprint}`;
         const hash = crypto.createHash("md5").update(raw).digest("hex");
         return `cache:ai_eval:${hash}`;
     }

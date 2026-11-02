@@ -19,7 +19,7 @@ const { saveTrainingSample } = require("../services/trainingDatasetService");
 
 const pipelineState = require("../services/pipelineState");
 const crypto = require("crypto");
-const { saveRawJob, saveMatchedJob, hasExistingMatch, saveSearchLog } = require("../services/pipeline/storageService");
+const { saveRawJob, saveMatchedJob, savePreFilteredRejection, hasExistingMatch, saveSearchLog } = require("../services/pipeline/storageService");
 const { getActiveProfile, runEvaluationPipeline } = require("../services/pipeline/aiEvaluationService");
 const { discoverEndpoint } = require('../services/ats/discoveryService');
 const socketService = require("../services/socketService");
@@ -630,36 +630,7 @@ const runSearch = async (triggerSource = "Unknown", forceRefresh = false) => {
                 console.log(chalk.gray(`Skipped analysis for ${job.title}: ${result.reason}`));
                 logEvent("AI Evaluation", "INFO", `Skipped ${job.title}: ${result.reason}`);
                 
-                rawJob.aiEvaluated = true;
-                rawJob.aiMatched = false;
-                rawJob.aiEvaluatedAt = new Date();
-                await rawJob.save();
-
-                await RejectedJob.findOneAndUpdate(
-                  { rawJob: rawJob._id },
-                  {
-                    $set: {
-                      rawJob: rawJob._id,
-                      company: company._id,
-                      role: job.title,
-                      location: job.location,
-                      score: 0,
-                      suitable: false,
-                      reason: `Heuristic Pre-Filter: ${result.reason}`,
-                      primaryReasons: [result.reason],
-                      evaluatedBy: "HeuristicFilter",
-                      provider: "pre-filter",
-                      model: "heuristic",
-                      applyLink: job.applyLink,
-                      postedAt: normalizeDate(job.postedAt),
-                      lastScrapedAt: new Date(),
-                      lastAIEvaluation: new Date(),
-                      jobStatus: "Open",
-                      isActive: true
-                    }
-                  },
-                  { upsert: true }
-                );
+                await savePreFilteredRejection(rawJob, company, job, result.reason);
                 return;
               }
               

@@ -5,6 +5,9 @@
   "scripts": {
     "start": "node --max-old-space-size=1024 index.js",
     "dev": "node --watch index.js",
+    "job:pipeline": "node scripts/run_pipeline_job.js",
+    "job:digest": "node scripts/run_daily_digest_job.js",
+    "job:telegram-poll": "node scripts/poll_telegram_job.js",
     "postinstall": "npx puppeteer browsers install chrome || npx playwright install chromium || true",
     "test": "echo \"No tests configured\""
   },

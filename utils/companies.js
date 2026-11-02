@@ -3658,6 +3658,128 @@ module.exports = [
         }
     },
     {
+        "name": "Certa",
+        "category": "Product",
+        "industry": "B2B SaaS / Risk Management",
+        "active": true,
+        "careerUrl": "https://jobs.ashbyhq.com/certa",
+        "careerPage": "https://jobs.ashbyhq.com/certa",
+        "logo": "https://logo.clearbit.com/certa.ai",
+        "ats": "ashby",
+        "scraperType": "api",
+        "scraperConfig": {
+            "ats": "ashby",
+            "apiUrl": "https://api.ashbyhq.com/posting-api/job-board/certa",
+            "allowedLocations": ["india", "remote", "bengaluru", "bangalore", "gurgaon", "gurugram", "hyderabad", "pune", "noida"],
+            "targetKeywords": ["software engineer", "software development engineer", "sde", "backend", "frontend", "full stack", "developer", "javascript", "typescript", "node", "python", "java", "react", "ai", "machine learning"],
+            "excludedKeywords": ["senior", "sr ", "sr.", "staff", "principal", "manager", "director", "lead", "architect", "3+", "4+", "5+"]
+        }
+    },
+    {
+        "name": "Sarvam AI",
+        "category": "Product",
+        "industry": "Artificial Intelligence",
+        "active": true,
+        "careerUrl": "https://jobs.ashbyhq.com/sarvam",
+        "careerPage": "https://jobs.ashbyhq.com/sarvam",
+        "logo": "https://logo.clearbit.com/sarvam.ai",
+        "ats": "ashby",
+        "scraperType": "api",
+        "scraperConfig": {
+            "ats": "ashby",
+            "apiUrl": "https://api.ashbyhq.com/posting-api/job-board/sarvam",
+            "allowedLocations": ["india", "remote", "bengaluru", "bangalore", "gurgaon", "gurugram", "hyderabad", "pune", "noida"],
+            "targetKeywords": ["software engineer", "software development engineer", "sde", "backend", "frontend", "full stack", "developer", "javascript", "typescript", "node", "python", "java", "react", "ai", "machine learning"],
+            "excludedKeywords": ["senior", "sr ", "sr.", "staff", "principal", "manager", "director", "lead", "architect", "3+", "4+", "5+"]
+        }
+    },
+    {
+        "name": "Interview Kickstart",
+        "category": "Product",
+        "industry": "EdTech",
+        "active": true,
+        "careerUrl": "https://jobs.ashbyhq.com/interview-kickstart",
+        "careerPage": "https://jobs.ashbyhq.com/interview-kickstart",
+        "logo": "https://logo.clearbit.com/interviewkickstart.com",
+        "ats": "ashby",
+        "scraperType": "api",
+        "scraperConfig": {
+            "ats": "ashby",
+            "apiUrl": "https://api.ashbyhq.com/posting-api/job-board/interview-kickstart",
+            "allowedLocations": ["india", "remote", "bengaluru", "bangalore", "gurgaon", "gurugram", "hyderabad", "pune", "noida"],
+            "targetKeywords": ["software engineer", "software development engineer", "sde", "backend", "frontend", "full stack", "developer", "javascript", "typescript", "node", "python", "java", "react", "ai", "machine learning"],
+            "excludedKeywords": ["senior", "sr ", "sr.", "staff", "principal", "manager", "director", "lead", "architect", "3+", "4+", "5+"]
+        }
+    },
+    {
+        "name": "Atlabs",
+        "category": "Product",
+        "industry": "Artificial Intelligence",
+        "active": true,
+        "careerUrl": "https://join.atlabs.ai/",
+        "careerPage": "https://join.atlabs.ai/",
+        "logo": "https://logo.clearbit.com/atlabs.ai",
+        "ats": "custom",
+        "scraperType": "html",
+        "scraperConfig": {
+            "renderTimeoutMs": 20000,
+            "allowedLocations": ["india", "remote", "bengaluru", "bangalore", "gurgaon", "gurugram", "hyderabad", "pune", "noida"],
+            "targetKeywords": ["software engineer", "software development engineer", "sde", "backend", "frontend", "full stack", "developer", "javascript", "typescript", "node", "python", "java", "react", "ai", "machine learning"],
+            "excludedKeywords": ["senior", "sr ", "sr.", "staff", "principal", "manager", "director", "lead", "architect", "3+", "4+", "5+"]
+        }
+    },
+    {
+        "name": "QuickCom",
+        "category": "Product",
+        "industry": "Communications SaaS",
+        "active": true,
+        "careerUrl": "https://quickcom.io/careers",
+        "careerPage": "https://quickcom.io/careers",
+        "logo": "https://logo.clearbit.com/quickcom.io",
+        "ats": "custom",
+        "scraperType": "html",
+        "scraperConfig": {
+            "renderTimeoutMs": 20000,
+            "allowedLocations": ["india", "remote", "bengaluru", "bangalore", "gurgaon", "gurugram", "hyderabad", "pune", "noida"],
+            "targetKeywords": ["software engineer", "software development engineer", "sde", "backend", "frontend", "full stack", "developer", "javascript", "typescript", "node", "python", "java", "react", "ai", "machine learning"],
+            "excludedKeywords": ["senior", "sr ", "sr.", "staff", "principal", "manager", "director", "lead", "architect", "3+", "4+", "5+"]
+        }
+    },
+    {
+        "name": "Predikt",
+        "category": "Product",
+        "industry": "FinTech / AI",
+        "active": true,
+        "careerUrl": "https://predikt.in/careers/",
+        "careerPage": "https://predikt.in/careers/",
+        "logo": "https://logo.clearbit.com/predikt.in",
+        "ats": "custom",
+        "scraperType": "html",
+        "scraperConfig": {
+            "allowedLocations": ["india", "remote", "bengaluru", "bangalore", "gurgaon", "gurugram", "hyderabad", "pune", "noida"],
+            "targetKeywords": ["software engineer", "software development engineer", "sde", "backend", "frontend", "full stack", "developer", "javascript", "typescript", "node", "python", "java", "react", "ai", "machine learning"],
+            "excludedKeywords": ["senior", "sr ", "sr.", "staff", "principal", "manager", "director", "lead", "architect", "3+", "4+", "5+"]
+        }
+    },
+    {
+        "name": "Libra AI",
+        "category": "Product",
+        "industry": "Artificial Intelligence",
+        "active": true,
+        "careerUrl": "https://jobs.ashbyhq.com/libra",
+        "careerPage": "https://jobs.ashbyhq.com/libra",
+        "logo": "https://logo.clearbit.com/trylibra.ai",
+        "ats": "ashby",
+        "scraperType": "api",
+        "scraperConfig": {
+            "ats": "ashby",
+            "apiUrl": "https://api.ashbyhq.com/posting-api/job-board/libra",
+            "allowedLocations": ["india", "remote", "bengaluru", "bangalore", "gurgaon", "gurugram", "hyderabad", "pune", "noida"],
+            "targetKeywords": ["software engineer", "software development engineer", "sde", "backend", "frontend", "full stack", "developer", "javascript", "typescript", "node", "python", "java", "react", "ai", "machine learning"],
+            "excludedKeywords": ["senior", "sr ", "sr.", "staff", "principal", "manager", "director", "lead", "architect", "3+", "4+", "5+"]
+        }
+    },
+    {
         "name": "Slice",
         "category": "Fintech",
         "industry": "Payments / Banking Tech",

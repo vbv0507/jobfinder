@@ -21,7 +21,7 @@ const IST = (d) =>
 
 const syncLog = (msg) => console.log(`[Telegram Sync] [${IST()}] ${msg}`);
 
-const BACKFILL_LIMIT = 200; // Max messages per channel per startup
+const BACKFILL_LIMIT = Number(process.env.TELEGRAM_POLL_MESSAGE_LIMIT || 200); // Max messages per channel per run
 
 /**
  * Emits sync progress/status via Socket.IO.
@@ -39,7 +39,7 @@ const emitSyncEvent = (event, payload) => {
  * Called once after GramJS connects successfully.
  * @param {import("telegram").TelegramClient} client
  */
-const runBackfill = async (client) => {
+const runBackfill = async (client, { processEmail = true } = {}) => {
     const { processMessageContent } = require("./telegramService");
 
     // Let's check the actual client's authorization status
@@ -144,8 +144,10 @@ const runBackfill = async (client) => {
         await socketService.emitDashboard();
         
         // Trigger batch email for historical sync
-        const emailService = require("./emailService");
-        await emailService.processBatchEmail();
+        if (processEmail) {
+            const emailService = require("./emailService");
+            await emailService.processBatchEmail();
+        }
     } catch (e) {
         syncLog(`  WARN: Error during post-sync processes: ${e.message}`);
     }

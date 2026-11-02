@@ -8,6 +8,45 @@ const { normalizeDate } = require("../../utils/dateNormalizer");
 
 const MATCH_THRESHOLD = Number(process.env.MATCH_THRESHOLD || 70);
 
+const savePreFilteredRejection = async (rawJob, company, job, reason) => {
+  const evaluatedAt = new Date();
+
+  rawJob.aiEvaluated = true;
+  rawJob.aiMatched = false;
+  rawJob.aiEvaluatedAt = evaluatedAt;
+  await rawJob.save();
+
+  await RejectedJob.findOneAndUpdate(
+    { rawJob: rawJob._id },
+    {
+      $set: {
+        rawJob: rawJob._id,
+        company: company._id,
+        role: job.title,
+        location: job.location,
+        score: 0,
+        suitable: false,
+        reason: `Pre-AI Heuristic Filter: ${reason}`,
+        primaryReasons: [reason],
+        evaluatedBy: "HeuristicFilter",
+        provider: "pre-filter",
+        model: "heuristic",
+        applyLink: job.applyLink,
+        postedAt: normalizeDate(job.postedAt),
+        lastScrapedAt: evaluatedAt,
+        lastAIEvaluation: evaluatedAt,
+        jobStatus: "Open",
+        isActive: true,
+      },
+    },
+    { upsert: true },
+  );
+
+  // Do not erase an application the user has already acted on, but remove an
+  // obsolete open recommendation when the same job no longer fits the profile.
+  await MatchedJob.deleteOne({ rawJob: rawJob._id, status: { $ne: "applied" } });
+};
+
 const saveRawJob = async (company, job, stats = null) => {
   const saveStartTime = performance.now();
   let status = 'saved';
@@ -160,6 +199,15 @@ const saveMatchedJob = async (rawJob, company, job, analysis) => {
   rawJob.aiEvaluatedAt = evaluatedAt;
   rawJob.aiEvaluated = true;
 
+  // Preserve a previously matched job in the Closed Jobs view when its listing
+  // is later reported as closed, instead of leaving an old open match behind.
+  if (analysis.isClosed) {
+    await MatchedJob.updateOne(
+      { rawJob: rawJob._id },
+      { $set: { isActive: false, jobStatus: "Closed", closedAt: evaluatedAt } },
+    );
+  }
+
   if (analysis.suitable !== true || score < MATCH_THRESHOLD) {
     await RejectedJob.findOneAndUpdate(
       { rawJob: rawJob._id },
@@ -200,6 +248,7 @@ const saveMatchedJob = async (rawJob, company, job, analysis) => {
           lastAIEvaluation: new Date(),
           isActive: analysis.isClosed ? false : true,
           jobStatus: analysis.isClosed ? "Closed" : "Open",
+          ...(analysis.isClosed ? { closedAt: evaluatedAt } : {}),
           providerChain: analysis.providerChain || []
         }
       },
@@ -263,6 +312,7 @@ const saveMatchedJob = async (rawJob, company, job, analysis) => {
         lastAIEvaluation: new Date(),
         isActive: analysis.isClosed ? false : true,
         jobStatus: analysis.isClosed ? "Closed" : "Open",
+        ...(analysis.isClosed ? { closedAt: evaluatedAt } : {}),
         providerChain: analysis.providerChain || [],
         isDuplicate: !!existingJob,
         needsReEvaluation: (analysis.provider || "gemini").toLowerCase() === "local",
@@ -381,4 +431,4 @@ const saveSearchLog = async (logId, startedAt, stats, errors) => {
   return logId;
 };
 
-module.exports = { saveRawJob, saveMatchedJob, hasExistingMatch, saveSearchLog };
+module.exports = { saveRawJob, saveMatchedJob, savePreFilteredRejection, hasExistingMatch, saveSearchLog };

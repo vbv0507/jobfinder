@@ -96,7 +96,8 @@ class LightweightHtmlAdapter extends BaseAdapter {
         try { return new URL(absoluteUrl).pathname; } catch(e) { return href; }
       })();
 
-      const anchorText = cleanText($(el).text());
+      const headingText = cleanText($(el).find("h1, h2, h3, h4, h5, h6").first().text());
+      const anchorText = headingText || cleanText($(el).text());
       const cardText = cleanText($(el).closest("article, section, li, .card, [class*='card'], [class*='job'], [class*='career'], div").text());
       const title = extractTitleFromCard(anchorText, cardText);
 
@@ -120,6 +121,8 @@ class LightweightHtmlAdapter extends BaseAdapter {
   async fetchRenderedHtml() {
     let browser = null;
     try {
+      const renderTimeoutMs = Number(this.company.scraperConfig?.renderTimeoutMs || process.env.RENDERED_PAGE_TIMEOUT_MS || 20000);
+      const renderSettleMs = Number(this.company.scraperConfig?.renderSettleMs || process.env.RENDERED_PAGE_SETTLE_MS || 1200);
       browser = await chromium.launch({
         headless: true,
         args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-blink-features=AutomationControlled']
@@ -128,8 +131,8 @@ class LightweightHtmlAdapter extends BaseAdapter {
         userAgent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/126 Safari/537.36",
         viewport: { width: 1440, height: 1200 }
       });
-      await page.goto(this.company.careerUrl, { waitUntil: 'networkidle', timeout: 45000 });
-      await page.waitForTimeout(2500);
+      await page.goto(this.company.careerUrl, { waitUntil: 'domcontentloaded', timeout: renderTimeoutMs });
+      await page.waitForTimeout(renderSettleMs);
       const html = await page.content();
       await page.close().catch(() => {});
       return html;

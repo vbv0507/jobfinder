@@ -109,6 +109,52 @@ module.exports = {
         "AI Systems Developer"
     ],
 
+    // Keep recommendations focused on Vaibhav's software-engineering career path.
+    strictRoleMatch: true,
+    profileVersion: "vaibhav-software-engineering-v1",
+    roleAllowlist: [
+        "software development engineer",
+        "software engineer",
+        "sde",
+        "backend developer",
+        "backend engineer",
+        "full stack developer",
+        "full stack engineer",
+        "full-stack developer",
+        "full-stack engineer",
+        "node.js developer",
+        "api developer",
+        "frontend developer",
+        "frontend engineer",
+        "platform engineer",
+        "cloud engineer",
+        "devops engineer",
+        "ai engineer",
+        "ai systems developer",
+        "applied ai engineer",
+        "llm engineer",
+        "graduate engineer trainee",
+        "associate software engineer",
+        "junior software engineer",
+        "software engineering intern",
+        "software engineer intern",
+        "sde intern",
+        "engineering intern"
+    ],
+    roleDenylist: [
+        "data scientist",
+        "data science",
+        "data analyst",
+        "data analytics",
+        "business analyst",
+        "business intelligence",
+        "bi analyst",
+        "data engineer",
+        "research analyst",
+        "quant analyst",
+        "statistician"
+    ],
+
     preferredLocations: [
         // Pan-India & Remote
         "India",

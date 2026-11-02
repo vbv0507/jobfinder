@@ -4,10 +4,9 @@ const chalk = require('chalk');
 const RawJob = require('../../models/RawJob');
 const Company = require('../../models/Company');
 const MatchedJob = require('../../models/MatchedJob');
-const RejectedJob = require('../../models/RejectedJob');
 const { getActiveProfile, getSkipReason } = require('./aiEvaluationService');
 const { evaluateJob } = require('../geminiService');
-const { saveMatchedJob } = require('./storageService');
+const { saveMatchedJob, savePreFilteredRejection } = require('./storageService');
 const { saveTrainingSample } = require('../trainingDatasetService');
 const { getLifetimeStats } = require('../jobStatsService');
 
@@ -74,36 +73,7 @@ async function runRawQueuePipeline(options = {}) {
 
         if (skipReason) {
             heuristicSkippedCount++;
-            rawJob.aiEvaluated = true;
-            rawJob.aiMatched = false;
-            rawJob.aiEvaluatedAt = new Date();
-            await rawJob.save();
-
-            await RejectedJob.findOneAndUpdate(
-                { rawJob: rawJob._id },
-                {
-                    $set: {
-                        rawJob: rawJob._id,
-                        company: company._id,
-                        role: rawJob.title,
-                        location: rawJob.location,
-                        score: 0,
-                        suitable: false,
-                        reason: `Pre-AI Heuristic Filter: ${skipReason}`,
-                        primaryReasons: [skipReason],
-                        evaluatedBy: "HeuristicFilter",
-                        provider: "pre-filter",
-                        model: "heuristic",
-                        applyLink: rawJob.applyLink,
-                        postedAt: rawJob.postedAt || new Date(),
-                        lastScrapedAt: new Date(),
-                        lastAIEvaluation: new Date(),
-                        jobStatus: "Open",
-                        isActive: true
-                    }
-                },
-                { upsert: true }
-            );
+            await savePreFilteredRejection(rawJob, company, rawJob, skipReason);
 
             console.log(chalk.gray(`${progress} ⏩ Skipped (Heuristic): ${company.name} - ${jobTitle} (${skipReason})`));
             continue;

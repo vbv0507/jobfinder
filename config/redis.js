@@ -29,6 +29,13 @@ class InMemoryRedisFallback {
     }
 
     async set(key, value, ...args) {
+        const options = args.map((arg) => String(arg).toUpperCase());
+        const requiresNewKey = options.includes("NX");
+
+        if (requiresNewKey && this.store.has(key) && !this._checkExpiry(key)) {
+            return null;
+        }
+
         this.store.set(key, typeof value === "string" ? value : JSON.stringify(value));
         
         // Handle EX (seconds) or PX (milliseconds)
@@ -172,6 +179,8 @@ function getRedisClient() {
         const options = {
             maxRetriesPerRequest: 3,
             enableReadyCheck: true,
+            // Some managed Redis services reject ioredis v6's optional CLIENT SETINFO handshake.
+            disableClientInfo: true,
             retryStrategy(times) {
                 if (times > 5) {
                     console.warn(chalk.yellow("[Redis] Connection attempts exhausted. Falling back to in-memory."));
@@ -210,5 +219,10 @@ function getRedisClient() {
 module.exports = {
     getRedisClient,
     get client() { return getRedisClient(); },
-    isAvailable: () => isRedisConnected || redisClient === fallbackInstance
+    isAvailable: () => isRedisConnected || redisClient === fallbackInstance,
+    getStatus: () => ({
+        configured: Boolean(process.env.REDIS_URL || process.env.UPSTASH_REDIS_URL || process.env.REDIS_HOST),
+        connected: isRedisConnected,
+        usingInMemoryFallback: redisClient === fallbackInstance || (!redisClient && !process.env.REDIS_URL && !process.env.UPSTASH_REDIS_URL && !process.env.REDIS_HOST)
+    })
 };

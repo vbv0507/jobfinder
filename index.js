@@ -136,6 +136,7 @@ app.use((err, req, res, next) => {
 });
 
 const PORT = process.env.PORT || 5000;
+const backgroundJobsEnabled = process.env.BACKGROUND_JOBS_ENABLED !== "false";
 
 const startServer = async () => {
     validateConfig();
@@ -170,14 +171,22 @@ const startServer = async () => {
 
     const server = http.createServer(app);
     socketService.init(server);
-    require('./services/schedulerService').init();
+    if (backgroundJobsEnabled) {
+        require('./services/schedulerService').init();
+    } else {
+        console.log("[Background Jobs] Disabled. GitHub Actions owns scheduled pipeline and digest runs.");
+    }
 
     server.listen(PORT, '0.0.0.0', () => {
         console.log(`Server running on port ${PORT} (0.0.0.0)`);
     });
 
     
-    await startTelegramListener();
+    if (backgroundJobsEnabled) {
+        await startTelegramListener();
+    } else {
+        console.log("[Telegram] Live listener disabled. GitHub Actions polling owns Telegram sync.");
+    }
 
     const shutdown = async (signal) => {
         console.log(`\n[Shutdown] Received ${signal}. Shutting down gracefully...`);
@@ -188,10 +197,10 @@ const startServer = async () => {
             pipelineState.cancel();
         }
         
-        require('./services/schedulerService').shutdown();
+        if (backgroundJobsEnabled) require('./services/schedulerService').shutdown();
 
         server.close(console.log('[Shutdown] Express server closed.'));
-        if (stopTelegramListener) stopTelegramListener();
+        if (backgroundJobsEnabled && stopTelegramListener) stopTelegramListener();
         if (mongoose.connection.readyState === 1) {
             await mongoose.connection.close();
             console.log('[Shutdown] MongoDB connection closed.');

@@ -9,6 +9,10 @@ services:
         value: production
       - key: PORT
         value: 3000
+      - key: BACKGROUND_JOBS_ENABLED
+        value: "false"
+      - key: SEED_COMPANIES_ON_START
+        value: "false"
       # Set the rest in Render dashboard (Secrets):
       # MONGO_URI, CLERK_SECRET_KEY, CLERK_PUBLISHABLE_KEY,
       # GEMINI_API_KEY, EMAIL_USER, EMAIL_PASS, TELEGRAM_API_ID,

@@ -48,6 +48,13 @@ STAGE 0.5: LOCATION MISMATCH (HARD CONSTRAINT)
 - Candidate Preferred Locations: ${(profile.preferredLocations || ["India", "Remote"]).join(", ")}.
 - If the Job Location is in a foreign country (e.g. Mexico, United States, Canada, UK, Europe, Singapore, etc.) and is NOT remote or located in India, the candidate cannot work there without authorization. Set score <= 30, recommendationLevel to 'Reject', and reason to 'Location Mismatch: Role is located in a foreign country/territory'. Reject immediately.
 
+STAGE 0.75: ROLE FAMILY (HARD CONSTRAINT)
+- The candidate is targeting software-engineering roles only: ${(profile.roleAllowlist || profile.preferredRoles || []).join(", ")}.
+- Reject job titles outside that family. A generic word such as "Engineer" or "Intern" is not enough.
+- Explicitly reject Data Scientist, Data Science, Data Analyst, Data Analytics, Business Analyst, Business Intelligence, Data Engineer, Research Analyst, Quant Analyst, and Statistician roles.
+- This candidate may match AI Engineer, Applied AI Engineer, AI Systems Developer, or LLM Engineer roles, but not data-science or data-analytics roles.
+- For a role-family mismatch, set score <= 20, suitable to false, recommendationLevel to 'Reject', and explain that the job is outside the candidate's software-engineering focus. Reject immediately.
+
 STAGE 1: EXPERIENCE MISMATCH (HARD CONSTRAINT)
 - Experience must be treated as a STRICT HARD CONSTRAINT.
 - Candidate Years of Experience: ${profile.yearsOfExperience || 0} (${profile.careerStage || "Fresher"}).
