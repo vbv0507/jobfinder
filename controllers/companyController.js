@@ -1,6 +1,11 @@
 const Company = require("../models/Company");
 const { seedCompanies } = require("../services/companyService");
 const { logAuditAction } = require("../services/auditService");
+const AdapterFactory = require("../services/ats/AdapterFactory");
+const { saveRawJob } = require("../services/pipeline/storageService");
+const { getCompanyLogo } = require("../utils/companyBranding");
+const { sendNotFound, sendServerError } = require("../utils/controllerResponses");
+const { emitCompanySnapshot, refreshCompanyViews } = require("../services/companyViewService");
 const seedCompanyNames = new Set(require("../utils/companies").map((company) => company.name));
 
 
@@ -8,18 +13,14 @@ const addCompany = async (req, res) => {
     try {
         const company = await Company.create({ ...req.body, isSeedCompany: false });
         await logAuditAction(req, 'Company Edit', `Added ${company.name}`);
-        const socketService = require("../services/socketService");
-        socketService.emitCompanySnapshot().catch(error => console.error("[Socket] Failed to emit companies:update:", error.message));
+        emitCompanySnapshot("[Socket] Failed to emit companies:update:");
 
         res.status(201).json({
             success: true,
             company,
         });
     } catch (error) {
-        res.status(500).json({
-            success: false,
-            message: error.message,
-        });
+        sendServerError(res, error);
     }
 };
 
@@ -35,8 +36,6 @@ const getCompanies = async (req, res) => {
         }
 
         const companies = await Company.find(filter).lean();
-        const { getCompanyLogo } = require("../utils/companyBranding");
-
         const companiesWithLogos = companies.map(c => ({
             ...c,
             logoUrl: c.logo || getCompanyLogo(c.name)
@@ -48,10 +47,7 @@ const getCompanies = async (req, res) => {
             companies: companiesWithLogos,
         });
     } catch (error) {
-        res.status(500).json({
-            success: false,
-            message: error.message,
-        });
+        sendServerError(res, error);
     }
 };
 
@@ -61,8 +57,7 @@ const seedCompanyList = async (req, res) => {
         await seedCompanies();
         const companies = await Company.find();
         await logAuditAction(req, 'Company Edit', `Seeded ${companies.length} companies`);
-        const socketService = require("../services/socketService");
-        socketService.emitCompanySnapshot().catch(error => console.error("[Socket] Failed to emit companies:update:", error.message));
+        emitCompanySnapshot("[Socket] Failed to emit companies:update:");
 
         res.status(200).json({
             success: true,
@@ -71,10 +66,7 @@ const seedCompanyList = async (req, res) => {
             companies,
         });
     } catch (error) {
-        res.status(500).json({
-            success: false,
-            message: error.message,
-        });
+        sendServerError(res, error);
     }
 };
 
@@ -83,7 +75,7 @@ const toggleCompanyStatus = async (req, res) => {
         const { id } = req.params;
         const company = await Company.findById(id);
         if (!company) {
-            return res.status(404).json({ success: false, message: "Company not found" });
+            return sendNotFound(res, "Company not found");
         }
 
         company.active = req.body.active !== undefined ? req.body.active : !company.active;
@@ -91,13 +83,7 @@ const toggleCompanyStatus = async (req, res) => {
 
         await logAuditAction(req, 'Company Status Toggle', `${company.name} set to ${company.active ? 'Active' : 'Inactive'}`);
 
-        const CacheManager = require("../services/cacheManager");
-        const { invalidateAnalyticsCache } = require("../services/analyticsService");
-        CacheManager.invalidate();
-        invalidateAnalyticsCache();
-
-        const socketService = require("../services/socketService");
-        socketService.emitCompanySnapshot().catch(e => console.error("[Socket] Update error:", e.message));
+        refreshCompanyViews("[Socket] Update error:");
 
         res.status(200).json({
             success: true,
@@ -105,7 +91,7 @@ const toggleCompanyStatus = async (req, res) => {
             company
         });
     } catch (error) {
-        res.status(500).json({ success: false, message: error.message });
+        sendServerError(res, error);
     }
 };
 
@@ -114,16 +100,14 @@ const scrapeCompanyDirectly = async (req, res) => {
         const { id } = req.params;
         const company = await Company.findById(id);
         if (!company) {
-            return res.status(404).json({ success: false, message: "Company not found" });
+            return sendNotFound(res, "Company not found");
         }
 
-        const AdapterFactory = require("../services/ats/AdapterFactory");
         const adapter = AdapterFactory.getAdapter(company);
         const startTime = Date.now();
         const rawJobs = await adapter.searchJobs();
         const durationMs = Date.now() - startTime;
 
-        const { saveRawJob } = require("../services/pipeline/storageService");
         let savedCount = 0;
         for (const job of rawJobs) {
             const saved = await saveRawJob(company, job);
@@ -136,13 +120,7 @@ const scrapeCompanyDirectly = async (req, res) => {
         company.jobsFound = rawJobs.length;
         await company.save();
 
-        const CacheManager = require("../services/cacheManager");
-        const { invalidateAnalyticsCache } = require("../services/analyticsService");
-        CacheManager.invalidate();
-        invalidateAnalyticsCache();
-
-        const socketService = require("../services/socketService");
-        socketService.emitCompanySnapshot().catch(e => console.error("[Socket] Snapshot error:", e.message));
+        refreshCompanyViews("[Socket] Snapshot error:");
 
         res.status(200).json({
             success: true,
@@ -159,7 +137,7 @@ const scrapeCompanyDirectly = async (req, res) => {
                 lastScrapeStatus: 'failed'
             });
         } catch (_) {}
-        res.status(500).json({ success: false, message: error.message });
+        sendServerError(res, error);
     }
 };
 

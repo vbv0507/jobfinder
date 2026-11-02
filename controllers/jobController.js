@@ -1,7 +1,6 @@
 const RawJob = require("../models/RawJob");
 const MatchedJob = require("../models/MatchedJob");
-const SearchLog = require("../models/SearchLog");
-const PipelineLock = require("../models/PipelineLock");
+const RejectedJob = require("../models/RejectedJob");
 
 const runSearch = require("../cron/jobSearchCron");
 const {
@@ -9,15 +8,14 @@ const {
     generateGroupedReport,
     generateMatchedCompanyReport,
 } = require("../services/reportService");
-const { getAnalyticsData } = require("../services/analyticsService");
+const { invalidateAnalyticsCache } = require("../services/analyticsService");
 const pipelineState = require("../services/pipelineState");
 const { logAuditAction } = require("../services/auditService");
+const CacheManager = require("../services/cacheManager");
+const { fetchJobsByScope, generateExcelBuffer, generatePdfBuffer } = require("../services/exportService");
+const { sendServerError } = require("../utils/controllerResponses");
 
-const sendError = (res, error) =>
-    res.status(500).json({
-        success: false,
-        message: error.message,
-    });
+const sendError = sendServerError;
 
 const getRawJobs = async (req, res) => {
     try {
@@ -47,7 +45,6 @@ const getMatchedJobs = async (req, res) => {
 
 const getRejectedJobs = async (req, res) => {
     try {
-        const RejectedJob = require("../models/RejectedJob");
         const jobs = await RejectedJob.find()
             .populate("company", "name logo domain")
             .populate("rawJob")
@@ -200,8 +197,6 @@ const updateJobStatus = async (req, res) => {
             return res.status(404).json({ success: false, message: "Job not found" });
         }
 
-        const CacheManager = require("../services/cacheManager");
-        const { invalidateAnalyticsCache } = require("../services/analyticsService");
         CacheManager.invalidate();
         invalidateAnalyticsCache();
 
@@ -227,7 +222,6 @@ const deleteRawJobs = async (req, res) => {
 
 const exportJobsExcel = async (req, res) => {
     try {
-        const { fetchJobsByScope, generateExcelBuffer } = require("../services/exportService");
         const scope = (req.query.scope || 'all').toLowerCase();
         const jobs = await fetchJobsByScope(scope, req.query);
         const rawBuffer = await generateExcelBuffer(jobs, scope);
@@ -250,7 +244,6 @@ const exportJobsExcel = async (req, res) => {
 
 const exportJobsPdf = async (req, res) => {
     try {
-        const { fetchJobsByScope, generatePdfBuffer } = require("../services/exportService");
         const scope = (req.query.scope || 'all').toLowerCase();
         const jobs = await fetchJobsByScope(scope, req.query);
         const rawBuffer = await generatePdfBuffer(jobs, scope);

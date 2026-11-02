@@ -3,12 +3,7 @@ const { getListenerStatus, reconnectTelegram, reloadChannels } = require('../ser
 const RawJob = require('../models/RawJob');
 const MatchedJob = require('../models/MatchedJob');
 const { logAuditAction } = require("../services/auditService");
-
-const emitTelegramUpdate = async () => {
-    const socketService = require('../services/socketService');
-    const payload = await socketService.buildDashboardPayload();
-    socketService.emitTelegram(payload.telegram);
-};
+const { refreshTelegramView } = require("../services/telegramViewService");
 
 exports.getChannels = async (req, res) => {
     try {
@@ -37,7 +32,7 @@ exports.toggleChannel = async (req, res) => {
         
         await logAuditAction(req, 'Telegram Edit', `Toggled channel ${channel.username} to ${enabled}`);
         await reloadChannels();
-        emitTelegramUpdate().catch(error => console.error("[Socket] Failed to emit telegram:update:", error.message));
+        refreshTelegramView("[Socket] Failed to emit telegram:update:");
         
         res.status(200).json({ success: true, channel });
     } catch (error) {
@@ -64,7 +59,7 @@ exports.addChannel = async (req, res) => {
         
         await logAuditAction(req, 'Telegram Edit', `Added channel ${username}`);
         await reloadChannels();
-        emitTelegramUpdate().catch(error => console.error("[Socket] Failed to emit telegram:update:", error.message));
+        refreshTelegramView("[Socket] Failed to emit telegram:update:");
         
         res.status(201).json({ success: true, channel });
     } catch (error) {
@@ -81,7 +76,7 @@ exports.deleteChannel = async (req, res) => {
             await logAuditAction(req, 'Telegram Edit', `Deleted channel ${channel.username}`);
         }
         await reloadChannels();
-        emitTelegramUpdate().catch(error => console.error("[Socket] Failed to emit telegram:update:", error.message));
+        refreshTelegramView("[Socket] Failed to emit telegram:update:");
         res.status(200).json({ success: true, message: 'Channel deleted' });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
@@ -144,7 +139,7 @@ exports.getStatistics = async (req, res) => {
 exports.reconnect = async (req, res) => {
     try {
         const status = await reconnectTelegram();
-        emitTelegramUpdate().catch(error => console.error("[Socket] Failed to emit telegram:update:", error.message));
+        refreshTelegramView("[Socket] Failed to emit telegram:update:");
         res.status(200).json({ success: true, status, message: "Reconnection triggered." });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
@@ -154,7 +149,7 @@ exports.reconnect = async (req, res) => {
 exports.reload = async (req, res) => {
     try {
         const count = await reloadChannels();
-        emitTelegramUpdate().catch(error => console.error("[Socket] Failed to emit telegram:update:", error.message));
+        refreshTelegramView("[Socket] Failed to emit telegram:update:");
         res.status(200).json({ success: true, message: `Reloaded ${count} active channels.` });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
